@@ -1,0 +1,59 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Biblioteca Digital</title>
+    <link rel="stylesheet" href="{% static 'libros/css/styles.css' %}">
+</head>
+<body>
+    <header>
+        <h1>Biblioteca Digital</h1>
+        <p>ISFDyT 210</p>
+    </header>
+
+    <!-- Contenedor para el buscador, dentro del body -->
+    <div class="search-container">
+        <!-- Ícono de la lupa -->
+        <span class="search-icon" onclick="toggleSearchInput()">🔍</span>
+        <!-- Input de búsqueda -->
+        <input type="text" class="search-input" id="searchInput" oninput="searchBooks()" placeholder="Buscar...">
+    </div>
+
+    <div class="container">
+        <h1>Lista de Libros</h1>
+        
+        <ul class="book-list" id="bookList">
+            {% for libro in libros %}
+                <li>
+                    <strong>{{ libro.titulo }}</strong>
+                    <span class="book-details"> <b>Autor:</b> {{ libro.autor }}</span>
+                    <span class="book-details"><b>Resumen:</b> {{ libro.resumen }}</span>
+                    <span class="book-details"><b>Editorial:</b> {{ libro.Editorial }}</span>
+                    <!--<span class="book-details"><b>Código:</b> {{ libro.codigo }}</span>-->
+                    
+                    <div class="imagenes">
+                        {% if libro.img %}
+                            <img src="{{ libro.img }}" alt="{{ libro.titulo }}" style="max-width: 200px;">
+                        {% else %}
+                            <p>Imagen no disponible</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Mostrar cantidad total, cantidad disponible para lectura en sala, y cantidad disponible para préstamo -->
+                    <span class="book-details"><b>Cantidad total:</b> {{ libro.cantidad_total }}</span>
+                    <span class="book-details"><b>Cantidad disponible para lectura en sala:</b> {{ libro.cantidad_lectura_sala }}</span>
+                    <span class="book-details"><b>Cantidad disponible para préstamo:</b> {{ libro.cantidad_prestamo }}</span>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <div class="footer">
+        <p>&copy; 2024 Biblioteca Digital. Todos los derechos reservados.</p>
+    </div>
+
+    <script src="{% static 'libros/js/scripts.js' %}"></script>
+</body>
+</html>
