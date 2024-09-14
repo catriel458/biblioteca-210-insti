@@ -2,9 +2,36 @@ import json
 from django.shortcuts import render
 from collections import Counter
 
+#Metodos de biblioteca:
+
+def alta_inventario(request):
+    pass
+
+def baja_inventario(request):
+    pass
+
+def modificacion_inventario(request):
+    pass
+
+def asignar_prestamo(request):
+    pass
+
+def cancelar_prestamo(request):
+    pass
+
+def modificar_prestamo(request):
+    pass
+
+# Metodo alumno y profesor
+
+def solicitar_prestamo(request):
+    pass
+
+
+
 def lista_libros(request):
     # Leer el archivo JSON
-    with open('/home/usuario210/Escritorio/Segundo Backend/biblioteca_digital/libros/fixtures/cant_ejemplares.json', 'r', encoding='utf-8') as file:
+    with open('/home/usuario210/Escritorio/prueba/biblioteca-210/biblioteca_digital/libros/fixtures/cant_ejemplares.json', 'r', encoding='utf-8') as file:
         data = json.load(file)
     
     # Suponiendo que solo hay un objeto en la lista, toma el primero
