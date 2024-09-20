@@ -84,3 +84,26 @@ def lista_libros(request):
     
     # Renderizar el template con la lista de libros únicos
     return render(request, 'libros/lista_libros.html', {'libros': libros_unicos_list})
+
+from .forms import LibroForm
+
+
+def alta_libro(request):
+    if request.method == 'POST':
+        form = LibroForm(request.POST)
+        if form.is_valid():
+            id_libro = form.cleaned_data['id_libro']
+            
+            # Verificar si el libro ya existe
+            if Libro.objects.filter(id_libro=id_libro).exists():
+                return render(request, 'alta_libro.html', {'form': form, 'error': 'El libro ya existe.'})
+            else:
+                # Guardar el nuevo libro
+                form.save()
+                return render(request, 'alta_libro.html', {'form': form, 'success': 'Libro registrado exitosamente.'})
+        else:
+            return render(request, 'alta_libro.html', {'form': form, 'error': 'Por favor complete todos los campos obligatorios.'})
+    else:
+        form = LibroForm()
+    
+    return render(request, 'alta_libro.html', {'form': form})
