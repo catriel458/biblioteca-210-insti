@@ -2,27 +2,29 @@
 from django.db import models
 
 class Inventario(models.Model):
-    id_inventario = models.IntegerField(primary_key=True)
-    estado = models.CharField(max_length=255)
-    motivo_baja = models.CharField(max_length=255)
-    descripcion = models.TextField()
-    num_ejemplar = models.IntegerField()
+    id_inventario = models.AutoField(primary_key=True) #Este es el ID principal que usamos para dar de baja, modificar
+    estado = models.CharField(max_length=255,null=True)
+    motivo_baja = models.CharField(max_length=255,null=True)
+    descripcion = models.TextField(null=True)
+    num_ejemplar = models.IntegerField(null=True)
 
     def __str__(self):
         return f"id_libro: {self.id_inventario}, estado: {self.estado}, motivo_baja: {self.motivo_baja}, descripcion: {self.descripcion}, numero ejemplar: {self.num_ejemplar} "
 
 
 class Libro(Inventario):
-    id_libro = models.IntegerField(primary_key=True)
+    id_libro = models.AutoField(primary_key=True)
     titulo = models.CharField(max_length=255)
     autor = models.CharField(max_length=255)
     editorial = models.CharField(max_length=255)
-    cdu = models.CharField(max_length=255)
+    codigo_materia = models.CharField(max_length=255,null=False,default=1)
+    siglas_autor_titulo = models.CharField(max_length = 255,null=False,default='ABC')
+    num_inventario = models.IntegerField(null=False,default=1)
     resumen = models.TextField()
     img = models.URLField()
 
     def __str__(self):
-        return f"id_libro: {self.id_libro}, titulo: {self.titulo}, autor: {self.autor}, editorial: {self.editorial}, cdu: {self.cdu}, resumen: {self.resumen}, imagen: {self.img} "
+        return f"id_libro: {self.id_libro}, titulo: {self.titulo}, autor: {self.autor}, editorial: {self.editorial}, codigo_materia: {self.codigo_materia}, siglas_autor_titulo: {self.siglas_autor_titulo}, num_inventario {self.num_inventario} resumen: {self.resumen}, imagen: {self.img} "
 
 
 class Mapas(Inventario):
