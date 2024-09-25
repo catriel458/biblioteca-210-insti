@@ -55,7 +55,7 @@ tr:hover {
 
 img {
     border-radius: 5px;
-    width: 250px; /* Cambia a un tamaño más adecuado */
+    width: 150px; /* Cambia a un tamaño más adecuado */
     height: auto; /* Mantiene la relación de aspecto */
 }
 

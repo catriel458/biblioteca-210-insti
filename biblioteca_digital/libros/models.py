@@ -17,6 +17,7 @@ class Libro(Inventario):
     titulo = models.CharField(max_length=255)
     autor = models.CharField(max_length=255)
     editorial = models.CharField(max_length=255)
+    edicion = models.IntegerField(null=False,default=1999)
     codigo_materia = models.CharField(max_length=255,null=False,default=1)
     siglas_autor_titulo = models.CharField(max_length = 255,null=False,default='ABC')
     num_inventario = models.IntegerField(null=False,default=1)

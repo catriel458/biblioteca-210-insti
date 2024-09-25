@@ -66,3 +66,16 @@ def baja_libro(request):
 def lista_libros(request):
     libros = Libro.objects.exclude(estado='No disponible')  # Filtra los libros
     return render(request, 'libros/lista_libros.html', {'libros': libros})
+
+def editar_libro(request, libro_id):
+    libro = get_object_or_404(Libro, id_libro=libro_id)
+
+    if request.method == 'POST':
+        form = LibroForm(request.POST, instance=libro)
+        if form.is_valid():
+            form.save()
+            return redirect('lista_libros')  # Redirige a la lista de libros
+    else:
+        form = LibroForm(instance=libro)
+
+    return render(request, 'libros/editar_libro.html', {'form': form, 'libro': libro})

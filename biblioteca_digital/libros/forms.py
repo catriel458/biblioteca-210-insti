@@ -9,7 +9,7 @@ class LibroForm(forms.ModelForm):
     class Meta:
         model = Libro
         fields = [
-            'titulo', 'autor', 'editorial', 'codigo_materia','siglas_autor_titulo','num_inventario',
+            'titulo', 'autor', 'editorial', 'edicion','codigo_materia','siglas_autor_titulo','num_inventario',
             'resumen', 'img',
             
         ]
