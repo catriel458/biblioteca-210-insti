@@ -7,6 +7,7 @@ class Inventario(models.Model):
     motivo_baja = models.CharField(max_length=255,null=True)
     descripcion = models.TextField(null=True)
     num_ejemplar = models.IntegerField(null=True)
+    imagen_rota = models.ImageField(upload_to='imagenes_rota/', null=True, blank=True)  # Nuevo campo
 
     def __str__(self):
         return f"id_libro: {self.id_inventario}, estado: {self.estado}, motivo_baja: {self.motivo_baja}, descripcion: {self.descripcion}, numero ejemplar: {self.num_ejemplar} "

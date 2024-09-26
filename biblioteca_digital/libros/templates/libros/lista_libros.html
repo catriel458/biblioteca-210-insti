@@ -7,15 +7,36 @@
     {% load static %}
     <link rel="stylesheet" href="{% static 'libros/css/styles.css' %}">
     <script>
-        function confirmarBaja(libroId) {
-            const motivo = prompt("Ingrese el motivo de baja:");
-            if (motivo) {
-                document.getElementById('motivoBajaInput').value = motivo;
-                document.getElementById('libroIdInput').value = libroId;
-                document.getElementById('bajaForm').submit();
-            }
+        function abrirModal(libroId) {
+            document.getElementById('libroIdInput').value = libroId;
+            document.getElementById('modal').style.display = 'block';
+        }
+
+        function cerrarModal() {
+            document.getElementById('modal').style.display = 'none';
         }
     </script>
+    <style>
+        /* Estilos para el modal */
+        #modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+        #modalContent {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+        }
+    </style>
 </head>
 <body>
     <header>
@@ -52,7 +73,7 @@
                         <a href="{% url 'editar_libro' libro.id_libro %}">
                             <img src="{% static 'libros/img/lapiz.png' %}" alt="Editar" style="cursor: pointer; width: 20px; height: 20px;">
                         </a>
-                        <img src="{% static 'libros/img/trash.png' %}" alt="Eliminar" onclick="confirmarBaja({{ libro.id_libro }})" style="cursor: pointer; width: 20px; height: 20px;">
+                        <img src="{% static 'libros/img/trash.png' %}" alt="Eliminar" onclick="abrirModal({{ libro.id_libro }})" style="cursor: pointer; width: 20px; height: 20px;">
                     </td>
                 </tr>
                 {% empty %}
@@ -62,14 +83,28 @@
                 {% endfor %}
             </tbody>
         </table>
-        <form id="bajaForm" method="POST" action="{% url 'baja_libro' %}" style="display: none;">
-            {% csrf_token %}
-            <input type="hidden" name="libro_id" id="libroIdInput">
-            <input type="hidden" name="motivo_baja" id="motivoBajaInput">
-        </form>
+
+        <!-- Modal para confirmación de baja -->
+        <div id="modal">
+            <div id="modalContent">
+                <h3>Confirmar Baja</h3>
+                <form id="bajaForm" method="POST" action="{% url 'baja_libro' %}" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <input type="hidden" name="libro_id" id="libroIdInput">
+                    <label for="motivoBaja">Motivo de baja:</label>
+                    <input type="text" name="motivo_baja" required>
+                    <label for="imagen_rota">Imagen del material roto:</label>
+                    <input type="file" name="imagen_rota" accept="image/*" required>
+                    <button type="submit">Confirmar</button>
+                    <button type="button" onclick="cerrarModal()">Cancelar</button>
+                </form>
+            </div>
+        </div>
+
     </main>
     <footer>
         <p>&copy; 2024 Biblioteca Digital. Todos los derechos reservados.</p>
     </footer>
 </body>
 </html>
+
