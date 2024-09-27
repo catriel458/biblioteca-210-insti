@@ -1,8 +1,6 @@
 from django import forms
 from .models import Libro
-
-from django import forms
-from .models import Libro
+from .models import Mapas
 
 
 class LibroForm(forms.ModelForm):
@@ -13,4 +11,9 @@ class LibroForm(forms.ModelForm):
             'resumen', 'img',
             
         ]
+
+class MapaForm(forms.ModelForm):
+    class Meta:
+        model = Mapas
+        fields = ['id_mapa', 'tipo', 'estado', 'descripcion', 'num_ejemplar']  # Agrega los campos que necesites
 

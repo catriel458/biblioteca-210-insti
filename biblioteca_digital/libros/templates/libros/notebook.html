@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Notebooks</title>
+</head>
+<body>
+    <h1>Lista de Notebooks</h1>
+    <ul>
+        {% for notebook in notebooks %}
+            <li>{{ notebook.marca_not }} - {{ notebook.modelo_not }}</li>
+        {% empty %}
+            <li>No hay notebooks disponibles.</li>
+        {% endfor %}
+    </ul>
+    <a href="{% url 'pantalla_principal' %}">Volver</a>
+</body>
+</html>

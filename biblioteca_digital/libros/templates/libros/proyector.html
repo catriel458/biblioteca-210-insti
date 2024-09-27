@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Proyectores</title>
+</head>
+<body>
+    <h1>Lista de Proyectores</h1>
+    <ul>
+        {% for proyector in proyectores %}
+            <li>{{ proyector.marca_pro }} - {{ proyector.modelo_pro }}</li>
+        {% empty %}
+            <li>No hay proyectores disponibles.</li>
+        {% endfor %}
+    </ul>
+    <a href="{% url 'pantalla_principal' %}">Volver</a>
+</body>
+</html>

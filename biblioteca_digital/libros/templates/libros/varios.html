@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Varios</title>
+</head>
+<body>
+    <h1>Lista de Varios</h1>
+    <ul>
+        {% for item in varios %}
+            <li>{{ item.tipo }}</li>
+        {% empty %}
+            <li>No hay artículos disponibles.</li>
+        {% endfor %}
+    </ul>
+    <a href="{% url 'pantalla_principal' %}">Volver</a>
+</body>
+</html>
