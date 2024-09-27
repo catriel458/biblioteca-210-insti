@@ -30,7 +30,7 @@ class Libro(Inventario):
 
 
 class Mapas(Inventario):
-    id_mapa = models.IntegerField(primary_key=True)
+    id_mapa = models.IntegerField(primary_key=True) #¿Puede ser autofield (autoincremental)?
     tipo = models.CharField(max_length=255)
 
     def __str__(self):

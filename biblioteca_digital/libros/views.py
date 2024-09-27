@@ -1,56 +1,66 @@
 import json
-from django.shortcuts import render
-from collections import Counter
-from .models import Libro  # Ensure this is at the top of your views.py
-from .forms import LibroForm
-from django.shortcuts import render
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import Inventario
+from collections import Counter
+from .models import Libro, Inventario, Mapas
+from .forms import LibroForm, MapaForm
 
+# Métodos de biblioteca:
 
-#Metodos de biblioteca:
 
 def alta_inventario(request):
     pass
 
+
 def baja_inventario(request):
     pass
+
 
 def modificacion_inventario(request):
     pass
 
+
 def asignar_prestamo(request):
     pass
+
 
 def cancelar_prestamo(request):
     pass
 
+
 def modificar_prestamo(request):
     pass
 
-# Metodo alumno y profesor
+# Método alumno y profesor:
+
 
 def solicitar_prestamo(request):
     pass
 
+# Vista para listar libros (todos los disponibles):
+
+
 def lista_libros(request):
-    libros = Libro.objects.all()  # Obtener todos los libros
+    # Filtra los libros disponibles
+    libros = Libro.objects.exclude(estado='No disponible')
     return render(request, 'libros/lista_libros.html', {'libros': libros})
 
+# Vista para dar de alta un libro:
+
+
 def alta_libro(request):
-    if request.method == 'POST':
-        form = LibroForm(request.POST)
-        if form.is_valid():
-            # Guarda el libro, que incluye datos de Inventario
-            libro = form.save(commit=False)  # No guardar aún
-            libro.save()  # Ahora guarda
-            return render(request, 'libros/alta_libro.html', {'form': form, 'success': 'Libro registrado exitosamente.'})
-        else:
-            return render(request, 'libros/alta_libro.html', {'form': form, 'error': 'Por favor complete todos los campos obligatorios.'})
+    form = LibroForm(request.POST or None)
+    if request.method == 'POST' and form.is_valid():
+        libro = form.save(commit=False)
+        libro.save()
+        context = {'form': form, 'success': 'Libro registrado exitosamente.'}
     else:
-        form = LibroForm()
-    
-    return render(request, 'libros/alta_libro.html', {'form': form})
+        context = {'form': form, 'error': 'Por favor complete todos los campos obligatorios.'} if request.method == 'POST' else {
+            'form': form}
+
+    return render(request, 'libros/alta_libro.html', context)
+
+# Vista para dar de baja un libro:
+
 
 def baja_libro(request):
     if request.method == 'POST':
@@ -59,18 +69,22 @@ def baja_libro(request):
         imagen_rota = request.FILES.get('imagen_rota')
 
         # Lógica para actualizar el estado del libro
-        libro = Inventario.objects.get(id_inventario=libro_id)
-        libro.estado = 'No disponible'
+        # Cambiado para asegurar que sea Libro
+        libro = get_object_or_404(Libro, id_libro=libro_id)
+        libro.estado = 'No disponible'  # Asegúrate de cambiar el estado
         libro.motivo_baja = motivo_baja
         if imagen_rota:
             libro.imagen_rota = imagen_rota
         libro.save()
 
-        return redirect('lista_libros')  # Redirigir a la lista de libros
-    
-def lista_libros(request):
-    libros = Libro.objects.exclude(estado='No disponible')  # Filtra los libros
-    return render(request, 'libros/lista_libros.html', {'libros': libros})
+        # Redirigir a la lista de libros después de la baja
+        return redirect('lista_libros')
+
+    return redirect('lista_libros')
+
+
+# Vista para editar un libro:
+
 
 def editar_libro(request, libro_id):
     libro = get_object_or_404(Libro, id_libro=libro_id)
@@ -79,39 +93,27 @@ def editar_libro(request, libro_id):
         form = LibroForm(request.POST, instance=libro)
         if form.is_valid():
             form.save()
-            return redirect('lista_libros')  # Redirige a la lista de libros
+            return redirect('lista_libros')
     else:
         form = LibroForm(instance=libro)
 
     return render(request, 'libros/editar_libro.html', {'form': form, 'libro': libro})
 
+# Vista para la pantalla principal:
+
+
 def pantalla_principal(request):
     return render(request, 'libros/pantalla_principal.html')
 
+# Vista para listar mapas disponibles:
+
+
 def mapas_view(request):
-    # Filtrar mapas que están disponibles
     mapas = Mapas.objects.filter(estado='Disponible')
     return render(request, 'libros/mapas.html', {'mapas': mapas})
 
-def multimedia_view(request):
-    # Aquí deberías obtener la lista de multimedia desde la base de datos
-    multimedia = []  # Reemplaza esto con tu lógica para obtener multimedia
-    return render(request, 'multimedia.html', {'multimedia': multimedia})
+# Vista para dar de baja un mapa:
 
-def notebook_view(request):
-    # Aquí deberías obtener la lista de notebooks desde la base de datos
-    notebooks = []  # Reemplaza esto con tu lógica para obtener notebooks
-    return render(request, 'notebook.html', {'notebooks': notebooks})
-
-def proyector_view(request):
-    # Aquí deberías obtener la lista de proyectores desde la base de datos
-    proyectores = []  # Reemplaza esto con tu lógica para obtener proyectores
-    return render(request, 'proyector.html', {'proyectores': proyectores})
-
-def varios_view(request):
-    # Aquí deberías obtener la lista de varios desde la base de datos
-    varios = []  # Reemplaza esto con tu lógica para obtener varios
-    return render(request, 'varios.html', {'varios': varios})
 
 def baja_mapa(request):
     if request.method == 'POST':
@@ -120,46 +122,72 @@ def baja_mapa(request):
         imagen_rota = request.FILES.get('imagen_rota')
 
         # Lógica para actualizar el estado del mapa
-        mapa = Mapas.objects.get(id_mapa=mapa_id)
+        mapa = get_object_or_404(Mapas, id_mapa=mapa_id)
         mapa.estado = 'No disponible'
         mapa.motivo_baja = motivo_baja
         if imagen_rota:
             mapa.imagen_rota = imagen_rota
         mapa.save()
 
-        return redirect('mapas')  # Redirigir a la lista de mapas
+        return redirect('mapas')
 
-    return redirect('mapas')  # En caso de que no sea un POST, redirigir
+    return redirect('mapas')
 
+# Vista para dar de alta un mapa:
 
-from .models import Mapas
-from .forms import MapaForm  # Asegúrate de que tienes este formulario creado
 
 def alta_mapa(request):
-    if request.method == 'POST':
-        form = MapaForm(request.POST)
-        if form.is_valid():
-            # Guarda el mapa, que incluye datos de Inventario
-            mapa = form.save(commit=False)  # No guardar aún
-            mapa.save()  # Ahora guarda
-            return render(request, 'libros/alta_mapa.html', {'form': form, 'success': 'Mapa registrado exitosamente.'})
-        else:
-            return render(request, 'libros/alta_mapa.html', {'form': form, 'error': 'Por favor complete todos los campos obligatorios.'})
+    form = MapaForm(request.POST or None)
+    if request.method == 'POST' and form.is_valid():
+        mapa = form.save(commit=False)
+        mapa.save()
+        context = {'form': form, 'success': 'Mapa registrado exitosamente.'}
     else:
-        form = MapaForm()
-    
-    return render(request, 'libros/alta_mapa.html', {'form': form})
+        context = {'form': form, 'error': 'Por favor complete todos los campos obligatorios.'} if request.method == 'POST' else {
+            'form': form}
+
+    return render(request, 'libros/alta_mapa.html', context)
+
+# Vista para editar un mapa:
 
 
 def editar_mapa(request, mapa_id):
     mapa = get_object_or_404(Mapas, id_mapa=mapa_id)
-    
+
     if request.method == 'POST':
         form = MapaForm(request.POST, instance=mapa)
         if form.is_valid():
             form.save()
-            return redirect('mapas')  # Redirige a la lista de mapas
+            return redirect('mapas')
     else:
         form = MapaForm(instance=mapa)
-    
+
     return render(request, 'libros/editar_mapa.html', {'form': form, 'mapa': mapa})
+
+# Vista para mostrar elementos multimedia (por implementar):
+
+
+def multimedia_view(request):
+    multimedia = []  # Aquí deberías obtener la lista de multimedia desde la base de datos
+    return render(request, 'multimedia.html', {'multimedia': multimedia})
+
+# Vista para mostrar notebooks (por implementar):
+
+
+def notebook_view(request):
+    notebooks = []  # Aquí deberías obtener la lista de notebooks desde la base de datos
+    return render(request, 'notebook.html', {'notebooks': notebooks})
+
+# Vista para mostrar proyectores (por implementar):
+
+
+def proyector_view(request):
+    proyectores = []  # Aquí deberías obtener la lista de proyectores desde la base de datos
+    return render(request, 'proyector.html', {'proyectores': proyectores})
+
+# Vista para mostrar varios elementos (por implementar):
+
+
+def varios_view(request):
+    varios = []  # Aquí deberías obtener la lista de varios desde la base de datos
+    return render(request, 'varios.html', {'varios': varios})
