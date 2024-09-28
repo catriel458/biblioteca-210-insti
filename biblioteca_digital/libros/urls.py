@@ -64,6 +64,7 @@ urlpatterns = [
     path('alta-proyector/', alta_proyector, name='alta_proyector'),
     path('editar-proyector/<int:proyector_id>/',
          views.editar_proyector, name='editar_proyector'),
+    path('baja_proyector/', baja_proyector, name='baja_proyector'),
     path('baja_varios/', baja_varios, name='baja_varios'),
     path('alta-varios/', alta_varios, name='alta_varios'),
     path('editar-varios/<int:varios_id>/',
