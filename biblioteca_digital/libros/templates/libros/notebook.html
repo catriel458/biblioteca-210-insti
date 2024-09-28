@@ -1,18 +1,107 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
-    <title>Notebooks</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Mapas - Biblioteca</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'libros/css/styles.css' %}">
+    <script>
+        function abrirModal(notId) {
+            document.getElementById('notIdInput').value = notId;
+            document.getElementById('modal').style.display = 'block';
+        }
+
+        function cerrarModal() {
+            document.getElementById('modal').style.display = 'none';
+        }
+    </script>
+    <style>
+        /* Estilos para el modal */
+        #modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.4);
+        }
+
+        #modalContent {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+        }
+    </style>
 </head>
+
 <body>
-    <h1>Lista de Notebooks</h1>
-    <ul>
-        {% for notebook in notebooks %}
-            <li>{{ notebook.marca_not }} - {{ notebook.modelo_not }}</li>
-        {% empty %}
-            <li>No hay notebooks disponibles.</li>
-        {% endfor %}
-    </ul>
-    <a href="{% url 'pantalla_principal' %}">Volver</a>
+    <header>
+        <h1>Biblioteca Digital</h1>
+    </header>
+    <main>
+        <h2>Lista de Notebook</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Marca</th>
+                    <th>Modelo</th>
+                    <th>Número de Ejemplar</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for not in notebook %}
+                <tr>
+                    <td>{{ not.id_not }}</td>
+                    <td>{{ not.marca_not }}</td>
+                    <td>{{ not.modelo_not }}</td>
+                    <td>{{ not.num_ejemplar }}</td>
+                    <td>
+                        <a href="{% url 'editar_notebook' not.id_not %}">
+                            <img src="{% static 'libros/img/lapiz.png' %}" alt="Editar"
+                                style="cursor: pointer; width: 20px; height: 20px;">
+                        </a>
+                        <img src="{% static 'libros/img/trash.png' %}" alt="Eliminar"
+                            onclick="abrirModal({{ not.id_not }})" style="cursor: pointer; width: 20px; height: 20px;">
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6">No hay netbook disponibles.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- Modal para confirmación de baja -->
+        <div id="modal">
+            <div id="modalContent">
+                <h3>Confirmar Baja</h3>
+                <form id="bajaForm" method="POST" action="{% url 'baja_notebook' %}" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <input type="hidden" name="not_id" id="notIdInput">
+                    <label for="motivoBaja">Motivo de baja:</label>
+                    <input type="text" name="motivo_baja" required>
+                    <label for="imagen_rota">Imagen del material roto:</label>
+                    <input type="file" name="imagen_rota" accept="image/*" required>
+                    <button type="submit">Confirmar</button>
+                    <button type="button" onclick="cerrarModal()">Cancelar</button>
+                </form>
+            </div>
+        </div>
+
+    </main>
+    <footer>
+        <p>&copy; 2024 Biblioteca Digital. Todos los derechos reservados.</p>
+    </footer>
 </body>
+
 </html>

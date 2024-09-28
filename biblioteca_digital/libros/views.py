@@ -1,8 +1,8 @@
 import json
 from django.shortcuts import render, redirect, get_object_or_404
 from collections import Counter
-from .models import Libro, Inventario, Mapas
-from .forms import LibroForm, MapaForm
+from .models import Libro, Inventario, Mapas, Multimedia, Notebook, Proyector, Varios
+from .forms import LibroForm, MapaForm, MultimediaForm, NotebookForm, ProyectorForm, VariosForm
 
 # Métodos de biblioteca:
 
@@ -36,12 +36,22 @@ def modificar_prestamo(request):
 def solicitar_prestamo(request):
     pass
 
+# Pantalla principal
+
+# Vista para la pantalla principal:
+
+
+def pantalla_principal(request):
+    return render(request, 'libros/pantalla_principal.html')
+
+# Libros
+
 # Vista para listar libros (todos los disponibles):
 
 
 def lista_libros(request):
     # Filtra los libros disponibles
-    libros = Libro.objects.exclude(estado='No disponible')
+    libros = Libro.objects.filter(estado='Disponible')
     return render(request, 'libros/lista_libros.html', {'libros': libros})
 
 # Vista para dar de alta un libro:
@@ -99,11 +109,8 @@ def editar_libro(request, libro_id):
 
     return render(request, 'libros/editar_libro.html', {'form': form, 'libro': libro})
 
-# Vista para la pantalla principal:
 
-
-def pantalla_principal(request):
-    return render(request, 'libros/pantalla_principal.html')
+# Mapas
 
 # Vista para listar mapas disponibles:
 
@@ -166,28 +173,242 @@ def editar_mapa(request, mapa_id):
 
 # Vista para mostrar elementos multimedia (por implementar):
 
+# Multimedia
+
 
 def multimedia_view(request):
-    multimedia = []  # Aquí deberías obtener la lista de multimedia desde la base de datos
-    return render(request, 'multimedia.html', {'multimedia': multimedia})
+    multimedia = Multimedia.objects.filter(estado='Disponible')
+    return render(request, 'libros/multimedia.html', {'multimedia': multimedia})
 
-# Vista para mostrar notebooks (por implementar):
+# Vista para dar de baja un mapa:
 
+
+def baja_multimedia(request):
+    if request.method == 'POST':
+        multi_id = request.POST.get('multi_id')
+        motivo_baja = request.POST.get('motivo_baja')
+        imagen_rota = request.FILES.get('imagen_rota')
+
+        # Lógica para actualizar el estado del mapa
+        multimedia = get_object_or_404(Multimedia, id_multi=multi_id)
+        multimedia.estado = 'No disponible'
+        multimedia.motivo_baja = motivo_baja
+        if imagen_rota:
+            multimedia.imagen_rota = imagen_rota
+        multimedia.save()
+
+        return redirect('multimedia')
+
+    return redirect('multimedia')
+
+# Vista para dar de alta un mapa:
+
+
+def alta_multimedia(request):
+    form = MultimediaForm(request.POST or None)
+    if request.method == 'POST' and form.is_valid():
+        multimedia = form.save(commit=False)
+        multimedia.save()
+        context = {'form': form,
+                   'success': 'Multimedia registrado exitosamente.'}
+    else:
+        context = {'form': form, 'error': 'Por favor complete todos los campos obligatorios.'} if request.method == 'POST' else {
+            'form': form}
+
+    return render(request, 'libros/alta_multimedia.html', context)
+
+# Vista para editar un mapa:
+
+
+def editar_multimedia(request, multi_id):
+    multimedia = get_object_or_404(Multimedia, id_multi=multi_id)
+
+    if request.method == 'POST':
+        form = MultimediaForm(request.POST, instance=multimedia)
+        if form.is_valid():
+            form.save()
+            return redirect('multimedia')
+    else:
+        form = MultimediaForm(instance=multimedia)
+
+    return render(request, 'libros/editar_multimedia.html', {'form': form, 'mapa': multimedia})
+
+# Notebook
 
 def notebook_view(request):
-    notebooks = []  # Aquí deberías obtener la lista de notebooks desde la base de datos
-    return render(request, 'notebook.html', {'notebooks': notebooks})
+    notebook = Notebook.objects.filter(estado='Disponible')
+    return render(request, 'libros/notebook.html', {'notebook': notebook})
 
-# Vista para mostrar proyectores (por implementar):
+# Vista para dar de baja un mapa:
 
+
+def baja_notebook(request):
+    if request.method == 'POST':
+        not_id = request.POST.get('not_id')
+        motivo_baja = request.POST.get('motivo_baja')
+        imagen_rota = request.FILES.get('imagen_rota')
+
+        # Lógica para actualizar el estado del mapa
+        notebook = get_object_or_404(Multimedia, id_not=not_id)
+        notebook.estado = 'No disponible'
+        notebook.motivo_baja = motivo_baja
+        if imagen_rota:
+            notebook.imagen_rota = imagen_rota
+        notebook.save()
+
+        return redirect('notebook')
+
+    return redirect('notebook')
+
+# Vista para dar de alta un mapa:
+
+
+def alta_notebook(request):
+    form = NotebookForm(request.POST or None)
+    if request.method == 'POST' and form.is_valid():
+        notebook = form.save(commit=False)
+        notebook.save()
+        context = {'form': form,
+                   'success': 'Notebook registrado exitosamente.'}
+    else:
+        context = {'form': form, 'error': 'Por favor complete todos los campos obligatorios.'} if request.method == 'POST' else {
+            'form': form}
+
+    return render(request, 'libros/alta_notebook.html', context)
+
+# Vista para editar un mapa:
+
+
+def editar_notebook(request, not_id):
+    notebook = get_object_or_404(Notebook, id_not=not_id)
+
+    if request.method == 'POST':
+        form = NotebookForm(request.POST, instance=notebook)
+        if form.is_valid():
+            form.save()
+            return redirect('notebook')
+    else:
+        form = NotebookForm(instance=notebook)
+
+    return render(request, 'libros/editar_notebook.html', {'form': form, 'notebook': notebook})
+
+# Proyector
 
 def proyector_view(request):
-    proyectores = []  # Aquí deberías obtener la lista de proyectores desde la base de datos
-    return render(request, 'proyector.html', {'proyectores': proyectores})
+    proyector = Proyector.objects.filter(estado='Disponible')
+    return render(request, 'libros/proyector.html', {'proyector': proyector})
 
-# Vista para mostrar varios elementos (por implementar):
+# Vista para dar de baja un mapa:
+
+
+def baja_proyector(request):
+    if request.method == 'POST':
+        proyector_id = request.POST.get('proyector_id')
+        motivo_baja = request.POST.get('motivo_baja')
+        imagen_rota = request.FILES.get('imagen_rota')
+
+        # Lógica para actualizar el estado del mapa
+        proyector = get_object_or_404(Proyector, id_proyector=proyector_id)
+        proyector.estado = 'No disponible'
+        proyector.motivo_baja = motivo_baja
+        if imagen_rota:
+            proyector.imagen_rota = imagen_rota
+        proyector.save()
+
+        return redirect('proyector')
+
+    return redirect('proyector')
+
+# Vista para dar de alta un mapa:
+
+
+def alta_proyector(request):
+    form = ProyectorForm(request.POST or None)
+    if request.method == 'POST' and form.is_valid():
+        proyector = form.save(commit=False)
+        proyector.save()
+        context = {'form': form,
+                   'success': 'Proyector registrado exitosamente.'}
+    else:
+        context = {'form': form, 'error': 'Por favor complete todos los campos obligatorios.'} if request.method == 'POST' else {
+            'form': form}
+
+    return render(request, 'libros/alta_proyector.html', context)
+
+# Vista para editar un mapa:
+
+
+def editar_proyector(request, proyector_id):
+    proyector = get_object_or_404(Proyector, id_proyector=proyector_id)
+
+    if request.method == 'POST':
+        form = ProyectorForm(request.POST, instance=proyector)
+        if form.is_valid():
+            form.save()
+            return redirect('proyector')
+    else:
+        form = ProyectorForm(instance=proyector)
+
+    return render(request, 'libros/editar_proyector.html', {'form': form, 'proyector': proyector})
+
+
+
+# Varios
 
 
 def varios_view(request):
-    varios = []  # Aquí deberías obtener la lista de varios desde la base de datos
-    return render(request, 'varios.html', {'varios': varios})
+    varios = Varios.objects.filter(estado='Disponible')
+    return render(request, 'libros/varios.html', {'varios': varios})
+
+# Vista para dar de baja un mapa:
+
+
+def baja_varios(request):
+    if request.method == 'POST':
+        varios_id = request.POST.get('varios_id')
+        motivo_baja = request.POST.get('motivo_baja')
+        imagen_rota = request.FILES.get('imagen_rota')
+
+        # Lógica para actualizar el estado del mapa
+        varios = get_object_or_404(Varios, id_varios=varios_id)
+        varios.estado = 'No disponible'
+        varios.motivo_baja = motivo_baja
+        if imagen_rota:
+            varios.imagen_rota = imagen_rota
+        varios.save()
+
+        return redirect('varios')
+
+    return redirect('varios')
+
+# Vista para dar de alta un mapa:
+
+
+def alta_varios(request):
+    form = VariosForm(request.POST or None)
+    if request.method == 'POST' and form.is_valid():
+        varios = form.save(commit=False)
+        varios.save()
+        context = {'form': form,
+                   'success': 'Varios registrado exitosamente.'}
+    else:
+        context = {'form': form, 'error': 'Por favor complete todos los campos obligatorios.'} if request.method == 'POST' else {
+            'form': form}
+
+    return render(request, 'libros/alta_varios.html', context)
+
+# Vista para editar un mapa:
+
+
+def editar_varios(request, varios_id):
+    varios = get_object_or_404(Varios, id_varios=varios_id)
+
+    if request.method == 'POST':
+        form = VariosForm(request.POST, instance=varios)
+        if form.is_valid():
+            form.save()
+            return redirect('varios')
+    else:
+        form = VariosForm(instance=varios)
+
+    return render(request, 'libros/editar_varios.html', {'form': form, 'varios': varios})

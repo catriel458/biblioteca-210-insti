@@ -1,13 +1,16 @@
 # libros/models.py
 from django.db import models
 
+
 class Inventario(models.Model):
-    id_inventario = models.AutoField(primary_key=True) #Este es el ID principal que usamos para dar de baja, modificar
-    estado = models.CharField(max_length=255,null=True)
-    motivo_baja = models.CharField(max_length=255,null=True)
+    # Este es el ID principal que usamos para dar de baja, modificar
+    id_inventario = models.AutoField(primary_key=True)
+    estado = models.CharField(max_length=255, null=True, default="Disponible")
+    motivo_baja = models.CharField(max_length=255, null=True)
     descripcion = models.TextField(null=True)
     num_ejemplar = models.IntegerField(null=True)
-    imagen_rota = models.ImageField(upload_to='imagenes_rota/', null=True, blank=True)  # Nuevo campo
+    imagen_rota = models.ImageField(
+        upload_to='imagenes_rota/', null=True, blank=True)  # Nuevo campo
 
     def __str__(self):
         return f"id_libro: {self.id_inventario}, estado: {self.estado}, motivo_baja: {self.motivo_baja}, descripcion: {self.descripcion}, numero ejemplar: {self.num_ejemplar} "
@@ -18,10 +21,11 @@ class Libro(Inventario):
     titulo = models.CharField(max_length=255)
     autor = models.CharField(max_length=255)
     editorial = models.CharField(max_length=255)
-    edicion = models.IntegerField(null=False,default=1999)
-    codigo_materia = models.CharField(max_length=255,null=False,default=1)
-    siglas_autor_titulo = models.CharField(max_length = 255,null=False,default='ABC')
-    num_inventario = models.IntegerField(null=False,default=1)
+    edicion = models.IntegerField(null=False, default=1999)
+    codigo_materia = models.CharField(max_length=255, null=False, default=1)
+    siglas_autor_titulo = models.CharField(
+        max_length=255, null=False, default='ABC')
+    num_inventario = models.IntegerField(null=False, default=1)
     resumen = models.TextField()
     img = models.URLField()
 
@@ -30,11 +34,13 @@ class Libro(Inventario):
 
 
 class Mapas(Inventario):
-    id_mapa = models.IntegerField(primary_key=True) #¿Puede ser autofield (autoincremental)?
+    # ¿Puede ser autofield (autoincremental)?
+    id_mapa = models.IntegerField(primary_key=True)
     tipo = models.CharField(max_length=255)
 
     def __str__(self):
         return f"id: {self.id_mapa}, tipo: {self.tipo}"
+
 
 class Multimedia(Inventario):
     id_multi = models.IntegerField(primary_key=True)
@@ -44,6 +50,7 @@ class Multimedia(Inventario):
     def __str__(self):
         return f"id: {self.id_multi}, materia: {self.materia}, contenido: {self.contenido}"
 
+
 class Notebook(Inventario):
     id_not = models.IntegerField(primary_key=True)
     marca_not = models.CharField(max_length=255)
@@ -51,6 +58,7 @@ class Notebook(Inventario):
 
     def __str__(self):
         return f"id: {self.id_not}, marca: {self.marca_not}, modelo: {self.modelo_not}"
+
 
 class Proyector(Inventario):
     id_proyector = models.IntegerField(primary_key=True)
@@ -60,10 +68,10 @@ class Proyector(Inventario):
     def __str__(self):
         return f"id: {self.id_proyector}, marca: {self.marca_pro}, modelo: {self.modelo_pro}"
 
+
 class Varios(Inventario):
     id_varios = models.IntegerField(primary_key=True)
     tipo = models.CharField(max_length=255)
 
     def __str__(self):
         return f"id: {self.id_varios}, tipo: {self.tipo}"
-        

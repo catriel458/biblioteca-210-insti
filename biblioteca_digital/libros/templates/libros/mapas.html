@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -27,8 +28,9 @@
             width: 100%;
             height: 100%;
             overflow: auto;
-            background-color: rgba(0,0,0,0.4);
+            background-color: rgba(0, 0, 0, 0.4);
         }
+
         #modalContent {
             background-color: #fefefe;
             margin: 15% auto;
@@ -38,6 +40,7 @@
         }
     </style>
 </head>
+
 <body>
     <header>
         <h1>Biblioteca Digital</h1>
@@ -49,7 +52,6 @@
                 <tr>
                     <th>ID</th>
                     <th>Tipo</th>
-                    <th>Estado</th>
                     <th>Descripción</th>
                     <th>Número de Ejemplar</th>
                     <th>Acciones</th>
@@ -60,14 +62,16 @@
                 <tr>
                     <td>{{ mapa.id_mapa }}</td>
                     <td>{{ mapa.tipo }}</td>
-                    <td>{{ mapa.estado }}</td>
                     <td>{{ mapa.descripcion }}</td>
                     <td>{{ mapa.num_ejemplar }}</td>
                     <td>
                         <a href="{% url 'editar_mapa' mapa.id_mapa %}">
-                            <img src="{% static 'libros/img/lapiz.png' %}" alt="Editar" style="cursor: pointer; width: 20px; height: 20px;">
+                            <img src="{% static 'libros/img/lapiz.png' %}" alt="Editar"
+                                style="cursor: pointer; width: 20px; height: 20px;">
                         </a>
-                        <img src="{% static 'libros/img/trash.png' %}" alt="Eliminar" onclick="abrirModal({{ mapa.id_mapa }})" style="cursor: pointer; width: 20px; height: 20px;">
+                        <img src="{% static 'libros/img/trash.png' %}" alt="Eliminar"
+                            onclick="abrirModal({{ mapa.id_mapa }})"
+                            style="cursor: pointer; width: 20px; height: 20px;">
                     </td>
                 </tr>
                 {% empty %}
@@ -100,4 +104,5 @@
         <p>&copy; 2024 Biblioteca Digital. Todos los derechos reservados.</p>
     </footer>
 </body>
+
 </html>
