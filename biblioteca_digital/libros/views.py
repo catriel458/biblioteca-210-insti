@@ -185,7 +185,7 @@ def multimedia_view(request):
 
 def baja_multimedia(request):
     if request.method == 'POST':
-        multi_id = request.POST.get('multi_id')
+        multi_id = request.POST.get('id_multi')
         motivo_baja = request.POST.get('motivo_baja')
         imagen_rota = request.FILES.get('imagen_rota')
 
@@ -235,6 +235,7 @@ def editar_multimedia(request, multi_id):
 
 # Notebook
 
+
 def notebook_view(request):
     notebook = Notebook.objects.filter(estado='Disponible')
     return render(request, 'libros/notebook.html', {'notebook': notebook})
@@ -249,7 +250,7 @@ def baja_notebook(request):
         imagen_rota = request.FILES.get('imagen_rota')
 
         # Lógica para actualizar el estado del mapa
-        notebook = get_object_or_404(Multimedia, id_not=not_id)
+        notebook = get_object_or_404(Notebook, id_not=not_id)
         notebook.estado = 'No disponible'
         notebook.motivo_baja = motivo_baja
         if imagen_rota:
@@ -293,6 +294,7 @@ def editar_notebook(request, not_id):
     return render(request, 'libros/editar_notebook.html', {'form': form, 'notebook': notebook})
 
 # Proyector
+
 
 def proyector_view(request):
     proyector = Proyector.objects.filter(estado='Disponible')
@@ -350,7 +352,6 @@ def editar_proyector(request, proyector_id):
         form = ProyectorForm(instance=proyector)
 
     return render(request, 'libros/editar_proyector.html', {'form': form, 'proyector': proyector})
-
 
 
 # Varios
