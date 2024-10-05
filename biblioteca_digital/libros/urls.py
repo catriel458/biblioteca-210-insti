@@ -4,6 +4,7 @@ from .views import lista_libros, baja_libro, editar_libro
 from django.conf import settings
 from django.conf.urls.static import static
 from django.urls import path
+from .views import cargar_csv
 from .views import (
     mapas_view,
     alta_mapa,
@@ -69,8 +70,10 @@ urlpatterns = [
     path('alta-varios/', alta_varios, name='alta_varios'),
     path('editar-varios/<int:varios_id>/',
         views.editar_varios, name='editar_varios'),
-    path('baja_varios/', baja_varios, name='baja_varios')
-
+    path('baja_varios/', baja_varios, name='baja_varios'),
+    path('cargar-csv/', views.cargar_csv, name='cargar_csv'),
+    path('success/', views.success_view, name='success_url'),
+    path('borrar-libros/', views.borrar_libros, name='borrar_libros')
 
 ]
 

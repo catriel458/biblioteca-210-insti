@@ -1,8 +1,69 @@
 import json
 from django.shortcuts import render, redirect, get_object_or_404
+from django.http import HttpResponse
 from collections import Counter
 from .models import Libro, Inventario, Mapas, Multimedia, Notebook, Proyector, Varios
 from .forms import LibroForm, MapaForm, MultimediaForm, NotebookForm, ProyectorForm, VariosForm
+import csv
+import io  # Agregar esta línea
+from django.contrib import messages #Para mensajes
+
+def cargar_csv(request):
+    if request.method == 'POST':
+        csv_file = request.FILES['csv_file']
+
+        # Verifica que el archivo sea un CSV
+        if not csv_file.name.endswith('.csv'):
+            return HttpResponse("El archivo no es un CSV.")
+
+        # Procesar el archivo CSV
+        decoded_file = csv_file.read().decode('utf-8')
+        io_string = io.StringIO(decoded_file)
+        reader = csv.DictReader(io_string)
+
+        for row in reader:
+            try:
+                num_ejemplar = int(row.get('num_ejemplar') or 0)  # Asignar 0 si está vacío
+                edicion = int(row.get('edicion', 1999))  # Asignar valor por defecto
+                num_inventario = int(row.get('num_inventario', 1))  # Asignar valor por defecto
+
+                libro = Libro(
+                    estado="Disponible",  # Establecer estado como "Disponible"
+                    motivo_baja=row.get('motivo_baja'),
+                    descripcion=row.get('descripcion'),
+                    num_ejemplar=num_ejemplar,
+                    imagen_rota=row.get('imagen_rota'),
+                    titulo=row.get('titulo'),
+                    autor=row.get('autor'),
+                    editorial=row.get('editorial'),
+                    edicion=edicion,
+                    codigo_materia=row.get('codigo_materia', '1'),
+                    siglas_autor_titulo=row.get('siglas_autor_titulo', 'ABC'),
+                    num_inventario=num_inventario,
+                    resumen=row.get('resumen'),
+                    img=row.get('img')
+                )
+                libro.save()
+            except (ValueError, TypeError) as e:
+                # Manejo de errores, puedes loggear o notificar el problema
+                print(f"Error al procesar la fila {row}: {e}")
+
+        return redirect('success_url')  # Cambia 'success_url' por el nombre que has definido en urls.py
+
+    return render(request, 'libros/upload_csv.html')
+
+def success_view(request):
+    return render(request, 'libros/success.html')
+
+# Borrar libros
+
+def borrar_libros(request):
+    if request.method == 'POST':
+        Libro.objects.all().delete()
+        messages.success(request, "Todos los libros han sido borrados.")
+        return redirect('lista_libros')  # Cambia esto a la URL donde quieras redirigir después de borrar
+
+    return render(request, 'libros/borrar_libros.html')  # Crea un template para confirmar la acción
 
 # Métodos de biblioteca:
 
