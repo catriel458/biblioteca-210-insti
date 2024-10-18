@@ -13,7 +13,7 @@ class Inventario(models.Model):
         upload_to='imagenes_rota/', null=True, blank=True)  # Nuevo campo
 
     def __str__(self):
-        return f"id_libro: {self.id_inventario}, estado: {self.estado}, motivo_baja: {self.motivo_baja}, descripcion: {self.descripcion}, numero ejemplar: {self.num_ejemplar} "
+        return f"id_inventario: {self.id_inventario}, estado: {self.estado}, motivo_baja: {self.motivo_baja}, descripcion: {self.descripcion}, numero ejemplar: {self.num_ejemplar} "
 
 
 class Libro(Inventario):
@@ -36,21 +36,34 @@ class Libro(Inventario):
 class Mapas(Inventario):
     id_mapa = models.AutoField(primary_key=True)  # Cambia IntegerField a AutoField
     tipo = models.CharField(max_length=255)
-
+    
+    def __str__(self):
+        return f"id_mapa: {self.id_mapa}, tipo: {self.tipo}"
+    
 class Multimedia(Inventario):
     id_multi = models.AutoField(primary_key=True)  # Cambia IntegerField a AutoField
     materia = models.CharField(max_length=255)
     contenido = models.CharField(max_length=255)
+    
+    def __str__(self):
+        return f"id_multi: {self.id_multi}, materia: {self.materia},  contenido: {self.contenido}"
+
 
 class Notebook(Inventario):
     id_not = models.AutoField(primary_key=True)  # Cambia IntegerField a AutoField
     marca_not = models.CharField(max_length=255)
     modelo_not = models.CharField(max_length=255)
-
+    
+    def __str__(self):
+        return f"id_not: {self.id_not}, marca_not: {self.marca_not},  modelo_not: {self.modelo_not}"
+    
 class Proyector(Inventario):
     id_proyector = models.AutoField(primary_key=True)  # Cambia IntegerField a AutoField
     marca_pro = models.CharField(max_length=255)
     modelo_pro = models.CharField(max_length=255)
+    
+    def __str__(self):
+        return f"id_proyector: {self.id_proyector}, marca_pro: {self.marca_pro},  modelo_pro: {self.modelo_pro}"
 
 class Varios(Inventario):
     id_varios = models.AutoField(primary_key=True)  # Cambia IntegerField a AutoField
@@ -58,3 +71,4 @@ class Varios(Inventario):
 
     def __str__(self):
         return f"id: {self.id_varios}, tipo: {self.tipo}"
+
