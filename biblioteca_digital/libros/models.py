@@ -34,43 +34,26 @@ class Libro(Inventario):
 
 
 class Mapas(Inventario):
-    # ¿Puede ser autofield (autoincremental)?
-    id_mapa = models.IntegerField(primary_key=True)
+    id_mapa = models.AutoField(primary_key=True)  # Cambia IntegerField a AutoField
     tipo = models.CharField(max_length=255)
 
-    def __str__(self):
-        return f"id: {self.id_mapa}, tipo: {self.tipo}"
-
-
 class Multimedia(Inventario):
-    id_multi = models.IntegerField(primary_key=True)
+    id_multi = models.AutoField(primary_key=True)  # Cambia IntegerField a AutoField
     materia = models.CharField(max_length=255)
     contenido = models.CharField(max_length=255)
 
-    def __str__(self):
-        return f"id: {self.id_multi}, materia: {self.materia}, contenido: {self.contenido}"
-
-
 class Notebook(Inventario):
-    id_not = models.IntegerField(primary_key=True)
+    id_not = models.AutoField(primary_key=True)  # Cambia IntegerField a AutoField
     marca_not = models.CharField(max_length=255)
     modelo_not = models.CharField(max_length=255)
 
-    def __str__(self):
-        return f"id: {self.id_not}, marca: {self.marca_not}, modelo: {self.modelo_not}"
-
-
 class Proyector(Inventario):
-    id_proyector = models.IntegerField(primary_key=True)
+    id_proyector = models.AutoField(primary_key=True)  # Cambia IntegerField a AutoField
     marca_pro = models.CharField(max_length=255)
     modelo_pro = models.CharField(max_length=255)
 
-    def __str__(self):
-        return f"id: {self.id_proyector}, marca: {self.marca_pro}, modelo: {self.modelo_pro}"
-
-
 class Varios(Inventario):
-    id_varios = models.IntegerField(primary_key=True)
+    id_varios = models.AutoField(primary_key=True)  # Cambia IntegerField a AutoField
     tipo = models.CharField(max_length=255)
 
     def __str__(self):

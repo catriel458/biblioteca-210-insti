@@ -22,35 +22,104 @@ def cargar_csv(request):
         reader = csv.DictReader(io_string)
 
         for row in reader:
-            try:
-                num_ejemplar = int(row.get('num_ejemplar') or 0)  # Asignar 0 si está vacío
-                edicion = int(row.get('edicion', 1999))  # Asignar valor por defecto
-                num_inventario = int(row.get('num_inventario', 1))  # Asignar valor por defecto
+            print(f"Fila procesada: {row}")  # Imprimir la fila para depuración
 
-                libro = Libro(
-                    estado="Disponible",  # Establecer estado como "Disponible"
-                    motivo_baja=row.get('motivo_baja'),
-                    descripcion=row.get('descripcion'),
-                    num_ejemplar=num_ejemplar,
-                    imagen_rota=row.get('imagen_rota'),
-                    titulo=row.get('titulo'),
-                    autor=row.get('autor'),
-                    editorial=row.get('editorial'),
-                    edicion=edicion,
-                    codigo_materia=row.get('codigo_materia', '1'),
-                    siglas_autor_titulo=row.get('siglas_autor_titulo', 'ABC'),
-                    num_inventario=num_inventario,
-                    resumen=row.get('resumen'),
-                    img=row.get('img')
-                )
-                libro.save()
+            try:
+                estado = "Disponible"
+                motivo_baja = row.get('motivo_baja')
+                descripcion = row.get('descripcion')
+
+                # Manejar num_ejemplar
+                num_ejemplar = int(row.get('num_ejemplar') or 0)
+
+                tipo_material = row.get('tipo_material')  # Campo que determina el tipo de material
+
+                # Procesar según el tipo de material
+                if tipo_material == 'Libro':
+                    num_inventario = int(row.get('num_inventario') or 1)  # Valor por defecto si está vacío
+                    libro = Libro(
+                        estado=estado,
+                        motivo_baja=motivo_baja,
+                        descripcion=descripcion,
+                        num_ejemplar=num_ejemplar,
+                        imagen_rota=row.get('imagen_rota'),
+                        titulo=row.get('titulo'),
+                        autor=row.get('autor'),
+                        editorial=row.get('editorial'),
+                        edicion=int(row.get('edicion') or 1999),  # Valor por defecto
+                        codigo_materia=row.get('codigo_materia', '1'),
+                        siglas_autor_titulo=row.get('siglas_autor_titulo', 'ABC'),
+                        num_inventario=num_inventario,
+                        resumen=row.get('resumen'),
+                        img=row.get('img')
+                    )
+                    libro.save()
+                    print(f"Libro guardado: {libro}")  # Imprimir confirmación
+
+                elif tipo_material == 'Mapa':
+                    mapa = Mapas(
+                        estado=estado,
+                        motivo_baja=motivo_baja,
+                        descripcion=descripcion,
+                        num_ejemplar=num_ejemplar,
+                        tipo=row.get('tipo')  # Campo específico para Mapas
+                    )
+                    mapa.save()
+                    print(f"Mapa guardado: {mapa}")  # Imprimir confirmación
+
+                elif tipo_material == 'Multimedia':
+                    multimedia = Multimedia(
+                        estado=estado,
+                        motivo_baja=motivo_baja,
+                        descripcion=descripcion,
+                        num_ejemplar=num_ejemplar,
+                        materia=row.get('materia'),
+                        contenido=row.get('contenido')
+                    )
+                    multimedia.save()
+                    print(f"Multimedia guardada: {multimedia}")  # Imprimir confirmación
+
+                elif tipo_material == 'Notebook':
+                    notebook = Notebook(
+                        estado=estado,
+                        motivo_baja=motivo_baja,
+                        descripcion=descripcion,
+                        num_ejemplar=num_ejemplar,
+                        marca_not=row.get('marca_not'),
+                        modelo_not=row.get('modelo_not')
+                    )
+                    notebook.save()
+                    print(f"Notebook guardada: {notebook}")  # Imprimir confirmación
+
+                elif tipo_material == 'Proyector':
+                    proyector = Proyector(
+                        estado=estado,
+                        motivo_baja=motivo_baja,
+                        descripcion=descripcion,
+                        num_ejemplar=num_ejemplar,
+                        marca_pro=row.get('marca_pro'),
+                        modelo_pro=row.get('modelo_pro')
+                    )
+                    proyector.save()
+                    print(f"Proyector guardado: {proyector}")  # Imprimir confirmación
+
+                elif tipo_material == 'Varios':
+                    varios = Varios(
+                        estado=estado,
+                        motivo_baja=motivo_baja,
+                        descripcion=descripcion,
+                        num_ejemplar=num_ejemplar,
+                        tipo=row.get('tipo')
+                    )
+                    varios.save()
+                    print(f"Varios guardado: {varios}")  # Imprimir confirmación
+
             except (ValueError, TypeError) as e:
-                # Manejo de errores, puedes loggear o notificar el problema
                 print(f"Error al procesar la fila {row}: {e}")
 
         return redirect('success_url')  # Cambia 'success_url' por el nombre que has definido en urls.py
 
-    return render(request, 'libros/upload_csv.html')
+    return render(request, 'libros/upload_csv.html')  # Cambia la plantilla según corresponda
 
 def success_view(request):
     return render(request, 'libros/success.html')
