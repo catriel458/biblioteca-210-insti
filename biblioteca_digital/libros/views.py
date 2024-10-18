@@ -7,6 +7,8 @@ from .forms import LibroForm, MapaForm, MultimediaForm, NotebookForm, ProyectorF
 import csv
 import io  # Agregar esta línea
 from django.contrib import messages #Para mensajes
+from django.http import JsonResponse
+from django.db.models import Q  # Añade esta línea
 
 def cargar_csv(request):
     if request.method == 'POST':
@@ -123,6 +125,18 @@ def cargar_csv(request):
 
 def success_view(request):
     return render(request, 'libros/success.html')
+
+# Busqueda libros
+
+def buscar_libros(request):
+    query = request.GET.get('q', '')
+    libros = Libro.objects.filter(
+        Q(titulo__icontains=query) | 
+        Q(autor__icontains=query) | 
+        Q(resumen__icontains=query)
+    ).values('id_libro', 'titulo', 'autor', 'editorial', 'edicion', 'codigo_materia', 'resumen', 'img')
+
+    return JsonResponse(list(libros), safe=False)
 
 # Borrar libros
 

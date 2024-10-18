@@ -6,7 +6,10 @@
     <title>Lista de Libros - Biblioteca</title>
     {% load static %}
     <link rel="stylesheet" href="{% static 'libros/css/styles.css' %}">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
     <script>
+        // Funciones para abrir y cerrar el modal de baja
         function abrirModal(libroId) {
             document.getElementById('libroIdInput').value = libroId;
             document.getElementById('modal').style.display = 'block';
@@ -15,7 +18,61 @@
         function cerrarModal() {
             document.getElementById('modal').style.display = 'none';
         }
+
+        // Búsqueda en tiempo real usando AJAX
+        $(document).ready(function() {
+            $('#search-query').on('input', function() {
+                var query = $(this).val();
+                
+                $.ajax({
+                    url: '{% url "buscar_libros" %}',  // Cambia esto a la URL de tu vista
+                    data: {
+                        'q': query  // Parámetro de búsqueda
+                    },
+                    dataType: 'json',
+                    success: function(data) {
+                        // Limpiar la tabla de resultados
+                        $('#libros-table').empty();
+
+                        if (data.length > 0) {
+                            // Mostrar los libros que coinciden con la búsqueda
+                            data.forEach(function(libro) {
+                                $('#libros-table').append(
+                                    `<tr>
+                                        <td>${libro.id_libro}</td>
+                                        <td>${libro.titulo}</td>
+                                        <td>${libro.autor}</td>
+                                        <td>${libro.editorial}</td>
+                                        <td>${libro.edicion}</td>
+                                        <td>${libro.codigo_materia}</td>
+                                        <td>${libro.resumen}</td>
+                                        <td><img src="${libro.img}" alt="${libro.titulo}" width="100"></td>
+                                        <td>
+                                            <a href="/editar/${libro.id_libro}">
+                                                <img src="{% static 'libros/img/lapiz.png' %}" alt="Editar" style="cursor: pointer; width: 20px; height: 20px;">
+                                            </a>
+                                            <img src="{% static 'libros/img/trash.png' %}" alt="Eliminar" onclick="abrirModal(${libro.id_libro})" style="cursor: pointer; width: 20px; height: 20px;">
+                                        </td>
+                                    </tr>`
+                                );
+                            });
+                        } else {
+                            // Si no hay libros coincidentes
+                            $('#libros-table').append(
+                                `<tr>
+                                    <td colspan="9">No se encontraron libros disponibles.</td>
+                                </tr>`
+                            );
+                        }
+                    },
+                    error: function() {
+                        console.error('Error en la búsqueda.');
+                    }
+                });
+            });
+        });
     </script>
+
     <style>
         /* Estilos para el modal */
         #modal {
@@ -27,7 +84,7 @@
             width: 100%;
             height: 100%;
             overflow: auto;
-            background-color: rgba(0,0,0,0.4);
+            background-color: rgba(0, 0, 0, 0.4);
         }
         #modalContent {
             background-color: #fefefe;
@@ -35,6 +92,40 @@
             padding: 20px;
             border: 1px solid #888;
             width: 80%;
+        }
+        /* Estilos para el formulario de búsqueda */
+        #search-form {
+            margin-bottom: 20px;
+            position: relative;
+            max-width: 600px; /* Ancho máximo para la barra de búsqueda */
+            margin-left: auto; /* Centrar horizontalmente */
+            margin-right: auto; /* Centrar horizontalmente */
+        }
+        #search-query {
+            width: 100%;
+            padding: 10px 40px 10px 20px; /* Espaciado para la lupa */
+            border: 1px solid #ccc;
+            border-radius: 20px;
+            font-size: 16px;
+        }
+        #search-query::placeholder {
+            color: #aaa;
+        }
+        #search-form::after {
+            content: '🔍'; /* Icono de lupa */
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none; /* Para que no interrumpa el clic en el input */
+        }
+        /* Efecto hover para el input */
+        #search-query:hover {
+            border-color: #888;
+        }
+        #search-query:focus {
+            border-color: #666;
+            outline: none; /* Sin contorno */
         }
     </style>
 </head>
@@ -44,6 +135,13 @@
     </header>
     <main>
         <h2>Lista de Libros</h2>
+        
+        <!-- Barra de búsqueda -->
+        <form id="search-form">
+            <input type="text" id="search-query" placeholder="Buscar libros por título, autor o resumen...">
+        </form>
+
+        <!-- Tabla para mostrar los libros -->
         <table>
             <thead>
                 <tr>
@@ -58,7 +156,7 @@
                     <th>Acciones</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody id="libros-table">
                 {% for libro in libros %}
                 <tr>
                     <td>{{ libro.id_libro }}</td>
@@ -107,4 +205,3 @@
     </footer>
 </body>
 </html>
-
