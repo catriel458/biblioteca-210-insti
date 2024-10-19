@@ -7,6 +7,9 @@
     <title>Lista de Mapas - Biblioteca</title>
     {% load static %}
     <link rel="stylesheet" href="{% static 'libros/css/styles.css' %}">
+    
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
     <script>
         function abrirModal(mapaId) {
             document.getElementById('mapaIdInput').value = mapaId;
@@ -16,7 +19,57 @@
         function cerrarModal() {
             document.getElementById('modal').style.display = 'none';
         }
+
+        // Búsqueda en tiempo real usando AJAX
+        $(document).ready(function() {
+            $('#search-input').on('input', function() {
+                var searchValue = $(this).val(); // Valor de búsqueda
+
+                $.ajax({
+                    url: '{% url "buscar_mapas" %}',  // Cambia esto a la URL de tu vista
+                    data: {
+                        'q': searchValue
+                    },
+                    dataType: 'json',
+                    success: function(data) {
+                        // Limpiar la tabla de resultados
+                        $('#mapas-table').empty();
+
+                        if (data.length > 0) {
+                            // Mostrar los mapas que coinciden con la búsqueda
+                            data.forEach(function(mapa) {
+                                $('#mapas-table').append(
+                                    `<tr>
+                                        <td>${mapa.id_mapa}</td>
+                                        <td>${mapa.tipo}</td>
+                                        <td>${mapa.descripcion}</td>
+                                        <td>${mapa.num_ejemplar}</td>
+                                        <td>
+                                            <a href="/editar/${mapa.id_mapa}">
+                                                <img src="{% static 'libros/img/lapiz.png' %}" alt="Editar" style="cursor: pointer; width: 20px; height: 20px;">
+                                            </a>
+                                            <img src="{% static 'libros/img/trash.png' %}" alt="Eliminar" onclick="abrirModal(${mapa.id_mapa})" style="cursor: pointer; width: 20px; height: 20px;">
+                                        </td>
+                                    </tr>`
+                                );
+                            });
+                        } else {
+                            // Si no hay mapas coincidentes
+                            $('#mapas-table').append(
+                                `<tr>
+                                    <td colspan="5">No se encontraron mapas disponibles.</td>
+                                </tr>`
+                            );
+                        }
+                    },
+                    error: function() {
+                        console.error('Error en la búsqueda.');
+                    }
+                });
+            });
+        });
     </script>
+
     <style>
         /* Estilos para el modal */
         #modal {
@@ -38,6 +91,28 @@
             border: 1px solid #888;
             width: 80%;
         }
+
+        /* Estilos para el formulario de búsqueda */
+        #search-form {
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center; /* Centrar verticalmente */
+        }
+
+        #search-form input {
+            padding: 10px;
+            margin-right: 10px;
+            width: 400px; /* Aumenta el tamaño de la barra de búsqueda */
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        .search-icon {
+            font-size: 20px; /* Tamaño del emoticono */
+            cursor: pointer; /* Cambiar cursor al pasar el ratón */
+            margin-left: -50px; /* Ajustar posición */
+        }
     </style>
 </head>
 
@@ -47,6 +122,14 @@
     </header>
     <main>
         <h2>Lista de Mapas</h2>
+        
+        <!-- Barra de búsqueda -->
+        <div id="search-form">
+            <input type="text" id="search-input" placeholder="Buscar por tipo o descripción...">
+            <span class="search-icon" onclick="$('#search-input').trigger('input');">🔍</span> <!-- Emoticono de lupa -->
+        </div>
+
+        <!-- Tabla para mostrar los mapas -->
         <table>
             <thead>
                 <tr>
@@ -57,7 +140,7 @@
                     <th>Acciones</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody id="mapas-table">
                 {% for mapa in mapas %}
                 <tr>
                     <td>{{ mapa.id_mapa }}</td>
@@ -66,17 +149,14 @@
                     <td>{{ mapa.num_ejemplar }}</td>
                     <td>
                         <a href="{% url 'editar_mapa' mapa.id_mapa %}">
-                            <img src="{% static 'libros/img/lapiz.png' %}" alt="Editar"
-                                style="cursor: pointer; width: 20px; height: 20px;">
+                            <img src="{% static 'libros/img/lapiz.png' %}" alt="Editar" style="cursor: pointer; width: 20px; height: 20px;">
                         </a>
-                        <img src="{% static 'libros/img/trash.png' %}" alt="Eliminar"
-                            onclick="abrirModal({{ mapa.id_mapa }})"
-                            style="cursor: pointer; width: 20px; height: 20px;">
+                        <img src="{% static 'libros/img/trash.png' %}" alt="Eliminar" onclick="abrirModal({{ mapa.id_mapa }})" style="cursor: pointer; width: 20px; height: 20px;">
                     </td>
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="6">No hay mapas disponibles.</td>
+                    <td colspan="5">No hay mapas disponibles.</td>
                 </tr>
                 {% endfor %}
             </tbody>

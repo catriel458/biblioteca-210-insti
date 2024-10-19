@@ -6,6 +6,9 @@ from django.conf.urls.static import static
 from django.urls import path
 from .views import cargar_csv
 from .views import buscar_libros
+from .views import buscar_mapas  
+from .views import buscar_multimedia
+
 from .views import (
     mapas_view,
     alta_mapa,
@@ -76,8 +79,10 @@ urlpatterns = [
     path('cargar-csv/', views.cargar_csv, name='cargar_csv'),
     path('success/', views.success_view, name='success_url'),
     path('borrar-libros/', views.borrar_libros, name='borrar_libros'),
-    path('buscar_libros/', buscar_libros, name='buscar_libros')
-
+    path('buscar_libros/', buscar_libros, name='buscar_libros'),
+    path('buscar_mapas/', buscar_mapas, name='buscar_mapas'),
+    path('buscar_multimedia/', buscar_multimedia, name='buscar_multimedia'),
+    
 ]
 
 if settings.DEBUG:

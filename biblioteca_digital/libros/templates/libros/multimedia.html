@@ -7,6 +7,8 @@
     <title>Lista de Multimedia - Biblioteca</title>
     {% load static %}
     <link rel="stylesheet" href="{% static 'libros/css/styles.css' %}">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
     <script>
         function abrirModal(multiId) {
             document.getElementById('multiIdInput').value = multiId;
@@ -16,7 +18,57 @@
         function cerrarModal() {
             document.getElementById('modal').style.display = 'none';
         }
+
+        // Búsqueda en tiempo real usando AJAX
+        $(document).ready(function() {
+            $('#search-input').on('input', function() {
+                var searchValue = $(this).val(); // Valor de búsqueda
+
+                $.ajax({
+                    url: '{% url "buscar_multimedia" %}',  // Cambia esto a la URL de tu vista
+                    data: {
+                        'q': searchValue
+                    },
+                    dataType: 'json',
+                    success: function(data) {
+                        // Limpiar la tabla de resultados
+                        $('#multimedia-table').empty();
+
+                        if (data.length > 0) {
+                            // Mostrar los multimedia que coinciden con la búsqueda
+                            data.forEach(function(multi) {
+                                $('#multimedia-table').append(
+                                    `<tr>
+                                        <td>${multi.id_multi}</td>
+                                        <td>${multi.materia}</td>
+                                        <td>${multi.contenido}</td>
+                                        <td>${multi.num_ejemplar}</td>
+                                        <td>
+                                            <a href="/editar/${multi.id_multi}">
+                                                <img src="{% static 'libros/img/lapiz.png' %}" alt="Editar" style="cursor: pointer; width: 20px; height: 20px;">
+                                            </a>
+                                            <img src="{% static 'libros/img/trash.png' %}" alt="Eliminar" onclick="abrirModal(${multi.id_multi})" style="cursor: pointer; width: 20px; height: 20px;">
+                                        </td>
+                                    </tr>`
+                                );
+                            });
+                        } else {
+                            // Si no hay multimedia coincidentes
+                            $('#multimedia-table').append(
+                                `<tr>
+                                    <td colspan="5">No se encontraron materiales multimedia.</td>
+                                </tr>`
+                            );
+                        }
+                    },
+                    error: function() {
+                        console.error('Error en la búsqueda.');
+                    }
+                });
+            });
+        });
     </script>
+
     <style>
         /* Estilos para el modal */
         #modal {
@@ -38,6 +90,28 @@
             border: 1px solid #888;
             width: 80%;
         }
+
+        /* Estilos para el formulario de búsqueda */
+        #search-form {
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center; /* Centrar verticalmente */
+        }
+
+        #search-form input {
+            padding: 10px;
+            margin-right: 10px;
+            width: 400px; /* Aumenta el tamaño de la barra de búsqueda */
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        .search-icon {
+            font-size: 20px; /* Tamaño del emoticono */
+            cursor: pointer; /* Cambiar cursor al pasar el ratón */
+            margin-left: -50px; /* Ajustar posición */
+        }
     </style>
 </head>
 
@@ -47,6 +121,14 @@
     </header>
     <main>
         <h2>Lista de Multimedia</h2>
+        
+        <!-- Barra de búsqueda -->
+        <div id="search-form">
+            <input type="text" id="search-input" placeholder="Buscar por materia o contenido...">
+            <span class="search-icon" onclick="$('#search-input').trigger('input');">🔍</span> <!-- Emoticono de lupa -->
+        </div>
+
+        <!-- Tabla para mostrar los multimedia -->
         <table>
             <thead>
                 <tr>
@@ -57,7 +139,7 @@
                     <th>Acciones</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody id="multimedia-table">
                 {% for multi in multimedia %}
                 <tr>
                     <td>{{ multi.id_multi }}</td>
@@ -66,17 +148,14 @@
                     <td>{{ multi.num_ejemplar }}</td>
                     <td>
                         <a href="{% url 'editar_multimedia' multi.id_multi %}">
-                            <img src="{% static 'libros/img/lapiz.png' %}" alt="Editar"
-                                style="cursor: pointer; width: 20px; height: 20px;">
+                            <img src="{% static 'libros/img/lapiz.png' %}" alt="Editar" style="cursor: pointer; width: 20px; height: 20px;">
                         </a>
-                        <img src="{% static 'libros/img/trash.png' %}" alt="Eliminar"
-                            onclick="abrirModal({{ multi.id_multi }})"
-                            style="cursor: pointer; width: 20px; height: 20px;">
+                        <img src="{% static 'libros/img/trash.png' %}" alt="Eliminar" onclick="abrirModal({{ multi.id_multi }})" style="cursor: pointer; width: 20px; height: 20px;">
                     </td>
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="6">No hay material multimedia disponible.</td>
+                    <td colspan="5">No hay material multimedia disponible.</td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -106,3 +185,4 @@
 </body>
 
 </html>
+

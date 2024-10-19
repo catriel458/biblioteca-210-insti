@@ -138,6 +138,35 @@ def buscar_libros(request):
 
     return JsonResponse(list(libros), safe=False)
 
+# Buscar de mapas
+def buscar_mapas(request):
+    query = request.GET.get('q', '')
+    mapas = Mapas.objects.filter(
+        Q(tipo__icontains=query) | 
+        Q(descripcion__icontains=query)
+    ).values('id_mapa', 'tipo', 'descripcion', 'num_ejemplar')
+
+    return JsonResponse(list(mapas), safe=False)
+
+# Buscador de multimedia
+def buscar_multimedia(request):
+    query = request.GET.get('q', '')
+    multimedia = Multimedia.objects.filter(
+        Q(materia__icontains=query) | 
+        Q(contenido__icontains=query)
+    ).values('id_multi', 'materia', 'contenido', 'num_ejemplar')
+
+    return JsonResponse(list(multimedia), safe=False) 
+
+def buscar_notebooks(request):
+    query = request.GET.get('q', '')
+    notebooks = Notebook.objects.filter(
+        Q(marca__icontains=query) | 
+        Q(modelo__icontains=query)
+    ).values('id_netbook', 'marca', 'modelo', 'num_ejemplar')
+
+    return JsonResponse(list(notebooks), safe=False)
+
 # Borrar libros
 
 def borrar_libros(request):
