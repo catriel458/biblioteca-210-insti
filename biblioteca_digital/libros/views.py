@@ -32,7 +32,7 @@ def cargar_csv(request):
                 descripcion = row.get('descripcion')
 
                 # Manejar num_ejemplar
-                num_ejemplar = int(row.get('num_ejemplar') or 0)
+                num_ejemplar = int(row.get('num_ejemplar') or 1)
 
                 tipo_material = row.get('tipo_material')  # Campo que determina el tipo de material
 
@@ -133,7 +133,8 @@ def buscar_libros(request):
     libros = Libro.objects.filter(
         Q(titulo__icontains=query) | 
         Q(autor__icontains=query) | 
-        Q(resumen__icontains=query)
+        Q(resumen__icontains=query),
+        estado='Disponible'
     ).values('id_libro', 'titulo', 'autor', 'editorial', 'edicion', 'codigo_materia', 'resumen', 'img')
 
     return JsonResponse(list(libros), safe=False)
@@ -143,7 +144,8 @@ def buscar_mapas(request):
     query = request.GET.get('q', '')
     mapas = Mapas.objects.filter(
         Q(tipo__icontains=query) | 
-        Q(descripcion__icontains=query)
+        Q(descripcion__icontains=query),
+        estado='Disponible'
     ).values('id_mapa', 'tipo', 'descripcion', 'num_ejemplar')
 
     return JsonResponse(list(mapas), safe=False)
@@ -153,19 +155,54 @@ def buscar_multimedia(request):
     query = request.GET.get('q', '')
     multimedia = Multimedia.objects.filter(
         Q(materia__icontains=query) | 
-        Q(contenido__icontains=query)
+        Q(contenido__icontains=query),
+        estado='Disponible'
     ).values('id_multi', 'materia', 'contenido', 'num_ejemplar')
 
     return JsonResponse(list(multimedia), safe=False) 
 
-def buscar_notebooks(request):
+# Buscador de notebooks
+# Código viejo
+'''def buscar_notebooks(request):
     query = request.GET.get('q', '')
     notebooks = Notebook.objects.filter(
         Q(marca__icontains=query) | 
         Q(modelo__icontains=query)
     ).values('id_netbook', 'marca', 'modelo', 'num_ejemplar')
 
-    return JsonResponse(list(notebooks), safe=False)
+    return JsonResponse(list(notebooks), safe=False)'''
+
+# Código modificado (funcionando)
+def buscar_notebooks(request):
+    query = request.GET.get('q', '')
+    if query:
+        notebooks = Notebook.objects.filter(marca_not__icontains=query, estado='Disponible') | Notebook.objects.filter(modelo_not__icontains=query, estado='Disponible')
+    else:
+        notebooks = Notebook.objects.filter(estado='Disponible')
+
+    data = list(notebooks.values('id_not', 'marca_not', 'modelo_not', 'num_ejemplar'))
+    return JsonResponse(data, safe=False)
+
+# Buscador de proyectores
+
+def buscar_proyectores(request):
+    query = request.GET.get('q', '')
+    proyectores = Proyector.objects.filter(
+        Q(marca_pro__icontains=query) | Q(modelo_pro__icontains=query),
+        estado='Disponible'  # Asegúrate de que esto coincide con el campo en tu modelo
+    ).values('id_proyector', 'marca_pro', 'modelo_pro', 'num_ejemplar')
+
+    return JsonResponse(list(proyectores), safe=False)
+
+# Buscador de varios
+def buscar_varios(request):
+    query = request.GET.get('q', '')
+    varios = Varios.objects.filter(
+        Q(tipo__icontains=query),
+        estado='Disponible' 
+    ).values('id_varios', 'tipo', 'num_ejemplar')
+
+    return JsonResponse(list(varios), safe=False)
 
 # Borrar libros
 

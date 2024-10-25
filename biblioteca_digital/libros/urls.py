@@ -8,6 +8,9 @@ from .views import cargar_csv
 from .views import buscar_libros
 from .views import buscar_mapas  
 from .views import buscar_multimedia
+from .views import buscar_notebooks
+from .views import buscar_proyectores
+from .views import buscar_varios
 
 from .views import (
     mapas_view,
@@ -82,6 +85,10 @@ urlpatterns = [
     path('buscar_libros/', buscar_libros, name='buscar_libros'),
     path('buscar_mapas/', buscar_mapas, name='buscar_mapas'),
     path('buscar_multimedia/', buscar_multimedia, name='buscar_multimedia'),
+    path('buscar_notebook/', buscar_notebooks, name='buscar_notebooks'),
+    path('buscar_proyectores/', buscar_proyectores, name='buscar_proyectores'),
+    path('buscar_varios/', buscar_varios, name='buscar_varios')
+    
     
 ]
 

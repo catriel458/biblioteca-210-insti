@@ -4,9 +4,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lista de Mapas - Biblioteca</title>
+    <title>Lista de Notebooks - Biblioteca</title>
     {% load static %}
     <link rel="stylesheet" href="{% static 'libros/css/styles.css' %}">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
     <script>
         function abrirModal(notId) {
             document.getElementById('notIdInput').value = notId;
@@ -16,7 +18,57 @@
         function cerrarModal() {
             document.getElementById('modal').style.display = 'none';
         }
+
+        // Búsqueda en tiempo real usando AJAX
+        $(document).ready(function () {
+            $('#search-input').on('input', function () {
+                var searchValue = $(this).val(); // Valor de búsqueda
+
+                $.ajax({
+                    url: '{% url "buscar_notebooks" %}',  // Asegúrate de tener esta URL en tu archivo urls.py
+                    data: {
+                        'q': searchValue
+                    },
+                    dataType: 'json',
+                    success: function (data) {
+                        // Limpiar la tabla de resultados
+                        $('#notebook-table').empty();
+
+                        if (data.length > 0) {
+                            // Mostrar las notebooks que coinciden con la búsqueda
+                            data.forEach(function (not) {
+                                $('#notebook-table').append(
+                                    `<tr>
+                                        <td>${not.id_not}</td>
+                                        <td>${not.marca_not}</td>
+                                        <td>${not.modelo_not}</td>
+                                        <td>${not.num_ejemplar}</td>
+                                        <td>
+                                            <a href="/editar/${not.id_not}">
+                                                <img src="{% static 'libros/img/lapiz.png' %}" alt="Editar" style="cursor: pointer; width: 20px; height: 20px;">
+                                            </a>
+                                            <img src="{% static 'libros/img/trash.png' %}" alt="Eliminar" onclick="abrirModal(${not.id_not})" style="cursor: pointer; width: 20px; height: 20px;">
+                                        </td>
+                                    </tr>`
+                                );
+                            });
+                        } else {
+                            // Si no hay notebooks coincidentes
+                            $('#notebook-table').append(
+                                `<tr>
+                                    <td colspan="5">No se encontraron notebooks.</td>
+                                </tr>`
+                            );
+                        }
+                    },
+                    error: function () {
+                        console.error('Error en la búsqueda.');
+                    }
+                });
+            });
+        });
     </script>
+
     <style>
         /* Estilos para el modal */
         #modal {
@@ -38,6 +90,28 @@
             border: 1px solid #888;
             width: 80%;
         }
+
+        /* Estilos para el formulario de búsqueda */
+        #search-form {
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+        }
+
+        #search-form input {
+            padding: 10px;
+            margin-right: 10px;
+            width: 400px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        .search-icon {
+            font-size: 20px;
+            cursor: pointer;
+            margin-left: -50px;
+        }
     </style>
 </head>
 
@@ -46,7 +120,15 @@
         <h1>Biblioteca Digital</h1>
     </header>
     <main>
-        <h2>Lista de Notebook</h2>
+        <h2>Lista de Notebooks</h2>
+
+        <!-- Barra de búsqueda -->
+        <div id="search-form">
+            <input type="text" id="search-input" placeholder="Buscar por marca o modelo...">
+            <span class="search-icon" onclick="$('#search-input').trigger('input');">🔍</span>
+        </div>
+
+        <!-- Tabla para mostrar las notebooks -->
         <table>
             <thead>
                 <tr>
@@ -57,7 +139,7 @@
                     <th>Acciones</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody id="notebook-table">
                 {% for not in notebook %}
                 <tr>
                     <td>{{ not.id_not }}</td>
@@ -66,16 +148,14 @@
                     <td>{{ not.num_ejemplar }}</td>
                     <td>
                         <a href="{% url 'editar_notebook' not.id_not %}">
-                            <img src="{% static 'libros/img/lapiz.png' %}" alt="Editar"
-                                style="cursor: pointer; width: 20px; height: 20px;">
+                            <img src="{% static 'libros/img/lapiz.png' %}" alt="Editar" style="cursor: pointer; width: 20px; height: 20px;">
                         </a>
-                        <img src="{% static 'libros/img/trash.png' %}" alt="Eliminar"
-                            onclick="abrirModal({{ not.id_not }})" style="cursor: pointer; width: 20px; height: 20px;">
+                        <img src="{% static 'libros/img/trash.png' %}" alt="Eliminar" onclick="abrirModal({{ not.id_not }})" style="cursor: pointer; width: 20px; height: 20px;">
                     </td>
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="6">No hay netbook disponibles.</td>
+                    <td colspan="5">No hay notebooks disponibles.</td>
                 </tr>
                 {% endfor %}
             </tbody>

@@ -7,6 +7,8 @@
     <title>Lista de Varios - Biblioteca</title>
     {% load static %}
     <link rel="stylesheet" href="{% static 'libros/css/styles.css' %}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
     <script>
         function abrirModal(variosId) {
             document.getElementById('variosIdInput').value = variosId;
@@ -16,7 +18,55 @@
         function cerrarModal() {
             document.getElementById('modal').style.display = 'none';
         }
+
+        $(document).ready(function () {
+            $('#search-input').on('input', function () {
+                var searchValue = $(this).val(); // Valor de búsqueda
+
+                $.ajax({
+                    url: '{% url "buscar_varios" %}',  // URL correcta para la vista de búsqueda
+                    data: {
+                        'q': searchValue
+                    },
+                    dataType: 'json',
+                    success: function (data) {
+                        // Limpiar la tabla de resultados
+                        $('#varios-table').empty();
+
+                        if (data.length > 0) {
+                            // Mostrar los varios que coinciden con la búsqueda
+                            data.forEach(function (varios) {
+                                $('#varios-table').append(
+                                    `<tr>
+                                        <td>${varios.id_varios}</td>
+                                        <td>${varios.tipo}</td>
+                                        <td>${varios.num_ejemplar}</td>
+                                        <td>
+                                            <a href="/editar/${varios.id_varios}">
+                                                <img src="{% static 'libros/img/lapiz.png' %}" alt="Editar" style="cursor: pointer; width: 20px; height: 20px;">
+                                            </a>
+                                            <img src="{% static 'libros/img/trash.png' %}" alt="Eliminar" onclick="abrirModal(${varios.id_varios})" style="cursor: pointer; width: 20px; height: 20px;">
+                                        </td>
+                                    </tr>`
+                                );
+                            });
+                        } else {
+                            // Si no hay varios coincidentes
+                            $('#varios-table').append(
+                                `<tr>
+                                    <td colspan="4">No se encontraron varios.</td>
+                                </tr>`
+                            );
+                        }
+                    },
+                    error: function () {
+                        console.error('Error en la búsqueda.');
+                    }
+                });
+            });
+        });
     </script>
+
     <style>
         /* Estilos para el modal */
         #modal {
@@ -38,6 +88,28 @@
             border: 1px solid #888;
             width: 80%;
         }
+
+        /* Estilos para el formulario de búsqueda */
+        #search-form {
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+        }
+
+        #search-form input {
+            padding: 10px;
+            margin-right: 10px;
+            width: 400px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        .search-icon {
+            font-size: 20px;
+            cursor: pointer;
+            margin-left: -50px;
+        }
     </style>
 </head>
 
@@ -47,6 +119,14 @@
     </header>
     <main>
         <h2>Lista de Varios</h2>
+
+        <!-- Barra de búsqueda -->
+        <div id="search-form">
+            <input type="text" id="search-input" placeholder="Buscar por tipo...">
+            <span class="search-icon" onclick="$('#search-input').trigger('input');">🔍</span>
+        </div>
+
+        <!-- Tabla para mostrar los varios -->
         <table>
             <thead>
                 <tr>
@@ -56,7 +136,7 @@
                     <th>Acciones</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody id="varios-table">
                 {% for var in varios %}
                 <tr>
                     <td>{{ var.id_varios }}</td>
@@ -64,17 +144,14 @@
                     <td>{{ var.num_ejemplar }}</td>
                     <td>
                         <a href="{% url 'editar_varios' var.id_varios %}">
-                            <img src="{% static 'libros/img/lapiz.png' %}" alt="Editar"
-                                style="cursor: pointer; width: 20px; height: 20px;">
+                            <img src="{% static 'libros/img/lapiz.png' %}" alt="Editar" style="cursor: pointer; width: 20px; height: 20px;">
                         </a>
-                        <img src="{% static 'libros/img/trash.png' %}" alt="Eliminar"
-                            onclick="abrirModal({{ var.id_varios }})"
-                            style="cursor: pointer; width: 20px; height: 20px;">
+                        <img src="{% static 'libros/img/trash.png' %}" alt="Eliminar" onclick="abrirModal({{ var.id_varios }})" style="cursor: pointer; width: 20px; height: 20px;">
                     </td>
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="6">No hay Varios disponibles.</td>
+                    <td colspan="4">No hay Varios disponibles.</td>
                 </tr>
                 {% endfor %}
             </tbody>
