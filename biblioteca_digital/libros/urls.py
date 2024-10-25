@@ -11,6 +11,7 @@ from .views import buscar_multimedia
 from .views import buscar_notebooks
 from .views import buscar_proyectores
 from .views import buscar_varios
+from .views import registro_bajas
 
 from .views import (
     mapas_view,
@@ -87,7 +88,8 @@ urlpatterns = [
     path('buscar_multimedia/', buscar_multimedia, name='buscar_multimedia'),
     path('buscar_notebook/', buscar_notebooks, name='buscar_notebooks'),
     path('buscar_proyectores/', buscar_proyectores, name='buscar_proyectores'),
-    path('buscar_varios/', buscar_varios, name='buscar_varios')
+    path('buscar_varios/', buscar_varios, name='buscar_varios'),
+    path('registro_bajas/', views.registro_bajas, name='registro_de_bajas')
     
     
 ]

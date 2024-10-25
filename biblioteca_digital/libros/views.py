@@ -10,6 +10,7 @@ from django.contrib import messages #Para mensajes
 from django.http import JsonResponse
 from django.db.models import Q  # Añade esta línea
 
+
 def cargar_csv(request):
     if request.method == 'POST':
         csv_file = request.FILES['csv_file']
@@ -623,3 +624,18 @@ def editar_varios(request, varios_id):
         form = VariosForm(instance=varios)
 
     return render(request, 'libros/editar_varios.html', {'form': form, 'varios': varios})
+
+
+# Vista para registro de bajas 
+
+def registro_bajas(request):
+    # Filtrar solo los libros que están 'No disponible'
+    libros_no_disponibles = Libro.objects.filter(estado='No disponible')
+
+    # Contexto a pasar al template
+    context = {
+        'libros_no_disponibles': libros_no_disponibles,
+    }
+
+    return render(request, 'libros/registro_bajas.html', context)
+

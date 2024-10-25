@@ -24,7 +24,7 @@ class Libro(Inventario):
     edicion = models.IntegerField(null=False, default=1999)
     codigo_materia = models.CharField(max_length=255, null=False, default=1)
     siglas_autor_titulo = models.CharField(
-        max_length=255, null=False, default='ABC')
+    max_length=255, null=False, default='ABC')
     num_inventario = models.IntegerField(null=False, default=1)
     resumen = models.TextField()
     img = models.URLField()
@@ -32,7 +32,7 @@ class Libro(Inventario):
     def __str__(self):
         return f"id_libro: {self.id_libro}, titulo: {self.titulo}, autor: {self.autor}, editorial: {self.editorial}, codigo_materia: {self.codigo_materia}, siglas_autor_titulo: {self.siglas_autor_titulo}, num_inventario {self.num_inventario} resumen: {self.resumen}, imagen: {self.img} "
 
-
+            
 class Mapas(Inventario):
     id_mapa = models.AutoField(primary_key=True)  # Cambia IntegerField a AutoField
     tipo = models.CharField(max_length=255)

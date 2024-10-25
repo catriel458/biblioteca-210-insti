@@ -15,7 +15,7 @@ class LibroForm(forms.ModelForm):
             'resumen', 'img',
             
         ]
-
+            
 class MapaForm(forms.ModelForm):
     class Meta:
         model = Mapas
