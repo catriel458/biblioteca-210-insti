@@ -11,6 +11,18 @@ from django.http import JsonResponse
 from django.db.models import Q  # Añade esta línea
 
 
+import csv
+import io
+from django.http import HttpResponse
+from django.shortcuts import render, redirect
+from .models import Libro, Mapas, Multimedia, Notebook, Proyector, Varios
+
+import csv
+import io
+from django.http import HttpResponse
+from django.shortcuts import render, redirect
+from .models import Libro, Mapas, Multimedia, Notebook, Proyector, Varios
+
 def cargar_csv(request):
     if request.method == 'POST':
         csv_file = request.FILES['csv_file']
@@ -22,6 +34,15 @@ def cargar_csv(request):
         # Procesar el archivo CSV
         decoded_file = csv_file.read().decode('utf-8')
         io_string = io.StringIO(decoded_file)
+        reader = csv.DictReader(io_string)
+
+        # Verificar si el archivo tiene al menos una fila de datos (después del encabezado)
+        rows = list(reader)
+        if not rows:  # Si no hay filas de datos
+            return HttpResponse("El archivo CSV está vacío o solo contiene encabezados.")
+
+        # Restablecer el puntero del archivo para procesarlo nuevamente
+        io_string.seek(0)
         reader = csv.DictReader(io_string)
 
         for row in reader:
