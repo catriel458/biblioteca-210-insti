@@ -66,25 +66,153 @@
     </script>
 
     <style>
-        /* Estilos para el modal */
-        #modal {
-            display: none;
-            position: fixed;
-            z-index: 1;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0, 0, 0, 0.4);
+                    /* Estilos para el modal */
+#modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.5);  /* Fondo semitransparente */
+    padding: 60px 0; /* Añadir espacio en los bordes */
+}
+
+#modalContent {
+    background-color: #ffffff;
+    margin: 5% auto;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    width: 60%; /* Mejor control del ancho */
+    max-width: 600px; /* Asegura que el modal no sea demasiado ancho */
+    text-align: center; /* Centrar el contenido */
+}
+
+/* Título del modal */
+#modalContent h3 {
+    font-size: 1.8em;
+    color: #333;
+    margin-bottom: 20px;
+    font-family: 'Arial', sans-serif;
+}
+
+/* Estilo de los formularios */
+#modalContent label {
+    font-size: 1.1em;
+    color: #555;
+    margin-bottom: 10px;
+    display: block;
+}
+
+#modalContent input[type="text"], #modalContent input[type="file"] {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    box-sizing: border-box;
+    font-size: 1em;
+    color: #555;
+}
+
+/* Estilo de los botones */
+#modalContent button {
+    padding: 12px 25px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 1.1em;
+    cursor: pointer;
+    margin: 5px;
+    transition: background-color 0.3s ease;
+}
+
+#modalContent button:hover {
+    background-color: #45a049;
+}
+
+#modalContent button[type="button"] {
+    background-color: #f44336; /* Botón de cancelar */
+}
+
+#modalContent button[type="button"]:hover {
+    background-color: #e53935;
+}
+
+/* Estilo de los íconos de cerrar y cancelar */
+#modalContent .close-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 2em;
+    color: #aaa;
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+#modalContent .close-btn:hover {
+    color: #333;
+}
+
+/* Estilos para el header */
+header {
+            background-color: #004c8c; /* Azul oscuro */
+            color: white;
+            text-align: center;
+            padding: 20px;
         }
 
-        #modalContent {
-            background-color: #fefefe;
-            margin: 15% auto;
-            padding: 20px;
-            border: 1px solid #888;
-            width: 80%;
+        header h1 {
+            font-family: 'Arial', sans-serif;
+            font-size: 2em;
+        }
+
+        header span {
+            font-size: 1.2em;
+            display: inline-block;
+            margin-left: 10px;
+        }
+
+        header h1::before {
+            content: '📽️  ';
+            font-size: 1.5em;
+        }
+
+         /* Estilos para la tabla de libros */
+         table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #004c8c;
+            color: white;
+        }
+
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+
+
+         /* Footer */
+         footer {
+            background-color: #004c8c; /* Azul oscuro */
+            color: white;
+            text-align: center;
+            padding: 10px 0;
+            font-size: 1rem;
+            margin-top: 30px;
         }
 
         /* Estilos para el formulario de búsqueda */
@@ -108,6 +236,23 @@
             cursor: pointer;
             margin-left: -50px;
         }
+
+        .btn-carga-manual {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #4CAF50;
+    color: white;
+    text-align: center;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+    margin:10px 0;
+}
+.btn-carga-manual:hover {
+    background-color: #45a049;
+}
+
     </style>
 </head>
 
@@ -117,6 +262,8 @@
     </header>
     <main>
         <h2>Lista de Proyectores</h2>
+
+        <a href="{% url 'alta_proyector' %}" class="btn-carga-manual">Carga Manual</a>
 
         <!-- Barra de búsqueda -->
         <div id="search-form">
@@ -176,7 +323,7 @@
 
     </main>
     <footer>
-        <p>&copy; 2024 Biblioteca Digital. Todos los derechos reservados.</p>
+        <p>© 2025 ISFD 210. Todos los derechos reservados</p>
     </footer>
 </body>
 
