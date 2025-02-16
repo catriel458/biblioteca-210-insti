@@ -88,6 +88,37 @@
             font-size: 1rem;
             margin-top: 30px;
         }
+
+        .container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-historial-bajas {
+    display: inline-block;
+    padding: 10px 20px;
+    width: auto;
+    min-width: 150px;
+    text-align: center;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+    margin: 10px auto;
+    display: block;
+    text-align: center;
+}
+
+.btn-historial-bajas:hover {
+    background-color: #b71c1c;
+    color:white
+}
+
+
+</style>
+
     </style>
 </head>
 <body>
@@ -106,6 +137,10 @@
             <a href="{% url 'varios' %}" class="button">📦 Varios</a>
         </div>
     </main>
+    
+    <div class="container">
+    <a href="{% url 'registro_de_bajas' %}" class="btn-historial-bajas">🗑️ Historial de bajas</a>
+    </div>
     <footer>
         <p>© 2025 ISFD 210. Todos los derechos reservados.</p>
     </footer>
