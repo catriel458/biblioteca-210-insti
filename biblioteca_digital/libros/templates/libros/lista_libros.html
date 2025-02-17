@@ -305,6 +305,89 @@
     background-color: #1e87dc;
 }
 
+/* Estilos para tablets (pantallas de hasta 1024px) */
+@media screen and (max-width: 1024px) {
+    #modalContent {
+        width: 80%;
+    }
+
+    #search-form {
+        max-width: 80%;
+    }
+
+    table {
+        font-size: 14px;
+    }
+
+    th, td {
+        padding: 8px;
+    }
+}
+
+/* Estilos para móviles (pantallas de hasta 768px) */
+@media screen and (max-width: 768px) {
+    
+    
+    header h1 {
+        font-size: 1.5em;
+    }
+
+    header span {
+        font-size: 1em;
+    }
+
+    #modalContent {
+        width: 90%;
+        padding: 20px;
+    }
+
+    #search-form {
+        max-width: 90%;
+    }
+
+    table {
+        font-size: 12px;
+    }
+
+    th, td {
+        padding: 6px;
+    }
+
+    .btn-carga-manual, .btn-carga-masiva {
+        display: block;
+        width: 100%;
+        text-align: center;
+        margin-bottom: 10px;
+    }
+}
+
+/* Estilos para móviles pequeños (pantallas de hasta 480px) */
+@media screen and (max-width: 480px) {
+    header {
+        padding: 15px;
+    }
+
+    header h1 {
+        font-size: 1.2em;
+    }
+
+    #modalContent {
+        width: 95%;
+    }
+
+    table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+
+    .btn-carga-manual, .btn-carga-masiva {
+        font-size: 14px;
+        padding: 8px;
+    }
+}
+
+
     </style>
 </head>
 <body>
