@@ -1,0 +1,49 @@
+.content-overlay .btn-home {
+    display: flex !important; /* Hacer que el elemento sea un contenedor flex */
+    align-items: center !important;
+    justify-content: center !important;
+    background-color: #17a2b8 !important; 
+    color: white !important;
+    padding: 10px 20px; /* Ajusta este valor para centrar el texto */
+    font-size: 20px !important;
+    width: 280px !important; /* Tamaño fijo para el ancho */
+    height: 80px !important; /* Tamaño fijo para la altura */
+    text-align: center !important;
+    letter-spacing: 1px !important;
+    border-radius: 20px !important;
+    border: none !important;
+    white-space: nowrap !important;
+    margin-bottom: 20px !important;
+    box-shadow: 2px 4px 8px rgba(15, 142, 234, 0.3) !important;
+    cursor: pointer !important;
+    box-shadow: 3px 4px 0px #007575, 6px 8px 0px #007575 !important;
+    transition: all 0.1s ease-in-out !important;  
+}
+.btn-home:active {
+    box-shadow: 2px 2px 0px #007575; inset: 4px 4px 0px #009999 !important;  
+    transform: translateY(2px, 2px) !important;
+}
+
+.btn-home:hover {
+    background-color: #33cccc !important; 
+    color: white !important;
+}
+
+
+.btn-cancelar {
+    background-color: transparent;
+    color: red;
+    font-weight: bold;
+    border: none;
+    font-size: 18px;
+    padding: 0px 40px ;
+}
+
+.btn-guardar {
+    background-color: #007bff;
+    color: white;
+    font-weight: bold;
+    font-size: 18px;
+    padding: 0px  40px ;
+    border: 1px solid black;
+}

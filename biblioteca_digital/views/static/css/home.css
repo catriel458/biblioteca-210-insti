@@ -1,0 +1,44 @@
+/* Asegúrate de que el body y el html ocupen todo el alto de la pantalla */
+html, body {
+    height: 100%;
+    margin: 0;
+    overflow: hidden; /* Evita el scroll */
+}
+
+/* Contenedor principal que centra todo el contenido */
+.container {
+    height: 100vh; /* Asegura que el contenedor ocupe el 100% de la altura de la pantalla */
+    display: flex;
+    flex-direction: column;
+}
+
+/* Columna con el logo como fondo */
+.logo-background {
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    height: 100%; /* Asegura que ocupe toda la altura del contenedor */
+    min-height: 50vh;
+    width: 100%;
+}
+
+.transparencia {
+    background-size: contain;
+    background-position: center;
+    min-height: 50vh;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+.content-overlay {
+    text-align: center;
+    flex-direction: column;
+    z-index: 1;
+}
+
+.full-height {
+    height: 100vh;
+}

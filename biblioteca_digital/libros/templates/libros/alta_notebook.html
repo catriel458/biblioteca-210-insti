@@ -1,3 +1,63 @@
+<div data-block="content">
+    <div data-form="notebook">
+        <div class="row mb-3">
+            <div class="col-4">
+                <label for="marca">Marca:</label>
+                <input type="text" class="form-control" value="Escriba aquí..." id="marca" name="marca" required>
+            </div>
+            <div class="col-3">
+                <label for="modelo">Modelo:</label>
+                <input type="text" class="form-control" value="Escriba aquí..." id="modelo" name="modelo" required>
+            </div>
+            <div class="col-3">
+                <label for="numero_serie">Número de Serie:</label>
+                <input type="text" class="form-control" value="Escriba aquí..." id="numero_serie" name="numero_serie" required>
+            </div>
+            <div class="col-2">
+                <label for="carga_masiva">Carga Masiva:</label>
+                <input type="file" class="form-control" id="carga_masiva" name="carga_masiva" style="display:none;">
+                <button type="button" class="btn btn-outline-info" onclick="document.getElementById('carga_masiva').click();">Seleccionar Archivos</button>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-4">
+                <label for="descripcion">Descripción:</label>
+                <textarea class="form-control textarea-wrapper" id="descripcion" name="descripcion">Escriba aquí...</textarea>
+            </div>
+            <div class="col-3">
+                <label for="procesador">Procesador:</label>
+                <input type="text" class="form-control" value="Escriba aquí..." id="procesador" name="procesador">
+            </div>
+            <div class="col-3">
+                <label for="ram">Memoria RAM:</label>
+                <input type="text" class="form-control" value="Escriba aquí..." id="ram" name="ram">
+            </div>
+            <div class="col-2">
+                <label for="cargar_imagen">Cargar Imagen:</label>
+                <input type="file" class="form-control" id="cargar_imagen" name="cargar_imagen">
+            </div>
+        </div>
+
+        <div class="row mt-3 pt-3">
+            <div class="col-4">
+                <label for="disco">Disco:</label>
+                <input type="text" class="form-control" value="Escriba aquí..." id="disco" name="disco">
+            </div>
+            <div class="col-6">
+                <label for="palabras_clave">Palabras Clave:</label>
+                <input type="text" class="form-control" value="Escriba aquí..." id="palabras_clave" name="palabras_clave" required>
+            </div>
+        </div>
+
+        <!-- Contenedor para ejemplares -->
+        <div id="ejemplares-container">
+            <!-- Los ejemplares se agregarán dinámicamente aquí -->
+        </div>
+    </div>
+</div>
+
+<!--
 <!DOCTYPE html>
 <html lang="es">
 
@@ -182,7 +242,7 @@
     {% endif %}
 
     <footer>
-        <p>© 2025 ISFD 210. Todos los derechos reservados</p>
+        <p> 2025 ISFD 210. Todos los derechos reservados</p>
     </footer>
 
 </body>

@@ -7,6 +7,27 @@
     <title>Registrar Varios</title>
 </head>
 
+<body>
+    <h1>Registrar Varios</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Registrar Varios</button>
+    </form>
+
+    {% if success %}
+    <p style="color: green;">{{ success }}</p>
+    {% endif %}
+
+    {% if error %}
+    <p style="color: red;">{{ error }}</p>
+    {% endif %}
+</body>
+
+</html>
+
+<!--
+
 <style>
     :root {
         --primary-color: #1a3a5e;
@@ -164,29 +185,3 @@
         }
     }
 </style>
-
-
-<body>
-    <h1>Registrar Varios</h1>
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Registrar Varios</button>
-    </form>
-
-    {% if success %}
-    <p style="color: green;">{{ success }}</p>
-    {% endif %}
-
-    {% if error %}
-    <p style="color: red;">{{ error }}</p>
-    {% endif %}
-
-    <footer>
-        <p>© 2025 ISFD 210. Todos los derechos reservados</p>
-    </footer>
-
-
-</body>
-
-</html>

@@ -1,0 +1,27 @@
+.header-home {
+    background-position: center;
+    background-repeat: no-repeat;
+    padding-left: 5%;
+    background-size: cover !important; /* Asegura que cubra todo el contenedor */
+    width: 100vh; /* Asegúrate de que ocupe todo el ancho */
+    height: auto; /* O considera usar un valor fijo o 100vh para altura */
+    margin: 0; /* Quita márgenes */
+
+}
+
+.header-pantalla {
+    background-image: url('/static/libros/imagenes/');
+    background-position: center;
+    background-size: cover; /* Asegúrate de que cubra todo el contenedor */
+    background-repeat: no-repeat;
+    height: auto;
+    position: relative; /* Cambiado a relative para mejor control del flujo */
+}
+
+
+.cover-pic {
+    flex: 1; /* Ocupa menos espacio */
+    max-width: 30%; /* Ancho máximo */
+    cursor: pointer; /* Cambia el cursor para indicar que es un enlace */
+    position: relative;
+}
