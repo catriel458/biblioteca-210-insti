@@ -1,0 +1,21 @@
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/header.css' %}">
+
+<div class="{{ header_class }}">
+    <div class="cover-container">
+        {% if header_class == 'header-home' %}
+            <img style="padding-left: 10px;" src="{% static 'imagenes/cover_alta.png' %}" alt="Cover Alta" class="cover-alta">
+        {% endif %}
+
+        <!-- Cover Alta: visible en ambas vistas -->
+        
+        
+        <!-- Condicional para Cover Pic: visible solo si no estás en home -->
+        {% if header_class == 'header-pantalla' %}
+            <a href="{% url 'home' %}">
+                <img  src="{% static 'imagenes/cover_alta.png' %}" alt="Cover Alta" class="cover-alta">
+                <img src="{% static 'imagenes/cover_pic.png' %}" alt="Cover Pic" class="cover-pic">
+            </a>
+        {% endif %}
+    </div>
+</div>

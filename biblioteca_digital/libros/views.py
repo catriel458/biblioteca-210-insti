@@ -660,3 +660,19 @@ def registro_bajas(request):
 
     return render(request, 'libros/registro_bajas.html', context)
 
+# Estas funciones se han movido al proyecto principal (biblioteca_digital/views.py)
+'''def home(request):
+    return render(request, 'home.html')
+
+def alta_material(request):
+    return render(request, 'materiales/alta_material.html')'''
+
+def get_material_template(request, tipo):
+    """
+    Vista para servir los templates específicos de cada tipo de material
+    """
+    template_name = f'libros/alta_{tipo}.html'
+    try:
+        return render(request, template_name)
+    except TemplateDoesNotExist:
+        return HttpResponse('', status=404)

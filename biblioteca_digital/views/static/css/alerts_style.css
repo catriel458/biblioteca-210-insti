@@ -1,0 +1,69 @@
+* {
+    padding: 0;
+    margin: 0;
+}
+
+
+
+.tarjeta {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    border: 2px solid blue;
+    width: 30%;
+    margin: 5%;
+    padding:1%;
+    text-align: center;
+    border-radius: 5%;
+    background-color: rgb(171, 171, 219);
+}
+
+.btn {
+    font-size: 0.8em;
+}
+
+.btn-warning{
+    color: white;
+    background-color: rgb(253, 99, 3);
+}
+
+.botones-tarjeta {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.tarjeta-alerta {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    border: 2px solid red;
+    width: 30%;
+    margin: 5%;
+    padding:1%;
+    text-align: center;
+    border-radius: 5%;
+    background-color: rgba(255, 0, 0, 0.3);
+}
+
+.atencion {
+    text-decoration-line:underline ;
+    text-decoration-color: red;
+    text-underline-offset: 3px;
+}
+
+.tarjeta span {
+    color:rgb(91, 1, 91);
+    font-weight: 700;
+}
+
+.texto-alerta {
+    color: red;
+}
+
+.tipo-archivo {
+    color:rgb(91, 1, 91);
+    font-weight: 700;
+}
