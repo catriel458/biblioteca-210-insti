@@ -12,13 +12,11 @@ Este proyecto es parte del Instituto Educativo 210 y cuenta con dos ramas: `fron
 ### 1️⃣ Clonar el repositorio
 
 Primero, clona el repositorio con el siguiente comando:
-
+git clone https://github.com/catriel458/biblioteca-210-insti.git
 
 2️⃣ Instalar las dependencias de Python
 
 Después, instala las dependencias necesarias para el proyecto. Asegúrate de tener pip actualizado:
-
-git clone https://github.com/catriel458/biblioteca-210-insti.git
 
 pip install django
 pip install pillow
