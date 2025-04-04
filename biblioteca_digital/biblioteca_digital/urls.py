@@ -16,15 +16,19 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from django.http import HttpResponseRedirect
 from django.conf import settings
-from django.conf.urls.static import static  # Asegúrate de incluir esto
+from django.http import HttpResponseRedirect
+from django.conf.urls.static import static
+from . import views  # Importamos las vistas del proyecto principal
 
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    # Rutas principales del sitio
+    path('', views.home, name='home'),  # Nueva ruta para el home principal
+    path('alta_material/', views.alta_material, name='alta_material'),  # Nueva ruta para alta_material
+    # Rutas de la app libros
     path('libros/', include('libros.urls')),
-    path('', lambda request: HttpResponseRedirect('/libros/')),  # Redirige la URL raíz a /libros/
 ]
 
 if settings.DEBUG:

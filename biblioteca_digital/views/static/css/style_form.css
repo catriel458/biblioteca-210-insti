@@ -1,0 +1,72 @@
+#form-container {
+    max-height: 400px; 
+    overflow-y: auto;
+}
+.row {
+    margin-bottom: 15px; 
+}
+input, textarea, select{
+    background-color: #a0dcf6 !important; 
+    color: #333;             
+}
+textarea {
+    width: 100%; 
+    height: 80px;
+    resize: none;
+    overflow: hidden;
+}
+.textarea-wrapper {
+    height: 100%;
+    resize: none;
+}
+.hidden {
+    display: none;
+}
+.borde {
+    border-top: 2px dotted #81123b; 
+    padding-top: 10px;
+    margin-bottom: 20px;
+}
+
+/* Estilos para el formulario de alta de material */
+.header-home { 
+    display: none; 
+} 
+
+.header-pantalla { 
+    display: block; 
+} 
+
+#cant_ejemplares_container { 
+    display: none; 
+} 
+
+#dynamic-rows { 
+    display: none; 
+} 
+
+#buttons-container { 
+    display: none;
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: auto;
+    z-index: 1000;
+}
+
+/* Estilos adicionales para el formulario */
+.container-fluid {
+    margin-top: 3%;
+}
+
+.btn-outline-danger, .btn-primary {
+    width: 100px;
+}
+
+.btn-outline-danger {
+    margin-right: 10px;
+}
+
+.manual-button {
+    background-color: rgba(113, 37, 157, 0.77);
+}
