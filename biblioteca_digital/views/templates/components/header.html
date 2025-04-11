@@ -1,21 +1,23 @@
 {% load static %}
 <link rel="stylesheet" href="{% static 'css/header.css' %}">
 
-<div class="{{ header_class }}">
-    <div class="cover-container">
-        {% if header_class == 'header-home' %}
-            <img style="padding-left: 10px;" src="{% static 'imagenes/cover_alta.png' %}" alt="Cover Alta" class="cover-alta">
-        {% endif %}
-
-        <!-- Cover Alta: visible en ambas vistas -->
-        
-        
-        <!-- Condicional para Cover Pic: visible solo si no estás en home -->
-        {% if header_class == 'header-pantalla' %}
-            <a href="{% url 'home' %}">
-                <img  src="{% static 'imagenes/cover_alta.png' %}" alt="Cover Alta" class="cover-alta">
-                <img src="{% static 'imagenes/cover_pic.png' %}" alt="Cover Pic" class="cover-pic">
-            </a>
-        {% endif %}
+<header class="{{ header_class }}">
+    <div class="container-fluid">
+        <div class="row align-items-center justify-content-center">
+            {% if header_class == 'header-home' %}
+                <div class="col-auto">
+                    <img src="{% static 'imagenes/cover_alta.png' %}" alt="Cover Alta" class="img-fluid cover-alta">
+                </div>
+            {% endif %}
+            
+            {% if header_class == 'header-pantalla' %}
+                <div class="col-auto d-flex">
+                    <a href="{% url 'home' %}" class="d-flex align-items-center text-decoration-none">
+                        <img src="{% static 'imagenes/cover_alta.png' %}" alt="Cover Alta" class="img-fluid cover-alta me-3">
+                        <img src="{% static 'imagenes/Logo_inicio.png' %}" alt="Cover Pic" class="img-fluid cover-pic">
+                    </a>
+                </div>
+            {% endif %}
+        </div>
     </div>
-</div>
+</header>

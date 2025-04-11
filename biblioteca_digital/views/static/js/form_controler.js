@@ -24,13 +24,13 @@ document.addEventListener("DOMContentLoaded", function () {
     function updateRows() {
         if (!tipoMaterialSelect.value) return;
         
-        const cantEjemplares = parseInt(cantEjemplaresInput.value) || 0;
+        const cantEjemplares = parseInt(cantEjemplaresInput.value) || 1;
         
         // Limpiar filas dinámicas previas
         dynamicRowsContainer.innerHTML = '';
         
         // Mostrar u ocultar el contenedor de filas dinámicas y botones
-        const showElements = cantEjemplares > 0;
+        const showElements = cantEjemplares >= 1;
         dynamicRowsContainer.style.display = showElements ? 'block' : 'none';
         buttonsContainer.style.display = showElements ? 'block' : 'none';
         
@@ -42,29 +42,35 @@ document.addEventListener("DOMContentLoaded", function () {
             const row = document.createElement('div');
             row.className = 'row mt-3';
             row.innerHTML = `
-                <div class="col-2">
-                    <label for="numero_ejemplar_${i}">Ejemplar N°:</label>
-                    <input type="text" class="form-control" id="numero_ejemplar_${i}" name="numero_ejemplar[]" value="${i + 1}" required readonly>
-                </div>
-                <div class="col-2">
-                    <label for="sede_${i}">Sede:</label>
-                    <select class="form-control" id="sede_${i}" name="sede[]" required>
-                        <option value="">Selecciona una sede</option>
-                        <option value="sede1">La Plata</option>
-                        <option value="sede2">Abasto</option>
-                    </select>
-                </div>
-                <div class="col-6">
-                    <label for="observaciones_${i}">Observaciones:</label>
-                    <textarea class="form-control" id="observaciones_${i}" name="observaciones[]" rows="1">Escriba aquí...</textarea>
-                </div>
-                <div class="col-2">
-                    <label for="disponibilidad_${i}">Disponibilidad:</label>
-                    <select class="form-control" id="disponibilidad_${i}" name="disponibilidad[]" required>
-                        <option value="">Selecciona disponibilidad</option>
-                        <option value="disponible">Disponible</option>
-                        <option value="no_disponible">No Disponible</option>
-                    </select>
+                <div class="row">
+                    <div class="col-2">
+                        <label for="numero_ejemplar_${i}">Ejemplar N°:</label>
+                        <input type="text" class="form-control" id="numero_ejemplar_${i}" name="numero_ejemplar[]" value="${i + 1}" required readonly style="background-color: transparent !important;">
+                    </div>
+
+                    <div class="col-2 d-flex flex-column justify-content-between">
+                        <div>
+                            <label for="sede_${i}">Sede:</label>
+                            <select class="form-control mb-2" id="sede_${i}" name="sede[]" required>
+                                <option value="">Aún sin seleccionar</option>
+                                <option value="sede1">La Plata</option>
+                                <option value="sede2">Abasto</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="disponibilidad_${i}">Disponibilidad:</label>
+                            <select class="form-control" id="disponibilidad_${i}" name="disponibilidad[]" required>
+                                <option value="">Aún sin seleccionar</option>
+                                <option value="disponible">Disponible</option>
+                                <option value="no_disponible">No Disponible</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-6 ">
+                        <label for="observaciones_${i}">Observaciones:</label>
+                        <textarea class="form-control h-100" id="observaciones_${i}" name="observaciones[]" rows="2">Escriba aquí...</textarea>
+                    </div>
                 </div>
             `;
             dynamicRowsContainer.appendChild(row);
