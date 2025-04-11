@@ -56,3 +56,12 @@ htmlcov/
 nosetests.xml
 coverage.xml
 *.cover
+
+# Specific to this project
+biblioteca/Lib/
+**/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
