@@ -1,0 +1,66 @@
+{% extends 'components/baseb.html' %}
+{% load static %}
+{% block extra_styles %}
+    <link rel="stylesheet" href="{% static 'css/main.css' %}">
+    <link rel="stylesheet" href="{% static 'css/style_form.css' %}">
+    <link rel="stylesheet" href="{% static 'css/botones.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <form id="form_alta_material" action="{% url 'alta_material' %}" method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <!-- Fila 1 -->
+        <div class="row align-items-center">
+            <div class="col-2 form-group mb-0">
+                <label for="tipo_material" class="small">Tipo de Material:</label>
+                <select class="form-control form-control-sm" id="tipo_material" name="tipo_material" required>
+                    <option value="">Selecciona un tipo de material</option>
+                    <option value="libro">Libro</option>
+                    <option value="mapa">Mapa</option>
+                    <option value="multimedia">Multimedia</option>
+                    <option value="proyector">Proyector</option>
+                    <option value="notebook">Notebook</option>
+                </select>
+            </div>
+            <div class="col-2 form-group mb-0" id="cant_ejemplares_container">
+                <label for="cant_ejemplares" class="small">Cant. Ejemplares:</label>
+                <input type="number" class="form-control form-control-sm" id="cant_ejemplares" name="cant_ejemplares" min="1" value="1" required oninput="updateRows()">
+            </div>
+            <div class="col-6"></div>
+            <div class="col-2 upload-container">
+                <button type="button" class="btn btn-dark btn-sm manual-button">MANUAL</button>
+                <div class="upload-box">
+                    <small class="text-muted">Para carga masiva / importar, haga click aquí:</small>
+                    <label for="cargar_imagen" class="d-block my-3">
+                        <div class="boton-redondeado">
+                            <span>↑</span>
+                        </div>
+                        <input type="file" id="cargar_imagen" name="cargar_imagen" style="display: none;">
+                    </label>
+                </div>                
+            </div>
+        </div>
+
+        <!-- Contenedor para formularios específicos -->
+        <div id="formulario-especifico" class="mt-2">
+            <!-- Los formularios se cargarán aquí dinámicamente -->
+        </div>
+
+        <!-- Contenedor para filas dinámicas -->
+        <div id="dynamic-rows">
+            <!-- Las filas dinámicas se cargarán aquí -->
+        </div>
+
+        <!-- Fila de botones -->
+        <div id="buttons-container">
+            <button type="button" class="btn btn-outline-danger btn-sm">Cancelar</button>
+            <button type="submit" class="btn btn-primary btn-sm">Guardar</button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+    <script src="{% static 'js/form_controler.js' %}" defer></script>
+{% endblock %}

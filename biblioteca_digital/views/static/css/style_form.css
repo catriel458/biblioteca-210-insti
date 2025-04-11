@@ -1,0 +1,148 @@
+#form-container {
+    max-height: 400px; 
+    overflow-y: auto;
+}
+.row {
+    margin-bottom: 0.25rem;
+}
+input, textarea, select {
+    background-color: #a0dcf6 !important; 
+    color: #333;
+    border: none;
+    border-bottom: 2px solid #8B1D69;
+    border-radius: 4px;
+    transition: border-color 0.3s ease;
+}
+
+input:focus, textarea:focus, select:focus {
+    outline: none;
+    box-shadow: none;
+    border-bottom: 2px solid #8B1D69;
+}
+
+textarea {
+    width: 100%; 
+    height: 80px;
+    resize: none;
+    overflow: hidden;
+}
+.textarea-wrapper {
+    height: 100%;
+    resize: none;
+}
+.hidden {
+    display: none;
+}
+.borde {
+    border-top: 2px dotted #81123b; 
+    padding-top: 10px;
+    margin-bottom: 20px;
+}
+
+/* Estilos para el formulario de alta de material */
+.header-home { 
+    display: none; 
+} 
+
+.header-pantalla { 
+    display: block; 
+} 
+
+#cant_ejemplares_container { 
+    display: none; 
+} 
+
+#dynamic-rows { 
+    display: none; 
+} 
+
+#buttons-container { 
+    display: none;
+    position: fixed;
+    bottom: 15px;
+    right: 15px;
+    width: auto;
+    z-index: 1000;
+}
+
+/* Estilos adicionales para el formulario */
+.container-fluid {
+    margin-top: 0.75%;
+}
+
+.btn-outline-danger, .btn-primary {
+    width: 100px;
+}
+
+.btn-outline-danger.btn-sm {
+    margin-right: 10px;
+}
+
+.manual-button {
+    background-color: var(--input-border) !important;
+    width: 150px !important;
+    margin-left: auto;
+}
+
+.upload-container {
+    width: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.upload-container button {
+    width: 100% !important;
+}
+
+.upload-box {
+    width: 100%;
+    background-color: #d7f2f7;
+}
+
+.custom-dashed-line {
+    border: none;
+    border-top: 3px dashed var(--input-border);
+    margin: 0;
+}
+
+/* Estilos para el formulario de alta de material */
+
+.form-group {
+    margin-bottom: 0.25rem;
+}
+
+.form-control {
+    height: calc(1.4em + 0.4rem + 2px);
+    padding: 0.2rem 0.4rem;
+    font-size: 0.8rem;
+}
+
+label.small {
+    font-size: 0.75rem;
+    margin-bottom: 0.1rem;
+}
+
+.btn-sm {
+    padding: 0.2rem 0.5rem;
+    font-size: 0.8rem;
+    width: 100px;
+}
+
+.boton-redondeado {
+    padding: 0.2rem;
+    font-size: 0.8rem;
+    background-color: #d7f2f7;
+}
+
+.boton-redondeado span {
+    font-size: 24px;
+}
+
+small.text-muted {
+    font-size: 0.7rem;
+}
+
+.col-2.upload-container {
+    margin-left: auto;
+}

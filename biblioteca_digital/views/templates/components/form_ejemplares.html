@@ -1,0 +1,18 @@
+{% load static %}
+
+<link rel="stylesheet" href="{% static 'css/style_form.css' %}">
+
+<div class="row mt-4 pt-4">
+    <div class="col-10">
+        <label for="palabras_clave">Palabras Clave:</label>
+        <input type="text" class="form-control" value="Escriba aquí..." id="palabras_clave" name="palabras_clave" required>
+    </div>
+</div>
+<div class="container-fluid" style="height: 30px;">
+    <hr class="custom-dashed-line">
+</div>
+
+<!-- Contenedor para ejemplares -->
+<div id="ejemplares-container">
+    <!-- Los ejemplares se agregarán dinámicamente aquí -->
+</div>
