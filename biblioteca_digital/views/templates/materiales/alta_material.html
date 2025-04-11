@@ -1,32 +1,20 @@
 {% extends 'components/baseb.html' %}
 {% load static %}
 {% block extra_styles %}
+    <link rel="stylesheet" href="{% static 'css/main.css' %}">
     <link rel="stylesheet" href="{% static 'css/style_form.css' %}">
-    <style>
-        .header-home { display: none; } /* Oculta el encabezado de inicio */
-        .header-pantalla { display: block; } /* Muestra el encabezado de pantalla */
-        #cant_ejemplares_container { display: none; } /* Se mostrará cuando se seleccione un tipo */
-        #dynamic-rows { display: none; } /* Se mostrará cuando se ingrese una cantidad */
-        #buttons-container { 
-            display: none; /* Se mostrará cuando haya ejemplares */
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            width: auto;
-            z-index: 1000;
-        }
-    </style>
+    <link rel="stylesheet" href="{% static 'css/botones.css' %}">
 {% endblock %}
 
 {% block content %}
-<div class="container-fluid" style="margin-top: 3%;">
+<div class="container-fluid">
     <form id="form_alta_material" action="{% url 'alta_material' %}" method="POST" enctype="multipart/form-data">
         {% csrf_token %}
         <!-- Fila 1 -->
-        <div class="row">
-            <div class="col-2">
-                <label for="tipo_material">Tipo de Material:</label>
-                <select class="form-control" style="background-color: aqua;" id="tipo_material" name="tipo_material" required>
+        <div class="row align-items-center">
+            <div class="col-2 form-group mb-0">
+                <label for="tipo_material" class="small">Tipo de Material:</label>
+                <select class="form-control form-control-sm" id="tipo_material" name="tipo_material" required>
                     <option value="">Selecciona un tipo de material</option>
                     <option value="libro">Libro</option>
                     <option value="mapa">Mapa</option>
@@ -35,18 +23,27 @@
                     <option value="notebook">Notebook</option>
                 </select>
             </div>
-            <div class="col-2" id="cant_ejemplares_container">
-                <label for="cant_ejemplares">Cant. Ejemplares:</label>
-                <input type="number" class="form-control" id="cant_ejemplares" name="cant_ejemplares" min="0" value="0" required oninput="updateRows()">
+            <div class="col-2 form-group mb-0" id="cant_ejemplares_container">
+                <label for="cant_ejemplares" class="small">Cant. Ejemplares:</label>
+                <input type="number" class="form-control form-control-sm" id="cant_ejemplares" name="cant_ejemplares" min="1" value="1" required oninput="updateRows()">
             </div>
             <div class="col-6"></div>
-            <div class="col-2" style="margin-left: auto;">
-                <button type="button" style="background-color: rgba(113, 37, 157, 0.77);" class="col-12 btn btn-dark btn-sm">MANUAL</button>
+            <div class="col-2 upload-container">
+                <button type="button" class="btn btn-dark btn-sm manual-button">MANUAL</button>
+                <div class="upload-box">
+                    <small class="text-muted">Para carga masiva / importar, haga click aquí:</small>
+                    <label for="cargar_imagen" class="d-block my-3">
+                        <div class="boton-redondeado">
+                            <span>↑</span>
+                        </div>
+                        <input type="file" id="cargar_imagen" name="cargar_imagen" style="display: none;">
+                    </label>
+                </div>                
             </div>
         </div>
 
         <!-- Contenedor para formularios específicos -->
-        <div id="formulario-especifico">
+        <div id="formulario-especifico" class="mt-2">
             <!-- Los formularios se cargarán aquí dinámicamente -->
         </div>
 
@@ -57,8 +54,8 @@
 
         <!-- Fila de botones -->
         <div id="buttons-container">
-            <button type="button" class="btn btn-outline-danger btn-sm" style="width: 100px; margin-right: 10px;">Cancelar</button>
-            <button type="submit" class="btn btn-primary btn-sm" style="width: 100px;">Guardar</button>
+            <button type="button" class="btn btn-outline-danger btn-sm">Cancelar</button>
+            <button type="submit" class="btn btn-primary btn-sm">Guardar</button>
         </div>
     </form>
 </div>
