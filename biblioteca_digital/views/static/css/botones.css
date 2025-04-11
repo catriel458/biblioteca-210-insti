@@ -47,3 +47,20 @@
     padding: 0px  40px ;
     border: 1px solid black;
 }
+.boton-redondeado {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    border: 2px dashed #17a2b8;
+    background-color: #b0e0ec;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    margin: 0 auto; /* centra el div si no usás Bootstrap */
+}
+
+
+.boton-redondeado:hover {
+    background-color: #9cd3dc;
+}

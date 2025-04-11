@@ -33,10 +33,7 @@
                 <label for="resolucion">Resolución:</label>
                 <input type="text" class="form-control" value="Escriba aquí..." id="resolucion" name="resolucion">
             </div>
-            <div class="col-2">
-                <label for="cargar_imagen">Cargar Imagen:</label>
-                <input type="file" class="form-control" id="cargar_imagen" name="cargar_imagen">
-            </div>
+            <div class="col-2"></div>
         </div>
 
         <div class="row mt-3 pt-3">
@@ -44,16 +41,9 @@
                 <label for="tipo_lampara">Tipo de Lámpara:</label>
                 <input type="text" class="form-control" value="Escriba aquí..." id="tipo_lampara" name="tipo_lampara">
             </div>
-            <div class="col-6">
-                <label for="palabras_clave">Palabras Clave:</label>
-                <input type="text" class="form-control" value="Escriba aquí..." id="palabras_clave" name="palabras_clave" required>
-            </div>
         </div>
 
-        <!-- Contenedor para ejemplares -->
-        <div id="ejemplares-container">
-            <!-- Los ejemplares se agregarán dinámicamente aquí -->
-        </div>
+        {% include 'components/form_ejemplares.html' %}
     </div>
 </div>
 

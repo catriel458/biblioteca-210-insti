@@ -1,27 +1,67 @@
-.header-home {
-    background-position: center;
-    background-repeat: no-repeat;
-    padding-left: 5%;
-    background-size: cover !important; /* Asegura que cubra todo el contenedor */
-    width: 100vh; /* Asegúrate de que ocupe todo el ancho */
-    height: auto; /* O considera usar un valor fijo o 100vh para altura */
-    margin: 0; /* Quita márgenes */
-
-}
-
+.header-home,
 .header-pantalla {
-    background-image: url('/static/libros/imagenes/');
+    margin: 0;
     background-position: center;
-    background-size: cover; /* Asegúrate de que cubra todo el contenedor */
     background-repeat: no-repeat;
-    height: auto;
-    position: relative; /* Cambiado a relative para mejor control del flujo */
+    background-size: cover;
+    padding: 0.25rem 0.5rem;
 }
 
+.cover-container {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    max-width: 100%;
+}
+
+.cover-alta {
+    height: auto;
+    max-height: 100px;
+    width: auto;
+    object-fit: contain;
+}
 
 .cover-pic {
-    flex: 1; /* Ocupa menos espacio */
-    max-width: 30%; /* Ancho máximo */
-    cursor: pointer; /* Cambia el cursor para indicar que es un enlace */
-    position: relative;
+    height: auto;
+    max-height: 50px;
+    width: auto;
+    cursor: pointer;
+    object-fit: contain;
+}
+
+/* Media queries para responsividad */
+@media (min-width: 576px) {
+    .cover-alta {
+        max-height: 70px;
+    }
+    .cover-pic {
+        max-height: 60px;
+    }
+}
+
+@media (min-width: 768px) {
+    .cover-alta {
+        max-height: 80px;
+    }
+    .cover-pic {
+        max-height: 70px;
+    }
+}
+
+@media (min-width: 992px) {
+    .cover-alta {
+        max-height: 90px;
+    }
+    .cover-pic {
+        max-height: 80px;
+    }
+}
+
+@media (min-width: 1200px) {
+    .cover-alta {
+        max-height: 100px;
+    }
+    .cover-pic {
+        max-height: 90px;
+    }
 }
