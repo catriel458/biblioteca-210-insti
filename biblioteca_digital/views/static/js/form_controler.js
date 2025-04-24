@@ -70,82 +70,91 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function mostrarAlerta() {
-        const alertaFondo = document.createElement('div');
-        alertaFondo.style.position = 'fixed';
-        alertaFondo.style.top = '0';
-        alertaFondo.style.left = '0';
-        alertaFondo.style.width = '100%';
-        alertaFondo.style.height = '100%';
-        alertaFondo.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
-        alertaFondo.style.display = 'flex';
-        alertaFondo.style.justifyContent = 'center';
-        alertaFondo.style.alignItems = 'center';
-        alertaFondo.style.zIndex = '9999';
-
-        const alertaContenedor = document.createElement('div');
-        alertaContenedor.style.width = '400px';
-        alertaContenedor.style.backgroundColor = 'white';
-        alertaContenedor.style.borderRadius = '5px';
-
-        const alertaTitulo = document.createElement('div');
-        alertaTitulo.style.backgroundColor = '#ff69b4';
-        alertaTitulo.style.color = 'white';
-        alertaTitulo.style.padding = '10px';
-        alertaTitulo.style.textAlign = 'center';
-        alertaTitulo.style.fontWeight = 'bold';
-        alertaTitulo.textContent = '¡ATENCIÓN!';
-
-        const alertaMensaje = document.createElement('div');
-        alertaMensaje.style.padding = '20px';
-        alertaMensaje.style.textAlign = 'center';
-        alertaMensaje.textContent = 'AL REDUCIR LA CANTIDAD DE EJEMPLARES, SE PERDERÁN LOS DATOS DE LOS EJEMPLARES QUE SUPERAN LA CANTIDAD SELECCIONADA.';
-
-        const alertaBotones = document.createElement('div');
-        alertaBotones.style.display = 'flex';
-        alertaBotones.style.justifyContent = 'space-between';
-        alertaBotones.style.padding = '0 20px 20px 20px';
-
-        const botonAceptar = document.createElement('button');
-        botonAceptar.textContent = 'ACEPTAR';
-        botonAceptar.style.backgroundColor = '#ff69b4';
-        botonAceptar.style.color = 'white';
-        botonAceptar.style.border = 'none';
-        botonAceptar.style.padding = '8px 25px';
-        botonAceptar.style.borderRadius = '3px';
-        botonAceptar.style.cursor = 'pointer';
-        botonAceptar.style.flex = '1';
-        botonAceptar.style.marginRight = '10px';
-
-        const botonCancelar = document.createElement('button');
-        botonCancelar.textContent = 'CANCELAR';
-        botonCancelar.style.backgroundColor = '#6c757d';
-        botonCancelar.style.color = 'white';
-        botonCancelar.style.border = 'none';
-        botonCancelar.style.padding = '8px 25px';
-        botonCancelar.style.borderRadius = '3px';
-        botonCancelar.style.cursor = 'pointer';
-        botonCancelar.style.flex = '1';
-        botonCancelar.style.marginLeft = '10px';
-
-        alertaBotones.appendChild(botonAceptar);
-        alertaBotones.appendChild(botonCancelar);
-        alertaContenedor.appendChild(alertaTitulo);
-        alertaContenedor.appendChild(alertaMensaje);
-        alertaContenedor.appendChild(alertaBotones);
-        alertaFondo.appendChild(alertaContenedor);
-        document.body.appendChild(alertaFondo);
-
+        const overlay = document.createElement('div');
+        overlay.style.position = 'fixed';
+        overlay.style.top = '0';
+        overlay.style.left = '0';
+        overlay.style.width = '100%';
+        overlay.style.height = '100%';
+        overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+        overlay.style.zIndex = '9999';
+        overlay.style.display = 'flex';
+        overlay.style.justifyContent = 'center';
+        overlay.style.alignItems = 'center';
+    
+        const modal = document.createElement('div');
+        modal.style.width = '420px';
+        modal.style.backgroundColor = '#ffd5d5';
+        modal.style.borderRadius = '10px';
+        modal.style.boxShadow = '0 4px 10px rgba(0,0,0,0.3)';
+        modal.style.overflow = 'hidden';
+        modal.style.fontFamily = 'sans-serif';
+    
+        const header = document.createElement('div');
+        header.textContent = '¡ATENCIÓN!';
+        header.style.backgroundColor = '#ff4d4d';
+        header.style.color = 'white';
+        header.style.textAlign = 'center';
+        header.style.fontWeight = 'bold';
+        header.style.padding = '12px';
+        header.style.fontSize = '18px';
+    
+        const body = document.createElement('div');
+        body.textContent = 'AL REDUCIR LA CANTIDAD DE EJEMPLARES, SE PERDERÁN LOS DATOS INTRODUCIDOS PARA LOS EJEMPLARES QUE SUPEREN LA CANTIDAD SELECCIONADA.';
+        body.style.padding = '20px';
+        body.style.textAlign = 'center';
+        body.style.fontSize = '14px';
+        body.style.color = '#333';
+    
+        const footer = document.createElement('div');
+        footer.style.display = 'flex';
+        footer.style.justifyContent = 'space-between';
+        footer.style.padding = '10px 20px 20px 20px';
+    
+        const btnCancelar = document.createElement('button');
+        btnCancelar.textContent = 'CANCELAR';
+        btnCancelar.style.backgroundColor = '#4e6ef2';
+        btnCancelar.style.color = 'white';
+        btnCancelar.style.border = 'none';
+        btnCancelar.style.padding = '10px 20px';
+        btnCancelar.style.borderRadius = '6px';
+        btnCancelar.style.cursor = 'pointer';
+        btnCancelar.style.flex = '1';
+        btnCancelar.style.marginRight = '10px';
+        btnCancelar.style.fontWeight = 'bold';
+    
+        const btnConfirmar = document.createElement('button');
+        btnConfirmar.textContent = 'CONFIRMAR';
+        btnConfirmar.style.backgroundColor = '#d63333';
+        btnConfirmar.style.color = 'white';
+        btnConfirmar.style.border = 'none';
+        btnConfirmar.style.padding = '10px 20px';
+        btnConfirmar.style.borderRadius = '6px';
+        btnConfirmar.style.cursor = 'pointer';
+        btnConfirmar.style.flex = '1';
+        btnConfirmar.style.fontWeight = 'bold';
+    
+        footer.appendChild(btnCancelar);
+        footer.appendChild(btnConfirmar);
+    
+        modal.appendChild(header);
+        modal.appendChild(body);
+        modal.appendChild(footer);
+        overlay.appendChild(modal);
+        document.body.appendChild(overlay);
+    
         return new Promise((resolve) => {
-            botonAceptar.addEventListener('click', function () {
-                document.body.removeChild(alertaFondo);
+            btnConfirmar.addEventListener('click', () => {
+                overlay.remove();
                 resolve(true);
             });
-            botonCancelar.addEventListener('click', function () {
-                document.body.removeChild(alertaFondo);
+            btnCancelar.addEventListener('click', () => {
+                overlay.remove();
                 resolve(false);
             });
         });
     }
+    
 
     async function manejarReduccionEjemplares(valorActual) {
         cantEjemplaresInput.value = valorAnterior;
