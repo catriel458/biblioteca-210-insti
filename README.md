@@ -6,6 +6,8 @@ Este proyecto es parte del Instituto Educativo 210 y cuenta con dos ramas: `fron
 
 - **Rama `front`**: Contiene el frontend de la aplicación.
 - **Rama `back`**: Contiene el backend, construido con Django.
+- **Rama `simef-actualizado`**: Contiene el SIMEF actualizado desde el servidor.
+- **Rama `main`**: Contiene el proyecto final, integrado al SIMEF actualizado, con las ramas front y back mergeadas.
 
 ## 📥 Instrucciones para la instalación
 
