@@ -9,6 +9,7 @@ import io  # Agregar esta línea
 from django.contrib import messages #Para mensajes
 from django.http import JsonResponse
 from django.db.models import Q  # Añade esta línea
+from django.contrib import messages
 
 
 import csv
@@ -659,4 +660,15 @@ def registro_bajas(request):
     }
 
     return render(request, 'libros/registro_bajas.html', context)
+
+# Reactivar libros en el historial de bajas
+def reactivar_libro(request, libro_id):
+    if request.method == 'POST':
+        libro = get_object_or_404(Libro, id_libro=libro_id)
+        libro.estado = 'Disponible'
+        libro.motivo_baja = ''  # Opcional: limpiar el motivo de baja
+        libro.save()
+        messages.success(request, f'El libro "{libro.titulo}" ha sido reactivado exitosamente.')
+        return redirect('registro_de_bajas')
+    return redirect('registro_de_bajas')
 

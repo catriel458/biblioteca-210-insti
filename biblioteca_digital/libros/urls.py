@@ -89,7 +89,8 @@ urlpatterns = [
     path('buscar_notebook/', buscar_notebooks, name='buscar_notebooks'),
     path('buscar_proyectores/', buscar_proyectores, name='buscar_proyectores'),
     path('buscar_varios/', buscar_varios, name='buscar_varios'),
-    path('registro_bajas/', views.registro_bajas, name='registro_de_bajas')
+    path('registro_bajas/', views.registro_bajas, name='registro_de_bajas'),
+    path('libros/reactivar/<int:libro_id>/', views.reactivar_libro, name='reactivar_libro'),
     
     
 ]
