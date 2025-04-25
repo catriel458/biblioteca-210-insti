@@ -91,6 +91,12 @@ urlpatterns = [
     path('buscar_varios/', buscar_varios, name='buscar_varios'),
     path('registro_bajas/', views.registro_bajas, name='registro_de_bajas'),
     path('libros/reactivar/<int:libro_id>/', views.reactivar_libro, name='reactivar_libro'),
+    path('solicitar-prestamo/<int:libro_id>/', views.solicitar_prestamo, name='solicitar_prestamo'),
+    path('prestamos/', views.prestamos_solicitados, name='prestamos_solicitados'),
+    path('gestionar-prestamos/', views.gestionar_prestamos, name='gestionar_prestamos'),
+    path('prestamos/aprobar/<int:prestamo_id>/', views.aprobar_prestamo, name='aprobar_prestamo'),
+    path('prestamos/rechazar/<int:prestamo_id>/', views.rechazar_prestamo, name='rechazar_prestamo'),
+    path('prestamos/finalizar/<int:prestamo_id>/', views.finalizar_prestamo, name='finalizar_prestamo'),
     
     
 ]

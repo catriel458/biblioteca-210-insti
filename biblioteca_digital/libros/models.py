@@ -1,5 +1,7 @@
 # libros/models.py
 from django.db import models
+from django.utils import timezone
+import datetime
 
 
 class Inventario(models.Model):
@@ -31,6 +33,7 @@ class Libro(Inventario):
 
     def __str__(self):
         return f"id_libro: {self.id_libro}, titulo: {self.titulo}, autor: {self.autor}, editorial: {self.editorial}, codigo_materia: {self.codigo_materia}, siglas_autor_titulo: {self.siglas_autor_titulo}, num_inventario {self.num_inventario} resumen: {self.resumen}, imagen: {self.img} "
+
 
             
 class Mapas(Inventario):
@@ -72,3 +75,52 @@ class Varios(Inventario):
     def __str__(self):
         return f"id: {self.id_varios}, tipo: {self.tipo}"
 
+# Nueva clase para Préstamos
+class Prestamo(models.Model):
+    ESTADO_CHOICES = (
+        ('solicitado', 'Reserva Solicitada'),
+        ('aprobado', 'Préstamo Activo'),
+        ('rechazado', 'Reserva Rechazada'),
+        ('finalizado', 'Finalizado'),
+    )
+    
+    TIPO_CHOICES = (
+        ('domicilio', 'Préstamo a Domicilio'),
+        ('aula', 'Préstamo en Aula'),
+    )
+    
+    TIPO_USUARIO_CHOICES = (
+        ('alumno', 'Alumno'),
+        ('profesor', 'Profesor'),
+    )
+    
+    id_prestamo = models.AutoField(primary_key=True)
+    nombre_usuario = models.CharField(max_length=255)
+    email_usuario = models.EmailField()
+    libro = models.ForeignKey(Libro, on_delete=models.CASCADE, related_name='prestamos')
+    fecha_solicitud = models.DateTimeField(auto_now_add=True)
+    fecha_aprobacion = models.DateTimeField(null=True, blank=True)
+    fecha_devolucion_programada = models.DateTimeField(null=True, blank=True)
+    fecha_devolucion_real = models.DateTimeField(null=True, blank=True)
+    estado = models.CharField(max_length=20, choices=ESTADO_CHOICES, default='solicitado')
+    tipo_prestamo = models.CharField(max_length=10, choices=TIPO_CHOICES, default='domicilio')
+    tipo_usuario = models.CharField(max_length=10, choices=TIPO_USUARIO_CHOICES, default='alumno')
+    motivo_rechazo = models.TextField(blank=True, null=True)
+    observaciones = models.TextField(blank=True, null=True)
+    
+    def __str__(self):
+        return f"Préstamo {self.id_prestamo} - {self.libro.titulo} - {self.nombre_usuario} - {self.estado}"
+    
+    def dias_restantes(self):
+        if self.estado != 'aprobado' or not self.fecha_devolucion_programada:
+            return 0
+        
+        now = timezone.now()
+        delta = self.fecha_devolucion_programada - now
+        return max(0, delta.days)
+    
+    def esta_vencido(self):
+        if self.estado != 'aprobado' or not self.fecha_devolucion_programada:
+            return False
+        
+        return timezone.now() > self.fecha_devolucion_programada

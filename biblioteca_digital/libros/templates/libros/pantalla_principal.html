@@ -139,7 +139,12 @@
     </main>
     
     <div class="container">
-    <a href="{% url 'registro_de_bajas' %}" class="btn-historial-bajas">🗑️ Historial de bajas</a>
+        <a href="{% url 'registro_de_bajas' %}" class="btn-historial-bajas" style="background-color: #d32f2f; color: white;">🗑️ Historial de bajas</a>
+        
+        <div style="display: flex; justify-content: center; gap: 15px; margin-top: 15px;">
+            <a href="{% url 'prestamos_solicitados' %}" style="display: inline-block; padding: 10px 20px; background-color: #ff9800; color: white; text-align: center; border-radius: 8px; text-decoration: none; font-weight: bold; width: auto; min-width: 200px;">📚 Ver préstamos solicitados</a>
+            <a href="{% url 'gestionar_prestamos' %}" style="display: inline-block; padding: 10px 20px; background-color: #7b1fa2; color: white; text-align: center; border-radius: 8px; text-decoration: none; font-weight: bold; width: auto; min-width: 200px;">📋 Gestionar préstamos</a>
+        </div>
     </div>
     <footer>
         <p>© 2025 ISFD 210. Todos los derechos reservados.</p>

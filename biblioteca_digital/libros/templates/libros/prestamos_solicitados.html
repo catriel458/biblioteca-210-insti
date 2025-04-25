@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Préstamos Solicitados - Biblioteca</title>
+    {% load static %}
+    <style>
+        body {
+            font-family: 'Calibri', 'Arial', sans-serif;
+            background-color: #f4f4f8;
+            margin: 0;
+            padding: 0;
+        }
+        
+        header {
+            background-color: #004c8c;
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1, h2 {
+            color: #333;
+        }
+        
+        .messages {
+            list-style: none;
+            padding: 0;
+            margin-bottom: 20px;
+        }
+        
+        .messages li {
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+        }
+        
+        .success {
+            background-color: #dff0d8;
+            color: #3c763d;
+            border-left: 4px solid #3c763d;
+        }
+        
+        .error {
+            background-color: #f2dede;
+            color: #a94442;
+            border-left: 4px solid #a94442;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        th {
+            background-color: #004c8c;
+            color: white;
+        }
+        
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .empty-message {
+            text-align: center;
+            padding: 20px;
+            color: #888;
+            font-style: italic;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+            color: white;
+        }
+        
+        .status-solicitado {
+            background-color: #ff9800;
+        }
+        
+        .status-aprobado {
+            background-color: #4caf50;
+        }
+        
+        .status-rechazado {
+            background-color: #f44336;
+        }
+        
+        .status-finalizado {
+            background-color: #607d8b;
+        }
+        
+        .btn-volver {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #004c8c;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+        
+        .btn-volver:hover {
+            background-color: #003b6f;
+        }
+        
+        .timer {
+            font-weight: bold;
+            color: #d32f2f;
+        }
+        
+        .timer-container {
+            text-align: center;
+        }
+        
+        footer {
+            background-color: #004c8c;
+            color: white;
+            text-align: center;
+            padding: 10px 0;
+            font-size: 1rem;
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Biblioteca Digital</h1>
+    </header>
+    
+    <div class="container">
+        <a href="{% url 'pantalla_principal' %}" class="btn-volver">← Volver a Pantalla Principal</a>
+        
+        <h2>Préstamos Solicitados</h2>
+        
+        {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+            <li class="{{ message.tags }}">{{ message }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+        
+        {% if prestamos %}
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Libro</th>
+                    <th>Usuario</th>
+                    <th>Tipo</th>
+                    <th>Fecha Solicitud</th>
+                    <th>Estado</th>
+                    <th>Fecha Devolución</th>
+                    <th>Tiempo Restante</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for prestamo in prestamos %}
+                <tr>
+                    <td>{{ prestamo.id_prestamo }}</td>
+                    <td>{{ prestamo.libro.titulo }}</td>
+                    <td>{{ prestamo.nombre_usuario }}</td>
+                    <td>{{ prestamo.get_tipo_prestamo_display }}</td>
+                    <td>{{ prestamo.fecha_solicitud|date:"d/m/Y H:i" }}</td>
+                    <td>
+                        <span class="status-badge status-{{ prestamo.estado }}">
+                            {{ prestamo.get_estado_display }}
+                        </span>
+                    </td>
+                    <td>
+                        {% if prestamo.fecha_devolucion_programada %}
+                            {{ prestamo.fecha_devolucion_programada|date:"d/m/Y" }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if prestamo.estado == 'aprobado' and prestamo.fecha_devolucion_programada %}
+                            <div class="timer-container">
+                                <span class="timer" id="timer-{{ prestamo.id_prestamo }}" 
+                                      data-end="{{ prestamo.fecha_devolucion_programada|date:'Y-m-d H:i:s' }}">
+                                    Calculando...
+                                </span>
+                            </div>
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p class="empty-message">No hay préstamos registrados actualmente.</p>
+        {% endif %}
+    </div>
+    
+    <footer>
+        <p>© 2025 ISFD 210. Todos los derechos reservados</p>
+    </footer>
+    
+    <script>
+        // Función para actualizar los cronómetros
+        function actualizarCronometros() {
+            const timers = document.querySelectorAll('.timer');
+            
+            timers.forEach(timer => {
+                const endDate = new Date(timer.dataset.end);
+                const now = new Date();
+                
+                // Calcular diferencia en milisegundos
+                const diff = endDate - now;
+                
+                if (diff <= 0) {
+                    // Ya venció
+                    timer.innerHTML = "¡VENCIDO!";
+                    timer.style.color = "#f44336";
+                } else {
+                    // Calcular días, horas, minutos y segundos
+                    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+                    
+                    // Mostrar tiempo restante
+                    timer.innerHTML = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+                    
+                    // Cambiar color según el tiempo restante
+                    if (days < 2) {
+                        timer.style.color = "#f44336"; // Rojo para menos de 2 días
+                    } else if (days < 5) {
+                        timer.style.color = "#ff9800"; // Naranja para menos de 5 días
+                    } else {
+                        timer.style.color = "#4caf50"; // Verde para más tiempo
+                    }
+                }
+            });
+        }
+        
+        // Actualizar cada segundo
+        setInterval(actualizarCronometros, 1000);
+        
+        // Actualizar inmediatamente al cargar la página
+        document.addEventListener('DOMContentLoaded', actualizarCronometros);
+    </script>
+</body>
+</html>

@@ -19,72 +19,74 @@
             document.getElementById('modal').style.display = 'none';
         }
 
-  // Busqueda en tiempo real usando AJAX
+ // Busqueda en tiempo real usando AJAX
+$(document).ready(function() {
+  // Evento para la búsqueda en tiempo real
+  $('#search-query').on('input', function() {
+      var query = $(this).val();
 
-  $(document).ready(function() {
-    // Evento para la búsqueda en tiempo real
-    $('#search-query').on('input', function() {
-        var query = $(this).val();
+      // Realizar la solicitud AJAX cuando el valor cambie
+      $.ajax({
+          url: '{% url "buscar_libros" %}',  // Asegúrate de que esta URL esté correctamente definida en tu Django
+          data: {
+              'q': query  // El parámetro de búsqueda
+          },
+          dataType: 'json',
+          success: function(data) {
+              // Limpiar la tabla de resultados antes de agregar los nuevos
+              $('#libros-table').empty();
 
-        // Realizar la solicitud AJAX cuando el valor cambie
-        $.ajax({
-            url: '{% url "buscar_libros" %}',  // Asegúrate de que esta URL esté correctamente definida en tu Django
-            data: {
-                'q': query  // El parámetro de búsqueda
-            },
-            dataType: 'json',
-            success: function(data) {
-                // Limpiar la tabla de resultados antes de agregar los nuevos
-                $('#libros-table').empty();
+              if (data.length > 0) {
+                  // Recorrer los libros y agregar las filas a la tabla
+                  data.forEach(function(libro) {
+                      $('#libros-table').append(
+                          `<tr>
+                              <td>${libro.id_libro}</td>
+                              <td>${libro.titulo}</td>
+                              <td>${libro.autor}</td>
+                              <td>${libro.editorial}</td>
+                              <td>${libro.edicion}</td>
+                              <td>${libro.codigo_materia}</td>
+                              <td>${libro.resumen}</td>
+                              <td><img src="${libro.img}" alt="${libro.titulo}" width="100"></td>
+                              <td>
+                                  <a href="/editar-libro/${libro.id_libro}" class="edit-link">
+                                      <img src="{% static 'libros/img/lapiz.png' %}" alt="Editar" style="cursor: pointer; width: 20px; height: 20px;">
+                                  </a>
+                                  <img src="{% static 'libros/img/trash.png' %}" alt="Eliminar" onclick="abrirModal(${libro.id_libro})" style="cursor: pointer; width: 20px; height: 20px;">
+                                  <a href="/libros/solicitar-prestamo/${libro.id_libro}">
+                                      <img src="{% static 'libros/img/libro-abierto.png' %}" alt="Solicitar Préstamo" style="cursor: pointer; width: 20px; height: 20px;" title="Solicitar Préstamo">
+                                  </a>
+                              </td>
+                          </tr>`
+                      );
+                  });
+              } else {
+                  // Si no hay resultados, mostrar un mensaje en la tabla
+                  $('#libros-table').append(
+                      `<tr>
+                          <td colspan="9">No se encontraron libros disponibles.</td>
+                      </tr>`
+                  );
+              }
 
-                if (data.length > 0) {
-                    // Recorrer los libros y agregar las filas a la tabla
-                    data.forEach(function(libro) {
-                        $('#libros-table').append(
-                            `<tr>
-                                <td>${libro.id_libro}</td>
-                                <td>${libro.titulo}</td>
-                                <td>${libro.autor}</td>
-                                <td>${libro.editorial}</td>
-                                <td>${libro.edicion}</td>
-                                <td>${libro.codigo_materia}</td>
-                                <td>${libro.resumen}</td>
-                                <td><img src="${libro.img}" alt="${libro.titulo}" width="100"></td>
-                                <td>
-                                    <a href="/editar/${libro.id_libro}" class="edit-link">
-                                        <img src="{% static 'libros/img/lapiz.png' %}" alt="Editar" style="cursor: pointer; width: 20px; height: 20px;">
-                                    </a>
-                                    <img src="{% static 'libros/img/trash.png' %}" alt="Eliminar" onclick="abrirModal(${libro.id_libro})" style="cursor: pointer; width: 20px; height: 20px;">
-                                </td>
-                            </tr>`
-                        );
-                    });
-                } else {
-                    // Si no hay resultados, mostrar un mensaje en la tabla
-                    $('#libros-table').append(
-                        `<tr>
-                            <td colspan="9">No se encontraron libros disponibles.</td>
-                        </tr>`
-                    );
-                }
-
-                // Asegúrate de que los enlaces de edición funcionen después de la búsqueda
-                $('.edit-link').click(function(e) {
-                    // Aquí puedes manejar cualquier lógica adicional antes de redirigir al usuario
-                    console.log('Editando libro...');
-                });
-            },
-            error: function() {
-                // Si ocurre un error en la solicitud AJAX, mostrar un mensaje de error en la consola
-                console.error('Error al realizar la búsqueda.');
-                $('#libros-table').append(
-                    `<tr>
-                        <td colspan="9">Hubo un error al intentar realizar la búsqueda.</td>
-                    </tr>`
-                );
-            }
-        });
-    });
+              // Asegúrate de que los enlaces de edición funcionen después de la búsqueda
+              $('.edit-link').click(function(e) {
+                  // Aquí puedes manejar cualquier lógica adicional antes de redirigir al usuario
+                  console.log('Editando libro...');
+              });
+          },
+          error: function() {
+              // Si ocurre un error en la solicitud AJAX, mostrar un mensaje de error en la consola
+              console.error('Error al realizar la búsqueda.');
+              $('#libros-table').append(
+                  `<tr>
+                      <td colspan="9">Hubo un error al intentar realizar la búsqueda.</td>
+                  </tr>`
+              );
+          }
+      });
+  });
 });
 
 
@@ -442,6 +444,10 @@ body{
                             <img src="{% static 'libros/img/lapiz.png' %}" alt="Editar" style="cursor: pointer; width: 20px; height: 20px;">
                         </a>
                         <img src="{% static 'libros/img/trash.png' %}" alt="Eliminar" onclick="abrirModal({{ libro.id_libro }})" style="cursor: pointer; width: 20px; height: 20px;">
+                        <!-- Nuevo botón para solicitar préstamo -->
+                        <a href="{% url 'solicitar_prestamo' libro.id_libro %}">
+                            <img src="{% static 'libros/img/libro-abierto.png' %}" alt="Solicitar Préstamo" style="cursor: pointer; width: 20px; height: 20px;" title="Solicitar Préstamo">
+                        </a>
                     </td>
                 </tr>
                 {% empty %}

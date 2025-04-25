@@ -2,7 +2,7 @@ import json
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse
 from collections import Counter
-from .models import Libro, Inventario, Mapas, Multimedia, Notebook, Proyector, Varios
+from .models import Libro, Inventario, Mapas, Multimedia, Notebook, Proyector, Varios, Prestamo
 from .forms import LibroForm, MapaForm, MultimediaForm, NotebookForm, ProyectorForm, VariosForm
 import csv
 import io  # Agregar esta línea
@@ -10,6 +10,8 @@ from django.contrib import messages #Para mensajes
 from django.http import JsonResponse
 from django.db.models import Q  # Añade esta línea
 from django.contrib import messages
+from django.utils import timezone
+import datetime
 
 
 import csv
@@ -672,3 +674,127 @@ def reactivar_libro(request, libro_id):
         return redirect('registro_de_bajas')
     return redirect('registro_de_bajas')
 
+# PRESTAMOS
+
+def solicitar_prestamo(request, libro_id):
+    libro = get_object_or_404(Libro, id_libro=libro_id)
+    
+    # Verificar si el libro está disponible
+    if libro.estado != 'Disponible':
+        messages.error(request, "Este libro no está disponible para préstamo.")
+        return redirect('lista_libros')
+    
+    # Crear el préstamo
+    if request.method == 'POST':
+        nombre_usuario = request.POST.get('nombre_usuario', '')
+        email_usuario = request.POST.get('email_usuario', '')
+        tipo_usuario = request.POST.get('tipo_usuario', 'alumno')
+        tipo_prestamo = request.POST.get('tipo_prestamo', 'domicilio')
+        
+        prestamo = Prestamo(
+            nombre_usuario=nombre_usuario,
+            email_usuario=email_usuario,
+            libro=libro,
+            tipo_prestamo=tipo_prestamo,
+            tipo_usuario=tipo_usuario,
+            estado='solicitado'
+        )
+        prestamo.save()
+        
+        # Cambiar estado del libro a reservado
+        libro.estado = 'Reservado'
+        libro.save()
+        
+        messages.success(request, f"Has solicitado el préstamo del libro '{libro.titulo}'. La biblioteca revisará tu solicitud.")
+        return redirect('prestamos_solicitados')
+    
+    return render(request, 'libros/solicitar_prestamo.html', {'libro': libro})
+
+def prestamos_solicitados(request):
+    # Obtener todos los préstamos (simplificado sin filtrado por usuario)
+    prestamos = Prestamo.objects.all().order_by('-fecha_solicitud')
+    
+    return render(request, 'libros/prestamos_solicitados.html', {
+        'prestamos': prestamos
+    })
+
+def gestionar_prestamos(request):
+    # Obtener préstamos según filtro (sin verificación de permisos)
+    filtro = request.GET.get('filtro', 'todos')
+    
+    if filtro == 'solicitados':
+        prestamos = Prestamo.objects.filter(estado='solicitado').order_by('-fecha_solicitud')
+    elif filtro == 'activos':
+        prestamos = Prestamo.objects.filter(estado='aprobado').order_by('-fecha_aprobacion')
+    elif filtro == 'finalizados':
+        prestamos = Prestamo.objects.filter(estado__in=['finalizado', 'rechazado']).order_by('-fecha_solicitud')
+    else:
+        prestamos = Prestamo.objects.all().order_by('-fecha_solicitud')
+    
+    return render(request, 'libros/gestionar_prestamos.html', {
+        'prestamos': prestamos,
+        'filtro': filtro
+    })
+
+def aprobar_prestamo(request, prestamo_id):
+    prestamo = get_object_or_404(Prestamo, id_prestamo=prestamo_id)
+    
+    if prestamo.estado != 'solicitado':
+        messages.error(request, f"El préstamo no puede ser aprobado porque su estado actual es {prestamo.get_estado_display()}.")
+        return redirect('gestionar_prestamos')
+    
+    prestamo.estado = 'aprobado'
+    prestamo.fecha_aprobacion = timezone.now()
+    
+    # Calcular fecha de devolución (15 días)
+    prestamo.fecha_devolucion_programada = timezone.now() + datetime.timedelta(days=15)
+    
+    prestamo.save()
+    
+    messages.success(request, f"El préstamo del libro '{prestamo.libro.titulo}' ha sido aprobado. Fecha de devolución: {prestamo.fecha_devolucion_programada.strftime('%d/%m/%Y')}.")
+    
+    return redirect('gestionar_prestamos')
+
+def rechazar_prestamo(request, prestamo_id):
+    prestamo = get_object_or_404(Prestamo, id_prestamo=prestamo_id)
+    
+    if prestamo.estado != 'solicitado':
+        messages.error(request, f"El préstamo no puede ser rechazado porque su estado actual es {prestamo.get_estado_display()}.")
+        return redirect('gestionar_prestamos')
+    
+    if request.method == 'POST':
+        motivo_rechazo = request.POST.get('motivo_rechazo', '')
+        prestamo.estado = 'rechazado'
+        prestamo.motivo_rechazo = motivo_rechazo
+        prestamo.save()
+        
+        # Devolver el libro al estado disponible
+        libro = prestamo.libro
+        libro.estado = 'Disponible'
+        libro.save()
+        
+        messages.success(request, f"El préstamo del libro '{prestamo.libro.titulo}' ha sido rechazado.")
+        
+        return redirect('gestionar_prestamos')
+    
+    return render(request, 'libros/rechazar_prestamo.html', {'prestamo': prestamo})
+
+def finalizar_prestamo(request, prestamo_id):
+    prestamo = get_object_or_404(Prestamo, id_prestamo=prestamo_id)
+    
+    if prestamo.estado != 'aprobado':
+        messages.error(request, f"El préstamo no puede ser finalizado porque su estado actual es {prestamo.get_estado_display()}.")
+        return redirect('gestionar_prestamos')
+    
+    prestamo.estado = 'finalizado'
+    prestamo.fecha_devolucion_real = timezone.now()
+    prestamo.save()
+    
+    # Devolver el libro al estado disponible
+    libro = prestamo.libro
+    libro.estado = 'Disponible'
+    libro.save()
+    
+    messages.success(request, f"El préstamo del libro '{prestamo.libro.titulo}' ha sido finalizado.")
+    
+    return redirect('gestionar_prestamos')
