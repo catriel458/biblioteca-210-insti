@@ -1,6 +1,7 @@
 {% extends 'components/baseb.html' %}
 {% load static %}
 {% block extra_styles %}
+    <link rel="stylesheet" href="{% static 'css/manual_modal.css' %}">
     <link rel="stylesheet" href="{% static 'css/main.css' %}">
     <link rel="stylesheet" href="{% static 'css/style_form.css' %}">
     <link rel="stylesheet" href="{% static 'css/botones.css' %}">
@@ -44,7 +45,7 @@
             <div class="col-12 col-lg-2 d-flex flex-column align-items-end mt-3 mt-lg-0">
                 <!-- Fila 1: Botón MANUAL -->
                 <div class="w-100 mb-2">
-                    <button type="button" class="btn btn-dark btn-sm manual-button w-100">MANUAL</button>
+                    <button type="button" class="btn btn-dark btn-sm manual-button w-100" onclick="document.getElementById('manualModal').style.display='flex'">MANUAL</button>
                 </div>
                 <!-- Sección de carga (solo visible al seleccionar material) -->
                 <div id="upload_simple_container" class="w-100 mb-4" style="display: none;">
@@ -62,7 +63,8 @@
                 <div id="upload_box_container" class="custom-upload-box-container" style="display: none; width: 100%;">
                     <div class="custom-upload-box w-100">
                         <h5 class="">Cargar imagen</h5>
-                        <button class="btn btn-sm custom-upload-btn w-100 mb-2" type="button">↑</button>
+                        <button class="btn btn-sm custom-upload-btn w-100 mb-2" type="button" onclick="document.getElementById('file_upload_input').click();">↑</button>
+                        <input type="file" id="file_upload_input" name="file_upload_input" accept="image/*" style="display: none;">
                         <input type="text" class="form-control custom-upload-input mb-2" placeholder="O pegue un enlace aquí...">
                     </div>
                 </div>
@@ -78,6 +80,7 @@
         </div>
     </form>
 </div>
+{% include 'modals/manual_modal.html' %}
 {% endblock %}
 
 {% block extra_scripts %}
