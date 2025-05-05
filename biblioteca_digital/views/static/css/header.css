@@ -1,10 +1,50 @@
 .header-home,
 .header-pantalla {
-    margin: 0;
-    background-position: center;
+    height: 60px;
+    position: relative;
+    border-bottom: 2px solid #8B1D69;
+    background-image: url('/static/imagenes/cover_alta.png');
+    background-position: center top;
     background-repeat: no-repeat;
-    background-size: cover;
-    padding: 0.25rem 0.5rem;
+    background-size: 100% auto;
+}
+
+.header-content {
+    position: relative;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.header-title {
+    color: #1fb5ad;
+    font-size: 1.25rem;
+    margin: 0;
+    font-weight: 500;
+    letter-spacing: 2px;
+    line-height: 1.2;
+    text-align: center;
+    font-weight: bold !important;
+}
+
+.logo-link {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.cover-pic {
+    height: 60px;
+    width: auto;
+    display: block;
+}
+
+.cover-alta {
+    height: 60px;
+    width: auto;
+    object-fit: contain;
 }
 
 .cover-container {
@@ -14,19 +54,31 @@
     max-width: 100%;
 }
 
-.cover-alta {
-    height: auto;
-    max-height: 100px;
-    width: auto;
-    object-fit: contain;
+/* Ajustes del contenedor */
+.container-fluid {
+    width: 100%;
+    padding-right: 15px;
+    padding-left: 15px;
 }
 
-.cover-pic {
-    height: auto;
-    max-height: 50px;
-    width: auto;
-    cursor: pointer;
-    object-fit: contain;
+.row {
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.row.justify-content-between {
+    justify-content: space-between;
+}
+
+.col {
+    flex: 1;
+}
+
+.col-auto {
+    flex: 0 0 auto;
+    margin-left: auto;
+    padding-right: 0;
 }
 
 /* Media queries para responsividad */

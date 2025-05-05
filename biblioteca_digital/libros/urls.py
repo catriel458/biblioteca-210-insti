@@ -78,6 +78,8 @@ urlpatterns = [
     path('buscar_proyectores/', buscar_proyectores, name='buscar_proyectores'),
     path('buscar_varios/', buscar_varios, name='buscar_varios'),
     path('registro_bajas/', views.registro_bajas, name='registro_de_bajas'),
+    path('modificacion-material/', views.modificacion_materiales, name='modificacion_materiales'),
+    path('prestamos/', views.prestamos, name='prestamos'),
     # Ruta para obtener templates de materiales
     path('get_material_template/<str:tipo>/', views.get_material_template, name='get_material_template'),
 ]
