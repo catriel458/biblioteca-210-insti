@@ -6,7 +6,7 @@
         <div class="text-center">
             <h1 class="header-title" style="padding-top: 10px;">INICIO</h1>
         </div>
-    {% else %}
+    {% elif request.resolver_match.url_name == 'alta_material' %}
         <div class="header-content">
             <h1 class="header-title">ALTA MATERIAL</h1>
             <a href="{% url 'home' %}" class="logo-link">

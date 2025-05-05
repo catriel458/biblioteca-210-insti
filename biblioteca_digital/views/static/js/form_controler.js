@@ -135,4 +135,254 @@ document.addEventListener("DOMContentLoaded", function () {
             }, 100);
         });
     }
+
+    // --- INICIO: Carga y previsualización de imagen en upload_box_container ---
+    let imagenSeleccionada = null;
+    // Obtener referencias solo una vez, arriba ya existe uploadBox y uploadSimple
+    const fileInput = document.getElementById('file_upload_input');
+    const urlInput = document.getElementById('url_upload_input');
+    const simpleFileInput = document.getElementById('cargar_imagen');
+    let imagenSimpleSeleccionada = null;
+
+    if (fileInput && uploadBox) {
+        let preview = document.getElementById('img_preview_upload_box');
+        if (!preview) {
+            preview = document.createElement('img');
+            preview.id = 'img_preview_upload_box';
+            preview.style.maxWidth = '100%';
+            preview.style.marginTop = '10px';
+            preview.style.display = 'none';
+            uploadBox.querySelector('.custom-upload-box').appendChild(preview);
+        }
+        // Crear/obtener el mensaje de error
+        let errorMsg = document.getElementById('img_error_msg');
+        if (!errorMsg) {
+            errorMsg = document.createElement('div');
+            errorMsg.id = 'img_error_msg';
+            errorMsg.style.color = 'red';
+            errorMsg.style.fontSize = '0.9em';
+            errorMsg.style.display = 'none';
+            uploadBox.querySelector('.custom-upload-box').appendChild(errorMsg);
+        }
+        // Crear/obtener el botón de eliminar foto (como una X en la esquina superior izquierda)
+        let deleteBtn = document.getElementById('img_delete_btn');
+        if (!deleteBtn) {
+            deleteBtn = document.createElement('button');
+            deleteBtn.id = 'img_delete_btn';
+            deleteBtn.type = 'button';
+            deleteBtn.innerHTML = '&times;'; // X grande
+            deleteBtn.setAttribute('aria-label', 'Eliminar foto');
+            deleteBtn.style.position = 'absolute';
+            deleteBtn.style.top = '6px';
+            deleteBtn.style.left = '6px';
+            deleteBtn.style.background = 'rgba(255,255,255,0.7)';
+            deleteBtn.style.border = 'none';
+            deleteBtn.style.color = '#c00';
+            deleteBtn.style.fontWeight = 'bold';
+            deleteBtn.style.fontSize = '1.5em';
+            deleteBtn.style.cursor = 'pointer';
+            deleteBtn.style.zIndex = '10';
+            deleteBtn.style.display = 'none';
+            // Crear un contenedor relativo para el preview y el botón
+            let previewContainer = document.getElementById('img_preview_container');
+            if (!previewContainer) {
+                previewContainer = document.createElement('div');
+                previewContainer.id = 'img_preview_container';
+                previewContainer.style.position = 'relative';
+                previewContainer.style.display = 'inline-block';
+                previewContainer.style.width = '100%';
+                // Mover el preview dentro del contenedor
+                preview.parentNode.insertBefore(previewContainer, preview);
+                previewContainer.appendChild(preview);
+            }
+            previewContainer.appendChild(deleteBtn);
+            // Ocultar la X por defecto
+            deleteBtn.style.display = 'none';
+            // Mostrar la X al pasar el mouse por encima del contenedor
+            previewContainer.addEventListener('mouseenter', function() {
+                if (preview.style.display === 'block') {
+                    deleteBtn.style.display = 'block';
+                }
+            });
+            previewContainer.addEventListener('mouseleave', function() {
+                deleteBtn.style.display = 'none';
+            });
+        }
+
+        function limpiarImagen() {
+            preview.src = '';
+            preview.style.display = 'none';
+            deleteBtn.style.display = 'none';
+            errorMsg.style.display = 'none';
+            if (fileInput) fileInput.value = '';
+            if (urlInput) urlInput.value = '';
+            imagenSeleccionada = null;
+        }
+
+        deleteBtn.onclick = limpiarImagen;
+
+        function mostrarPreviewArchivo(file) {
+            if (file && file.type.startsWith('image/')) {
+                imagenSeleccionada = file;
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                    errorMsg.style.display = 'none';
+                    // deleteBtn.style.display = 'block'; // Ya no mostrar siempre
+                };
+                reader.readAsDataURL(file);
+            } else {
+                limpiarImagen();
+            }
+        }
+
+        function mostrarPreviewUrl(url) {
+            if (url && (url.startsWith('http://') || url.startsWith('https://'))) {
+                imagenSeleccionada = null;
+                preview.src = url;
+                preview.style.display = 'block';
+                errorMsg.style.display = 'none';
+                // deleteBtn.style.display = 'block'; // Ya no mostrar siempre
+            } else if (!fileInput.value) {
+                limpiarImagen();
+            }
+        }
+
+        preview.onerror = function() {
+            preview.style.display = 'none';
+            errorMsg.textContent = 'No se pudo cargar la imagen. Verifica el enlace o la imagen.';
+            errorMsg.style.display = 'block';
+            // deleteBtn.style.display = 'block'; // Ya no mostrar siempre
+        };
+        preview.onload = function() {
+            errorMsg.style.display = 'none';
+        };
+
+        fileInput.addEventListener('change', function (event) {
+            if (urlInput && urlInput.value.trim() !== '') return;
+            const file = event.target.files[0];
+            mostrarPreviewArchivo(file);
+        });
+
+        if (urlInput) {
+            urlInput.addEventListener('input', function (event) {
+                const url = event.target.value.trim();
+                if (url) {
+                    mostrarPreviewUrl(url);
+                } else {
+                    if (fileInput.files && fileInput.files[0]) {
+                        mostrarPreviewArchivo(fileInput.files[0]);
+                    } else {
+                        limpiarImagen();
+                    }
+                }
+            });
+            urlInput.addEventListener('keydown', function(event) {
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                }
+            });
+        }
+    }
+    // --- FIN: Carga y previsualización de imagen en upload_box_container ---
+
+    // --- INICIO: Carga y previsualización de imagen en upload_simple_container ---
+    if (simpleFileInput && uploadSimple) {
+        // Crear contenedor para preview, X y nombre de archivo
+        let simplePreview = document.getElementById('img_simple_preview');
+        let simpleDeleteBtn = document.getElementById('img_simple_delete_btn');
+        let simplePreviewContainer = document.getElementById('img_simple_preview_container');
+        let simpleFileName = document.getElementById('nombre_archivo_carga_simple');
+        if (!simpleFileName) {
+            // Ya existe en el HTML, solo lo limpiamos
+            simpleFileName = document.createElement('div');
+        }
+        if (!simplePreviewContainer) {
+            simplePreviewContainer = document.createElement('div');
+            simplePreviewContainer.id = 'img_simple_preview_container';
+            simplePreviewContainer.style.position = 'relative';
+            simplePreviewContainer.style.display = 'inline-block';
+            simplePreviewContainer.style.width = '100%';
+            uploadSimple.querySelector('.upload-box').appendChild(simplePreviewContainer);
+        }
+        if (!simplePreview) {
+            simplePreview = document.createElement('img');
+            simplePreview.id = 'img_simple_preview';
+            simplePreview.style.maxWidth = '100%';
+            simplePreview.style.marginTop = '10px';
+            simplePreview.style.display = 'none';
+            simplePreviewContainer.appendChild(simplePreview);
+        }
+        if (!simpleFileName) {
+            simpleFileName = document.createElement('div');
+            simpleFileName.id = 'nombre_archivo_carga_simple';
+            simpleFileName.style.textAlign = 'center';
+            simpleFileName.style.fontSize = '0.92em';
+            simpleFileName.style.color = '#444';
+            simpleFileName.style.marginTop = '6px';
+            simpleFileName.style.marginBottom = '2px';
+            simpleFileName.style.wordBreak = 'break-all';
+            simplePreviewContainer.appendChild(simpleFileName);
+        }
+        if (!simpleDeleteBtn) {
+            simpleDeleteBtn = document.createElement('button');
+            simpleDeleteBtn.id = 'img_simple_delete_btn';
+            simpleDeleteBtn.type = 'button';
+            simpleDeleteBtn.innerHTML = '&times;';
+            simpleDeleteBtn.setAttribute('aria-label', 'Eliminar foto');
+            simpleDeleteBtn.style.position = 'absolute';
+            simpleDeleteBtn.style.top = '6px';
+            simpleDeleteBtn.style.left = '6px';
+            simpleDeleteBtn.style.background = 'rgba(255,255,255,0.7)';
+            simpleDeleteBtn.style.border = 'none';
+            simpleDeleteBtn.style.color = '#c00';
+            simpleDeleteBtn.style.fontWeight = 'bold';
+            simpleDeleteBtn.style.fontSize = '1.5em';
+            simpleDeleteBtn.style.cursor = 'pointer';
+            simpleDeleteBtn.style.zIndex = '10';
+            simpleDeleteBtn.style.display = 'none';
+            simplePreviewContainer.appendChild(simpleDeleteBtn);
+        }
+        // Mostrar la X solo cuando el mouse está sobre la imagen o la X
+        simplePreviewContainer.addEventListener('mouseenter', function() {
+            if (simplePreview.style.display === 'block') {
+                simpleDeleteBtn.style.display = 'block';
+            }
+        });
+        simplePreviewContainer.addEventListener('mouseleave', function() {
+            simpleDeleteBtn.style.display = 'none';
+        });
+        function limpiarSimpleImagen() {
+            simplePreview.src = '';
+            simplePreview.style.display = 'none';
+            simpleDeleteBtn.style.display = 'none';
+            simpleFileName.textContent = '';
+            if (simpleFileInput) simpleFileInput.value = '';
+            imagenSimpleSeleccionada = null;
+        }
+        simpleDeleteBtn.onclick = limpiarSimpleImagen;
+        simpleFileInput.addEventListener('change', function (event) {
+            const file = event.target.files[0];
+            if (file) {
+                simpleFileName.textContent = file.name;
+            } else {
+                simpleFileName.textContent = '';
+            }
+            // No preview para CSV/Excel
+            if (file && file.type.startsWith('image/')) {
+                imagenSimpleSeleccionada = file;
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    simplePreview.src = e.target.result;
+                    simplePreview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            } else {
+                simplePreview.style.display = 'none';
+                simplePreview.src = '';
+            }
+        });
+    }
+    // --- FIN: Carga y previsualización de imagen en upload_simple_container ---
 });

@@ -1,22 +1,33 @@
+{% extends 'components/baseb.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Préstamos | En Construcción</title>
+
+{% block title %}Préstamos | En Construcción{% endblock %}
+
+{% block extra_styles %}
     <link rel="stylesheet" href="{% static 'css/prestamos.css' %}">
-</head>
-<body>
-    <div class="construccion-container">
-        <img class="construccion-img" src="https://img.freepik.com/vector-gratis/ilustracion-concepto-sitio-web-construccion_114360-1126.jpg?w=700&t=st=1714870000~exp=1714870600~hmac=3b8f4a2c9b3c1e91d1f3cddf2d2c7b5e8b2c9d9a9b8c8a1c2b3c9d9a9b8c8a1c" alt="Página en construcción - Préstamos">
-        <h1>¡Próximamente sección de Préstamos!</h1>
-        <p>
-            Estamos construyendo la sección de préstamos para que puedas gestionar tus libros y materiales de forma digital.<br>
-            Muy pronto estará disponible para todos los estudiantes.<br>
-            ¡Gracias por tu paciencia!
-        </p>
-        <a href="/" class="volver">Volver al inicio</a>
+    <style>
+        .centered-wrapper {
+            min-height: 80vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="centered-wrapper">
+        <div class="construccion-container">
+            <h3>¡Próximamente sección de Préstamos!</h3>
+            <img class="construccion-img" src="https://img.freepik.com/vector-gratis/ilustracion-concepto-sitio-web-construccion_114360-1126.jpg?w=700&t=st=1714870000~exp=1714870600~hmac=3b8f4a2c9b3c1e91d1f3cddf2d2c7b5e8b2c9d9a9b8c8a1c2b3c9d9a9b8c8a1c" alt="Página en construcción - Préstamos">
+            <p>
+                Estamos construyendo la sección de préstamos para que puedas gestionar tus libros y materiales de forma digital.<br>
+                Muy pronto estará disponible para todos los estudiantes.<br>
+                ¡Gracias por tu paciencia!
+            </p>
+            <a href="/" class="volver">Volver al inicio</a>
+        </div>
     </div>
-</body>
-</html>
+{% endblock %}
+
+{% block header_class %}d-none{% endblock %}

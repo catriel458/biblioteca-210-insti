@@ -1,32 +1,60 @@
 .modal {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(0, 0, 0, 0.4);
-    z-index: 9999;
-    justify-content: center;
-    align-items: center;
+    display: none !important;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    background: rgba(0, 0, 0, 0.4) !important;
+    z-index: 9999 !important;
+    justify-content: center !important;
+    align-items: center !important;
+    flex-direction: column !important; /* Forzar flexbox vertical */
+}
+
+.modal[style*="display: flex"] {
+    display: flex !important;
 }
 
 .modal-content {
-    background: #fff;
-    padding: 2rem;
-    border-radius: 8px;
-    width: 80vw;         /* Más ancho */
-    height: 70vh;        /* Más alto */
-    position: relative;
-    overflow-y: auto;    /* Scroll si hay mucho contenido */
+    background: #e4e1e5 !important;
+    padding: 2rem !important;
+    border-radius: 18px !important;
+    width: 80vw !important;
+    height: 70vh !important;
+    max-width: none !important;
+    min-height: 0 !important;
+    position: relative !important;
+    overflow-y: auto !important;
+    box-shadow: 0 6px 32px rgba(0,0,0,0.30) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    align-items: center !important;
+    margin: auto !important;
 }
 
 .close-button {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background: none;
-    border: none;
-    font-size: 1.5rem;
-    cursor: pointer;
+    position: absolute !important;
+    top: 10px !important;
+    right: 10px !important;
+    background: none !important;
+    border: none !important;
+    font-size: 2rem !important;
+    cursor: pointer !important;
+    color: #a02bb7 !important;
+    font-weight: bold !important;
+    z-index: 2 !important;
+}
+
+.en-construccion {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    height: 100px !important;
+    font-size: 2rem !important;
+    color: #a02bb7 !important;
+    font-weight: bold !important;
+    text-align: center !important;
+    width: 100% !important;
 }
