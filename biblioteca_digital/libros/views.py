@@ -676,3 +676,9 @@ def get_material_template(request, tipo):
         return render(request, template_name)
     except TemplateDoesNotExist:
         return HttpResponse('', status=404)
+
+def modificacion_materiales(request):
+    return render(request, 'materiales/modificacion_materiales.html')
+
+def prestamos(request):
+    return render(request, 'materiales/prestamos.html')
