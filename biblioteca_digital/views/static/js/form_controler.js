@@ -5,6 +5,8 @@ document.addEventListener("DOMContentLoaded", function () {
     const dynamicRowsContainer = document.getElementById('dynamic-rows');
     const buttonsContainer = document.getElementById('buttons-container');
     const cantEjemplaresContainer = document.getElementById('cant_ejemplares_container');
+    const uploadSimple = document.getElementById('upload_simple_container');
+    const uploadBox = document.getElementById('upload_box_container');
 
     // Función para cargar el template específico del tipo de material
     async function loadMaterialTemplate(tipo) {
@@ -69,7 +71,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
                     <div class="col-6 ">
                         <label for="observaciones_${i}">Observaciones:</label>
-                        <textarea class="form-control h-100" id="observaciones_${i}" name="observaciones[]" rows="2">Escriba aquí...</textarea>
+                        <textarea class="form-control h-100" id="observaciones_${i}" name="observaciones[]" rows="2" placeholder="Escriba aquí..."></textarea>
                     </div>
                 </div>
             `;
@@ -79,6 +81,17 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Asignar la función updateRows al evento input del campo cant_ejemplares
     cantEjemplaresInput.addEventListener('input', updateRows);
+
+    // Mostrar/ocultar carga masiva al cargar la página según el valor actual del select
+    if (tipoMaterialSelect && uploadSimple && uploadBox) {
+        if (tipoMaterialSelect.value) {
+            uploadSimple.style.display = 'block';
+            uploadBox.style.display = 'block';
+        } else {
+            uploadSimple.style.display = 'none';
+            uploadBox.style.display = 'none';
+        }
+    }
 
     // Manejar cambios en el tipo de material
     tipoMaterialSelect.addEventListener('change', async function () {
@@ -104,4 +117,22 @@ document.addEventListener("DOMContentLoaded", function () {
         // Inicializar las filas dinámicas
         updateRows();
     });
+
+    // Limpiar todos los campos al enviar el formulario
+    const form = document.getElementById('form_alta_material');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            // Espera un poco para no interferir con el submit real (por si es AJAX o normal)
+            setTimeout(function() {
+                // Limpiar todos los inputs y textareas manualmente
+                form.querySelectorAll('input[type="text"], input[type="number"], textarea').forEach(function(input) {
+                    input.value = '';
+                });
+                // Limpiar selects
+                form.querySelectorAll('select').forEach(function(select) {
+                    select.selectedIndex = 0;
+                });
+            }, 100);
+        });
+    }
 });

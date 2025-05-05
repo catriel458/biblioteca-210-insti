@@ -2,22 +2,16 @@
 <link rel="stylesheet" href="{% static 'css/header.css' %}">
 
 <header class="{{ header_class }}">
-    <div class="container-fluid">
-        <div class="row align-items-center justify-content-center">
-            {% if header_class == 'header-home' %}
-                <div class="col-auto">
-                    <img src="{% static 'imagenes/cover_alta.png' %}" alt="Cover Alta" class="img-fluid cover-alta">
-                </div>
-            {% endif %}
-            
-            {% if header_class == 'header-pantalla' %}
-                <div class="col-auto d-flex">
-                    <a href="{% url 'home' %}" class="d-flex align-items-center text-decoration-none">
-                        <img src="{% static 'imagenes/cover_alta.png' %}" alt="Cover Alta" class="img-fluid cover-alta me-3">
-                        <img src="{% static 'imagenes/Logo_inicio.png' %}" alt="Cover Pic" class="img-fluid cover-pic">
-                    </a>
-                </div>
-            {% endif %}
+    {% if request.resolver_match.url_name == 'home' %}
+        <div class="text-center">
+            <h1 class="header-title" style="padding-top: 10px;">INICIO</h1>
         </div>
-    </div>
+    {% else %}
+        <div class="header-content">
+            <h1 class="header-title">ALTA MATERIAL</h1>
+            <a href="{% url 'home' %}" class="logo-link">
+                <img src="{% static 'imagenes/Logo_inicio.png' %}" alt="Logo" class="cover-pic">
+            </a>
+        </div>
+    {% endif %}
 </header>

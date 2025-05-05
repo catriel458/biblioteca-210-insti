@@ -3,30 +3,30 @@
         <div class="row mb-3">
             <div class="col-4">
                 <label for="marca">Marca:</label>
-                <input type="text" class="form-control" value="Escriba aquí..." id="marca" name="marca" required>
+                <input type="text" class="form-control" id="marca" name="marca" required placeholder="Escriba aquí...">
             </div>
             <div class="col-3">
                 <label for="modelo">Modelo:</label>
-                <input type="text" class="form-control" value="Escriba aquí..." id="modelo" name="modelo" required>
+                <input type="text" class="form-control" id="modelo" name="modelo" required placeholder="Escriba aquí...">
             </div>
             <div class="col-3">
                 <label for="numero_serie">Número de Serie:</label>
-                <input type="text" class="form-control" value="Escriba aquí..." id="numero_serie" name="numero_serie" required>
+                <input type="text" class="form-control" id="numero_serie" name="numero_serie" required placeholder="Escriba aquí...">
             </div>
         </div>
 
         <div class="row">
             <div class="col-4">
                 <label for="descripcion">Descripción:</label>
-                <textarea class="form-control textarea-wrapper" id="descripcion" name="descripcion">Escriba aquí...</textarea>
+                <textarea class="form-control textarea-wrapper" id="descripcion" name="descripcion" placeholder="Escriba aquí..."></textarea>
             </div>
             <div class="col-3">
                 <label for="procesador">Procesador:</label>
-                <input type="text" class="form-control" value="Escriba aquí..." id="procesador" name="procesador">
+                <input type="text" class="form-control" id="procesador" name="procesador" placeholder="Escriba aquí...">
             </div>
             <div class="col-3">
                 <label for="ram">Memoria RAM:</label>
-                <input type="text" class="form-control" value="Escriba aquí..." id="ram" name="ram">
+                <input type="text" class="form-control" id="ram" name="ram" placeholder="Escriba aquí...">
             </div>
             <div class="col-2"></div>
         </div>
@@ -34,7 +34,7 @@
         <div class="row mt-3 pt-3">
             <div class="col-4">
                 <label for="disco">Disco:</label>
-                <input type="text" class="form-control" value="Escriba aquí..." id="disco" name="disco">
+                <input type="text" class="form-control" id="disco" name="disco" placeholder="Escriba aquí...">
             </div>
         </div>
         {% include 'components/form_ejemplares.html' %}

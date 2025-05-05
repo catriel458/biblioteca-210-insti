@@ -12,10 +12,10 @@
         {% csrf_token %}
         <!-- Fila 1 -->
         <div class="row align-items-start">
-            <!-- Formulario principal, columnas 1 a 10 -->
-            <div class="col-10">
+            <!-- Formulario principal, columnas 1 a 10 (ahora responsive) -->
+            <div class="col-12 col-lg-10">
                 <div class="row">
-                    <div class="col-2 form-group mb-0">
+                    <div class="col-12 col-sm-6 col-lg-2 form-group mb-2">
                         <label for="tipo_material" class="small">Tipo de Material:</label>
                         <select class="form-control form-control-sm" id="tipo_material" name="tipo_material" required>
                             <option value="">Selecciona un tipo de material</option>
@@ -26,11 +26,11 @@
                             <option value="notebook">Notebook</option>
                         </select>
                     </div>
-                    <div class="col-2 form-group mb-0" id="cant_ejemplares_container">
+                    <div class="col-12 col-sm-6 col-lg-2 form-group mb-2" id="cant_ejemplares_container">
                         <label for="cant_ejemplares" class="small">Cant. Ejemplares:</label>
                         <input type="number" class="form-control form-control-sm" id="cant_ejemplares" name="cant_ejemplares" min="1" value="1" required oninput="updateRows()">
                     </div>
-                    <div class="col-8"></div>
+                    <div class="col-12 col-lg-8 mb-2"></div>
                 </div>
                 <!-- Aquí siguen las demás filas y el formulario dinámico (col-10) -->
                 <div id="formulario-especifico" class="mt-2 row">
@@ -40,8 +40,8 @@
                     <!-- Las filas dinámicas se cargarán aquí -->
                 </div>
             </div>
-            <!-- Columna derecha, MANUAL y carga masiva, columnas 11 y 12 -->
-            <div class="col-2 d-flex flex-column align-items-end">
+            <!-- Columna derecha, MANUAL y carga masiva, columnas 11 y 12 (responsive) -->
+            <div class="col-12 col-lg-2 d-flex flex-column align-items-end mt-3 mt-lg-0">
                 <!-- Fila 1: Botón MANUAL -->
                 <div class="w-100 mb-2">
                     <button type="button" class="btn btn-dark btn-sm manual-button w-100">MANUAL</button>
@@ -99,4 +99,5 @@
             }
         });
     </script>
+    
 {% endblock %}

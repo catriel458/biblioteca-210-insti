@@ -81,8 +81,8 @@ textarea {
 .manual-button {
     background-color: var(--input-border) !important;
     width: 100% !important;
-    min-width: 0;
     margin-left: 0;
+    min-width: 0;
     box-sizing: border-box;
 }
 
@@ -100,7 +100,9 @@ textarea {
 }
 
 .upload-box {
-    width: 100%;
+    width: 100% !important;
+    min-width: 0;
+    box-sizing: border-box;
     background-color: #d7f2f7;
     margin-top: 0 !important;
     padding-top: 0 !important;
@@ -158,6 +160,9 @@ small.text-muted {
 #upload_box_container {
     margin-top: 0 !important;
     padding-top: 0 !important;
+    width: 100% !important;
+    min-width: 0;
+    box-sizing: border-box;
 }
 
 .row.align-items-center {

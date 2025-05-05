@@ -19,9 +19,8 @@ html, body {
 /* Footer */
 .main-footer {
     background-color: #f8f9fa;
-    padding: 5px;
     text-align: center;
-    position: relative;
+    position: absolute;
     bottom: 3px;
     width: 100%; /* Asegura que el footer ocupe todo el ancho */
 }
