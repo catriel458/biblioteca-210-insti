@@ -11,45 +11,63 @@
     <form id="form_alta_material" action="{% url 'alta_material' %}" method="POST" enctype="multipart/form-data">
         {% csrf_token %}
         <!-- Fila 1 -->
-        <div class="row align-items-center">
-            <div class="col-2 form-group mb-0">
-                <label for="tipo_material" class="small">Tipo de Material:</label>
-                <select class="form-control form-control-sm" id="tipo_material" name="tipo_material" required>
-                    <option value="">Selecciona un tipo de material</option>
-                    <option value="libro">Libro</option>
-                    <option value="mapa">Mapa</option>
-                    <option value="multimedia">Multimedia</option>
-                    <option value="proyector">Proyector</option>
-                    <option value="notebook">Notebook</option>
-                </select>
+        <div class="row align-items-start">
+            <!-- Formulario principal, columnas 1 a 10 -->
+            <div class="col-10">
+                <div class="row">
+                    <div class="col-2 form-group mb-0">
+                        <label for="tipo_material" class="small">Tipo de Material:</label>
+                        <select class="form-control form-control-sm" id="tipo_material" name="tipo_material" required>
+                            <option value="">Selecciona un tipo de material</option>
+                            <option value="libro">Libro</option>
+                            <option value="mapa">Mapa</option>
+                            <option value="multimedia">Multimedia</option>
+                            <option value="proyector">Proyector</option>
+                            <option value="notebook">Notebook</option>
+                        </select>
+                    </div>
+                    <div class="col-2 form-group mb-0" id="cant_ejemplares_container">
+                        <label for="cant_ejemplares" class="small">Cant. Ejemplares:</label>
+                        <input type="number" class="form-control form-control-sm" id="cant_ejemplares" name="cant_ejemplares" min="1" value="1" required oninput="updateRows()">
+                    </div>
+                    <div class="col-8"></div>
+                </div>
+                <!-- Aquí siguen las demás filas y el formulario dinámico (col-10) -->
+                <div id="formulario-especifico" class="mt-2 row">
+                    <!-- Los formularios se cargarán aquí dinámicamente -->
+                </div>
+                <div id="dynamic-rows">
+                    <!-- Las filas dinámicas se cargarán aquí -->
+                </div>
             </div>
-            <div class="col-2 form-group mb-0" id="cant_ejemplares_container">
-                <label for="cant_ejemplares" class="small">Cant. Ejemplares:</label>
-                <input type="number" class="form-control form-control-sm" id="cant_ejemplares" name="cant_ejemplares" min="1" value="1" required oninput="updateRows()">
+            <!-- Columna derecha, MANUAL y carga masiva, columnas 11 y 12 -->
+            <div class="col-2 d-flex flex-column align-items-end">
+                <!-- Fila 1: Botón MANUAL -->
+                <div class="w-100 mb-2">
+                    <button type="button" class="btn btn-dark btn-sm manual-button w-100">MANUAL</button>
+                </div>
+                <!-- Sección de carga (solo visible al seleccionar material) -->
+                <div id="upload_simple_container" class="w-100 mb-4" style="display: none;">
+                    <div class="upload-box w-100">
+                        <small class="text-muted">Para carga masiva / importar, haga click aquí:</small>
+                        <label for="cargar_imagen" class="d-block my-3">
+                            <div class="boton-redondeado">
+                                <span>↑</span>
+                            </div>
+                            <input type="file" id="cargar_imagen" name="cargar_imagen" style="display: none;">
+                        </label>
+                    </div>
+                </div>
+                <!-- Fila 4/5: Carga masiva avanzada (solo visible si corresponde) -->
+                <div id="upload_box_container" style="display: none; width: 100%;">
+                    <div class="upload-box w-100">
+                        <h5 class="mt-3">Cargar imagen</h5>
+                        <button class="btn btn-outline-info w-100 mb-2" type="button">↑</button>
+                        <input type="text" class="form-control mb-2" placeholder="O pegue un enlace aquí...">
+                        <div class="badge bg-light text-dark w-100">nombre-del-archivo.jpg</div>
+                    </div>
+                </div>
             </div>
-            <div class="col-6"></div>
-            <div class="col-2 upload-container">
-                <button type="button" class="btn btn-dark btn-sm manual-button">MANUAL</button>
-                <div class="upload-box">
-                    <small class="text-muted">Para carga masiva / importar, haga click aquí:</small>
-                    <label for="cargar_imagen" class="d-block my-3">
-                        <div class="boton-redondeado">
-                            <span>↑</span>
-                        </div>
-                        <input type="file" id="cargar_imagen" name="cargar_imagen" style="display: none;">
-                    </label>
-                </div>                
-            </div>
-        </div>
-
-        <!-- Contenedor para formularios específicos -->
-        <div id="formulario-especifico" class="mt-2">
-            <!-- Los formularios se cargarán aquí dinámicamente -->
-        </div>
-
-        <!-- Contenedor para filas dinámicas -->
-        <div id="dynamic-rows">
-            <!-- Las filas dinámicas se cargarán aquí -->
         </div>
 
         <!-- Fila de botones -->
@@ -63,4 +81,22 @@
 
 {% block extra_scripts %}
     <script src="{% static 'js/form_controler.js' %}" defer></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const tipoMaterial = document.getElementById('tipo_material');
+            const uploadSimple = document.getElementById('upload_simple_container');
+            const uploadBox = document.getElementById('upload_box_container');
+            if (tipoMaterial && uploadSimple && uploadBox) {
+                tipoMaterial.addEventListener('change', function() {
+                    if (tipoMaterial.value) {
+                        uploadSimple.style.display = 'block';
+                        uploadBox.style.display = 'block';
+                    } else {
+                        uploadSimple.style.display = 'none';
+                        uploadBox.style.display = 'none';
+                    }
+                });
+            }
+        });
+    </script>
 {% endblock %}

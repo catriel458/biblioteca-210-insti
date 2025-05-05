@@ -3,7 +3,7 @@
     overflow-y: auto;
 }
 .row {
-    margin-bottom: 0.25rem;
+    margin-bottom: 0.15rem;
 }
 input, textarea, select {
     background-color: #a0dcf6 !important; 
@@ -67,7 +67,7 @@ textarea {
 
 /* Estilos adicionales para el formulario */
 .container-fluid {
-    margin-top: 0.75%;
+    margin-top: 0.5%;
 }
 
 .btn-outline-danger, .btn-primary {
@@ -80,15 +80,19 @@ textarea {
 
 .manual-button {
     background-color: var(--input-border) !important;
-    width: 150px !important;
-    margin-left: auto;
+    width: 100% !important;
+    min-width: 0;
+    margin-left: 0;
+    box-sizing: border-box;
 }
 
 .upload-container {
-    width: auto;
+    width: 100%;
     display: flex;
     flex-direction: column;
-    align-items: flex-end;
+    align-items: flex-start;
+    margin-top: 0 !important;
+    padding-top: 0 !important;
 }
 
 .upload-container button {
@@ -98,6 +102,8 @@ textarea {
 .upload-box {
     width: 100%;
     background-color: #d7f2f7;
+    margin-top: 0 !important;
+    padding-top: 0 !important;
 }
 
 .custom-dashed-line {
@@ -109,18 +115,20 @@ textarea {
 /* Estilos para el formulario de alta de material */
 
 .form-group {
-    margin-bottom: 0.25rem;
+    margin-bottom: 0.15rem;
 }
 
 .form-control {
     height: calc(1.4em + 0.4rem + 2px);
     padding: 0.2rem 0.4rem;
     font-size: 0.8rem;
+    transition: all 0.3s ease;
 }
 
 label.small {
     font-size: 0.75rem;
-    margin-bottom: 0.1rem;
+    margin-bottom: 0.05rem;
+    line-height: 1;
 }
 
 .btn-sm {
@@ -145,4 +153,47 @@ small.text-muted {
 
 .col-2.upload-container {
     margin-left: auto;
+}
+
+#upload_box_container {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+}
+
+.row.align-items-center {
+    align-items: flex-start !important;
+}
+
+/* Mejoras de responsividad y espaciado */
+#formulario-especifico {
+    transition: all 0.3s ease;
+    min-height: 0;
+    overflow: hidden;
+}
+
+#dynamic-rows {
+    transition: all 0.3s ease;
+    min-height: 0;
+    overflow: hidden;
+}
+
+/* Media queries para responsividad */
+@media (max-width: 768px) {
+    .container-fluid {
+        padding: 0.5rem;
+    }
+    
+    .form-control-sm {
+        font-size: 0.875rem;
+    }
+    
+    .small {
+        font-size: 0.75rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .container-fluid {
+        padding: 0.25rem;
+    }
 }
