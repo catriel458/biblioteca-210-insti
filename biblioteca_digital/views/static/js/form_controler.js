@@ -69,9 +69,9 @@ document.addEventListener("DOMContentLoaded", function () {
                         </div>
                     </div>
 
-                    <div class="col-6 ">
+                    <div class="col-6">
                         <label for="observaciones_${i}">Observaciones:</label>
-                        <textarea class="form-control h-100" id="observaciones_${i}" name="observaciones[]" rows="2" placeholder="Escriba aquí..."></textarea>
+                        <textarea class="form-control h-100" id="observaciones_${i}" name="observaciones[]" rows="4" style="min-width:100%; max-width:100%; min-height:70px;" placeholder="Escriba aquí..."></textarea>
                     </div>
                 </div>
             `;
