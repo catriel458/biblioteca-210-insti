@@ -61,7 +61,7 @@
                 <!-- Fila 4/5: Carga masiva avanzada (solo visible si corresponde) -->
                 <div id="upload_box_container" class="custom-upload-box-container" style="display: none; width: 100%;">
                     <div class="custom-upload-box w-100">
-                        <h5 class="mt-3">Cargar imagen</h5>
+                        <h5 class="">Cargar imagen</h5>
                         <button class="btn btn-sm custom-upload-btn w-100 mb-2" type="button">↑</button>
                         <input type="text" class="form-control custom-upload-input mb-2" placeholder="O pegue un enlace aquí...">
                     </div>
@@ -70,9 +70,11 @@
         </div>
 
         <!-- Fila de botones -->
-        <div id="buttons-container">
-            <button type="button" class="btn btn-outline-danger btn-sm">Cancelar</button>
-            <button type="submit" class="btn btn-primary btn-sm">Guardar</button>
+        <div id="buttons-container" class="row bg-white px-0 mx-0" style="border:none; box-shadow:none; display: none;">
+            <div class="col-12 d-flex justify-content-end gap-5">
+                <button type="button" class="btn btn-outline-danger btn-sm boton-cancelar">Cancelar</button>
+                <button type="submit" class="btn btn-primary btn-sm boton-guardar">Guardar</button>
+            </div>
         </div>
     </form>
 </div>
@@ -85,14 +87,17 @@
             const tipoMaterial = document.getElementById('tipo_material');
             const uploadSimple = document.getElementById('upload_simple_container');
             const uploadBox = document.getElementById('upload_box_container');
-            if (tipoMaterial && uploadSimple && uploadBox) {
+            const buttonsContainer = document.getElementById('buttons-container');
+            if (tipoMaterial && uploadSimple && uploadBox && buttonsContainer) {
                 tipoMaterial.addEventListener('change', function() {
                     if (tipoMaterial.value) {
                         uploadSimple.style.display = 'block';
                         uploadBox.style.display = 'block';
+                        buttonsContainer.style.display = 'flex';
                     } else {
                         uploadSimple.style.display = 'none';
                         uploadBox.style.display = 'none';
+                        buttonsContainer.style.display = 'none';
                     }
                 });
             }

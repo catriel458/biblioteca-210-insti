@@ -38,8 +38,18 @@ textarea {
     padding-top: 10px;
     margin-bottom: 20px;
 }
-
-/* Estilos para el formulario de alta de material */
+.requerido {
+    font-family: 'Trebuchet MS';
+    color: red;
+    font-size: 10px;
+    font-weight: 700;
+    align-items: center;
+    justify-content: center;
+    display: flex;
+    text-align: center;
+    letter-spacing: 10%;
+}
+/* Estilos para el formlario de alta de material */
 .header-home { 
     display: none; 
 } 
@@ -57,12 +67,13 @@ textarea {
 } 
 
 #buttons-container { 
-    display: none;
-    position: fixed;
-    bottom: 15px;
-    right: 15px;
-    width: auto;
-    z-index: 1000;
+    background: #fff;
+    padding: 0;
+    margin-bottom: 2%;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    position: static;
 }
 
 /* Estilos adicionales para el formulario */
@@ -76,6 +87,12 @@ textarea {
 
 .btn-outline-danger.btn-sm {
     margin-right: 10px;
+}
+.boton-guardar {
+    width: 200px !important;
+}
+.boton-cancelar {
+    width: 100px !important;
 }
 
 .manual-button {
@@ -110,8 +127,9 @@ textarea {
 
 .custom-dashed-line {
     border: none;
-    border-top: 3px dashed var(--input-border);
-    margin: 0;
+    border-top: 4px dashed var(--input-border);
+    margin: 2%;
+    width: 100%;
 }
 
 /* Estilos para el formulario de alta de material */
@@ -226,7 +244,7 @@ small.text-muted {
 .custom-upload-btn {
     background:#ADE2E4 !important;
     border: 2px solid #54b5b5 !important;
-    color: #fff !important;
+    color: #25B7BB !important;
     border-radius: 6px;
     box-shadow: none;
     transition: background 0.2s, border 0.2s;
