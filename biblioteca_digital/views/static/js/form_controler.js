@@ -182,16 +182,6 @@ document.addEventListener("DOMContentLoaded", function () {
             updateRows();
         }
     });
-    // Mostrar/ocultar carga masiva al cargar la página según el valor actual del select
-    if (tipoMaterialSelect && uploadSimple && uploadBox) {
-        if (tipoMaterialSelect.value) {
-            uploadSimple.style.display = 'block';
-            uploadBox.style.display = 'block';
-        } else {
-            uploadSimple.style.display = 'none';
-            uploadBox.style.display = 'none';
-        }
-    }
 
     // Manejar cambios en el tipo de material
 
@@ -232,6 +222,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 });
             }, 100);
         });
+    }
     if (tipoMaterialSelect.value) {
         updateRows();
     }
