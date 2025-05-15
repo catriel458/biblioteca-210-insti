@@ -29,6 +29,7 @@ urlpatterns = [
     # Rutas principales del sitio
     path('', views.home, name='home'),  # Nueva ruta para el home principal
     path('alta_material/', views.alta_material, name='alta_material'),  # Nueva ruta para alta_material
+    path('modificacion_editar_material/', views.modificacion_editar_material, name='modificacion_editar_material'),
     # Rutas de la app libros
     path('libros/', include('libros.urls')),
 
