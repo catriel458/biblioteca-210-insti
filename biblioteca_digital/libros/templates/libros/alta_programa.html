@@ -1,0 +1,57 @@
+{% extends 'components/baseb.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid">
+    <form id="form_alta_programa" action="{% url 'alta_programa' %}" method="POST">
+        {% csrf_token %}
+        <div class="row mb-3">
+            <div class="col-4">
+                <label for="profesor">Profesor:</label>
+                <input type="text" class="form-control" id="profesor" name="profesor" required placeholder="Nombre del profesor">
+            </div>
+            <div class="col-4">
+                <label for="url">Enlace:</label>
+                <input type="url" class="form-control" id="url" name="url" placeholder="URL del programa">
+            </div>
+            <div class="col-4">
+                <label for="carrera">Carrera:</label>
+                <select class="form-control" id="carrera" name="carrera" required>
+                    <option value="">Seleccionar Carrera</option>
+                    <option value="Análisis de Sistemas">Tecnicatura Superior en Análisis de Sistemas</option>
+                    <option value="Ciencias Políticas">Profesorado de Educación Secundaria en Ciencias Políticas</option>
+                    <option value="Geografía">Profesorado de Educación Secundaria en Geografía</option>
+                    <option value="Educación Inicial">Profesorado de Educación Inicial</option>
+                    <option value="Educación Primaria">Profesorado de Educación Primaria</option>
+                    <option value="Otra">Otra carrera</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-12">
+                <label for="materia">Materia:</label>
+                <input type="text" class="form-control" id="materia" name="materia" required placeholder="Nombre de la materia">
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-12">
+                <button type="button" class="btn btn-secondary" onclick="agregarFilaPrograma()">
+                    Agregar Ejemplar
+                </button>
+            </div>
+        </div>
+
+        <div id="dynamic-rows-programa">
+            <!-- Las filas dinámicas de ejemplares de programa se cargarán aquí -->
+        </div>
+        
+        <button type="submit" class="btn btn-primary">Guardar Programa</button>
+    </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static 'views/static/js/form_controler.js' %}"></script>
+{% endblock %}

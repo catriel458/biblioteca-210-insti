@@ -302,8 +302,7 @@ header {
                         <a href="{% url 'editar_multimedia' multi.id_multi %}">
                             <img src="{% static 'libros/img/lapiz.png' %}" alt="Editar" style="cursor: pointer; width: 20px; height: 20px;">
                         </a>
-                        <img src="{% static 'libros/img/trash.png' %}" alt="Eliminar" onclick="abrirModal({{ multi.id_multi }})" style="cursor: pointer; width: 20px; height: 20px;">
-                    </td>
+                     </td>
                 </tr>
                 {% empty %}
                 <tr>
