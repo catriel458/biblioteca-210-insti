@@ -1,7 +1,15 @@
+
+{% load static %}
 <div data-block="content">
     <div data-form="libro">
-        <!-- Primera fila -->
+        <!-- Primera fila: Cant. Ejemplares alineado con los campos principales -->
         <div class="row mb-3">
+            <div class="col-2 d-flex align-items-end" id="cant_ejemplares_container">
+  <div class="w-100">
+    <label for="cant_ejemplares" class="form-label small">Cant. de ejemplares</label>
+    <input type="number" class="form-control form-control-sm" id="cant_ejemplares" name="cant_ejemplares" min="1" value="1" required oninput="updateRows()">
+  </div>
+</div>
             <div class="col-4">
                 <label for="titulo">Título:</label>
                 <input type="text" class="form-control" id="titulo" name="titulo" required placeholder="Escriba aquí...">
@@ -30,15 +38,33 @@
             </div>
         </div>
 
-        <div class="row mb-3">
-    <div class="col-12">
-        <button type="button" class="btn btn-secondary" onclick="agregarFilaLibro()">
-            Agregar Ejemplar
-        </button>
+        <!-- La cantidad de ejemplares se controla únicamente con el campo 'cant_ejemplares'. No se requiere botón adicional. -->
+<div class="row mt-4 pt-4">
+    <div class="col-10">
+        <label for="palabras_clave">Palabras Clave:</label>
+        <small class="text-danger ms-2">(Las etiquetas deben estar separadas por comas. Ejemplo: etiqueta, etiqueta, etiqueta, ...)</small>
+        <input type="text" class="form-control" value="Escriba aquí..." id="palabras_clave" name="palabras_clave" required>
     </div>
 </div>
-<div id="dynamic-rows-libro">
-    <!-- Las filas dinámicas de ejemplares de libro se cargarán aquí -->
-</div>
+<div class="row">
+    <div class="col-12" style="height: 30px;">
+        <hr class="custom-dashed-line">
     </div>
 </div>
+
+<!-- Contenedor dinámico de ejemplares, exclusivo de libros -->
+<div id="ejemplares-container" class="campos-libro">
+    <!-- Los ejemplares se agregarán dinámicamente aquí -->
+</div>
+
+<!-- Importación del JS dinámico de ejemplares -->
+<script src="{% static 'views/js/form_controler.js' %}"></script>
+<script>
+    // Inicializa los campos dinámicos de ejemplares al cargar la página
+    document.addEventListener('DOMContentLoaded', function() {
+        if (typeof updateRows === 'function') {
+            updateRows();
+        }
+    });
+</script>
+</html>

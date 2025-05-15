@@ -20,25 +20,20 @@
                         <label for="tipo_material" class="small">Tipo de Material:</label>
                         <select class="form-control form-control-sm" id="tipo_material" name="tipo_material" required>
                             <option value="">Selecciona un tipo de material</option>
-                            <option value="libro">Libro</option>
-                            <option value="mapa">Mapa</option>
-                            <option value="multimedia">Multimedia</option>
-                            <option value="proyector">Proyector</option>
-                            <option value="notebook">Notebook</option>
+                            <option value="libro">LIBRO</option>
+                            <option value="mapa">MAPA</option>
+                            <option value="multimedia">MULTIMEDIA</option>
+                            <option value="notebook">NOTEBOOK</option>
+                            <option value="programa">PROGRAMA</option>
+                            <option value="proyector">PROYECTOR</option>
+                            <option value="varios">VARIOS</option>
                         </select>
-                    </div>
-                    <div class="col-12 col-sm-6 col-lg-2 form-group mb-2" id="cant_ejemplares_container">
-                        <label for="cant_ejemplares" class="small">Cant. Ejemplares:</label>
-                        <input type="number" class="form-control form-control-sm" id="cant_ejemplares" name="cant_ejemplares" min="1" value="1" required oninput="updateRows()">
                     </div>
                     <div class="col-12 col-lg-8 mb-2"></div>
                 </div>
                 <!-- Aquí siguen las demás filas y el formulario dinámico (col-10) -->
                 <div id="formulario-especifico" class="mt-2 row">
                     <!-- Los formularios se cargarán aquí dinámicamente -->
-                </div>
-                <div id="dynamic-rows">
-                    <!-- Las filas dinámicas se cargarán aquí -->
                 </div>
             </div>
             <!-- Columna derecha, MANUAL y carga masiva, columnas 11 y 12 (responsive) -->
@@ -69,9 +64,6 @@
                         <input type="text" id="url_upload_input" class="form-control custom-upload-input mb-2" placeholder="O pegue un enlace aquí...">
                     </div>
                 </div>
-            <div class="col-2 form-group mb-0" id="cant_ejemplares_container">
-                <label for="cant_ejemplares" class="small">Cant. Ejemplares:</label>
-                <input type="number" class="form-control form-control-sm" id="cant_ejemplares" name="cant_ejemplares" min="1" value="1" required>
             </div>
         </div>
 
