@@ -1,39 +1,107 @@
+// Lógica principal para formularios dinámicos de materiales
+// Autor: Juni & Cascade
+// Última actualización: 2025-05-15
+
+// Lógica AJAX para formularios dinámicos de materiales
+// Autor: Juni & Cascade
+// Última actualización: 2025-05-15
+// Esta lógica escucha el cambio en el selector de tipo de material, solicita al backend el fragmento HTML correspondiente y lo inserta en el contenedor dinámico.
+// Solo para 'libro' se muestra el campo de ejemplares y se ejecuta la lógica de ejemplares.
 document.addEventListener("DOMContentLoaded", function () {
+    // --- Mostrar/ocultar campos exclusivos de libro ---
+    function toggleCamposLibro() {
+        const tipoMaterial = document.getElementById('tipo_material');
+        const tipo = tipoMaterial ? tipoMaterial.value : null;
+        const camposLibro = document.querySelectorAll('.campos-libro');
+        camposLibro.forEach(el => {
+            el.style.display = (tipo === 'libro') ? 'flex' : 'none';
+        });
+    }
+
+    // Elementos clave del DOM
     const tipoMaterialSelect = document.getElementById('tipo_material');
     const formContainer = document.getElementById('formulario-especifico');
     const cantEjemplaresInput = document.getElementById('cant_ejemplares');
-    const dynamicRowsContainer = document.getElementById('dynamic-rows');
-    const buttonsContainer = document.getElementById('buttons-container');
     const cantEjemplaresContainer = document.getElementById('cant_ejemplares_container');
-    const uploadSimple = document.getElementById('upload_simple_container');
-    const uploadBox = document.getElementById('upload_box_container');
 
-    let valorAnterior = parseInt(cantEjemplaresInput.value) || 1;
-
+    // --- Cargar el formulario parcial correspondiente al material seleccionado (AJAX) ---
     async function loadMaterialTemplate(tipo) {
+        if (!tipo) {
+            formContainer.innerHTML = '';
+            if (cantEjemplaresContainer) cantEjemplaresContainer.style.display = 'none';
+            return;
+        }
         try {
-            const response = await fetch(`/libros/get_material_template/${tipo}/`);
+            const tipoLower = tipo.toLowerCase();
+            const response = await fetch(`/libros/get_material_template/${tipoLower}/`);
             if (response.ok) {
-                return await response.text();
+                const html = await response.text();
+                formContainer.innerHTML = html;
+                // Mostrar/ocultar campo de ejemplares solo para libro
+                if (tipoLower === 'libro' && cantEjemplaresContainer) {
+                    cantEjemplaresContainer.style.display = 'block';
+                    if (typeof updateRows === 'function') updateRows();
+                } else if (cantEjemplaresContainer) {
+                    cantEjemplaresContainer.style.display = 'none';
+                }
+            } else {
+                formContainer.innerHTML = '<div class="alert alert-danger">No se pudo cargar el formulario.</div>';
+                if (cantEjemplaresContainer) cantEjemplaresContainer.style.display = 'none';
             }
-            return '';
         } catch (error) {
-            console.error('Error loading template:', error);
-            return '';
+            formContainer.innerHTML = '<div class="alert alert-danger">Error de conexión.</div>';
+            if (cantEjemplaresContainer) cantEjemplaresContainer.style.display = 'none';
         }
     }
 
-    function updateRows() {
+    // Listener principal para el selector de materiales
+    if (tipoMaterialSelect) {
+        tipoMaterialSelect.addEventListener('change', function() {
+            loadMaterialTemplate(this.value);
+        });
+    }
+
+    // Inicializar al cargar la página
+    // Si el selector no tiene valor, seleccionamos el primero disponible
+    let tipoInicial = tipoMaterialSelect && tipoMaterialSelect.value;
+    if (!tipoInicial && tipoMaterialSelect && tipoMaterialSelect.options.length > 0) {
+        tipoInicial = tipoMaterialSelect.options[0].value;
+    }
+    if (tipoInicial) {
+        loadMaterialTemplate(tipoInicial);
+    }
+
+
+    // Listener para mostrar/ocultar campos exclusivos de libro
+    if (tipoMaterialSelect) {
+        tipoMaterialSelect.addEventListener('change', toggleCamposLibro);
+    }
+    window.addEventListener('DOMContentLoaded', toggleCamposLibro);
+
+    // --- El resto de la lógica (updateRows, carga de imágenes, etc.) permanece igual ---
+
+    let valorAnterior = cantEjemplaresInput ? (parseInt(cantEjemplaresInput.value) || 1) : 1;
+
+
+    // Genera dinámicamente los campos de ejemplares según la cantidad indicada
+    window.updateRows = function() {
+        // Referencias seguras a los elementos clave
+        const cantEjemplaresInput = document.getElementById('cant_ejemplares');
+        const ejemplaresContainer = document.getElementById('ejemplares-container');
+        // Si no existe el input o el contenedor, no hacer nada
+        if (!cantEjemplaresInput || !ejemplaresContainer) return;
+
         const cantEjemplares = parseInt(cantEjemplaresInput.value) || 1;
 
-        dynamicRowsContainer.innerHTML = '';
+        // Limpiar el contenedor antes de agregar nuevas filas
+        ejemplaresContainer.innerHTML = '';
 
-        const showElements = cantEjemplares >= 1;
-        dynamicRowsContainer.style.display = showElements ? 'block' : 'none';
-        buttonsContainer.style.display = showElements ? 'block' : 'none';
+        // Mostrar u ocultar el contenedor según la cantidad
+        ejemplaresContainer.style.display = cantEjemplares >= 1 ? 'block' : 'none';
 
         if (cantEjemplares <= 0) return;
 
+        // Generar las filas dinámicamente
         for (let i = 0; i < cantEjemplares; i++) {
             const row = document.createElement('div');
             row.className = 'row mt-3';
@@ -67,7 +135,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     </div>
                 </div>
             `;
-            dynamicRowsContainer.appendChild(row);
+            ejemplaresContainer.appendChild(row);
         }
     }
 
@@ -191,8 +259,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
         if (!tipo) {
             formContainer.innerHTML = '';
-            dynamicRowsContainer.innerHTML = '';
-            dynamicRowsContainer.style.display = 'none';
+            ejemplaresContainer.innerHTML = '';
+            ejemplaresContainer.style.display = 'none';
             buttonsContainer.style.display = 'none';
             return;
         }
@@ -243,7 +311,9 @@ document.addEventListener("DOMContentLoaded", function () {
             preview.style.maxWidth = '100%';
             preview.style.marginTop = '10px';
             preview.style.display = 'none';
+            if (uploadBox) {
             uploadBox.querySelector('.custom-upload-box').appendChild(preview);
+        }
         }
         // Crear/obtener el mensaje de error
         let errorMsg = document.getElementById('img_error_msg');
@@ -253,7 +323,9 @@ document.addEventListener("DOMContentLoaded", function () {
             errorMsg.style.color = 'red';
             errorMsg.style.fontSize = '0.9em';
             errorMsg.style.display = 'none';
+            if (uploadBox) {
             uploadBox.querySelector('.custom-upload-box').appendChild(errorMsg);
+        }
         }
         // Crear/obtener el botón de eliminar foto (como una X en la esquina superior izquierda)
         let deleteBtn = document.getElementById('img_delete_btn');
