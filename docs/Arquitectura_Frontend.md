@@ -91,6 +91,10 @@
                         <option value="libro">Libro</option>
                         <option value="mapa">Mapa</option>
                         <option value="multimedia">Multimedia</option>
+                        <option value="notebook">Notebook</option>
+                        <option value="programa">Programa</option>
+                        <option value="proyector">Proyector</option>
+                        <option value="varios">Varios</option>
                     </select>
                 </div>
                 
