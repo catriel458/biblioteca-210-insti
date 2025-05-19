@@ -1,39 +1,47 @@
-<!DOCTYPE html>
-<html lang="es">
+{% load static %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registrar Varios</title>
-</head>
-<div data-form="varios">
+<div data-block="content" data-form="varios">
     <div class="row mb-3">
-            <div class="col-3">
-                <label for="sede">Sede:</label>
-                <input type="text" class="form-control" id="sede" name="sede" required placeholder="Sede...">
-            </div>
-            <div class="col-3">
-                <label for="tipo">Tipo:</label>
-                <input type="text" class="form-control" id="tipo" name="tipo" required placeholder="Ej: Político, Físico, Temático...">
-            </div>
-            <div class="col-3">
-                <label for="cant_ejemplares">Cantidad de ejemplares:</label>
-                <input type="number" class="form-control" id="cant_ejemplares" name="cant_ejemplares" min="1" required>
-            </div>
-            <div class="col-3">
-                <label for="n_registro">N° de registro:</label>
-                <input type="text" class="form-control" id="n_registro" name="n_registro" required placeholder="N° de registro...">
-            </div>
+        <div class="col-2">
+            <label for="sede">Sede:</label>
+            <select class="form-select" id="sede" name="sede" required>
+                <option value="">Seleccione una sede</option>
+                <option value="sede1">La Plata</option>
+                <option value="sede2">Abasto</option>
+            </select>
         </div>
-        <div class="row mb-3">
-            <div class="col-6">
-                <label for="denominacion">Denominación:</label>
-                <input type="text" class="form-control" id="denominacion" name="denominacion" required placeholder="Denominación...">
-            </div>
-            <div class="col-6">
-                <label for="descripcion">Descripción:</label>
-                <textarea class="form-control textarea-wrapper" id="descripcion" name="descripcion" required placeholder="Descripción..."></textarea>
-            </div>
-        </div>
-    </form>
+    </div>
+    <div class="row mb-3">
+    <div class="col-2">
+        <label for="tipo">Tipo <span class="text-danger">*</span></label>
+        <input type="text" class="form-control" id="tipo" name="tipo" required placeholder="Ej: Político, Físico, Temático...">
+    </div>
+    <!-- Contenedor dinámico para tipo y cantidad -->
+    <div class="col-6" id="bloque-tipo-cantidad"></div>
 </div>
+
+<div id="contenedor-ejemplares-varios">
+    <!-- Los ejemplares se generarán aquí dinámicamente -->
+</div>
+</div>
+
+<!-- Importación del JS dinámico de ejemplares -->
+<script src="{% static 'js/form_altas.js' %}"></script>
+<script src="{% static 'js/form_controller.js' %}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const inputTipo = document.getElementById('tipo');
+        if (inputTipo) {
+            inputTipo.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter' && inputTipo.value.trim() !== '') {
+                    e.preventDefault();
+                    if (inputTipo.value.trim() !== '') {
+                        TiposEjemplares.agregarTipoDesdeUI();
+                        // Limpiar el input después de agregar
+                        inputTipo.value = '';
+                    }
+                }
+            });
+        }
+    });
+</script>

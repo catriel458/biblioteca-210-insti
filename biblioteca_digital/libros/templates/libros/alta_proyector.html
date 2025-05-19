@@ -1,21 +1,37 @@
-<div data-block="content">
-    <div data-form="proyector">
-        <div class="row mb-3">
-            <div class="col-3">
-                <label for="sede">Sede:</label>
-                <input type="text" class="form-control" id="sede" name="sede" required placeholder="Sede...">
-            </div>
-            <div class="col-3">
-                <label for="cant_ejemplares">Cantidad de ejemplares:</label>
-                <input type="number" class="form-control" id="cant_ejemplares" name="cant_ejemplares" min="1" required>
-            </div>
-            <div class="col-3">
-                <label for="n_registro">N° de registro:</label>
-                <input type="text" class="form-control" id="n_registro" name="n_registro" required placeholder="N° de registro...">
-            </div>
-            <div class="col-3">
-                <label for="modelo">Modelo:</label>
-                <input type="text" class="form-control" id="modelo" name="modelo" required placeholder="Modelo...">
+{% load static %}
+<div data-block="content" data-form-type="proyector">
+    <div class="row mb-3">
+        <div class="col-2">
+            <label for="sede">Sede:</label>
+            <select class="form-select" id="sede" name="sede" required>
+                <option value="">Seleccione una sede</option>
+                <option value="sede1">La Plata</option>
+                <option value="sede2">Abasto</option>
+            </select>
+        </div>
+    </div>
+    <div class="row mb-3">
+        <div class="col-2 d-flex align-items-end" id="cant_ejemplares_container">
+            <div class="w-100">
+                <label for="cant_ejemplares" class="form-label small">Cant. de ejemplares</label>
+                <input type="number" class="form-control form-control-sm" id="cant_ejemplares" name="cant_ejemplares" min="1" value="1" required > <!-- Eliminado oninput, ahora solo addEventListener -->
             </div>
         </div>
+    </div>
+    <!-- Contenedor para los ejemplares -->
+    <div id="contenedor-ejemplares-proyector" class="mb-4">
+        <!-- Los ejemplares se generarán aquí dinámicamente -->
+    </div>
 </div>
+<!-- Importación del JS dinámico de ejemplares -->
+<script src="{% static 'js/form_altas.js' %}"></script>
+<script src="{% static 'js/form_controller.js' %}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const inputCantidadProyector = document.querySelector('#contenedor-ejemplares-proyector input[name="cant_ejemplares"]') ||
+            document.querySelector('input[name="cant_ejemplares"]');
+        if (inputCantidadProyector) {
+            inputCantidadProyector.addEventListener('input', window.updateRowsProyector);
+        }
+    });
+</script>

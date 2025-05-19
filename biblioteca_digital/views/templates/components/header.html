@@ -3,19 +3,33 @@
 
 <header class="{{ header_class }}">
     {% if request.resolver_match.url_name == 'home' %}
-        <div class="text-center">
-            <h1 class="header-title" style="padding-top: 10px;">INICIO</h1>
+        <div class="header-home">
+            <h1 class="header-title" style="padding-top: 15px;">INICIO</h1>
         </div>
     {% elif request.resolver_match.url_name == 'alta_material' %}
-        <div class="header-content">
-            <h1 class="header-title">ALTA MATERIAL</h1>
+        <div class="header-pantalla">
+            <h1 class="header-title" style="padding-top: 15px;">ALTA MATERIAL</h1>
             <a href="{% url 'home' %}" class="logo-link">
                 <img src="{% static 'imagenes/Logo_inicio.png' %}" alt="Logo" class="cover-pic">
             </a>
         </div>
-    {% elif request.resolver_match.url_name == 'modificacion_editar_material' or request.resolver_match.url_name == 'modificacion_materiales' %}
-        <div class="header-content">
-            <h1 class="header-title"> MODIFICACION </h1>
+    {% elif request.resolver_match.url_name == 'modificacion_editar_material' %}
+        <div class="header-pantalla">
+            <h1 class="header-title" style="padding-top: 15px;"> MODIFICACION </h1>
+            <a href="{% url 'home' %}" class="logo-link">
+                <img src="{% static 'imagenes/Logo_inicio.png' %}" alt="Logo" class="cover-pic">
+            </a>
+        </div>
+    {% elif request.resolver_match.url_name == 'modificacion_materiales' %}
+        <div class="header-pantalla">
+            <h1 class="header-title" style="padding-top: 15px;"> MODIFICACION </h1>
+            <a href="{% url 'home' %}" class="logo-link">
+                <img src="{% static 'imagenes/Logo_inicio.png' %}" alt="Logo" class="cover-pic">
+            </a>
+        </div>
+    {% elif request.resolver_match.url_name == 'prestamos' %}
+        <div class="header-pantalla">
+            <h1 class="header-title" style="padding-top: 15px;"> PRESTAMOS </h1>
             <a href="{% url 'home' %}" class="logo-link">
                 <img src="{% static 'imagenes/Logo_inicio.png' %}" alt="Logo" class="cover-pic">
             </a>

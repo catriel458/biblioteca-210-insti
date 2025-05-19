@@ -1,6 +1,6 @@
 .header-home,
 .header-pantalla {
-    height: 60px;
+    height: 80px;
     position: relative;
     border-bottom: 2px solid #8B1D69;
     background-image: url('/static/imagenes/cover_alta.png');
@@ -26,6 +26,7 @@
     line-height: 1.2;
     text-align: center;
     font-weight: bold !important;
+    justify-content: center;
 }
 
 .logo-link {

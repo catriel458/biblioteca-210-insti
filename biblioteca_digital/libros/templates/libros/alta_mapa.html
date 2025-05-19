@@ -1,32 +1,47 @@
-<div data-block="content">
-    <div data-form="mapa">
-        <div class="row mb-3">
-            <div class="col-4">
-                <label for="sede">Sede:</label>
-                <input type="text" class="form-control" id="sede" name="sede" required placeholder="Escriba aquí...">
-            </div>
-            <div class="col-4">
-                <label for="tipo">Tipo de mapa:</label>
-                <input type="text" class="form-control" id="tipo" name="tipo" required placeholder="Ej: Político, Físico, Temático...">
-            </div>
-            <div class="col-4">
-                <label for="cant_ejemplares">Cantidad de ejemplares:</label>
-                <input type="number" class="form-control" id="cant_ejemplares" name="cant_ejemplares" min="1" required>
-            </div>
-        </div>
-        <div class="row mb-3">
-            <div class="col-4">
-                <label for="n_registro">N° de registro:</label>
-                <input type="text" class="form-control" id="n_registro" name="n_registro" required placeholder="Escriba aquí...">
-            </div>
-            <div class="col-4">
-                <label for="denominacion">Denominación:</label>
-                <input type="text" class="form-control" id="denominacion" name="denominacion" required placeholder="Escriba aquí...">
-            </div>
-            <div class="col-4">
-                <label for="descripcion">Descripción:</label>
-                <textarea class="form-control textarea-wrapper" id="descripcion" name="descripcion" required placeholder="Escriba aquí..."></textarea>
-            </div>
+{% load static %}
+
+<div data-block="content" data-form="mapa">
+    <div class="row mb-3">
+        <div class="col-2">
+            <label for="sede">Sede:</label>
+            <select class="form-select" id="sede" name="sede" required>
+                <option value="">Seleccione una sede</option>
+                <option value="sede1">La Plata</option>
+                <option value="sede2">Abasto</option>
+            </select>
         </div>
     </div>
+    <div class="row mb-3">
+    <div class="col-2">
+        <label for="tipo">Tipo <span class="text-danger">*</span></label>
+        <input type="text" class="form-control" id="tipo" name="tipo" required placeholder="Ej: Político, Físico, Temático...">
+    </div>
+    <!-- Contenedor dinámico para tipo y cantidad -->
+    <div class="col-6" id="bloque-tipo-cantidad"></div>
 </div>
+
+<div id="contenedor-ejemplares-mapa">
+    <!-- Los ejemplares se generarán aquí dinámicamente -->
+</div>
+</div>
+
+<!-- Importación del JS dinámico de ejemplares -->
+<script src="{% static 'js/form_altas.js' %}"></script>
+<script src="{% static 'js/form_controller.js' %}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const inputTipo = document.getElementById('tipo');
+        if (inputTipo) {
+            inputTipo.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter' && inputTipo.value.trim() !== '') {
+                    e.preventDefault();
+                    if (inputTipo.value.trim() !== '') {
+                        TiposEjemplares.agregarTipoDesdeUI();
+                        // Limpiar el input después de agregar
+                        inputTipo.value = '';
+                    }
+                }
+            });
+        }
+    });
+</script>
