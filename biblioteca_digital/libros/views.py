@@ -115,6 +115,18 @@ def cargar_csv(request):
                     notebook.save()
                     print(f"Notebook guardada: {notebook}")  # Imprimir confirmación
 
+                elif tipo_material == 'Programa':
+                    programa = Programa(
+                        estado=estado,
+                        motivo_baja=motivo_baja,
+                        descripcion=descripcion,
+                        num_ejemplar=num_ejemplar,
+                        marca_pro=row.get('marca_pro'),
+                        modelo_pro=row.get('modelo_pro')
+                    )
+                    programa.save()
+                    print(f"Programa guardado: {programa}")  # Imprimir confirmación
+            
                 elif tipo_material == 'Proyector':
                     proyector = Proyector(
                         estado=estado,

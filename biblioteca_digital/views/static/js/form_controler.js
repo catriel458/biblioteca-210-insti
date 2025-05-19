@@ -2,11 +2,8 @@
 // Autor: Juni & Cascade
 // Última actualización: 2025-05-15
 
-// Lógica AJAX para formularios dinámicos de materiales
-// Autor: Juni & Cascade
-// Última actualización: 2025-05-15
-// Esta lógica escucha el cambio en el selector de tipo de material, solicita al backend el fragmento HTML correspondiente y lo inserta en el contenedor dinámico.
-// Solo para 'libro' se muestra el campo de ejemplares y se ejecuta la lógica de ejemplares.
+// Lógica AJAX y helpers exclusivos para alta_material.html
+// No contiene lógica de TiposEjemplares ni gestión de tipos/ejemplares dedicados (ver form_altas.js para eso)
 document.addEventListener("DOMContentLoaded", function () {
     // --- Mostrar/ocultar campos exclusivos de libro ---
     function toggleCamposLibro() {
@@ -19,6 +16,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // Elementos clave del DOM
+    // Este script debe ser cargado únicamente en alta_material.html
     const tipoMaterialSelect = document.getElementById('tipo_material');
     const formContainer = document.getElementById('formulario-especifico');
     const cantEjemplaresInput = document.getElementById('cant_ejemplares');
@@ -27,7 +25,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // --- Cargar el formulario parcial correspondiente al material seleccionado (AJAX) ---
     async function loadMaterialTemplate(tipo) {
         if (!tipo) {
-            formContainer.innerHTML = '';
+            if (formContainer) formContainer.innerHTML = '';
             if (cantEjemplaresContainer) cantEjemplaresContainer.style.display = 'none';
             return;
         }
@@ -36,7 +34,42 @@ document.addEventListener("DOMContentLoaded", function () {
             const response = await fetch(`/libros/get_material_template/${tipoLower}/`);
             if (response.ok) {
                 const html = await response.text();
-                formContainer.innerHTML = html;
+                // --- PARSEAR Y EXTRAER SOLO EL FRAGMENTO DEL FORMULARIO ---
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                // Ajusta el selector según el tipo recibido (libro, mapa, varios, etc.)
+                // Busca tanto el atributo data-form como data-form-type para compatibilidad
+                const fragmento = doc.querySelector(`[data-form-type="${tipoLower}"], [data-form="${tipoLower}"]`);
+                if (fragmento) {
+                    formContainer.innerHTML = '';
+                    formContainer.appendChild(fragmento.cloneNode(true));
+
+                    // --- Inicialización automática de TiposEjemplares según el tipo ---
+                    if (tipoLower === 'mapa' && typeof TiposEjemplares !== 'undefined') {
+                        const mapaManager = TiposEjemplares.init({
+                            tiposKey: 'tipos_mapa',
+                            titulo: 'Tipos de Mapa',
+                            opcionesSede: [
+                                { value: 'sede1', texto: 'La Plata' },
+                                { value: 'sede2', texto: 'Abasto' }
+                            ]
+                        });
+                        mapaManager.generarHTML('contenedor-tipos-mapa');
+                    }
+                    if (tipoLower === 'varios' && typeof TiposEjemplares !== 'undefined') {
+                        const variosManager = TiposEjemplares.init({
+                            tiposKey: 'tipos_varios',
+                            titulo: 'Tipos de Material',
+                            opcionesSede: [
+                                { value: 'sede1', texto: 'La Plata' },
+                                { value: 'sede2', texto: 'Abasto' }
+                            ]
+                        });
+                        variosManager.generarHTML('contenedor-tipos-varios');
+                    }
+                } else {
+                    formContainer.innerHTML = '<div class="alert alert-danger">No se encontró el formulario esperado en la respuesta.</div>';
+                }
                 // Mostrar/ocultar campo de ejemplares solo para libro
                 if (tipoLower === 'libro' && cantEjemplaresContainer) {
                     cantEjemplaresContainer.style.display = 'block';
@@ -214,14 +247,18 @@ document.addEventListener("DOMContentLoaded", function () {
         document.body.appendChild(overlay);
     
         return new Promise((resolve) => {
-            btnConfirmar.addEventListener('click', () => {
-                overlay.remove();
-                resolve(true);
-            });
-            btnCancelar.addEventListener('click', () => {
-                overlay.remove();
-                resolve(false);
-            });
+            if (btnConfirmar) {
+                btnConfirmar.addEventListener('click', () => {
+                    overlay.remove();
+                    resolve(true);
+                });
+            }
+            if (btnCancelar) {
+                btnCancelar.addEventListener('click', () => {
+                    overlay.remove();
+                    resolve(false);
+                });
+            }
         });
     }
     
@@ -240,39 +277,46 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    cantEjemplaresInput.addEventListener('change', async function () {
-        const valorActual = parseInt(cantEjemplaresInput.value) || 1;
-
-        if (valorActual < valorAnterior) {
-            await manejarReduccionEjemplares(valorActual);
-        } else if (valorActual > valorAnterior) {
-            valorAnterior = valorActual;
-            updateRows();
-        }
-    });
+    if (cantEjemplaresInput) {
+        cantEjemplaresInput.addEventListener('change', async function () {
+            const valorActual = parseInt(cantEjemplaresInput.value) || 1;
+            if (valorActual < valorAnterior) {
+                await manejarReduccionEjemplares(valorActual);
+            } else if (valorActual > valorAnterior) {
+                valorAnterior = valorActual;
+                updateRows();
+            }
+        });
+    }
 
     // Manejar cambios en el tipo de material
 
-    tipoMaterialSelect.addEventListener('change', async function () {
-        const tipo = tipoMaterialSelect.value;
-        cantEjemplaresContainer.style.display = tipo ? 'block' : 'none';
+    if (tipoMaterialSelect) {
+        tipoMaterialSelect.addEventListener('change', async function () {
+            const tipo = tipoMaterialSelect.value;
+            if (cantEjemplaresContainer) cantEjemplaresContainer.style.display = tipo ? 'block' : 'none';
 
-        if (!tipo) {
-            formContainer.innerHTML = '';
-            ejemplaresContainer.innerHTML = '';
-            ejemplaresContainer.style.display = 'none';
-            buttonsContainer.style.display = 'none';
-            return;
-        }
+            if (!tipo) {
+                if (formContainer) formContainer.innerHTML = '';
+                if (typeof ejemplaresContainer !== 'undefined' && ejemplaresContainer) {
+                    ejemplaresContainer.innerHTML = '';
+                    ejemplaresContainer.style.display = 'none';
+                }
+                if (typeof buttonsContainer !== 'undefined' && buttonsContainer) {
+                    buttonsContainer.style.display = 'none';
+                }
+                return;
+            }
 
-        const templateContent = await loadMaterialTemplate(tipo);
-        if (templateContent) {
-            formContainer.innerHTML = templateContent;
-        }
+            const templateContent = await loadMaterialTemplate(tipo);
+            if (templateContent && formContainer) {
+                formContainer.innerHTML = templateContent;
+            }
 
-        valorAnterior = parseInt(cantEjemplaresInput.value) || 1;
-        updateRows();
-    });
+            valorAnterior = cantEjemplaresInput ? (parseInt(cantEjemplaresInput.value) || 1) : 1;
+            updateRows();
+        });
+    }
 
     // Limpiar todos los campos al enviar el formulario
     const form = document.getElementById('form_alta_material');
@@ -297,7 +341,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // --- INICIO: Carga y previsualización de imagen en upload_box_container ---
     let imagenSeleccionada = null;
-    // Obtener referencias solo una vez, arriba ya existe uploadBox y uploadSimple
+    // Obtener referencias solo una vez
+    const uploadBox = document.getElementById('upload_box'); // Declaración agregada para evitar ReferenceError
+    // arriba ya existe uploadSimple
     const fileInput = document.getElementById('file_upload_input');
     const urlInput = document.getElementById('url_upload_input');
     const simpleFileInput = document.getElementById('cargar_imagen');

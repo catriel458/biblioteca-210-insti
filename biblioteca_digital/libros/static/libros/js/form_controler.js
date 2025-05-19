@@ -23,8 +23,11 @@ document.addEventListener("DOMContentLoaded", function () {
             case 'multimedia':
                 url = '/biblioteca/formulario/multimedia/';
                 break;
-            case 'proyector':yyyyy
+            case 'proyector':
                 url = '/biblioteca/formulario/proyector/';
+                break;
+            case 'programa':
+                url = '/biblioteca/formulario/programa/';
                 break;
             case 'notebook':
                 url = '/biblioteca/formulario/notebook/';
