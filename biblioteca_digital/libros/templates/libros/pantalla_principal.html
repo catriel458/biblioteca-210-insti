@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pantalla Principal</title>
+    <style>
+        /* Estilos generales */
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            background-color: #f0f4f8; /* Color suave de fondo (gris claro) */
+            color: #333;
+        }
+
+        /* Header */
+        header {
+            background-color: #004c8c; /* Azul oscuro */
+            color: white;
+            text-align: center;
+            padding: 20px 0;
+        }
+
+        header .logo {
+            width: 120px;
+            height: auto;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin-top: 10px;
+        }
+
+        /* Main content */
+        main {
+            flex: 1;
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 30px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            font-size: 1.8rem;
+            text-align: center;
+            margin-bottom: 30px;
+            color: #004c8c; /* Azul oscuro */
+        }
+
+        /* Botones */
+        .button-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .button {
+            background-color: #388e3c; /* Verde oscuro */
+            color: white;
+            padding: 15px 30px;
+            text-align: center;
+            font-size: 18px;
+            margin: 10px;
+            border-radius: 8px;
+            text-decoration: none;
+            transition: background-color 0.3s ease;
+        }
+
+        .button:hover {
+            background-color: #2e7d32; /* Verde más oscuro */
+        }
+
+        /* Footer */
+        footer {
+            background-color: #004c8c; /* Azul oscuro */
+            color: white;
+            text-align: center;
+            padding: 10px 0;
+            font-size: 1rem;
+            margin-top: 30px;
+        }
+
+        .container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-historial-bajas {
+    display: inline-block;
+    padding: 10px 20px;
+    width: auto;
+    min-width: 150px;
+    text-align: center;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+    margin: 10px auto;
+    display: block;
+    text-align: center;
+}
+
+.btn-historial-bajas:hover {
+    background-color: #b71c1c;
+    color:white
+}
+
+
+</style>
+
+    </style>
+</head>
+<body>
+    <header>
+        <img src="https://i.imgur.com/xTqmTlf.png" alt="Logo ISFD 210" class="logo">
+        <h1>Bienvenido a la Biblioteca del ISFD 210</h1>
+    </header>
+    <main>
+        <h2>Seleccione el tipo de material</h2>
+        <div class="button-container">
+            <a href="{% url 'lista_libros' %}" class="button">📚 Libros</a>
+            <a href="{% url 'mapas' %}" class="button">🗺️ Mapas</a>
+            <a href="{% url 'multimedia' %}" class="button">🎥 Multimedia</a>
+            <a href="{% url 'notebook' %}" class="button">💻 Notebook</a>
+            <a href="{% url 'proyector' %}" class="button">📽️ Proyector</a>
+            <a href="{% url 'varios' %}" class="button">📦 Varios</a>
+        </div>
+    </main>
+    
+    <div class="container">
+    <a href="{% url 'registro_de_bajas' %}" class="btn-historial-bajas">🗑️ Historial de bajas</a>
+    </div>
+    <footer>
+        <p>© 2025 ISFD 210. Todos los derechos reservados.</p>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,40 @@
+{% load static %}
+<div data-block="content" data-form-type="notebook">
+    <div class="row mb-3">
+        <div class="col-2">
+            <label for="sede">Sede:</label>
+            <select class="form-select" id="sede" name="sede" required>
+                <option value="">Seleccione una sede</option>
+                <option value="sede1">La Plata</option>
+                <option value="sede2">Abasto</option>
+            </select>
+        </div>
+    </div>
+    <div class="row mb-3">
+        <div class="col-md-2">
+            <label for="cant_ejemplares">Cant. de ejemplares <span class="text-danger">*</span></label>
+            <input type="number" class="form-control" name="cant_ejemplares" min="1" value="1" required > <!-- Eliminado oninput, ahora solo addEventListener -->
+            </div>
+
+            <!-- Contenedor para los ejemplares -->
+            <div id="contenedor-ejemplares-notebook" class="mb-4">
+                <!-- Los ejemplares se generarán aquí dinámicamente -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Importación del JS dinámico de ejemplares -->
+<script src="{% static 'js/form_controller.js' %}"></script>
+<script src="{% static 'js/form_altas.js' %}"></script>
+<script>
+    // Inicializa los campos dinámicos de ejemplares al cargar la página
+    document.addEventListener('DOMContentLoaded', function() {
+        const inputCantidadNotebook = document.querySelector('#contenedor-ejemplares-notebook input[name="cant_ejemplares"]') ||
+            document.querySelector('input[name="cant_ejemplares"]');
+        if (inputCantidadNotebook) {
+            inputCantidadNotebook.addEventListener('input', window.updateRowsNotebook);
+        }
+    });
+</script>
+</html>

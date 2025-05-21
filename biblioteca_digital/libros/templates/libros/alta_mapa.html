@@ -1,0 +1,47 @@
+{% load static %}
+
+<div data-block="content" data-form="mapa">
+    <div class="row mb-3">
+        <div class="col-2">
+            <label for="sede">Sede:</label>
+            <select class="form-select" id="sede" name="sede" required>
+                <option value="">Seleccione una sede</option>
+                <option value="sede1">La Plata</option>
+                <option value="sede2">Abasto</option>
+            </select>
+        </div>
+    </div>
+    <div class="row mb-3">
+    <div class="col-2">
+        <label for="tipo">Tipo <span class="text-danger">*</span></label>
+        <input type="text" class="form-control" id="tipo" name="tipo" required placeholder="Ej: Político, Físico, Temático...">
+    </div>
+    <!-- Contenedor dinámico para tipo y cantidad -->
+    <div class="col-6" id="bloque-tipo-cantidad"></div>
+</div>
+
+<div id="contenedor-ejemplares-mapa">
+    <!-- Los ejemplares se generarán aquí dinámicamente -->
+</div>
+</div>
+
+<!-- Importación del JS dinámico de ejemplares -->
+<script src="{% static 'js/form_altas.js' %}"></script>
+<script src="{% static 'js/form_controller.js' %}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const inputTipo = document.getElementById('tipo');
+        if (inputTipo) {
+            inputTipo.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter' && inputTipo.value.trim() !== '') {
+                    e.preventDefault();
+                    if (inputTipo.value.trim() !== '') {
+                        TiposEjemplares.agregarTipoDesdeUI();
+                        // Limpiar el input después de agregar
+                        inputTipo.value = '';
+                    }
+                }
+            });
+        }
+    });
+</script>

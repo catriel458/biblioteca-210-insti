@@ -1,0 +1,107 @@
+{% extends 'components/baseb.html' %}
+{% load static %}
+{% block extra_styles %}
+    <link rel="stylesheet" href="{% static 'css/manual_modal.css' %}">
+    <link rel="stylesheet" href="{% static 'css/main.css' %}">
+    <link rel="stylesheet" href="{% static 'css/style_form.css' %}">
+    <link rel="stylesheet" href="{% static 'css/botones.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <form id="form_alta_material" action="{% url 'alta_material' %}" method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <!-- Fila 1 -->
+        <div class="row align-items-start">
+            <!-- Formulario principal, columnas 1 a 10 (ahora responsive) -->
+            <div class="col-12 col-lg-10">
+                <div class="row">
+                    <div class="col-12 col-sm-6 col-lg-2 form-group mb-2">
+                        <label for="tipo_material" class="small">Tipo de Material:</label>
+                        <select class="form-control form-control-sm" id="tipo_material" name="tipo_material" required>
+                            <option value="">Selecciona un tipo de material</option>
+                            <option value="libro">LIBRO</option>
+                            <option value="mapa">MAPA</option>
+                            <option value="multimedia">MULTIMEDIA</option>
+                            <option value="notebook">NOTEBOOK</option>
+                            <option value="programa">PROGRAMA</option>
+                            <option value="proyector">PROYECTOR</option>
+                            <option value="varios">VARIOS</option>
+                        </select>
+                    </div>
+                    <div class="col-12 col-lg-8 mb-2"></div>
+                </div>
+                <!-- Aquí siguen las demás filas y el formulario dinámico (col-10) -->
+                <div id="formulario-especifico" class="mt-2 row">
+                    <!-- Los formularios se cargarán aquí dinámicamente -->
+                </div>
+            </div>
+            <!-- Columna derecha, MANUAL y carga masiva, columnas 11 y 12 (responsive) -->
+            <div class="col-12 col-lg-2 d-flex flex-column align-items-end mt-3 mt-lg-0">
+                <!-- Fila 1: Botón MANUAL -->
+                <div class="w-100 mb-2">
+                    <button type="button" class="btn btn-dark btn-sm manual-button w-100" onclick="document.getElementById('manualModal').style.display='flex'">MANUAL</button>
+                </div>
+                <!-- Sección de carga (solo visible al seleccionar material) -->
+                <div id="upload_simple_container" class="w-100 mb-4" style="display: none;">
+                    <div class="upload-box w-100">
+                        <small class="text-muted">Para carga masiva, suba un archivo CSV o Excel (.csv, .xls, .xlsx):</small>
+                        <label for="cargar_imagen" class="d-block my-3">
+                            <div class="boton-redondeado">
+                                <span>↑</span>
+                            </div>
+                            <input type="file" id="cargar_imagen" name="cargar_imagen" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" style="display: none;">
+                        </label>
+                        <div id="nombre_archivo_carga_simple" style="text-align:center;font-size:0.92em;color:#444;margin-top:6px;margin-bottom:2px;word-break:break-all;"></div>
+                    </div>
+                </div>
+                <!-- Fila 4/5: Carga masiva avanzada (solo visible si corresponde) -->
+                <div id="upload_box_container" class="custom-upload-box-container" style="display: none; width: 100%;">
+                    <div class="custom-upload-box w-100">
+                        <h5 class="">Cargar imagen</h5>
+                        <button class="btn btn-sm custom-upload-btn w-100 mb-2" type="button" onclick="document.getElementById('file_upload_input').click();">↑</button>
+                        <input type="file" id="file_upload_input" name="file_upload_input" accept="image/*" style="display: none;">
+                        <input type="text" id="url_upload_input" class="form-control custom-upload-input mb-2" placeholder="O pegue un enlace aquí...">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Fila de botones -->
+        <div id="buttons-container" class="row bg-white px-0 mx-0" style="border:none; box-shadow:none; display: none;">
+            <div class="col-12 d-flex justify-content-end gap-5">
+                <button type="button" class="btn btn-outline-danger btn-sm boton-cancelar">Cancelar</button>
+                <button type="submit" class="btn btn-primary btn-sm boton-guardar">Guardar</button>
+            </div>
+        </div>
+    </form>
+</div>
+{% include 'modals/manual_modal.html' %}
+{% endblock %}
+
+{% block extra_scripts %}
+    <script src="{% static 'js/form_controler.js' %}" defer></script>
+    <script src="{% static 'js/form_altas.js' %}" defer></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const tipoMaterial = document.getElementById('tipo_material');
+            const uploadSimple = document.getElementById('upload_simple_container');
+            const uploadBox = document.getElementById('upload_box_container');
+            const buttonsContainer = document.getElementById('buttons-container');
+            if (tipoMaterial && uploadSimple && uploadBox && buttonsContainer) {
+                tipoMaterial.addEventListener('change', function() {
+                    if (tipoMaterial.value) {
+                        uploadSimple.style.display = 'block';
+                        uploadBox.style.display = 'block';
+                        buttonsContainer.style.display = 'flex';
+                    } else {
+                        uploadSimple.style.display = 'none';
+                        uploadBox.style.display = 'none';
+                        buttonsContainer.style.display = 'none';
+                    }
+                });
+            }
+        });
+    </script>
+    
+{% endblock %}
