@@ -2,8 +2,7 @@
 // Autor: Juni & Cascade
 // Última actualización: 2025-05-15
 
-// Lógica AJAX y helpers exclusivos para alta_material.html
-// No contiene lógica de TiposEjemplares ni gestión de tipos/ejemplares dedicados (ver form_altas.js para eso)
+// Lógica AJAX y helpers 
 document.addEventListener("DOMContentLoaded", function () {
     // --- Mostrar/ocultar campos exclusivos de libro ---
     function toggleCamposLibro() {
@@ -103,7 +102,6 @@ document.addEventListener("DOMContentLoaded", function () {
     if (tipoInicial) {
         loadMaterialTemplate(tipoInicial);
     }
-
 
     // Listener para mostrar/ocultar campos exclusivos de libro
     if (tipoMaterialSelect) {

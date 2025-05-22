@@ -25,13 +25,3 @@
 </div>
 <!-- Importación del JS dinámico de ejemplares -->
 <script src="{% static 'js/form_altas.js' %}"></script>
-<script src="{% static 'js/form_controller.js' %}"></script>
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const inputCantidadProyector = document.querySelector('#contenedor-ejemplares-proyector input[name="cant_ejemplares"]') ||
-            document.querySelector('input[name="cant_ejemplares"]');
-        if (inputCantidadProyector) {
-            inputCantidadProyector.addEventListener('input', window.updateRowsProyector);
-        }
-    });
-</script>
