@@ -63,6 +63,11 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 ```
 
+### Seguridad en Desarrollo
+
+- Ya no es necesario agregar `CSRF_TRUSTED_ORIGINS` en `settings.py` salvo que se requieran peticiones cross-origin desde otros dominios o puertos.
+- Mantener `{% csrf_token %}` en todos los formularios y no eliminar el middleware CSRF para garantizar la protección ante ataques CSRF.
+
 ### Buenas Prácticas
 - **Seguridad:** Nunca exponer la `SECRET_KEY`
 - **Producción:** Desactivar `DEBUG`

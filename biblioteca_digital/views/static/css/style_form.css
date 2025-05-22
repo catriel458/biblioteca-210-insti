@@ -132,6 +132,14 @@ textarea {
     width: 100%;
 }
 
+/* Quitar bordes de tablas de tipo/cantidad en alta_mapa y alta_varios */
+#bloque-tipo-cantidad table,
+#bloque-tipo-cantidad th,
+#bloque-tipo-cantidad td {
+  border: none !important;
+  box-shadow: none !important;
+}
+
 /* Estilos para el formulario de alta de material */
 
 .form-group {
