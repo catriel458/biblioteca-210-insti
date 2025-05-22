@@ -110,6 +110,23 @@
 ```
 
 ### 🎨 Estilos Dinámicos
+
+### 🖼️ Patrón de Header Dinámico
+
+A partir de la versión 2025-05:
+
+- El header principal se define en el template base (`baseb.html`) y recibe una clase dinámica mediante el bloque `{% block header_class %}`.
+- El contenido del header se define en `components/header.html` y utiliza clases como `header-home` o `header-pantalla` para aplicar fondos y estilos personalizados.
+
+**Ejemplo de uso:**
+
+```django
+{% block header_class %}header-pantalla{% endblock %}
+```
+
+Esto permite personalizar el fondo y la altura del header según la vista.
+
+
 ```html
 {% block extra_styles %}
 <style>

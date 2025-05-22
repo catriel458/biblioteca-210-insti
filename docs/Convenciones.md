@@ -55,6 +55,13 @@ views/
 
 ## 3. Buenas Prácticas
 
+### Convención de Headers en Plantillas
+
+- El `<header>` debe ser único y definido en el template base.
+- Utilizar el bloque `{% block header_class %}` para asignar clases que definan el fondo y estilos del header.
+- El contenido interno del header debe estar en `components/header.html` y usar clases como `header-home` o `header-pantalla` según el contexto de la vista.
+
+
 ### Desarrollo
 - Mantener funciones cortas y con un único propósito
 - Usar type hints en Python
