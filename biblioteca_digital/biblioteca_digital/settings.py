@@ -37,7 +37,7 @@ STATIC_URL = 'static/'
 STATICFILES_DIRS = [ 
     BASE_DIR / 'static',
     BASE_DIR / 'views' / 'static',
-    BASE_DIR / 'libros' / 'static',
+    BASE_DIR / 'materiales' / 'static',
 ]
 
 MEDIA_URL = '/media/'
@@ -51,7 +51,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'libros'
+    'materiales',
 ]
 
 MIDDLEWARE = [
@@ -72,7 +72,7 @@ TEMPLATES = [
         'DIRS': [
             BASE_DIR / 'templates',
             BASE_DIR / 'views' / 'templates',
-            BASE_DIR / 'libros' / 'templates',
+            BASE_DIR / 'materiales' / 'templates',
         ],
         'APP_DIRS': True,
         'OPTIONS': {

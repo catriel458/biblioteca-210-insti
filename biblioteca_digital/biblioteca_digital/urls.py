@@ -30,11 +30,11 @@ urlpatterns = [
     path('', views.home, name='home'),  # Nueva ruta para el home principal
     path('alta_material/', views.alta_material, name='alta_material'),  # Nueva ruta para alta_material
     path('modificacion_editar_material/', views.modificacion_editar_material, name='modificacion_editar_material'),
-    # Rutas de la app libros
-    path('libros/', include('libros.urls')),
+    # Rutas de la app materiales
+    path('materiales/', include('materiales.urls')),
 
-    # Ruta opcional para redirigir a /libros/
-    path('redirigir_libros/', lambda request: HttpResponseRedirect('/libros/')),
+    # Ruta opcional para redirigir a /materiales/
+    path('redirigir_materiales/', lambda request: HttpResponseRedirect('/materiales/')),
 ]
 
 if settings.DEBUG:

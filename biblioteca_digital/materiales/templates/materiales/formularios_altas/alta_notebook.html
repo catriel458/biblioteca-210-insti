@@ -1,0 +1,27 @@
+{% load static %}
+<div data-block="content" data-form-type="notebook">
+    <div class="row mb-3">
+        <div class="col-2">
+            <label for="sede">Sede:</label>
+            <select class="form-select" id="sede" name="sede" required>
+                <option value="">Seleccione una sede</option>
+                <option value="sede1">La Plata</option>
+                <option value="sede2">Abasto</option>
+            </select>
+        </div>
+    </div>
+    <div class="row mb-3">
+        <div class="col-2 d-flex align-items-end" id="cant_ejemplares_container">
+            <div class="w-100">
+                <label for="cant_ejemplares" class="form-label small">Cant. de ejemplares</label>
+                <input type="number" class="form-control form-control-sm" id="cant_ejemplares" name="cant_ejemplares" min="1" value="1" required > <!-- Eliminado oninput, ahora solo addEventListener -->
+            </div>
+        </div>
+    </div>
+    <!-- Contenedor para los ejemplares -->
+    <div id="contenedor-ejemplares-notebook" class="mb-4">
+        <!-- Los ejemplares se generarán aquí dinámicamente -->
+    </div>
+</div>
+<!-- Importación del JS dinámico de ejemplares -->
+<script src="{% static 'js/form_altas.js' %}"></script>
