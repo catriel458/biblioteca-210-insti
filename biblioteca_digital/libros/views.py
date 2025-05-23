@@ -160,6 +160,10 @@ def cargar_csv(request):
 def success_view(request):
     return render(request, 'libros/success.html')
 
+# =========================
+# BÚSQUEDAS
+# =========================
+
 # Busqueda libros
 
 def buscar_libros(request):
@@ -238,6 +242,10 @@ def buscar_varios(request):
 
     return JsonResponse(list(varios), safe=False)
 
+# =========================
+# UTILIDADES Y OTRAS FUNCIONES
+# =========================
+
 # Borrar libros
 
 def borrar_libros(request):
@@ -280,26 +288,35 @@ def modificar_prestamo(request):
 def solicitar_prestamo(request):
     pass
 
+# =========================
+# VISTAS PRINCIPALES
+# =========================
+
 # Pantalla principal
 
 # Vista para la pantalla principal:
-
 
 def pantalla_principal(request):
     return render(request, 'libros/pantalla_principal.html')
 
 # Libros
 
-# Vista para listar libros (todos los disponibles):
+# =========================
+# LIBROS
+# =========================
 
+# Vista para listar libros (todos los disponibles):
 
 def lista_libros(request):
     # Filtra los libros disponibles
     libros = Libro.objects.filter(estado='Disponible')
     return render(request, 'libros/lista_libros.html', {'libros': libros})
 
-# Vista para dar de alta un libro:
+# =========================
+# ALTAS
+# =========================
 
+# Vista para dar de alta un libro:
 
 def alta_libro(request):
     form = LibroForm(request.POST or None)
@@ -313,8 +330,11 @@ def alta_libro(request):
 
     return render(request, 'libros/alta_libro.html', context)
 
-# Vista para dar de baja un libro:
+# =========================
+# BAJAS
+# =========================
 
+# Vista para dar de baja un libro:
 
 def baja_libro(request):
     if request.method == 'POST':
@@ -337,8 +357,11 @@ def baja_libro(request):
     return redirect('lista_libros')
 
 
-# Vista para editar un libro:
+# =========================
+# EDICIÓN
+# =========================
 
+# Vista para editar un libro:
 
 def editar_libro(request, libro_id):
     libro = get_object_or_404(Libro, id_libro=libro_id)

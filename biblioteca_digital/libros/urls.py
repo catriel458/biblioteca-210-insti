@@ -42,6 +42,10 @@ from .views import (
 )
 
 urlpatterns = [
+
+    # =========================
+    # VISTAS PRINCIPALES
+    # =========================
     path('', views.pantalla_principal, name='pantalla_principal'),  # Página principal
     path('libros/', views.lista_libros, name='lista_libros'),
     path('mapas/', views.mapas_view, name='mapas'),
@@ -49,12 +53,21 @@ urlpatterns = [
     path('notebook/', views.notebook_view, name='notebook'),
     path('proyector/', views.proyector_view, name='proyector'),
     path('varios/', views.varios_view, name='varios'),
+    # =========================
+    # ALTAS
+    # =========================
     path('alta-inventario/', views.alta_inventario, name='alta_inventario'),
     path('alta-libro/', views.alta_libro, name='alta_libro'),
+    # =========================
+    # BAJAS
+    # =========================
     path('libros/baja/', views.baja_libro, name='baja_libro'),
     path('mapas/baja/', baja_mapa, name='baja_mapa'),
     path('alta-mapa/', alta_mapa, name='alta_mapa'),
     path('editar-mapa/<int:mapa_id>/', editar_mapa, name='editar_mapa'),
+    # =========================
+    # EDICIÓN
+    # =========================
     path('editar-libro/<int:libro_id>/', views.editar_libro, name='editar_libro'),
     path('multimedia/baja/', baja_multimedia, name='baja_multimedia'),
     path('alta-multimedia/', alta_multimedia, name='alta_multimedia'),
@@ -71,12 +84,18 @@ urlpatterns = [
     path('cargar-csv/', views.cargar_csv, name='cargar_csv'),
     path('success/', views.success_view, name='success_url'),
     path('borrar-libros/', views.borrar_libros, name='borrar_libros'),
+    # =========================
+    # BÚSQUEDAS
+    # =========================
     path('buscar_libros/', buscar_libros, name='buscar_libros'),
     path('buscar_mapas/', buscar_mapas, name='buscar_mapas'),
     path('buscar_multimedia/', buscar_multimedia, name='buscar_multimedia'),
     path('buscar_notebook/', buscar_notebooks, name='buscar_notebooks'),
     path('buscar_proyectores/', buscar_proyectores, name='buscar_proyectores'),
     path('buscar_varios/', buscar_varios, name='buscar_varios'),
+    # =========================
+    # UTILIDADES Y OTRAS FUNCIONES
+    # =========================
     path('registro_bajas/', views.registro_bajas, name='registro_de_bajas'),
     path('modificacion-material/', views.modificacion_materiales, name='modificacion_materiales'),
     path('prestamos/', views.prestamos, name='prestamos'),
