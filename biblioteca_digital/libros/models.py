@@ -82,6 +82,7 @@ class Prestamo(models.Model):
         ('aprobado', 'Préstamo Activo'),
         ('rechazado', 'Reserva Rechazada'),
         ('finalizado', 'Finalizado'),
+        ('vencido', 'Vencido'),  # Nuevo estado
     )
     
     TIPO_CHOICES = (
@@ -102,6 +103,7 @@ class Prestamo(models.Model):
     fecha_aprobacion = models.DateTimeField(null=True, blank=True)
     fecha_devolucion_programada = models.DateTimeField(null=True, blank=True)
     fecha_devolucion_real = models.DateTimeField(null=True, blank=True)
+    fecha_limite_reserva = models.DateTimeField(null=True, blank=True)
     estado = models.CharField(max_length=20, choices=ESTADO_CHOICES, default='solicitado')
     tipo_prestamo = models.CharField(max_length=10, choices=TIPO_CHOICES, default='domicilio')
     tipo_usuario = models.CharField(max_length=10, choices=TIPO_USUARIO_CHOICES, default='alumno')

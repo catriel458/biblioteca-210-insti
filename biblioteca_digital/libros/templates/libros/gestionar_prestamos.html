@@ -21,7 +21,7 @@
         }
         
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 20px auto;
             background-color: white;
             padding: 20px;
@@ -89,10 +89,11 @@
             width: 100%;
             border-collapse: collapse;
             margin-top: 20px;
+            font-size: 14px;
         }
         
         th, td {
-            padding: 12px;
+            padding: 10px;
             text-align: left;
             border-bottom: 1px solid #ddd;
         }
@@ -100,6 +101,7 @@
         th {
             background-color: #004c8c;
             color: white;
+            font-size: 12px;
         }
         
         tr:hover {
@@ -115,28 +117,29 @@
         
         .action-btn {
             display: inline-block;
-            padding: 6px 12px;
-            margin: 0 5px;
+            padding: 4px 8px;
+            margin: 0 2px;
             border-radius: 4px;
             text-decoration: none;
             color: white;
             font-weight: bold;
             text-align: center;
+            font-size: 12px;
         }
         
-        .btn-aprobar {
+        .btn-aprobar, .btn-retiro {
             background-color: #4caf50;
         }
         
-        .btn-aprobar:hover {
+        .btn-aprobar:hover, .btn-retiro:hover {
             background-color: #3e8e41;
         }
         
-        .btn-rechazar {
+        .btn-rechazar, .btn-no-retiro {
             background-color: #f44336;
         }
         
-        .btn-rechazar:hover {
+        .btn-rechazar:hover, .btn-no-retiro:hover {
             background-color: #d32f2f;
         }
         
@@ -164,9 +167,9 @@
         
         .status-badge {
             display: inline-block;
-            padding: 6px 12px;
+            padding: 4px 8px;
             border-radius: 20px;
-            font-size: 14px;
+            font-size: 12px;
             font-weight: bold;
             color: white;
         }
@@ -187,13 +190,48 @@
             background-color: #607d8b;
         }
         
+        .status-vencido {
+            background-color: #9e9e9e;
+        }
+        
         .timer {
             font-weight: bold;
             color: #d32f2f;
+            font-size: 12px;
         }
         
         .timer-container {
             text-align: center;
+        }
+        
+        .timer-verde {
+            color: #4caf50;
+        }
+        
+        .timer-amarillo {
+            color: #ff9800;
+        }
+        
+        .timer-rojo {
+            color: #f44336;
+            animation: pulse 1s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        .vencido {
+            color: #f44336;
+            font-weight: bold;
+            animation: blink 2s infinite;
+        }
+        
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0.7; }
         }
         
         footer {
@@ -203,6 +241,12 @@
             padding: 10px 0;
             font-size: 1rem;
             margin-top: 30px;
+        }
+        
+        .actions-group {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
         }
     </style>
 </head>
@@ -241,8 +285,9 @@
                     <th>Tipo</th>
                     <th>Fecha Solicitud</th>
                     <th>Estado</th>
+                    <th>Tiempo Reserva</th>
                     <th>Fecha Devolución</th>
-                    <th>Tiempo Restante</th>
+                    <th>Tiempo Préstamo</th>
                     <th>Acciones</th>
                 </tr>
             </thead>
@@ -260,6 +305,20 @@
                         </span>
                     </td>
                     <td>
+                        {% if prestamo.estado == 'solicitado' and prestamo.fecha_limite_reserva %}
+                            <div class="timer-container">
+                                <span class="timer" id="timer-reserva-{{ prestamo.id_prestamo }}" 
+                                      data-end="{{ prestamo.fecha_limite_reserva|date:'Y-m-d H:i:s' }}">
+                                    Calculando...
+                                </span>
+                            </div>
+                        {% elif prestamo.estado == 'vencido' %}
+                            <span class="vencido">VENCIDA</span>
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                    <td>
                         {% if prestamo.fecha_devolucion_programada %}
                             {{ prestamo.fecha_devolucion_programada|date:"d/m/Y" }}
                         {% else %}
@@ -269,7 +328,7 @@
                     <td>
                         {% if prestamo.estado == 'aprobado' and prestamo.fecha_devolucion_programada %}
                             <div class="timer-container">
-                                <span class="timer" id="timer-{{ prestamo.id_prestamo }}" 
+                                <span class="timer" id="timer-prestamo-{{ prestamo.id_prestamo }}" 
                                       data-end="{{ prestamo.fecha_devolucion_programada|date:'Y-m-d H:i:s' }}">
                                     Calculando...
                                 </span>
@@ -279,14 +338,18 @@
                         {% endif %}
                     </td>
                     <td>
-                        {% if prestamo.estado == 'solicitado' %}
-                            <a href="{% url 'aprobar_prestamo' prestamo.id_prestamo %}" class="action-btn btn-aprobar">Aprobar</a>
-                            <a href="{% url 'rechazar_prestamo' prestamo.id_prestamo %}" class="action-btn btn-rechazar">Rechazar</a>
-                        {% elif prestamo.estado == 'aprobado' %}
-                            <a href="{% url 'finalizar_prestamo' prestamo.id_prestamo %}" class="action-btn btn-finalizar">Finalizar</a>
-                        {% else %}
-                            -
-                        {% endif %}
+                        <div class="actions-group">
+                            {% if prestamo.estado == 'solicitado' %}
+                                <a href="{% url 'confirmar_retiro_libro' prestamo.id_prestamo %}" class="action-btn btn-retiro">Retiró Libro</a>
+                                <a href="{% url 'marcar_no_retiro' prestamo.id_prestamo %}" class="action-btn btn-no-retiro">No Retiró</a>
+                            {% elif prestamo.estado == 'aprobado' %}
+                                <a href="{% url 'finalizar_prestamo' prestamo.id_prestamo %}" class="action-btn btn-finalizar">Finalizar</a>
+                            {% elif prestamo.estado == 'vencido' %}
+                                <a href="{% url 'rechazar_prestamo' prestamo.id_prestamo %}" class="action-btn btn-rechazar">Limpiar</a>
+                            {% else %}
+                                -
+                            {% endif %}
+                        </div>
                     </td>
                 </tr>
                 {% endfor %}
@@ -302,11 +365,11 @@
     </footer>
     
     <script>
-        // Función para actualizar los cronómetros
-        function actualizarCronometros() {
-            const timers = document.querySelectorAll('.timer');
+        // Función para actualizar los cronómetros de reserva
+        function actualizarCronometrosReserva() {
+            const timersReserva = document.querySelectorAll('[id^="timer-reserva-"]');
             
-            timers.forEach(timer => {
+            timersReserva.forEach(timer => {
                 const endDate = new Date(timer.dataset.end);
                 const now = new Date();
                 
@@ -314,7 +377,44 @@
                 const diff = endDate - now;
                 
                 if (diff <= 0) {
-                    // Ya venció
+                    // Ya venció la reserva
+                    timer.innerHTML = "¡VENCIDA!";
+                    timer.className = "timer vencido";
+                } else {
+                    // Calcular días, horas, minutos y segundos
+                    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+                    
+                    // Mostrar tiempo restante
+                    timer.innerHTML = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+                    
+                    // Cambiar color según el tiempo restante
+                    if (diff < 86400000) { // Menos de 24 horas (en milisegundos)
+                        timer.className = "timer timer-rojo";
+                    } else if (diff < 172800000) { // Menos de 48 horas
+                        timer.className = "timer timer-amarillo";
+                    } else {
+                        timer.className = "timer timer-verde";
+                    }
+                }
+            });
+        }
+        
+        // Función para actualizar los cronómetros de préstamo
+        function actualizarCronometrosPrestamo() {
+            const timersPrestamo = document.querySelectorAll('[id^="timer-prestamo-"]');
+            
+            timersPrestamo.forEach(timer => {
+                const endDate = new Date(timer.dataset.end);
+                const now = new Date();
+                
+                // Calcular diferencia en milisegundos
+                const diff = endDate - now;
+                
+                if (diff <= 0) {
+                    // Ya venció el préstamo
                     timer.innerHTML = "¡VENCIDO!";
                     timer.style.color = "#f44336";
                 } else {
@@ -339,11 +439,17 @@
             });
         }
         
+        // Función principal que actualiza todos los cronómetros
+        function actualizarTodosLosCronometros() {
+            actualizarCronometrosReserva();
+            actualizarCronometrosPrestamo();
+        }
+        
         // Actualizar cada segundo
-        setInterval(actualizarCronometros, 1000);
+        setInterval(actualizarTodosLosCronometros, 1000);
         
         // Actualizar inmediatamente al cargar la página
-        document.addEventListener('DOMContentLoaded', actualizarCronometros);
+        document.addEventListener('DOMContentLoaded', actualizarTodosLosCronometros);
     </script>
 </body>
 </html>

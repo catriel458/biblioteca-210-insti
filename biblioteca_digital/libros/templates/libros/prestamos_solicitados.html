@@ -57,6 +57,32 @@
             border-left: 4px solid #a94442;
         }
         
+        .warning {
+            background-color: #fcf8e3;
+            color: #8a6d3b;
+            border-left: 4px solid #8a6d3b;
+        }
+        
+        .alert-container {
+            margin-bottom: 20px;
+        }
+        
+        .alert {
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            background-color: #f2dede;
+            color: #a94442;
+            border-left: 4px solid #d9534f;
+            font-weight: bold;
+            animation: blink 1s infinite;
+        }
+        
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0.7; }
+        }
+        
         table {
             width: 100%;
             border-collapse: collapse;
@@ -110,6 +136,10 @@
             background-color: #607d8b;
         }
         
+        .status-vencido {
+            background-color: #9e9e9e;
+        }
+        
         .btn-volver {
             display: inline-block;
             padding: 10px 20px;
@@ -131,6 +161,31 @@
         
         .timer-container {
             text-align: center;
+        }
+        
+        .timer-verde {
+            color: #4caf50;
+        }
+        
+        .timer-amarillo {
+            color: #ff9800;
+        }
+        
+        .timer-rojo {
+            color: #f44336;
+            animation: pulse 1s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        .vencido {
+            color: #f44336;
+            font-weight: bold;
+            animation: blink 2s infinite;
         }
         
         footer {
@@ -161,6 +216,16 @@
         </ul>
         {% endif %}
         
+        {% if alertas %}
+        <div class="alert-container">
+            {% for alerta in alertas %}
+            <div class="alert">
+                🚨 {{ alerta }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        
         {% if prestamos %}
         <table>
             <thead>
@@ -171,8 +236,9 @@
                     <th>Tipo</th>
                     <th>Fecha Solicitud</th>
                     <th>Estado</th>
+                    <th>Tiempo Reserva</th>
                     <th>Fecha Devolución</th>
-                    <th>Tiempo Restante</th>
+                    <th>Tiempo Restante Préstamo</th>
                 </tr>
             </thead>
             <tbody>
@@ -189,6 +255,20 @@
                         </span>
                     </td>
                     <td>
+                        {% if prestamo.estado == 'solicitado' and prestamo.fecha_limite_reserva %}
+                            <div class="timer-container">
+                                <span class="timer" id="timer-reserva-{{ prestamo.id_prestamo }}" 
+                                      data-end="{{ prestamo.fecha_limite_reserva|date:'Y-m-d H:i:s' }}">
+                                    Calculando...
+                                </span>
+                            </div>
+                        {% elif prestamo.estado == 'vencido' %}
+                            <span class="vencido">RESERVA VENCIDA</span>
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                    <td>
                         {% if prestamo.fecha_devolucion_programada %}
                             {{ prestamo.fecha_devolucion_programada|date:"d/m/Y" }}
                         {% else %}
@@ -198,7 +278,7 @@
                     <td>
                         {% if prestamo.estado == 'aprobado' and prestamo.fecha_devolucion_programada %}
                             <div class="timer-container">
-                                <span class="timer" id="timer-{{ prestamo.id_prestamo }}" 
+                                <span class="timer" id="timer-prestamo-{{ prestamo.id_prestamo }}" 
                                       data-end="{{ prestamo.fecha_devolucion_programada|date:'Y-m-d H:i:s' }}">
                                     Calculando...
                                 </span>
@@ -221,11 +301,11 @@
     </footer>
     
     <script>
-        // Función para actualizar los cronómetros
-        function actualizarCronometros() {
-            const timers = document.querySelectorAll('.timer');
+        // Función para actualizar los cronómetros de reserva
+        function actualizarCronometrosReserva() {
+            const timersReserva = document.querySelectorAll('[id^="timer-reserva-"]');
             
-            timers.forEach(timer => {
+            timersReserva.forEach(timer => {
                 const endDate = new Date(timer.dataset.end);
                 const now = new Date();
                 
@@ -233,8 +313,45 @@
                 const diff = endDate - now;
                 
                 if (diff <= 0) {
-                    // Ya venció
-                    timer.innerHTML = "¡VENCIDO!";
+                    // Ya venció la reserva
+                    timer.innerHTML = "¡RESERVA VENCIDA!";
+                    timer.className = "timer vencido";
+                } else {
+                    // Calcular días, horas, minutos y segundos
+                    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+                    
+                    // Mostrar tiempo restante
+                    timer.innerHTML = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+                    
+                    // Cambiar color según el tiempo restante
+                    if (diff < 86400000) { // Menos de 24 horas (en milisegundos)
+                        timer.className = "timer timer-rojo";
+                    } else if (diff < 172800000) { // Menos de 48 horas
+                        timer.className = "timer timer-amarillo";
+                    } else {
+                        timer.className = "timer timer-verde";
+                    }
+                }
+            });
+        }
+        
+        // Función para actualizar los cronómetros de préstamo
+        function actualizarCronometrosPrestamo() {
+            const timersPrestamo = document.querySelectorAll('[id^="timer-prestamo-"]');
+            
+            timersPrestamo.forEach(timer => {
+                const endDate = new Date(timer.dataset.end);
+                const now = new Date();
+                
+                // Calcular diferencia en milisegundos
+                const diff = endDate - now;
+                
+                if (diff <= 0) {
+                    // Ya venció el préstamo
+                    timer.innerHTML = "¡PRÉSTAMO VENCIDO!";
                     timer.style.color = "#f44336";
                 } else {
                     // Calcular días, horas, minutos y segundos
@@ -258,11 +375,17 @@
             });
         }
         
+        // Función principal que actualiza todos los cronómetros
+        function actualizarTodosLosCronometros() {
+            actualizarCronometrosReserva();
+            actualizarCronometrosPrestamo();
+        }
+        
         // Actualizar cada segundo
-        setInterval(actualizarCronometros, 1000);
+        setInterval(actualizarTodosLosCronometros, 1000);
         
         // Actualizar inmediatamente al cargar la página
-        document.addEventListener('DOMContentLoaded', actualizarCronometros);
+        document.addEventListener('DOMContentLoaded', actualizarTodosLosCronometros);
     </script>
 </body>
 </html>

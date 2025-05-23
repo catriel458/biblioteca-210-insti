@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirmar Retiro - Biblioteca</title>
+    {% load static %}
+    <style>
+        body {
+            font-family: 'Calibri', 'Arial', sans-serif;
+            background-color: #f4f4f8;
+            margin: 0;
+            padding: 0;
+        }
+        
+        header {
+            background-color: #004c8c;
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1, h2 {
+            color: #333;
+        }
+        
+        .prestamo-info {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            border-left: 4px solid #4caf50;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            margin: 10px 5px;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: bold;
+            text-align: center;
+            cursor: pointer;
+            border: none;
+        }
+        
+        .btn-confirm {
+            background-color: #4caf50;
+            color: white;
+        }
+        
+        .btn-confirm:hover {
+            background-color: #3e8e41;
+        }
+        
+        .btn-cancel {
+            background-color: #6c757d;
+            color: white;
+        }
+        
+        .btn-cancel:hover {
+            background-color: #5a6268;
+        }
+        
+        footer {
+            background-color: #004c8c;
+            color: white;
+            text-align: center;
+            padding: 10px 0;
+            font-size: 1rem;
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Biblioteca Digital</h1>
+    </header>
+    
+    <div class="container">
+        <h2>Confirmar Retiro de Libro</h2>
+        
+        <div class="prestamo-info">
+            <h3>Información del Préstamo</h3>
+            <p><strong>Libro:</strong> {{ prestamo.libro.titulo }}</p>
+            <p><strong>Usuario:</strong> {{ prestamo.nombre_usuario }}</p>
+            <p><strong>Email:</strong> {{ prestamo.email_usuario }}</p>
+            <p><strong>Fecha de Solicitud:</strong> {{ prestamo.fecha_solicitud|date:"d/m/Y H:i" }}</p>
+            {% if prestamo.fecha_limite_reserva %}
+            <p><strong>Límite de Reserva:</strong> {{ prestamo.fecha_limite_reserva|date:"d/m/Y H:i" }}</p>
+            {% endif %}
+        </div>
+        
+        <p>¿Confirmas que el usuario <strong>{{ prestamo.nombre_usuario }}</strong> retiró físicamente el libro <strong>"{{ prestamo.libro.titulo }}"</strong>?</p>
+        
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-confirm">✅ Sí, confirmar retiro</button>
+            <a href="{% url 'gestionar_prestamos' %}" class="btn btn-cancel">❌ Cancelar</a>
+        </form>
+    </div>
+    
+    <footer>
+        <p>© 2025 ISFD 210. Todos los derechos reservados</p>
+    </footer>
+</body>
+</html>

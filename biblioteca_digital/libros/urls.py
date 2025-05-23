@@ -97,6 +97,8 @@ urlpatterns = [
     path('prestamos/aprobar/<int:prestamo_id>/', views.aprobar_prestamo, name='aprobar_prestamo'),
     path('prestamos/rechazar/<int:prestamo_id>/', views.rechazar_prestamo, name='rechazar_prestamo'),
     path('prestamos/finalizar/<int:prestamo_id>/', views.finalizar_prestamo, name='finalizar_prestamo'),
+    path('confirmar-retiro/<int:prestamo_id>/', views.confirmar_retiro_libro, name='confirmar_retiro_libro'),
+    path('marcar-no-retiro/<int:prestamo_id>/', views.marcar_no_retiro, name='marcar_no_retiro'),
     
     
 ]
