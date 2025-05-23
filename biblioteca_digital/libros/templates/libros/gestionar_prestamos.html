@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <title>Gestionar Préstamos - Biblioteca</title>
     {% load static %}
     <style>
@@ -248,6 +251,593 @@
             flex-direction: column;
             gap: 2px;
         }
+
+     .export-container {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin-bottom: 15px;
+    gap: 12px; /* Espacio entre botones */
+}
+
+/* Asegurar que ambos botones tengan el mismo alto */
+.btn-export, .btn-pdf {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border-radius: 4px;
+    font-weight: bold;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    height: 44px; /* Altura fija para que coincidan */
+    box-sizing: border-box;
+}
+
+.btn-export {
+    background-color: #28a745;
+    color: white;
+}
+
+.btn-export:hover {
+    background-color: #218838;
+    transform: translateY(-1px);
+}
+
+.btn-pdf {
+    background-color: #dc3545;
+    color: white;
+}
+
+.btn-pdf:hover {
+    background-color: #c82333;
+    transform: translateY(-1px);
+}
+
+.export-icon, .pdf-icon {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0; /* Evita que el icono se deforme */
+}
+    
+    /* Indicador de carga */
+    .loading {
+        opacity: 0.7;
+        pointer-events: none;
+    }
+    
+    .loading::after {
+        content: " Exportando...";
+    }
+    
+    /* Alerta personalizada estilizada */
+    .custom-alert {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        padding: 25px;
+        max-width: 400px;
+        width: 90%;
+        z-index: 9999;
+        font-family: 'Calibri', 'Arial', sans-serif;
+        border-left: 5px solid #28a745;
+        animation: slideIn 0.3s ease-out;
+    }
+    
+    .custom-alert-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 9998;
+        animation: fadeIn 0.3s ease-out;
+    }
+    
+    .custom-alert-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 15px;
+        color: #28a745;
+        font-weight: bold;
+        font-size: 18px;
+    }
+    
+    .custom-alert-icon {
+        width: 24px;
+        height: 24px;
+        margin-right: 10px;
+        color: #28a745;
+    }
+    
+    .custom-alert-content {
+        color: #333;
+        line-height: 1.5;
+        margin-bottom: 20px;
+    }
+    
+    .custom-alert-filename {
+        background-color: #f8f9fa;
+        padding: 8px 12px;
+        border-radius: 4px;
+        font-family: monospace;
+        color: #004c8c;
+        margin: 10px 0;
+        border: 1px solid #e9ecef;
+    }
+    
+    .custom-alert-footer {
+        text-align: right;
+    }
+    
+    .custom-alert-btn {
+        background-color: #004c8c;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: bold;
+        font-size: 14px;
+        transition: background-color 0.2s;
+    }
+    
+    .custom-alert-btn:hover {
+        background-color: #003b6f;
+    }
+    
+    @keyframes slideIn {
+        from {
+            transform: translate(-50%, -60%);
+            opacity: 0;
+        }
+        to {
+            transform: translate(-50%, -50%);
+            opacity: 1;
+        }
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+       /* Botón PDF */
+    .btn-pdf {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 20px;
+        background-color: #dc3545;
+        color: white;
+        text-decoration: none;
+        border-radius: 4px;
+        font-weight: bold;
+        border: none;
+        cursor: pointer;
+        font-size: 14px;
+        transition: background-color 0.2s;
+    }
+    
+    .btn-pdf:hover {
+        background-color: #c82333;
+    }
+    
+    .pdf-icon {
+        width: 16px;
+        height: 16px;
+    }
+    
+    /* Estilos para vista previa PDF (oculto) */
+    .pdf-preview {
+        position: absolute;
+        left: -9999px;
+        top: -9999px;
+        background: white;
+        width: 210mm;
+        padding: 20mm;
+        font-family: 'Arial', sans-serif;
+        color: #333;
+    }
+    
+    .pdf-header {
+        text-align: center;
+        margin-bottom: 30px;
+        border-bottom: 3px solid #004c8c;
+        padding-bottom: 20px;
+    }
+    
+    .pdf-logo {
+        font-size: 24px;
+        font-weight: bold;
+        color: #004c8c;
+        margin-bottom: 10px;
+    }
+    
+    .pdf-title {
+        font-size: 20px;
+        color: #333;
+        margin: 10px 0;
+    }
+    
+    .pdf-subtitle {
+        font-size: 14px;
+        color: #666;
+    }
+    
+    .pdf-info-section {
+        background-color: #f8f9fa;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 25px;
+        border-left: 4px solid #004c8c;
+    }
+    
+    .pdf-info-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 20px;
+        font-size: 12px;
+    }
+    
+    .pdf-info-item {
+        text-align: center;
+    }
+    
+    .pdf-info-label {
+        font-weight: bold;
+        color: #004c8c;
+        display: block;
+        margin-bottom: 5px;
+    }
+    
+    .pdf-info-value {
+        font-size: 14px;
+        color: #333;
+    }
+    
+    .pdf-prestamo-item {
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        overflow: hidden;
+        page-break-inside: avoid;
+    }
+    
+    .pdf-prestamo-header {
+        background-color: #004c8c;
+        color: white;
+        padding: 12px 15px;
+        font-weight: bold;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .pdf-prestamo-id {
+        font-size: 16px;
+    }
+    
+    .pdf-status-badge {
+        padding: 4px 12px;
+        border-radius: 15px;
+        font-size: 11px;
+        font-weight: bold;
+    }
+    
+    .pdf-status-solicitado { background-color: #ff9800; color: white; }
+    .pdf-status-aprobado { background-color: #4caf50; color: white; }
+    .pdf-status-rechazado { background-color: #f44336; color: white; }
+    .pdf-status-finalizado { background-color: #607d8b; color: white; }
+    .pdf-status-vencido { background-color: #9e9e9e; color: white; }
+    
+    .pdf-prestamo-content {
+        display: grid;
+        grid-template-columns: 120px 1fr;
+        gap: 20px;
+        padding: 15px;
+    }
+    
+    .pdf-libro-image {
+        width: 100px;
+        height: 130px;
+        object-fit: cover;
+        border-radius: 6px;
+        border: 2px solid #ddd;
+        background-color: #f8f9fa;
+    }
+    
+    .pdf-libro-placeholder {
+        width: 100px;
+        height: 130px;
+        background-color: #f8f9fa;
+        border: 2px dashed #ccc;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 10px;
+        color: #999;
+        text-align: center;
+    }
+    
+    .pdf-prestamo-details {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+        font-size: 12px;
+    }
+    
+    .pdf-detail-group {
+        margin-bottom: 12px;
+    }
+    
+    .pdf-detail-label {
+        font-weight: bold;
+        color: #004c8c;
+        margin-bottom: 3px;
+        display: block;
+    }
+    
+    .pdf-detail-value {
+        color: #333;
+        word-wrap: break-word;
+    }
+    
+    .pdf-footer {
+        position: fixed;
+        bottom: 15mm;
+        left: 20mm;
+        right: 20mm;
+        text-align: center;
+        font-size: 10px;
+        color: #666;
+        border-top: 1px solid #ddd;
+        padding-top: 10px;
+    }
+    
+    .pdf-page-number {
+        position: fixed;
+        bottom: 10mm;
+        right: 20mm;
+        font-size: 10px;
+        color: #666;
+    }
+    
+    /* Modal de filtro para PDF */
+    .pdf-filter-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.6);
+        z-index: 10000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        animation: fadeIn 0.3s ease-out;
+    }
+    
+    .pdf-filter-content {
+        background: white;
+        border-radius: 12px;
+        padding: 30px;
+        max-width: 500px;
+        width: 90%;
+        max-height: 80vh;
+        overflow-y: auto;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+        animation: slideIn 0.3s ease-out;
+    }
+    
+    .pdf-filter-header {
+        text-align: center;
+        margin-bottom: 25px;
+        border-bottom: 2px solid #004c8c;
+        padding-bottom: 15px;
+    }
+    
+    .pdf-filter-title {
+        color: #004c8c;
+        font-size: 22px;
+        font-weight: bold;
+        margin: 0 0 5px 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+    }
+    
+    .pdf-filter-subtitle {
+        color: #666;
+        font-size: 14px;
+        margin: 0;
+    }
+    
+    .filter-section {
+        margin-bottom: 25px;
+    }
+    
+    .filter-section-title {
+        color: #004c8c;
+        font-weight: bold;
+        font-size: 16px;
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .filter-options {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 12px;
+    }
+    
+    .filter-option {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px;
+        border: 2px solid #e9ecef;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        background: #f8f9fa;
+    }
+    
+    .filter-option:hover {
+        border-color: #004c8c;
+        background: #e3f2fd;
+    }
+    
+    .filter-option.selected {
+        border-color: #004c8c;
+        background: #e3f2fd;
+        box-shadow: 0 2px 8px rgba(0, 76, 140, 0.2);
+    }
+    
+    .filter-checkbox {
+        width: 18px;
+        height: 18px;
+        accent-color: #004c8c;
+        cursor: pointer;
+    }
+    
+    .filter-label {
+        flex: 1;
+        font-weight: 500;
+        color: #333;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .filter-count {
+        background: #004c8c;
+        color: white;
+        padding: 2px 8px;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: bold;
+    }
+    
+    .filter-actions {
+        display: flex;
+        gap: 10px;
+        justify-content: space-between;
+        margin-top: 25px;
+        padding-top: 20px;
+        border-top: 1px solid #e9ecef;
+    }
+    
+    .filter-bulk-actions {
+        display: flex;
+        gap: 8px;
+    }
+    
+    .btn-filter {
+        padding: 8px 16px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: bold;
+        font-size: 13px;
+        transition: all 0.2s ease;
+    }
+    
+    .btn-select-all {
+        background: #28a745;
+        color: white;
+    }
+    
+    .btn-select-all:hover {
+        background: #218838;
+    }
+    
+    .btn-deselect-all {
+        background: #6c757d;
+        color: white;
+    }
+    
+    .btn-deselect-all:hover {
+        background: #5a6268;
+    }
+    
+    .filter-main-actions {
+        display: flex;
+        gap: 10px;
+    }
+    
+    .btn-generate-pdf {
+        background: #dc3545;
+        color: white;
+        padding: 12px 24px;
+        font-size: 14px;
+    }
+    
+    .btn-generate-pdf:hover {
+        background: #c82333;
+    }
+    
+    .btn-generate-pdf:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+    }
+    
+    .btn-cancel-filter {
+        background: #f8f9fa;
+        color: #6c757d;
+        border: 1px solid #dee2e6;
+        padding: 12px 20px;
+        font-size: 14px;
+    }
+    
+    .btn-cancel-filter:hover {
+        background: #e9ecef;
+    }
+    
+    .filter-preview {
+        background: #f8f9fa;
+        border-radius: 6px;
+        padding: 15px;
+        margin-top: 15px;
+        border-left: 4px solid #004c8c;
+    }
+    
+    .filter-preview-title {
+        font-weight: bold;
+        color: #004c8c;
+        margin-bottom: 8px;
+        font-size: 14px;
+    }
+    
+    .filter-preview-text {
+        font-size: 13px;
+        color: #666;
+        line-height: 1.4;
+    }
+    
+    .no-selection-warning {
+        background: #fff3cd;
+        border: 1px solid #ffeaa7;
+        border-radius: 6px;
+        padding: 12px;
+        margin-top: 15px;
+        color: #856404;
+        font-size: 13px;
+        text-align: center;
+    }
     </style>
 </head>
 <body>
@@ -274,6 +864,25 @@
             <a href="{% url 'gestionar_prestamos' %}?filtro=activos" class="filter-btn {% if filtro == 'activos' %}active{% endif %}">Activos</a>
             <a href="{% url 'gestionar_prestamos' %}?filtro=finalizados" class="filter-btn {% if filtro == 'finalizados' %}active{% endif %}">Finalizados/Rechazados</a>
         </div>
+
+{% if prestamos %}
+<div class="export-container">
+    <button id="exportBtn" class="btn-export" onclick="exportarAExcel()">
+        <svg class="export-icon" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+            <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+        </svg>
+        Exportar a Excel
+    </button>
+    
+    <button id="exportPdfBtn" class="btn-pdf" onclick="exportarAPDF()">
+        <svg class="pdf-icon" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd"></path>
+        </svg>
+        Exportar a PDF
+    </button>
+</div>
+{% endif %}
+
         
         {% if prestamos %}
         <table>
@@ -364,6 +973,24 @@
         <p>© 2025 ISFD 210. Todos los derechos reservados</p>
     </footer>
     
+
+    <script id="prestamos-data" type="application/json">
+[
+    {% for prestamo in prestamos %}
+    {
+        "id_prestamo": "{{ prestamo.id_prestamo }}",
+        "email_usuario": "{{ prestamo.email_usuario|default:'' }}",
+        "tipo_usuario": "{{ prestamo.get_tipo_usuario_display|default:'' }}",
+        "fecha_limite_reserva": "{{ prestamo.fecha_limite_reserva|date:'d/m/Y H:i'|default:'' }}",
+        "fecha_devolucion_programada": "{{ prestamo.fecha_devolucion_programada|date:'d/m/Y'|default:'' }}",
+        "fecha_aprobacion": "{{ prestamo.fecha_aprobacion|date:'d/m/Y H:i'|default:'' }}",
+        "motivo_rechazo": "{{ prestamo.motivo_rechazo|default:''|escapejs }}",
+        "imagen_url": "{{ prestamo.libro.img|default:'' }}"
+    }{% if not forloop.last %},{% endif %}
+    {% endfor %}
+]
+</script>
+
     <script>
         // Función para actualizar los cronómetros de reserva
         function actualizarCronometrosReserva() {
@@ -450,6 +1077,903 @@
         
         // Actualizar inmediatamente al cargar la página
         document.addEventListener('DOMContentLoaded', actualizarTodosLosCronometros);
+
+function exportarAExcel() {
+    const btn = document.getElementById('exportBtn');
+    const originalText = btn.innerHTML;
+    
+    // Mostrar indicador de carga
+    btn.classList.add('loading');
+    btn.innerHTML = '<svg class="export-icon" fill="currentColor" viewBox="0 0 20 20"><path d="M4 2a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2V4a2 2 0 00-2-2H4z"></path></svg>';
+    
+    try {
+        // Crear workbook
+        const wb = XLSX.utils.book_new();
+        
+        // Obtener fecha actual para el nombre del archivo
+        const fechaActual = new Date();
+        const fechaFormateada = fechaActual.toLocaleDateString('es-AR').replace(/\//g, '-');
+        const horaFormateada = fechaActual.toLocaleTimeString('es-AR', {hour: '2-digit', minute: '2-digit'});
+        
+        // Crear datos para la hoja de Excel
+        const datos = [];
+        
+        // Encabezados
+        const encabezados = [
+            'ID Préstamo',
+            'Libro',
+            'Usuario',
+            'Email',
+            'Tipo Préstamo',
+            'Tipo Usuario',
+            'Fecha Solicitud',
+            'Estado',
+            'Tiempo Reserva Restante',
+            'Fecha Límite Reserva',
+            'Fecha Devolución Programada',
+            'Tiempo Préstamo Restante',
+            'Fecha Aprobación',
+            'Fecha Devolución Real',
+            'Motivo Rechazo'
+        ];
+        datos.push(encabezados);
+        
+        // Obtener todas las filas de la tabla
+        const filas = document.querySelectorAll('table tbody tr');
+        
+        filas.forEach(fila => {
+            const celdas = fila.querySelectorAll('td');
+            if (celdas.length > 0) {
+                // Obtener ID del préstamo para buscar datos adicionales
+                const prestamoId = celdas[0].textContent.trim();
+                
+                // Extraer información visible
+                const libro = celdas[1].textContent.trim();
+                const usuario = celdas[2].textContent.trim();
+                const tipoPrestamo = celdas[3].textContent.trim();
+                const fechaSolicitud = celdas[4].textContent.trim();
+                const estado = celdas[5].textContent.trim();
+                
+                // Extraer tiempo de reserva
+                let tiempoReserva = '-';
+                const timerReserva = fila.querySelector('[id^="timer-reserva-"]');
+                if (timerReserva) {
+                    tiempoReserva = timerReserva.textContent.trim();
+                } else if (celdas[6].textContent.includes('VENCIDA')) {
+                    tiempoReserva = 'VENCIDA';
+                }
+                
+                // Extraer fecha de devolución
+                const fechaDevolucion = celdas[7].textContent.trim();
+                
+                // Extraer tiempo de préstamo
+                let tiempoPrestamo = '-';
+                const timerPrestamo = fila.querySelector('[id^="timer-prestamo-"]');
+                if (timerPrestamo) {
+                    tiempoPrestamo = timerPrestamo.textContent.trim();
+                }
+                
+                // Buscar datos adicionales del préstamo (si están disponibles en el contexto)
+                let email = '';
+                let tipoUsuario = '';
+                let fechaLimiteReserva = '';
+                let fechaAprobacion = '';
+                let fechaDevolucionReal = '';
+                let motivoRechazo = '';
+                
+                // Intentar obtener datos del objeto prestamo si está disponible en el template
+                {% for prestamo in prestamos %}
+                if ('{{ prestamo.id_prestamo }}' === prestamoId) {
+                    email = '{{ prestamo.email_usuario|default:"" }}';
+                    tipoUsuario = '{{ prestamo.get_tipo_usuario_display|default:"" }}';
+                    fechaLimiteReserva = '{{ prestamo.fecha_limite_reserva|date:"d/m/Y H:i"|default:"" }}';
+                    fechaAprobacion = '{{ prestamo.fecha_aprobacion|date:"d/m/Y H:i"|default:"" }}';
+                    fechaDevolucionReal = '{{ prestamo.fecha_devolucion_real|date:"d/m/Y H:i"|default:"" }}';
+                    motivoRechazo = '{{ prestamo.motivo_rechazo|default:""|escapejs }}';
+                }
+                {% endfor %}
+                
+                // Agregar fila de datos
+                const filaDatos = [
+                    prestamoId,
+                    libro,
+                    usuario,
+                    email,
+                    tipoPrestamo,
+                    tipoUsuario,
+                    fechaSolicitud,
+                    estado,
+                    tiempoReserva,
+                    fechaLimiteReserva,
+                    fechaDevolucion,
+                    tiempoPrestamo,
+                    fechaAprobacion,
+                    fechaDevolucionReal,
+                    motivoRechazo
+                ];
+                datos.push(filaDatos);
+            }
+        });
+        
+        // Crear hoja de cálculo
+        const ws = XLSX.utils.aoa_to_sheet(datos);
+        
+        // Configurar ancho de columnas
+        const columnWidths = [
+            {wch: 12}, // ID Préstamo
+            {wch: 30}, // Libro
+            {wch: 20}, // Usuario
+            {wch: 25}, // Email
+            {wch: 15}, // Tipo Préstamo
+            {wch: 15}, // Tipo Usuario
+            {wch: 18}, // Fecha Solicitud
+            {wch: 12}, // Estado
+            {wch: 20}, // Tiempo Reserva
+            {wch: 18}, // Fecha Límite Reserva
+            {wch: 18}, // Fecha Devolución Programada
+            {wch: 20}, // Tiempo Préstamo
+            {wch: 18}, // Fecha Aprobación
+            {wch: 18}, // Fecha Devolución Real
+            {wch: 30}  // Motivo Rechazo
+        ];
+        ws['!cols'] = columnWidths;
+        
+        // Aplicar estilos a los encabezados
+        const headerRange = XLSX.utils.decode_range(ws['!ref']);
+        for (let col = headerRange.s.c; col <= headerRange.e.c; col++) {
+            const cellAddress = XLSX.utils.encode_cell({r: 0, c: col});
+            if (!ws[cellAddress]) continue;
+            
+            // Aplicar formato a encabezados
+            ws[cellAddress].s = {
+                font: { bold: true, color: { rgb: "FFFFFF" } },
+                fill: { fgColor: { rgb: "004c8c" } },
+                alignment: { horizontal: "center", vertical: "center" }
+            };
+        }
+        
+        // Agregar la hoja al workbook
+        const nombreHoja = `Préstamos_${fechaFormateada}`;
+        XLSX.utils.book_append_sheet(wb, ws, nombreHoja);
+        
+        // Agregar información adicional en una segunda hoja
+        const infoData = [
+            ['Reporte de Préstamos - Biblioteca Digital'],
+            [''],
+            ['Fecha de generación:', `${fechaFormateada} ${horaFormateada}`],
+            ['Total de préstamos:', datos.length - 1], // -1 para excluir encabezados
+            ['Filtro aplicado:', getActiveFiltro()],
+            [''],
+            ['Estados disponibles:'],
+            ['- Solicitado: Préstamo pendiente de retiro'],
+            ['- Aprobado: Libro retirado, préstamo activo'],
+            ['- Rechazado: Préstamo cancelado'],
+            ['- Finalizado: Libro devuelto'],
+            ['- Vencido: Tiempo de reserva expirado'],
+            [''],
+            ['Generado por: Sistema de Biblioteca ISFD 210'],
+            ['© 2025 ISFD 210. Todos los derechos reservados']
+        ];
+        
+        const wsInfo = XLSX.utils.aoa_to_sheet(infoData);
+        wsInfo['!cols'] = [{wch: 25}, {wch: 30}];
+        XLSX.utils.book_append_sheet(wb, wsInfo, 'Información');
+        
+        // Generar nombre del archivo
+        const nombreArchivo = `gestionPrestamos-${fechaFormateada}.xlsx`;
+        
+        // Descargar archivo
+        XLSX.writeFile(wb, nombreArchivo);
+        
+        // Mostrar alerta estilizada de éxito
+        setTimeout(() => {
+            mostrarAlertaExito(nombreArchivo, datos.length - 1);
+        }, 500);
+        
+    } catch (error) {
+        console.error('Error al exportar:', error);
+        mostrarAlertaError('Error al exportar el archivo. Por favor, inténtelo nuevamente.');
+    } finally {
+        // Restaurar botón
+        setTimeout(() => {
+            btn.classList.remove('loading');
+            btn.innerHTML = originalText;
+        }, 1000);
+    }
+}
+
+// Función auxiliar para obtener el filtro activo
+function getActiveFiltro() {
+    const activeFilter = document.querySelector('.filter-btn.active');
+    return activeFilter ? activeFilter.textContent.trim() : 'Todos';
+}
+
+// Agregar evento de teclado para exportar con Ctrl+E
+document.addEventListener('keydown', function(e) {
+    if (e.ctrlKey && e.key === 'e') {
+        e.preventDefault();
+        if (document.querySelector('#exportBtn')) {
+            exportarAExcel();
+        }
+    }
+});
+
+// ===== SISTEMA COMPLETO DE EXPORTACIÓN PDF CON FILTROS =====
+
+// Variable global para el modal
+let pdfFilterModal = null;
+
+// FUNCIÓN PRINCIPAL: Al hacer clic en "Exportar a PDF"
+async function exportarAPDF() {
+    mostrarModalFiltroPDF();
+}
+
+// FUNCIÓN: Mostrar modal de filtros
+function mostrarModalFiltroPDF() {
+    // Contar préstamos por estado
+    const filas = document.querySelectorAll('table tbody tr');
+    const estadosCount = {
+        solicitado: 0,
+        aprobado: 0,
+        rechazado: 0,
+        finalizado: 0,
+        vencido: 0
+    };
+    
+    filas.forEach(fila => {
+        const estadoElement = fila.querySelector('.status-badge');
+        if (estadoElement) {
+            const clases = estadoElement.className;
+            Object.keys(estadosCount).forEach(estado => {
+                if (clases.includes(`status-${estado}`)) {
+                    estadosCount[estado]++;
+                }
+            });
+        }
+    });
+    
+    // Crear modal
+    const modal = document.createElement('div');
+    modal.className = 'pdf-filter-modal';
+    
+    modal.innerHTML = `
+        <div class="pdf-filter-content">
+            <div class="pdf-filter-header">
+                <h3 class="pdf-filter-title">
+                    <svg width="24" height="24" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"></path>
+                    </svg>
+                    Configurar Reporte PDF
+                </h3>
+                <p class="pdf-filter-subtitle">Selecciona qué estados de préstamos incluir en el documento</p>
+            </div>
+            
+            <div class="filter-section">
+                <div class="filter-section-title">
+                    <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M3 3a1 1 0 011-1h12a1 1 0 011 1v3a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V3z" clip-rule="evenodd"></path>
+                    </svg>
+                    Estados de Préstamos
+                </div>
+                <div class="filter-options">
+                    <div class="filter-option selected" onclick="toggleFilterOption(this, 'solicitado')">
+                        <input type="checkbox" class="filter-checkbox" checked data-estado="solicitado">
+                        <div class="filter-label">
+                            <span style="color: #ff9800;">●</span>
+                            Solicitados
+                            <span class="filter-count">${estadosCount.solicitado}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="filter-option selected" onclick="toggleFilterOption(this, 'aprobado')">
+                        <input type="checkbox" class="filter-checkbox" checked data-estado="aprobado">
+                        <div class="filter-label">
+                            <span style="color: #4caf50;">●</span>
+                            Aprobados
+                            <span class="filter-count">${estadosCount.aprobado}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="filter-option selected" onclick="toggleFilterOption(this, 'rechazado')">
+                        <input type="checkbox" class="filter-checkbox" checked data-estado="rechazado">
+                        <div class="filter-label">
+                            <span style="color: #f44336;">●</span>
+                            Rechazados
+                            <span class="filter-count">${estadosCount.rechazado}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="filter-option selected" onclick="toggleFilterOption(this, 'finalizado')">
+                        <input type="checkbox" class="filter-checkbox" checked data-estado="finalizado">
+                        <div class="filter-label">
+                            <span style="color: #607d8b;">●</span>
+                            Finalizados
+                            <span class="filter-count">${estadosCount.finalizado}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="filter-option selected" onclick="toggleFilterOption(this, 'vencido')">
+                        <input type="checkbox" class="filter-checkbox" checked data-estado="vencido">
+                        <div class="filter-label">
+                            <span style="color: #9e9e9e;">●</span>
+                            Vencidos
+                            <span class="filter-count">${estadosCount.vencido}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="filter-preview" id="filter-preview">
+                <div class="filter-preview-title">📊 Vista Previa del Reporte</div>
+                <div class="filter-preview-text" id="preview-text">
+                    Se incluirán todos los estados (${filas.length} préstamos en total)
+                </div>
+            </div>
+            
+            <div class="filter-actions">
+                <div class="filter-bulk-actions">
+                    <button class="btn-filter btn-select-all" onclick="selectAllFilters()">
+                        ✓ Seleccionar Todo
+                    </button>
+                    <button class="btn-filter btn-deselect-all" onclick="deselectAllFilters()">
+                        ✗ Deseleccionar Todo
+                    </button>
+                </div>
+                
+                <div class="filter-main-actions">
+                    <button class="btn-filter btn-cancel-filter" onclick="cerrarModalFiltro()">
+                        Cancelar
+                    </button>
+                    <button class="btn-filter btn-generate-pdf" id="btn-generate-pdf" onclick="generarPDFConFiltros()">
+                        🎯 Generar PDF
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    pdfFilterModal = modal;
+    
+    // Cerrar al hacer clic fuera
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+            cerrarModalFiltro();
+        }
+    });
+    
+    // Actualizar preview inicial
+    actualizarPreviewFiltro();
+}
+
+// FUNCIÓN: Toggle selección de filtro
+function toggleFilterOption(element, estado) {
+    const checkbox = element.querySelector('.filter-checkbox');
+    checkbox.checked = !checkbox.checked;
+    
+    if (checkbox.checked) {
+        element.classList.add('selected');
+    } else {
+        element.classList.remove('selected');
+    }
+    
+    actualizarPreviewFiltro();
+}
+
+// FUNCIÓN: Seleccionar todos los filtros
+function selectAllFilters() {
+    const options = document.querySelectorAll('.filter-option');
+    options.forEach(option => {
+        const checkbox = option.querySelector('.filter-checkbox');
+        checkbox.checked = true;
+        option.classList.add('selected');
+    });
+    actualizarPreviewFiltro();
+}
+
+// FUNCIÓN: Deseleccionar todos los filtros
+function deselectAllFilters() {
+    const options = document.querySelectorAll('.filter-option');
+    options.forEach(option => {
+        const checkbox = option.querySelector('.filter-checkbox');
+        checkbox.checked = false;
+        option.classList.remove('selected');
+    });
+    actualizarPreviewFiltro();
+}
+
+// FUNCIÓN: Actualizar vista previa del filtro
+function actualizarPreviewFiltro() {
+    const checkboxes = document.querySelectorAll('.filter-checkbox:checked');
+    const selectedEstados = Array.from(checkboxes).map(cb => cb.dataset.estado);
+    const previewText = document.getElementById('preview-text');
+    const generateBtn = document.getElementById('btn-generate-pdf');
+    
+    if (selectedEstados.length === 0) {
+        previewText.innerHTML = `
+            <div class="no-selection-warning">
+                ⚠️ No has seleccionado ningún estado. Selecciona al menos uno para continuar.
+            </div>
+        `;
+        generateBtn.disabled = true;
+        return;
+    }
+    
+    generateBtn.disabled = false;
+    
+    // Contar préstamos filtrados
+    const filas = document.querySelectorAll('table tbody tr');
+    let totalFiltrados = 0;
+    
+    filas.forEach(fila => {
+        const estadoElement = fila.querySelector('.status-badge');
+        if (estadoElement) {
+            const clases = estadoElement.className;
+            const tieneEstadoSeleccionado = selectedEstados.some(estado => 
+                clases.includes(`status-${estado}`)
+            );
+            if (tieneEstadoSeleccionado) {
+                totalFiltrados++;
+            }
+        }
+    });
+    
+    const estadosTexto = selectedEstados.map(estado => {
+        const nombres = {
+            solicitado: 'Solicitados',
+            aprobado: 'Aprobados', 
+            rechazado: 'Rechazados',
+            finalizado: 'Finalizados',
+            vencido: 'Vencidos'
+        };
+        return nombres[estado];
+    }).join(', ');
+    
+    previewText.innerHTML = `
+        <strong>Estados incluidos:</strong> ${estadosTexto}<br>
+        <strong>Total de préstamos:</strong> ${totalFiltrados} de ${filas.length}<br>
+        <strong>Documento:</strong> PDF con portadas de libros e información completa
+    `;
+}
+
+// FUNCIÓN: Cerrar modal de filtros
+function cerrarModalFiltro() {
+    if (pdfFilterModal && pdfFilterModal.parentNode) {
+        document.body.removeChild(pdfFilterModal);
+        pdfFilterModal = null;
+    }
+}
+
+// FUNCIÓN: Generar PDF con filtros seleccionados
+async function generarPDFConFiltros() {
+    const checkboxes = document.querySelectorAll('.filter-checkbox:checked');
+    const selectedEstados = Array.from(checkboxes).map(cb => cb.dataset.estado);
+    
+    if (selectedEstados.length === 0) {
+        mostrarAlertaError('Debes seleccionar al menos un estado para generar el PDF.');
+        return;
+    }
+    
+    // Cerrar modal
+    cerrarModalFiltro();
+    
+    // Llamar a la función de generación de PDF con filtros
+    await exportarAPDFConFiltros(selectedEstados);
+}
+
+// FUNCIÓN PRINCIPAL: Exportar PDF con filtros aplicados
+async function exportarAPDFConFiltros(estadosFiltrados) {
+    const btn = document.getElementById('exportPdfBtn');
+    const originalText = btn.innerHTML;
+    
+    // Mostrar indicador de carga
+    btn.classList.add('loading');
+    btn.innerHTML = '<svg class="pdf-icon" fill="currentColor" viewBox="0 0 20 20"><path d="M4 2a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2V4a2 2 0 00-2-2H4z"></path></svg> Generando PDF...';
+    btn.disabled = true;
+    
+    try {
+        // Crear contenido para PDF con filtros
+        const pdfContent = await crearContenidoPDFConFiltros(estadosFiltrados);
+        
+        // Agregar al DOM temporalmente
+        document.body.appendChild(pdfContent);
+        
+        // Esperar a que las imágenes se carguen
+        await esperarImagenes(pdfContent);
+        
+        // Configurar jsPDF
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF('p', 'mm', 'a4');
+        
+        // Convertir a canvas
+        const canvas = await html2canvas(pdfContent, {
+            scale: 1.5,
+            useCORS: true,
+            allowTaint: true,
+            backgroundColor: '#ffffff',
+            width: pdfContent.offsetWidth,
+            height: pdfContent.offsetHeight,
+            logging: false
+        });
+        
+        // Calcular dimensiones para PDF
+        const imgWidth = 210;
+        const pageHeight = 297;
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+        
+        let heightLeft = imgHeight;
+        let position = 0;
+        
+        // Agregar primera página
+        pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+        
+        // Agregar páginas adicionales
+        while (heightLeft >= 0) {
+            position = heightLeft - imgHeight;
+            pdf.addPage();
+            pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, position, imgWidth, imgHeight);
+            heightLeft -= pageHeight;
+        }
+        
+        // Generar nombre del archivo
+        const fechaActual = new Date();
+        const fechaFormateada = fechaActual.toLocaleDateString('es-AR').replace(/\//g, '-');
+        const filtrosTexto = estadosFiltrados.join('-');
+        const nombreArchivo = `gestionPrestamos-${filtrosTexto}-${fechaFormateada}.pdf`;
+        
+        // Descargar PDF
+        pdf.save(nombreArchivo);
+        
+        // Remover contenido temporal
+        if (pdfContent && pdfContent.parentNode) {
+            document.body.removeChild(pdfContent);
+        }
+        
+        // Mostrar alerta de éxito
+        setTimeout(() => {
+            mostrarAlertaExitoPDF(nombreArchivo);
+        }, 500);
+        
+    } catch (error) {
+        console.error('Error al generar PDF:', error);
+        mostrarAlertaError('Error al generar el PDF. Por favor, inténtelo nuevamente.');
+    } finally {
+        // Restaurar botón
+        setTimeout(() => {
+            btn.classList.remove('loading');
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        }, 1000);
+    }
+}
+
+// FUNCIÓN: Crear contenido HTML para PDF con filtros
+async function crearContenidoPDFConFiltros(estadosFiltrados) {
+    const fechaActual = new Date();
+    const fechaFormateada = fechaActual.toLocaleDateString('es-AR', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    });
+    const horaFormateada = fechaActual.toLocaleTimeString('es-AR', {
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+    
+    // Obtener datos de la tabla filtrados
+    const todasLasFilas = document.querySelectorAll('table tbody tr');
+    const filasFiltradas = Array.from(todasLasFilas).filter(fila => {
+        const estadoElement = fila.querySelector('.status-badge');
+        if (estadoElement) {
+            const clases = estadoElement.className;
+            return estadosFiltrados.some(estado => clases.includes(`status-${estado}`));
+        }
+        return false;
+    });
+    
+    const totalPrestamos = filasFiltradas.length;
+    
+    // Contar estados filtrados
+    const estadosCount = {
+        solicitado: 0,
+        aprobado: 0,
+        rechazado: 0,
+        finalizado: 0,
+        vencido: 0
+    };
+    
+    filasFiltradas.forEach(fila => {
+        const estadoElement = fila.querySelector('.status-badge');
+        if (estadoElement) {
+            const clases = estadoElement.className;
+            Object.keys(estadosCount).forEach(estado => {
+                if (clases.includes(`status-${estado}`) && estadosFiltrados.includes(estado)) {
+                    estadosCount[estado]++;
+                }
+            });
+        }
+    });
+    
+    const filtroTexto = estadosFiltrados.map(estado => {
+        const nombres = {
+            solicitado: 'Solicitados',
+            aprobado: 'Aprobados', 
+            rechazado: 'Rechazados',
+            finalizado: 'Finalizados',
+            vencido: 'Vencidos'
+        };
+        return nombres[estado];
+    }).join(', ');
+    
+    // Crear contenedor principal
+    const container = document.createElement('div');
+    container.className = 'pdf-preview';
+    
+    // Crear dashboard solo con estados filtrados
+    let dashboardHTML = '';
+    if (estadosFiltrados.includes('solicitado')) {
+        dashboardHTML += `<div style="background: #ff9800; color: white; padding: 8px; border-radius: 4px;"><strong>Solicitados</strong><br>${estadosCount.solicitado}</div>`;
+    }
+    if (estadosFiltrados.includes('aprobado')) {
+        dashboardHTML += `<div style="background: #4caf50; color: white; padding: 8px; border-radius: 4px;"><strong>Aprobados</strong><br>${estadosCount.aprobado}</div>`;
+    }
+    if (estadosFiltrados.includes('rechazado')) {
+        dashboardHTML += `<div style="background: #f44336; color: white; padding: 8px; border-radius: 4px;"><strong>Rechazados</strong><br>${estadosCount.rechazado}</div>`;
+    }
+    if (estadosFiltrados.includes('finalizado')) {
+        dashboardHTML += `<div style="background: #607d8b; color: white; padding: 8px; border-radius: 4px;"><strong>Finalizados</strong><br>${estadosCount.finalizado}</div>`;
+    }
+    if (estadosFiltrados.includes('vencido')) {
+        dashboardHTML += `<div style="background: #9e9e9e; color: white; padding: 8px; border-radius: 4px;"><strong>Vencidos</strong><br>${estadosCount.vencido}</div>`;
+    }
+    
+    container.innerHTML = `
+        <div class="pdf-header">
+            <div class="pdf-logo">📚 BIBLIOTECA DIGITAL ISFD 210</div>
+            <div class="pdf-title">Reporte de Gestión de Préstamos</div>
+            <div class="pdf-subtitle">Documento Oficial del Estado de Préstamos - Filtrado</div>
+        </div>
+        
+        <div class="pdf-info-section">
+            <div class="pdf-info-grid">
+                <div class="pdf-info-item">
+                    <span class="pdf-info-label">Fecha de Generación</span>
+                    <span class="pdf-info-value">${fechaFormateada}<br>${horaFormateada}</span>
+                </div>
+                <div class="pdf-info-item">
+                    <span class="pdf-info-label">Total de Préstamos</span>
+                    <span class="pdf-info-value">${totalPrestamos}</span>
+                </div>
+                <div class="pdf-info-item">
+                    <span class="pdf-info-label">Filtros Aplicados</span>
+                    <span class="pdf-info-value">${filtroTexto}</span>
+                </div>
+            </div>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: repeat(${estadosFiltrados.length}, 1fr); gap: 10px; margin-bottom: 25px; font-size: 11px; text-align: center;">
+            ${dashboardHTML}
+        </div>
+        
+        <div id="prestamos-list"></div>
+        
+        <div class="pdf-footer">
+            <div>Sistema de Biblioteca Digital - ISFD 210 | Generado automáticamente el ${fechaFormateada} a las ${horaFormateada}</div>
+            <div style="margin-top: 5px;">© 2025 Instituto Superior de Formación Docente N° 210. Todos los derechos reservados.</div>
+        </div>
+    `;
+    
+    // Agregar préstamos filtrados
+    const prestamosList = container.querySelector('#prestamos-list');
+    const prestamosData = {};
+    
+    // Obtener datos del template
+    const scriptData = document.querySelector('#prestamos-data');
+    if (scriptData) {
+        try {
+            const data = JSON.parse(scriptData.textContent);
+            data.forEach(prestamo => {
+                prestamosData[prestamo.id_prestamo] = prestamo;
+            });
+        } catch (e) {
+            console.log('No se pudieron cargar los datos de préstamos:', e);
+        }
+    }
+    
+    // Procesar solo las filas filtradas
+    for (let i = 0; i < filasFiltradas.length; i++) {
+        const fila = filasFiltradas[i];
+        const celdas = fila.querySelectorAll('td');
+        
+        if (celdas.length > 0) {
+            const prestamoId = celdas[0].textContent.trim();
+            const libro = celdas[1].textContent.trim();
+            const usuario = celdas[2].textContent.trim();
+            const tipoPrestamo = celdas[3].textContent.trim();
+            const fechaSolicitud = celdas[4].textContent.trim();
+            const estadoElement = celdas[5].querySelector('.status-badge');
+            const estado = estadoElement ? estadoElement.textContent.trim() : '';
+            const estadoClass = estadoElement ? estadoElement.className.split(' ').find(c => c.startsWith('status-')) : '';
+            
+            // Obtener datos adicionales
+            const prestamoData = prestamosData[prestamoId] || {};
+            const email = prestamoData.email_usuario || '';
+            const tipoUsuario = prestamoData.tipo_usuario || '';
+            const fechaLimiteReserva = prestamoData.fecha_limite_reserva || '';
+            const fechaDevolucion = prestamoData.fecha_devolucion_programada || '';
+            const fechaAprobacion = prestamoData.fecha_aprobacion || '';
+            const motivoRechazo = prestamoData.motivo_rechazo || '';
+            const imagenUrl = prestamoData.imagen_url || '';
+            
+            const prestamoDiv = document.createElement('div');
+            prestamoDiv.className = 'pdf-prestamo-item';
+            
+            // Crear imagen con mejor manejo de errores
+            let imagenHTML = '';
+            if (imagenUrl && imagenUrl.trim() !== '' && imagenUrl !== 'None') {
+                imagenHTML = `
+                    <img src="${imagenUrl}" 
+                         alt="Portada de ${libro}" 
+                         class="pdf-libro-image" 
+                         crossorigin="anonymous"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="pdf-libro-placeholder" style="display:none;">
+                        Sin imagen<br>disponible
+                    </div>
+                `;
+            } else {
+                imagenHTML = `
+                    <div class="pdf-libro-placeholder">
+                        Sin imagen<br>disponible
+                    </div>
+                `;
+            }
+            
+            prestamoDiv.innerHTML = `
+                <div class="pdf-prestamo-header">
+                    <span class="pdf-prestamo-id">Préstamo #${prestamoId} - ${libro}</span>
+                    <span class="pdf-status-badge pdf-${estadoClass}">${estado}</span>
+                </div>
+                <div class="pdf-prestamo-content">
+                    <div>
+                        ${imagenHTML}
+                    </div>
+                    <div class="pdf-prestamo-details">
+                        <div class="pdf-detail-group">
+                            <span class="pdf-detail-label">Usuario:</span>
+                            <span class="pdf-detail-value">${usuario}</span>
+                        </div>
+                        <div class="pdf-detail-group">
+                            <span class="pdf-detail-label">Email:</span>
+                            <span class="pdf-detail-value">${email || '-'}</span>
+                        </div>
+                        <div class="pdf-detail-group">
+                            <span class="pdf-detail-label">Tipo Usuario:</span>
+                            <span class="pdf-detail-value">${tipoUsuario || '-'}</span>
+                        </div>
+                        <div class="pdf-detail-group">
+                            <span class="pdf-detail-label">Tipo Préstamo:</span>
+                            <span class="pdf-detail-value">${tipoPrestamo}</span>
+                        </div>
+                        <div class="pdf-detail-group">
+                            <span class="pdf-detail-label">Fecha Solicitud:</span>
+                            <span class="pdf-detail-value">${fechaSolicitud}</span>
+                        </div>
+                        <div class="pdf-detail-group">
+                            <span class="pdf-detail-label">Fecha Aprobación:</span>
+                            <span class="pdf-detail-value">${fechaAprobacion || '-'}</span>
+                        </div>
+                        <div class="pdf-detail-group">
+                            <span class="pdf-detail-label">Límite Reserva:</span>
+                            <span class="pdf-detail-value">${fechaLimiteReserva || '-'}</span>
+                        </div>
+                        <div class="pdf-detail-group">
+                            <span class="pdf-detail-label">Fecha Devolución:</span>
+                            <span class="pdf-detail-value">${fechaDevolucion || '-'}</span>
+                        </div>
+                        ${motivoRechazo ? `
+                        <div class="pdf-detail-group" style="grid-column: 1 / -1;">
+                            <span class="pdf-detail-label">Motivo Rechazo:</span>
+                            <span class="pdf-detail-value">${motivoRechazo}</span>
+                        </div>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+            
+            prestamosList.appendChild(prestamoDiv);
+        }
+    }
+    
+    return container;
+}
+
+// FUNCIÓN: Esperar a que las imágenes se carguen
+async function esperarImagenes(container) {
+    const imagenes = container.querySelectorAll('img');
+    const promesas = Array.from(imagenes).map(img => {
+        return new Promise((resolve) => {
+            if (img.complete) {
+                resolve();
+            } else {
+                img.onload = resolve;
+                img.onerror = resolve;
+                setTimeout(resolve, 3000); // Timeout de 3 segundos
+            }
+        });
+    });
+    
+    await Promise.all(promesas);
+    await new Promise(resolve => setTimeout(resolve, 500));
+}
+
+// FUNCIÓN: Mostrar alerta de éxito para PDF
+function mostrarAlertaExitoPDF(nombreArchivo) {
+    const overlay = document.createElement('div');
+    overlay.className = 'custom-alert-overlay';
+    
+    const alert = document.createElement('div');
+    alert.className = 'custom-alert';
+    alert.style.borderLeftColor = '#dc3545';
+    
+    alert.innerHTML = `
+        <div class="custom-alert-header" style="color: #dc3545;">
+            <svg class="custom-alert-icon" style="color: #dc3545;" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd"></path>
+            </svg>
+            PDF Generado Exitosamente
+        </div>
+        <div class="custom-alert-content">
+            El documento PDF se ha generado correctamente con los filtros seleccionados.
+            <div class="custom-alert-filename">📄 ${nombreArchivo}</div>
+        </div>
+        <div class="custom-alert-footer">
+            <button class="custom-alert-btn" style="background-color: #dc3545;" onclick="cerrarAlerta()">Aceptar</button>
+        </div>
+    `;
+    
+    document.body.appendChild(overlay);
+    document.body.appendChild(alert);
+    
+    setTimeout(cerrarAlerta, 6000);
+    overlay.addEventListener('click', cerrarAlerta);
+}
+
+// FUNCIÓN: Cerrar alertas
+function cerrarAlerta() {
+    const overlays = document.querySelectorAll('.custom-alert-overlay');
+    const alerts = document.querySelectorAll('.custom-alert');
+    
+    overlays.forEach(overlay => {
+        if (overlay && overlay.parentNode) {
+            overlay.parentNode.removeChild(overlay);
+        }
+    });
+    
+    alerts.forEach(alert => {
+        if (alert && alert.parentNode) {
+            alert.parentNode.removeChild(alert);
+        }
+    });
+}
+
+// EVENTOS DE TECLADO
+document.addEventListener('keydown', function(e) {
+    // Ctrl + Shift + P: Abrir modal de filtros PDF
+    if (e.ctrlKey && e.shiftKey && e.key === 'P') {
+        e.preventDefault();
+        if (document.querySelector('#exportPdfBtn')) {
+            mostrarModalFiltroPDF();
+        }
+    }
+    
+    // Escape: Cerrar modal
+    if (e.key === 'Escape' && pdfFilterModal) {
+        cerrarModalFiltro();
+    }
+});
+
     </script>
 </body>
 </html>
