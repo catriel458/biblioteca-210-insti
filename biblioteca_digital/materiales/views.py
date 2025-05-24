@@ -164,6 +164,10 @@ def success_view(request):
 # BÚSQUEDAS
 # =========================
 
+# =========================
+# BÚSQUEDAS
+# =========================
+
 # Busqueda libros
 
 def buscar_libros(request):
@@ -296,6 +300,11 @@ def solicitar_prestamo(request):
 
 # Vista para la pantalla principal:
 
+<<<<<<< HEAD:biblioteca_digital/libros/views.py
+def pantalla_principal(request):
+    return render(request, 'libros/pantalla_principal.html')
+=======
+>>>>>>> a4b63a175c9c3b6277d71232dec161dc630e9e1b:biblioteca_digital/materiales/views.py
 
 # Libros
 
@@ -314,8 +323,15 @@ def lista_libros(request):
 # ALTAS
 # =========================
 
+# =========================
+# ALTAS
+# =========================
+
+<<<<<<< HEAD:biblioteca_digital/libros/views.py
 # Vista para dar de alta un libro:
 
+=======
+>>>>>>> a4b63a175c9c3b6277d71232dec161dc630e9e1b:biblioteca_digital/materiales/views.py
 def alta_libro(request):
     form = LibroForm(request.POST or None)
     if request.method == 'POST' and form.is_valid():
@@ -332,8 +348,15 @@ def alta_libro(request):
 # BAJAS
 # =========================
 
+# =========================
+# BAJAS
+# =========================
+
+<<<<<<< HEAD:biblioteca_digital/libros/views.py
 # Vista para dar de baja un libro:
 
+=======
+>>>>>>> a4b63a175c9c3b6277d71232dec161dc630e9e1b:biblioteca_digital/materiales/views.py
 def baja_libro(request):
     if request.method == 'POST':
         libro_id = request.POST.get('libro_id')
