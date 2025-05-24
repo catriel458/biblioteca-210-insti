@@ -30,7 +30,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
         try {
             const tipoLower = tipo.toLowerCase();
-            const response = await fetch(`/libros/get_material_template/${tipoLower}/`);
+            const response = await fetch(`/materiales/get_material_template/${tipoLower}/`);
             if (response.ok) {
                 const html = await response.text();
                 // --- PARSEAR Y EXTRAER SOLO EL FRAGMENTO DEL FORMULARIO ---
@@ -42,6 +42,60 @@ document.addEventListener("DOMContentLoaded", function () {
                 if (fragmento) {
                     formContainer.innerHTML = '';
                     formContainer.appendChild(fragmento.cloneNode(true));
+                    // Inicializar ejemplares dinámicos de notebook o proyector si corresponde
+                    if ((tipoLower === 'notebook' || tipoLower === 'proyector') && typeof window.updateRowsMaterial === 'function') {
+                        window.updateRowsMaterial(tipoLower);
+                        const inputCantidad = document.querySelector('input[name="cant_ejemplares"]');
+                        if (inputCantidad) {
+                            inputCantidad.addEventListener('input', function() {
+                                window.updateRowsMaterial(tipoLower);
+                            });
+                        }
+                    }
+                    // Inicializar ejemplares dinámicos de VARIOS
+                    if (tipoLower === 'varios' && typeof window.renderizarTiposVarios === 'function') {
+                        window.renderizarTiposVarios();
+                        // Listener para agregar tipo con Enter
+                        const inputTipo = document.getElementById('tipo');
+                        const inputCantidad = document.getElementById('cantidad');
+                        if (inputTipo) {
+                            inputTipo.addEventListener('keypress', function(e) {
+                                if (e.key === 'Enter' && inputTipo.value.trim() !== '') {
+                                    e.preventDefault();
+                                    let cantidad = 1;
+                                    if (inputCantidad && !isNaN(parseInt(inputCantidad.value))) {
+                                        cantidad = parseInt(inputCantidad.value);
+                                    }
+                                    agregarGrupoTipoElemento(inputTipo.value.trim(), cantidad);
+                                    window.renderizarTiposVarios();
+                                    inputTipo.value = '';
+                                    if (inputCantidad) inputCantidad.value = 1;
+                                }
+                            });
+                        }
+                    }
+                    // Inicializar ejemplares dinámicos de MAPA
+                    if (tipoLower === 'mapa' && typeof window.renderizarTiposMapa === 'function') {
+                        window.renderizarTiposMapa();
+                        // Listener para agregar tipo con Enter
+                        const inputTipo = document.getElementById('tipo');
+                        const inputCantidad = document.getElementById('cantidad');
+                        if (inputTipo) {
+                            inputTipo.addEventListener('keypress', function(e) {
+                                if (e.key === 'Enter' && inputTipo.value.trim() !== '') {
+                                    e.preventDefault();
+                                    let cantidad = 1;
+                                    if (inputCantidad && !isNaN(parseInt(inputCantidad.value))) {
+                                        cantidad = parseInt(inputCantidad.value);
+                                    }
+                                    agregarGrupoTipoElemento(inputTipo.value.trim(), cantidad);
+                                    window.renderizarTiposMapa();
+                                    inputTipo.value = '';
+                                    if (inputCantidad) inputCantidad.value = 1;
+                                }
+                            });
+                        }
+                    }
 
                     // --- Inicialización automática de TiposEjemplares según el tipo ---
                     if (tipoLower === 'mapa' && typeof TiposEjemplares !== 'undefined') {
@@ -345,6 +399,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const fileInput = document.getElementById('file_upload_input');
     const urlInput = document.getElementById('url_upload_input');
     const simpleFileInput = document.getElementById('cargar_imagen');
+    const uploadSimple = document.getElementById('upload_simple_container');
     let imagenSimpleSeleccionada = null;
 
     if (fileInput && uploadBox) {
