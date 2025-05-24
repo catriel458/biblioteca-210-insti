@@ -1,4 +1,3 @@
-
 // === GLOBAL ===
 
 let config = {};
@@ -113,7 +112,7 @@ window.renderizarTiposMapa = function() {
     const resumenContainer = document.getElementById('bloque-tipo-cantidad');
     if (!resumenContainer) return;
     let html = '<div class="table-responsive"><table class="table table-sm align-middle">';
-    html += '<thead><tr><th style="width:32px">✔</th><th></th><th>Cant. de ejemplares</th></tr></thead><tbody>';
+    html += '<thead><tr><th style="width:32px"><✔</th><th></th><th>Cant. de ejemplares</th></tr></thead><tbody>';
     gruposTiposElemento.forEach((g, idx) => {
         html += `<tr>
             <td><input type='checkbox' class='chk-tipo-mapa' data-idx='${idx}' checked></td>

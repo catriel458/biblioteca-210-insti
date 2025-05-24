@@ -164,6 +164,10 @@ def success_view(request):
 # BÚSQUEDAS
 # =========================
 
+# =========================
+# BÚSQUEDAS
+# =========================
+
 # Busqueda libros
 
 def buscar_libros(request):
@@ -314,7 +318,9 @@ def lista_libros(request):
 # ALTAS
 # =========================
 
-# Vista para dar de alta un libro:
+# =========================
+# ALTAS
+# =========================
 
 def alta_libro(request):
     form = LibroForm(request.POST or None)
@@ -332,7 +338,9 @@ def alta_libro(request):
 # BAJAS
 # =========================
 
-# Vista para dar de baja un libro:
+# =========================
+# BAJAS
+# =========================
 
 def baja_libro(request):
     if request.method == 'POST':

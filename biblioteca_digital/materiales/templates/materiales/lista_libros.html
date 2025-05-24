@@ -54,7 +54,7 @@
                                     <a href="/editar/${libro.id_libro}" class="edit-link">
                                         <img src="{% static 'materiales/img/lapiz.png' %}" alt="Editar" style="cursor: pointer; width: 20px; height: 20px;">
                                     </a>
-                                    <img src="{% static 'materiales/img/trash.png' %}" alt="Eliminar" onclick="abrirModal({{ libro.id_libro }})" style="cursor: pointer; width: 20px; height: 20px;">
+                                    <img src="{% static 'materiales/img/trash.png' %}" alt="Eliminar" onclick="abrirModal(${libro.id_libro})" style="cursor: pointer; width: 20px; height: 20px;">
                                 </td>
                             </tr>`
                         );

@@ -72,16 +72,31 @@
         <div id="buttons-container" class="row bg-white px-0 mx-0" style="border:none; box-shadow:none; display: none;">
             <div class="col-12 d-flex justify-content-end gap-5">
                 <button type="button" class="btn btn-outline-danger btn-sm boton-cancelar">Cancelar</button>
-                <button type="submit" class="btn btn-primary btn-sm boton-guardar">Guardar</button>
+                <button type="button" class="btn btn-primary btn-sm boton-guardar" data-bs-toggle="modal" data-bs-target="#modalConfirmacionAltaMaterial">Guardar</button>
             </div>
         </div>
     </form>
 </div>
-{% include 'modals/manual_modal.html' %}
+{% endblock %}
+
+{% block modals %}
+  {% include 'modals/manual_modal.html' %}
+  {% include 'modals/confirmacion_alta_material.html' %}
 {% endblock %}
 
 {% block extra_scripts %}
     <script src="{% static 'js/form_controler.js' %}" defer></script>
+    <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const btnConfirmar = document.getElementById('btnConfirmarAltaMaterial');
+      const form = document.getElementById('form_alta_material');
+      if (btnConfirmar && form) {
+        btnConfirmar.addEventListener('click', function () {
+          form.submit();
+        });
+      }
+    });
+    </script>
     <script src="{% static 'js/form_altas.js' %}" defer></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {

@@ -19,7 +19,7 @@ El backend de Biblioteca 210 está construido sobre Django y sigue una arquitect
 
 ```plaintext
 biblioteca_digital/
-├── libros/
+├── materiales/
 │   ├── models.py         # Modelos de datos (Libro, Mapas, Multimedia, Notebook, Proyector, Varios)
 │   ├── forms.py          # Formularios basados en ModelForm
 │   ├── views.py          # Lógica de negocio y vistas para cada recurso
@@ -101,7 +101,7 @@ def alta_libro(request):
         context = {'form': form, 'success': 'Libro registrado exitosamente.'}
     else:
         context = {'form': form, 'error': 'Por favor complete todos los campos obligatorios.'} if request.method == 'POST' else {'form': form}
-    return render(request, 'libros/alta_libro.html', context)
+    return render(request, 'materiales/alta_libro.html', context)
 ```
 
 ---
@@ -124,7 +124,7 @@ graph TD;
 def buscar_libros(request):
     query = request.GET.get('q', '')
     libros = Libro.objects.filter(titulo__icontains=query)
-    return render(request, 'libros/lista_libros.html', {'libros': libros})
+    return render(request, 'materiales/lista_libros.html', {'libros': libros})
 ```
 
 ---
@@ -155,7 +155,7 @@ La autenticación se basa en el sistema SIMEF:
 │   ├── settings.py         # Configuración general del proyecto
 │   ├── urls.py             # Rutas principales del backend
 │   ├── wsgi.py             # Interfaz de servidor WSGI
-│   ├── libros/             # Módulo principal de inventario
+│   ├── materiales/             # Módulo principal de inventario
 │   │   ├── models.py       # Modelos de datos para libros
 │   │   ├── views.py        # Vistas backend de libros
 │   │   ├── admin.py       # Configuración del admin de Django
@@ -177,7 +177,7 @@ La autenticación se basa en el sistema SIMEF:
 
 ### Descripción de Directorios
 - **`biblioteca_digital/`**: Directorio raíz del proyecto Django
-- **`libros/`**: Módulo para gestión de libros
+- **`materiales/`**: Módulo para gestión de libros
 - **`materiales/`**: Módulo para gestión de otros materiales
 - **`usuarios/`**: Módulo para gestión de usuarios
 - **`utils/`**: Funciones y clases de utilidad
