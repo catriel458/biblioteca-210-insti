@@ -46,12 +46,7 @@ urlpatterns = [
     # =========================
     # VISTAS PRINCIPALES
     # =========================
-<<<<<<< HEAD:biblioteca_digital/libros/urls.py
-    path('', views.pantalla_principal, name='pantalla_principal'),  # Página principal
-    path('libros/', views.lista_libros, name='lista_libros'),
-=======
     path('materiales/', views.lista_libros, name='lista_libros'),
->>>>>>> a4b63a175c9c3b6277d71232dec161dc630e9e1b:biblioteca_digital/materiales/urls.py
     path('mapas/', views.mapas_view, name='mapas'),
     path('multimedia/', views.multimedia_view, name='multimedia'),
     path('notebook/', views.notebook_view, name='notebook'),
@@ -65,11 +60,7 @@ urlpatterns = [
     # =========================
     # BAJAS
     # =========================
-<<<<<<< HEAD:biblioteca_digital/libros/urls.py
-    path('libros/baja/', views.baja_libro, name='baja_libro'),
-=======
     path('materiales/baja/', views.baja_libro, name='baja_libro'),
->>>>>>> a4b63a175c9c3b6277d71232dec161dc630e9e1b:biblioteca_digital/materiales/urls.py
     path('mapas/baja/', baja_mapa, name='baja_mapa'),
     path('alta-mapa/', alta_mapa, name='alta_mapa'),
     path('editar-mapa/<int:mapa_id>/', editar_mapa, name='editar_mapa'),
@@ -91,19 +82,11 @@ urlpatterns = [
     path('editar-varios/<int:varios_id>/', views.editar_varios, name='editar_varios'),
     path('cargar-csv/', views.cargar_csv, name='cargar_csv'),
     path('success/', views.success_view, name='success_url'),
-<<<<<<< HEAD:biblioteca_digital/libros/urls.py
-    path('borrar-libros/', views.borrar_libros, name='borrar_libros'),
-    # =========================
-    # BÚSQUEDAS
-    # =========================
-    path('buscar_libros/', buscar_libros, name='buscar_libros'),
-=======
     path('borrar-materiales/', views.borrar_libros, name='borrar_libros'),
     # =========================
     # BÚSQUEDAS
     # =========================
     path('buscar_materiales/', buscar_libros, name='buscar_libros'),
->>>>>>> a4b63a175c9c3b6277d71232dec161dc630e9e1b:biblioteca_digital/materiales/urls.py
     path('buscar_mapas/', buscar_mapas, name='buscar_mapas'),
     path('buscar_multimedia/', buscar_multimedia, name='buscar_multimedia'),
     path('buscar_notebook/', buscar_notebooks, name='buscar_notebooks'),
