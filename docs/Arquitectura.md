@@ -11,7 +11,7 @@
 ## 1. Visión General
 
 El sistema "Biblioteca 210" está construido sobre Django, un framework robusto para aplicaciones web en Python. La arquitectura sigue el patrón MVC (Modelo-Vista-Controlador), donde:
-- **Modelos**: Definen la estructura de los datos y las reglas de negocio (carpeta `libros/models.py`).
+- **Modelos**: Definen la estructura de los datos y las reglas de negocio (carpeta `materiales/models.py`).
 - **Vistas**: Gestionan la lógica de presentación y el flujo de datos entre el usuario y el sistema (carpeta `views`).
 - **Plantillas**: Renderizan la interfaz de usuario (carpetas `templates`).
 - **Base de datos**: `db.sqlite3` almacena toda la información persistente.
@@ -49,7 +49,7 @@ graph TD;
 4. El sistema responde con confirmación o mensaje de error.
 
 ### b) Consulta y Listado
-1. El usuario solicita ver materiales/libros/mapas.
+1. El usuario solicita ver materiales/materiales/mapas.
 2. El backend consulta la base de datos y envía los datos al frontend.
 3. El frontend muestra la información de forma amigable.
 

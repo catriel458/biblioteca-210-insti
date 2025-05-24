@@ -23,7 +23,7 @@
 ```
 biblioteca_digital/
 │
-├── libros/
+├── materiales/
 │   ├── models.py          # Modelos de datos
 │   ├── views.py           # Lógica de vistas
 │   ├── admin.py           # Configuración admin
@@ -50,7 +50,7 @@ views/
 └── templates/
     ├── base.html          # Plantilla base
     ├── materiales/        # Templates de materiales
-    └── libros/            # Templates de libros
+    └── materiales/            # Templates de libros
 ```
 
 ## 3. Buenas Prácticas

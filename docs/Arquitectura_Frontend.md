@@ -32,7 +32,6 @@
 │   ├── views/
 │   │   ├── templates/          # Plantillas HTML
 │   │   │   ├── materiales/
-│   │   │   ├── libros/
 │   │   │   └── modals/
 │   │   ├── static/            # Archivos estáticos
 │   │   │   ├── css/
