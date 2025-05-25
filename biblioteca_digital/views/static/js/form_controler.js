@@ -193,12 +193,12 @@ document.addEventListener("DOMContentLoaded", function () {
             row.innerHTML = `
                 <div class="row">
                     <div class="col-2">
-                        <label for="numero_ejemplar_${i}">Ejemplar N°:</label>
+                        <label for="numero_ejemplar_${i}" class="text-input">Ejemplar N°:</label>
                         <input type="text" class="form-control" id="numero_ejemplar_${i}" name="numero_ejemplar[]" value="${i + 1}" required readonly style="background-color: transparent !important;">
                     </div>
                     <div class="col-2 d-flex flex-column justify-content-between">
                         <div>
-                            <label for="sede_${i}">Sede:</label>
+                            <label for="sede_${i}" class="text-input">Sede:</label>
                             <select class="form-control mb-2" id="sede_${i}" name="sede[]" required>
                                 <option value="">Aún sin seleccionar</option>
                                 <option value="sede1">La Plata</option>
@@ -206,7 +206,7 @@ document.addEventListener("DOMContentLoaded", function () {
                             </select>
                         </div>
                         <div>
-                            <label for="disponibilidad_${i}">Disponibilidad:</label>
+                            <label for="disponibilidad_${i}" class="text-input">Disponibilidad:</label>
                             <select class="form-control" id="disponibilidad_${i}" name="disponibilidad[]" required>
                                 <option value="">Aún sin seleccionar</option>
                                 <option value="disponible">Disponible</option>
@@ -215,7 +215,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         </div>
                     </div>
                     <div class="col-6">
-                        <label for="observaciones_${i}">Observaciones:</label>
+                        <label for="observaciones_${i}" class="text-input">Observaciones:</label>
                         <textarea class="form-control h-100" id="observaciones_${i}" name="observaciones[]" rows="4" style="min-width:100%; max-width:100%; min-height:70px;" placeholder="Escriba aquí..."></textarea>
                     </div>
                 </div>
