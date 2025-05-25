@@ -26,6 +26,54 @@ textarea {
     resize: none;
     overflow: hidden;
 }
+.select-sede {
+    background-color: rgba(49, 183, 188, 0.2) !important;
+
+}
+#input-nuevo-tipo {
+    display: block;
+    width: 100%;
+    border-bottom: 2px solid var(--input-border) !important;
+    border-radius: 10px !important;
+    background: transparent !important;
+    border-top: none !important;
+    border-left: none !important;
+    border-right: none !important;
+    padding: 0 12px;
+    box-shadow: none !important;
+}
+.input-especial {
+    display: block;
+    width: 100%;
+    border-bottom: 2px solid var(--input-border) !important;
+    border-radius: 10px !important;
+    background: transparent !important;
+    border-top: none !important;
+    border-left: none !important;
+    border-right: none !important;
+}
+
+.boton-mas {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    background-color: #ADE2E4;
+    border: 2px solid #25B7BB;
+    color: #25B7BB;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 2px 4px 12px rgba(0,0,0,0.18);
+    cursor: pointer;
+    transition: background 0.2s, box-shadow 0.2s;
+    margin: 0 auto;
+    user-select: none;
+}
+.boton-mas:hover {
+    background-color: #ADE2E4;
+    box-shadow: 2px 6px 16px rgba(49,183,188,0.18);
+}
+
 .textarea-wrapper {
     height: 100%;
     resize: none;

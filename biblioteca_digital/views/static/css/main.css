@@ -97,6 +97,17 @@ textarea.form-control {
 .row {
     margin-bottom: 15px;
 }
+.text-secundario {
+    color: var(--input-border);
+}
+.input-especial {
+    border-bottom: 2px solid var(--input-border);
+    border-radius: 0;
+    background: transparent;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+}
 
 #buttons-container {
     position: fixed;
@@ -130,4 +141,16 @@ input:focus, textarea:focus, select:focus {
 /* Estilo específico para el select de tipo de material */
 #tipo_material {
     background-color: var(--tipo-material-bg) !important;
+}
+.separador-punteado {
+    border-bottom: 4px dashed var(--input-border);
+    width: 100%;
+    margin: 24px 0;
+    height: 0;
+}
+
+.text-input {
+    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    letter-spacing: 10%;
+    font-weight: bold;
 }
