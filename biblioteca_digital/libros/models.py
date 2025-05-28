@@ -109,6 +109,7 @@ class Prestamo(models.Model):
     tipo_usuario = models.CharField(max_length=10, choices=TIPO_USUARIO_CHOICES, default='alumno')
     motivo_rechazo = models.TextField(blank=True, null=True)
     observaciones = models.TextField(blank=True, null=True)
+    fecha_retiro_real = models.DateTimeField(null=True, blank=True)  # Cuándo realmente retiró el libro
     
     def __str__(self):
         return f"Préstamo {self.id_prestamo} - {self.libro.titulo} - {self.nombre_usuario} - {self.estado}"

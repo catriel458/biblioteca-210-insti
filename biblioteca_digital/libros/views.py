@@ -268,9 +268,6 @@ def modificar_prestamo(request):
 # Método alumno y profesor:
 
 
-def solicitar_prestamo(request):
-    pass
-
 # Pantalla principal
 
 # Vista para la pantalla principal:
@@ -691,9 +688,7 @@ def solicitar_prestamo(request, libro_id):
         tipo_usuario = request.POST.get('tipo_usuario', 'alumno')
         tipo_prestamo = request.POST.get('tipo_prestamo', 'domicilio')
         
-        # Calcular fecha límite de reserva (3 días hábiles)
-        fecha_limite = calcular_dias_habiles(timezone.now(), 3)
-        
+        # NO calcular fecha límite aquí - se calculará cuando se apruebe
         prestamo = Prestamo(
             nombre_usuario=nombre_usuario,
             email_usuario=email_usuario,
@@ -701,7 +696,7 @@ def solicitar_prestamo(request, libro_id):
             tipo_prestamo=tipo_prestamo,
             tipo_usuario=tipo_usuario,
             estado='solicitado',
-            fecha_limite_reserva=fecha_limite
+            fecha_limite_reserva=None  # Se establecerá cuando se apruebe la solicitud
         )
         prestamo.save()
         
@@ -709,11 +704,65 @@ def solicitar_prestamo(request, libro_id):
         libro.estado = 'Reservado'
         libro.save()
         
-        messages.success(request, f"Has solicitado el préstamo del libro '{libro.titulo}'. Tienes 3 días hábiles para retirarlo antes de {fecha_limite.strftime('%d/%m/%Y %H:%M')}.")
+        messages.success(request, f"Has solicitado el préstamo del libro '{libro.titulo}'. La bibliotecaria revisará tu solicitud y tendrás 3 días hábiles para retirarlo una vez aprobada.")
         return redirect('prestamos_solicitados')
     
     return render(request, 'libros/solicitar_prestamo.html', {'libro': libro})
 
+
+def aprobar_solicitud_prestamo(request, prestamo_id):
+    """
+    Aprueba la solicitud de préstamo y empieza el cronómetro de reserva
+    """
+    prestamo = get_object_or_404(Prestamo, id_prestamo=prestamo_id)
+    
+    if prestamo.estado != 'solicitado':
+        messages.error(request, f"La solicitud no puede ser aprobada porque su estado actual es {prestamo.get_estado_display()}.")
+        return redirect('gestionar_prestamos')
+    
+    # AQUÍ es donde empieza el cronómetro de reserva (3 días hábiles)
+    fecha_limite = calcular_dias_habiles(timezone.now(), 3)
+    
+    prestamo.estado = 'aprobado_reserva'  # Nuevo estado: aprobado para reserva
+    prestamo.fecha_limite_reserva = fecha_limite
+    prestamo.fecha_aprobacion = timezone.now()
+    prestamo.save()
+    
+    # Calcular días hábiles restantes para mostrar en el mensaje
+    dias_habiles = 3
+    messages.success(request, f"✅ RESERVA APROBADA: '{prestamo.libro.titulo}' para {prestamo.nombre_usuario}. Tiempo límite: {fecha_limite.strftime('%d/%m/%Y a las %H:%M')} ({dias_habiles} días hábiles).")
+    
+    return redirect('gestionar_prestamos')
+
+def cancelar_reserva_usuario(request, prestamo_id):
+    """
+    Permite al usuario cancelar su propia solicitud o reserva
+    """
+    prestamo = get_object_or_404(Prestamo, id_prestamo=prestamo_id)
+    
+    # Solo permitir cancelar si está en estado solicitado o aprobado_reserva
+    if prestamo.estado not in ['solicitado', 'aprobado_reserva']:
+        messages.error(request, f"No puedes cancelar este préstamo porque su estado actual es {prestamo.get_estado_display()}.")
+        return redirect('gestionar_prestamos')
+    
+    if request.method == 'POST':
+        motivo_cancelacion = request.POST.get('motivo_cancelacion', 'Cancelado por el usuario')
+        
+        # Cambiar estado a rechazado
+        prestamo.estado = 'rechazado'
+        prestamo.motivo_rechazo = f"CANCELADO POR USUARIO: {motivo_cancelacion}"
+        prestamo.save()
+        
+        # Devolver el libro al estado disponible
+        libro = prestamo.libro
+        libro.estado = 'Disponible'
+        libro.save()
+        
+        messages.success(request, f"Has cancelado exitosamente la reserva del libro '{prestamo.libro.titulo}'.")
+        
+        return redirect('gestionar_prestamos')
+    
+    return render(request, 'libros/cancelar_reserva_usuario.html', {'prestamo': prestamo})
 
 def prestamos_solicitados(request):
     # Verificar préstamos vencidos antes de mostrar
@@ -850,8 +899,10 @@ def verificar_prestamos_vencidos():
     Verifica y actualiza préstamos que han vencido su tiempo de reserva
     """
     ahora = timezone.now()
+    
+    # Buscar préstamos aprobados para reserva que han vencido
     prestamos_vencidos = Prestamo.objects.filter(
-        estado='solicitado',
+        estado='aprobado_reserva',  # Cambio aquí: solo los aprobados para reserva
         fecha_limite_reserva__lt=ahora
     )
     
@@ -866,13 +917,14 @@ def verificar_prestamos_vencidos():
         libro.save()
 
 # AGREGAR ESTAS FUNCIONES NUEVAS
+
 def confirmar_retiro_libro(request, prestamo_id):
     """
     Confirma que el alumno retiró el libro físicamente
     """
     prestamo = get_object_or_404(Prestamo, id_prestamo=prestamo_id)
     
-    if prestamo.estado != 'solicitado':
+    if prestamo.estado not in ['aprobado_reserva']:  # Cambio aquí
         messages.error(request, f"No se puede confirmar el retiro porque el estado actual es {prestamo.get_estado_display()}.")
         return redirect('gestionar_prestamos')
     
@@ -882,11 +934,11 @@ def confirmar_retiro_libro(request, prestamo_id):
         return redirect('gestionar_prestamos')
     
     if request.method == 'POST':
-        # Cambiar estado a aprobado (libro retirado)
+        # Cambiar estado a aprobado (libro retirado y préstamo activo)
         prestamo.estado = 'aprobado'
-        prestamo.fecha_aprobacion = timezone.now()
+        prestamo.fecha_retiro_real = timezone.now()  # Nueva fecha de retiro
         
-        # Calcular fecha de devolución (15 días)
+        # Calcular fecha de devolución (15 días desde el retiro)
         prestamo.fecha_devolucion_programada = timezone.now() + datetime.timedelta(days=15)
         
         # Limpiar fecha límite de reserva ya que fue retirado

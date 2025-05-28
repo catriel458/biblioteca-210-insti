@@ -99,6 +99,8 @@ urlpatterns = [
     path('prestamos/finalizar/<int:prestamo_id>/', views.finalizar_prestamo, name='finalizar_prestamo'),
     path('confirmar-retiro/<int:prestamo_id>/', views.confirmar_retiro_libro, name='confirmar_retiro_libro'),
     path('marcar-no-retiro/<int:prestamo_id>/', views.marcar_no_retiro, name='marcar_no_retiro'),
+    path('aprobar-solicitud-prestamo/<int:prestamo_id>/', views.aprobar_solicitud_prestamo, name='aprobar_solicitud_prestamo'),
+    path('cancelar-reserva-usuario/<int:prestamo_id>/', views.cancelar_reserva_usuario, name='cancelar_reserva_usuario'),
     
     
 ]

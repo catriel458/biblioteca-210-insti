@@ -9,6 +9,8 @@
     <title>Gestionar Préstamos - Biblioteca</title>
     {% load static %}
     <style>
+
+
         body {
             font-family: 'Calibri', 'Arial', sans-serif;
             background-color: #f4f4f8;
@@ -95,6 +97,21 @@
             font-size: 14px;
         }
         
+ /* Cambiar color del estado aprobado_reserva */
+        .status-aprobado_reserva {
+            background-color: #9c27b0; /* Púrpura para diferenciarlo */
+            color: white; /* Asegurar texto blanco */
+        }
+        
+        .pdf-status-aprobado_reserva { 
+            background-color: #9c27b0; 
+            color: white; 
+        }
+        .pdf-status-aprobado_reserva { 
+            background-color: #2196f3; 
+            color: white; 
+        }
+
         th, td {
             padding: 10px;
             text-align: left;
@@ -109,6 +126,24 @@
         
         tr:hover {
             background-color: #f5f5f5;
+        }
+
+        .btn-cancelar {
+            display: inline-block;
+            padding: 6px 12px;
+            background-color: #f44336;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+        
+        .btn-cancelar:hover {
+            background-color: #d32f2f;
+            text-decoration: none;
+            color: white;
         }
         
         .empty-message {
@@ -252,6 +287,96 @@
             gap: 2px;
         }
 
+       
+        
+        .pdf-status-aprobado_reserva { 
+            background-color: #2196f3; 
+            color: white; 
+        }
+        
+        /* Mejorar botones pequeños en la tabla */
+        .action-btn-small {
+            display: inline-block;
+            padding: 3px 6px;
+            margin: 1px;
+            border-radius: 3px;
+            text-decoration: none;
+            color: white;
+            font-weight: bold;
+            text-align: center;
+            font-size: 10px;
+            white-space: nowrap;
+        }
+        
+        /* Estados visuales mejorados */
+        .estado-pendiente {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 4px;
+            padding: 8px;
+            text-align: center;
+            animation: pulse-orange 2s infinite;
+        }
+        
+        @keyframes pulse-orange {
+            0%, 100% { background-color: #fff3cd; }
+            50% { background-color: #ffe8a1; }
+        }
+        
+        .estado-aprobado-reserva {
+            background-color: #e3f2fd;
+            border: 1px solid #2196f3;
+            border-radius: 4px;
+            padding: 8px;
+            text-align: center;
+        }
+        
+        .estado-libro-retirado {
+            background-color: #e8f5e8;
+            border: 1px solid #4caf50;
+            border-radius: 4px;
+            padding: 8px;
+            text-align: center;
+        }
+        
+        /* Botón de aprobar más prominente */
+        .btn-aprobar-reserva {
+            background: linear-gradient(135deg, #4caf50, #45a049);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 11px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(76, 175, 80, 0.3);
+        }
+        
+        .btn-aprobar-reserva:hover {
+            background: linear-gradient(135deg, #45a049, #3e8e41);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(76, 175, 80, 0.4);
+        }
+        
+        /* Indicadores de estado más claros */
+        .indicador-estado {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+        
+        .indicador-pendiente { background-color: #ff9800; }
+        .indicador-aprobado-reserva { background-color: #2196f3; }
+        .indicador-libro-retirado { background-color: #4caf50; }
+        .indicador-finalizado { background-color: #607d8b; }
+        .indicador-rechazado { background-color: #f44336; }
+        .indicador-vencido { background-color: #9e9e9e; }
+
      .export-container {
     display: flex;
     justify-content: flex-end;
@@ -276,6 +401,7 @@
     height: 44px; /* Altura fija para que coincidan */
     box-sizing: border-box;
 }
+
 
 .btn-export {
     background-color: #28a745;
@@ -838,6 +964,51 @@
         font-size: 13px;
         text-align: center;
     }
+
+    /* Versión alternativa: botones en línea horizontal */
+        .acciones-container {
+            display: flex;
+            gap: 4px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .btn-accion {
+            display: inline-block;
+            padding: 3px 6px;
+            border-radius: 3px;
+            text-decoration: none;
+            font-size: 10px;
+            font-weight: bold;
+            text-align: center;
+            color: white;
+            min-width: 60px;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+        
+        .btn-aprobar {
+            background-color: #4caf50;
+        }
+        
+        .btn-aprobar:hover {
+            background-color: #3e8e41;
+            color: white;
+            text-decoration: none;
+        }
+        
+        .btn-cancelar {
+            background-color: #f44336;
+        }
+        
+        .btn-cancelar:hover {
+            background-color: #d32f2f;
+            color: white;
+            text-decoration: none;
+        }
+
+    
+
     </style>
 </head>
 <body>
@@ -897,6 +1068,7 @@
                     <th>Tiempo Reserva</th>
                     <th>Fecha Devolución</th>
                     <th>Tiempo Préstamo</th>
+                    <th>Solicitudes</th>
                     <th>Acciones</th>
                 </tr>
             </thead>
@@ -910,7 +1082,21 @@
                     <td>{{ prestamo.fecha_solicitud|date:"d/m/Y H:i" }}</td>
                     <td>
                         <span class="status-badge status-{{ prestamo.estado }}">
-                            {{ prestamo.get_estado_display }}
+                            {% if prestamo.estado == 'solicitado' %}
+                                🔄 Solicitado
+                            {% elif prestamo.estado == 'aprobado_reserva' %}
+                                📋 Reserva Aprobada
+                            {% elif prestamo.estado == 'aprobado' %}
+                                📚 Préstamo Activo
+                            {% elif prestamo.estado == 'vencido' %}
+                                ⚠️ Vencido
+                            {% elif prestamo.estado == 'finalizado' %}
+                                ✅ Finalizado
+                            {% elif prestamo.estado == 'rechazado' %}
+                                ❌ Rechazado
+                            {% else %}
+                                {{ prestamo.get_estado_display }}
+                            {% endif %}
                         </span>
                     </td>
                     <td>
@@ -947,19 +1133,67 @@
                         {% endif %}
                     </td>
                     <td>
-                        <div class="actions-group">
-                            {% if prestamo.estado == 'solicitado' %}
-                                <a href="{% url 'confirmar_retiro_libro' prestamo.id_prestamo %}" class="action-btn btn-retiro">Retiró Libro</a>
-                                <a href="{% url 'marcar_no_retiro' prestamo.id_prestamo %}" class="action-btn btn-no-retiro">No Retiró</a>
-                            {% elif prestamo.estado == 'aprobado' %}
-                                <a href="{% url 'finalizar_prestamo' prestamo.id_prestamo %}" class="action-btn btn-finalizar">Finalizar</a>
-                            {% elif prestamo.estado == 'vencido' %}
-                                <a href="{% url 'rechazar_prestamo' prestamo.id_prestamo %}" class="action-btn btn-rechazar">Limpiar</a>
-                            {% else %}
-                                -
-                            {% endif %}
+                {% if prestamo.estado == 'solicitado' %}
+                    <div class="estado-pendiente">
+                        <span class="estado-texto">⏳ Pendiente aprobación</span>
+                        <!-- El botón de aprobar va en la columna de Acciones, no aquí -->
+                    </div>
+                {% elif prestamo.estado == 'aprobado_reserva' and prestamo.fecha_limite_reserva %}
+                    <div class="timer-container">
+                        <div style="color: #8E24AA; font-weight: bold; font-size: 11px; margin-bottom: 4px;">
+                            📋 Reserva aprobada
                         </div>
-                    </td>
+                        <span class="timer" id="timer-reserva-{{ prestamo.id_prestamo }}" 
+                            data-end="{{ prestamo.fecha_limite_reserva|date:'Y-m-d H:i:s' }}">
+                            Calculando...
+                        </span>
+                    </div>
+                {% elif prestamo.estado == 'vencido' %}
+                    <span class="vencido">⚠️ VENCIDA</span>
+                {% elif prestamo.estado == 'aprobado' %}
+                    <span style="color: #2E7D32; font-weight: bold;">📚 Libro retirado</span>
+                {% else %}
+                    -
+                {% endif %}
+            </td>
+
+                    <td>
+            <div class="acciones-container">
+                {% if prestamo.estado == 'solicitado' %}
+                    <a href="{% url 'aprobar_solicitud_prestamo' prestamo.id_prestamo %}" 
+                    class="btn-accion btn-aprobar"
+                    onclick="return confirm('¿Aprobar la reserva para {{ prestamo.nombre_usuario }}?')">
+                    ✓ Aprobar Reserva
+                    </a>
+                    <a href="{% url 'cancelar_reserva_usuario' prestamo.id_prestamo %}" 
+                    class="btn-accion btn-cancelar"
+                    onclick="return confirm('¿Cancelar esta solicitud?')">
+                    ❌ Cancelar Solicitud
+                    </a>
+                {% elif prestamo.estado == 'aprobado_reserva' %}
+                    <a href="{% url 'confirmar_retiro_libro' prestamo.id_prestamo %}" 
+                    class="btn-accion btn-aprobar"
+                    onclick="return confirm('¿Confirmar que retiró el libro?')">
+                    📖 Retiró Libro
+                    </a>
+                    <a href="{% url 'cancelar_reserva_usuario' prestamo.id_prestamo %}" 
+                    class="btn-accion btn-cancelar">
+                    ❌ Cancelar
+                    </a>
+                {% elif prestamo.estado == 'aprobado' %}
+                    <a href="{% url 'finalizar_prestamo' prestamo.id_prestamo %}" 
+                    class="btn-accion btn-aprobar"
+                    onclick="return confirm('¿Confirmar devolución?')">
+                    ✅ Devuelto
+                    </a>
+                {% elif prestamo.estado == 'rechazado' %}
+                    <span style="color: #999; font-style: italic; font-size: 11px;">Sin acciones</span>
+                {% else %}
+                    <span style="color: #999; font-style: italic; font-size: 11px;">-</span>
+                {% endif %}
+            </div>
+        </td>
+
                 </tr>
                 {% endfor %}
             </tbody>
@@ -993,12 +1227,20 @@
 
     <script>
         // Función para actualizar los cronómetros de reserva
+        // Función para actualizar los cronómetros de reserva
         function actualizarCronometrosReserva() {
             const timersReserva = document.querySelectorAll('[id^="timer-reserva-"]');
             
             timersReserva.forEach(timer => {
                 const endDate = new Date(timer.dataset.end);
                 const now = new Date();
+                
+                // Solo procesar si hay una fecha válida
+                if (!timer.dataset.end || timer.dataset.end === '' || timer.dataset.end === 'None') {
+                    timer.innerHTML = "Sin cronómetro";
+                    timer.className = "timer";
+                    return;
+                }
                 
                 // Calcular diferencia en milisegundos
                 const diff = endDate - now;
