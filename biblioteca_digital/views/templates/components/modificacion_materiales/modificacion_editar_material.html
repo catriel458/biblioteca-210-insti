@@ -2,15 +2,19 @@
 {% load static %}
 {% block extra_styles %}
     <link rel="stylesheet" href="{% static 'css/form_modificacion_editar.css' %}">
-    
 {% endblock %}  
 
 {% block content %}
 <div class="container-fluid">
     <div class="form-container">
-        <button class="btn manual-btn" type="button">MANUAL</button>
-        <h2 class=" text-primary mb-3">EDITAR</h2>
-        
+        <div class="row align-items-center mb-4 fondo-girado">
+            <div class="col-10 d-flex justify-content-center align-items-center" style="height: 100%;">
+                <h2 class="text-primary mb-3" style="padding-left:10%;">EDITAR</h2>
+            </div>
+            <div class="col-2">
+                <button type="button" class="btn btn-dark btn-sm manual-boton w-100" onclick="document.getElementById('manualModal').style.display='flex'">MANUAL</button>
+            </div>
+        </div>        
         <div class="success-message" id="successMessage">
             ✓ Los cambios se han guardado correctamente
         </div>

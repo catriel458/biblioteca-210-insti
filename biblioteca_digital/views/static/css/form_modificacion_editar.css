@@ -4,6 +4,31 @@ body {
     margin: 0;
     padding: 0;
 }
+.fondo-girado {
+    position: relative;
+    overflow: hidden;
+    /* Asegúrate de que tenga altura suficiente para que el fondo se vea */
+    min-height: 80px;
+}
+
+.fondo-girado::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-image: url('/static/imagenes/cover_alta.png');
+    background-repeat: no-repeat;
+    background-size: 100% auto;
+    opacity: 0.80; /* Ajusta la transparencia aquí */
+    transform: rotate(180deg);
+    pointer-events: none; /* Para que no bloquee clicks */
+    transform: rotate(180deg) scaleX(-1);
+
+}
+
+/* Para asegurar que el contenido quede encima */
+.fondo-girado > * {
+    position: relative;
+}
 
 .container-fluid {
     padding: 0 !important;
@@ -15,37 +40,23 @@ body {
     background-color: transparent !important;
     border-radius: 0 !important;
     box-shadow: none !important;
-    padding: 15px 30px !important;
     margin-left: 60px !important;
     margin-right: auto !important;
-    margin-top: 10px !important;
     position: relative;
-}
-
-.manual-btn {
-    background-color: #8e24aa !important;
-    color: white !important;
-    position: absolute;
-    top: 10px;
-    right: 50px;
-    border: none !important;
-    font-weight: 600;
-    padding: 6px 16px;
-    border-radius: 4px;
-    font-size: 12px;
-    letter-spacing: 0.5px;
-    z-index: 10;
-}
-
-.manual-btn:hover {
-    background-color: #7b1fa2 !important;
-    color: white !important;
 }
 
 .required::after {
     content: "*";
     color: red;
     margin-left: 2px;
+}
+
+.manual-boton {
+    background-color: #8B1D69 !important;
+    width: 100% !important;
+    margin-left: 0;
+    min-width: 0;
+    box-sizing: border-box;
 }
 
 .text-primary {
