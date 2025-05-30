@@ -3,475 +3,318 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lista de Libros - Biblioteca</title>
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'materiales/css/styles.css' %}">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-
-    <script>
-        // Funciones para abrir y cerrar el modal de baja
-        function abrirModal(libroId) {
-            document.getElementById('libroIdInput').value = libroId;
-            document.getElementById('modal').style.display = 'block';
-        }
-
-        function cerrarModal() {
-            document.getElementById('modal').style.display = 'none';
-        }
-
-  // Busqueda en tiempo real usando AJAX
-
-  $(document).ready(function() {
-    // Evento para la búsqueda en tiempo real
-    $('#search-query').on('input', function() {
-        var query = $(this).val();
-
-        // Realizar la solicitud AJAX cuando el valor cambie
-        $.ajax({
-            url: '{% url "buscar_libros" %}',  // Asegúrate de que esta URL esté correctamente definida en tu Django
-            data: {
-                'q': query  // El parámetro de búsqueda
-            },
-            dataType: 'json',
-            success: function(data) {
-                // Limpiar la tabla de resultados antes de agregar los nuevos
-                $('#libros-table').empty();
-
-                if (data.length > 0) {
-                    // Recorrer los libros y agregar las filas a la tabla
-                    data.forEach(function(libro) {
-                        $('#libros-table').append(
-                            `<tr>
-                                <td>${libro.id_libro}</td>
-                                <td>${libro.titulo}</td>
-                                <td>${libro.autor}</td>
-                                <td>${libro.editorial}</td>
-                                <td>${libro.edicion}</td>
-                                <td>${libro.codigo_materia}</td>
-                                <td>${libro.resumen}</td>
-                                <td><img src="${libro.img}" alt="${libro.titulo}" width="100"></td>
-                                <td>
-                                    <a href="/editar/${libro.id_libro}" class="edit-link">
-                                        <img src="{% static 'materiales/img/lapiz.png' %}" alt="Editar" style="cursor: pointer; width: 20px; height: 20px;">
-                                    </a>
-                                    <img src="{% static 'materiales/img/trash.png' %}" alt="Eliminar" onclick="abrirModal(${libro.id_libro})" style="cursor: pointer; width: 20px; height: 20px;">
-                                </td>
-                            </tr>`
-                        );
-                    });
-                } else {
-                    // Si no hay resultados, mostrar un mensaje en la tabla
-                    $('#libros-table').append(
-                        `<tr>
-                            <td colspan="9">No se encontraron libros disponibles.</td>
-                        </tr>`
-                    );
-                }
-
-                // Asegúrate de que los enlaces de edición funcionen después de la búsqueda
-                $('.edit-link').click(function(e) {
-                    // Aquí puedes manejar cualquier lógica adicional antes de redirigir al usuario
-                    console.log('Editando libro...');
-                });
-            },
-            error: function() {
-                // Si ocurre un error en la solicitud AJAX, mostrar un mensaje de error en la consola
-                console.error('Error al realizar la búsqueda.');
-                $('#libros-table').append(
-                    `<tr>
-                        <td colspan="9">Hubo un error al intentar realizar la búsqueda.</td>
-                    </tr>`
-                );
-            }
-        });
-    });
-});
-
-
-    </script>
-
+    <title>Tabla de Materiales</title>
     <style>
-
-body{
-        font-family: 'Calibri', 'Arial', sans-serif;
-    }
-
-        /* Estilos para el modal */
-#modal {
-    display: none;
-    position: fixed;
-    z-index: 1;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    overflow: auto;
-    background-color: rgba(0, 0, 0, 0.5);  /* Fondo semitransparente */
-    padding: 60px 0; /* Añadir espacio en los bordes */
-}
-
-#modalContent {
-    background-color: #ffffff;
-    margin: 5% auto;
-    padding: 30px;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    width: 60%; /* Mejor control del ancho */
-    max-width: 600px; /* Asegura que el modal no sea demasiado ancho */
-    text-align: center; /* Centrar el contenido */
-}
-
-/* Título del modal */
-#modalContent h3 {
-    font-size: 1.8em;
-    color: #333;
-    margin-bottom: 20px;
-    font-family: 'Arial', sans-serif;
-}
-
-/* Estilo de los formularios */
-#modalContent label {
-    font-size: 1.1em;
-    color: #555;
-    margin-bottom: 10px;
-    display: block;
-}
-
-#modalContent input[type="text"], #modalContent input[type="file"] {
-    width: 100%;
-    padding: 12px;
-    margin-bottom: 15px;
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    box-sizing: border-box;
-    font-size: 1em;
-    color: #555;
-}
-
-/* Estilo de los botones */
-#modalContent button {
-    padding: 12px 25px;
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    font-size: 1.1em;
-    cursor: pointer;
-    margin: 5px;
-    transition: background-color 0.3s ease;
-}
-
-#modalContent button:hover {
-    background-color: #45a049;
-}
-
-#modalContent button[type="button"] {
-    background-color: #f44336; /* Botón de cancelar */
-}
-
-#modalContent button[type="button"]:hover {
-    background-color: #e53935;
-}
-
-/* Estilo de los íconos de cerrar y cancelar */
-#modalContent .close-btn {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    font-size: 2em;
-    color: #aaa;
-    cursor: pointer;
-    transition: color 0.3s;
-}
-
-#modalContent .close-btn:hover {
-    color: #333;
-}
-
-        /* Estilos para el formulario de búsqueda */
-        #search-form {
-            margin-bottom: 20px;
-            position: relative;
-            max-width: 600px; /* Ancho máximo para la barra de búsqueda */
-            margin-left: auto; /* Centrar horizontalmente */
-            margin-right: auto; /* Centrar horizontalmente */
-        }
-        #search-query {
-            width: 100%;
-            padding: 10px 40px 10px 20px; /* Espaciado para la lupa */
-            border: 1px solid #ccc;
-            border-radius: 20px;
-            font-size: 16px;
-        }
-        #search-query::placeholder {
-            color: #aaa;
-        }
-        #search-form::after {
-            content: '🔍'; /* Icono de lupa */
-            position: absolute;
-            right: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            pointer-events: none; /* Para que no interrumpa el clic en el input */
-        }
-        /* Efecto hover para el input */
-        #search-query:hover {
-            border-color: #888;
-        }
-        #search-query:focus {
-            border-color: #666;
-            outline: none; /* Sin contorno */
-        }
-
-        /* Estilos para el header */
-        header {
-            background-color: #004c8c; /* Azul oscuro */
-            color: white;
-            text-align: center;
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             padding: 20px;
+            background-color: #f5f5f5;
+            margin: 0;
         }
 
-        header h1 {
-            font-family: 'Arial', sans-serif;
-            font-size: 2em;
+        /* Tabla de libros */
+        .tabla-container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.1);
+            overflow: hidden;
+            margin-bottom: 30px;
         }
 
-        header span {
-            font-size: 1.2em;
-            display: inline-block;
-            margin-left: 10px;
-        }
-
-        header h1::before {
-            content: '📚';
-            font-size: 1.5em;
-        }
-
-         /* Estilos para la tabla de libros */
-         table {
+        .libros-table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 20px;
+            font-size: 14px;
         }
 
-        th, td {
-            padding: 10px;
+        .libros-table thead {
+            background: linear-gradient(135deg, #34495e, #2c3e50);
+            color: white;
+        }
+
+        .libros-table th {
+            padding: 15px 10px;
             text-align: left;
-            border-bottom: 1px solid #ddd;
+            font-weight: 600;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
-        th {
-            background-color: #004c8c;
-            color: white;
-        }
-
-        tr:hover {
-            background-color: #f5f5f5;
-        }
-
-
-         /* Footer */
-         footer {
-            background-color: #004c8c; /* Azul oscuro */
-            color: white;
+        .libros-table th.text-center {
             text-align: center;
-            padding: 10px 0;
-            font-size: 1rem;
-            margin-top: 30px;
         }
 
-        .btn-carga-manual {
-    display: inline-block;
-    padding: 10px 20px;
-    background-color: #4CAF50;
-    color: white;
-    text-align: center;
-    border-radius: 8px;
-    text-decoration: none;
-    font-weight: bold;
-    transition: background-color 0.3s ease;
-}
-.btn-carga-manual:hover {
-    background-color: #45a049;
-}
+        .libros-table tbody tr {
+            border-bottom: 1px solid #f0f0f0;
+            transition: all 0.2s ease;
+        }
 
-.btn-carga-masiva {
-    display: inline-block;
-    padding: 10px 20px;
-    background-color: #2196F3;
-    color: white;
-    text-align: center;
-    border-radius: 8px;
-    text-decoration: none;
-    font-weight: bold;
-    transition: background-color 0.3s ease;
-}
-.btn-carga-masiva:hover {
-    background-color: #1e87dc;
-}
+        .libros-table tbody tr:nth-child(odd) {
+            background-color: #f8f9fa;
+        }
 
-/* Estilos para tablets (pantallas de hasta 1024px) */
-@media screen and (max-width: 1024px) {
-    #modalContent {
-        width: 80%;
-    }
+        .libros-table tbody tr:nth-child(even) {
+            background-color: white;
+        }
 
-    #search-form {
-        max-width: 80%;
-    }
+        .libros-table tbody tr:hover {
+            background-color: #e3f2fd;
+            transform: scale(1.01);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
 
-    table {
-        font-size: 14px;
-    }
+        .libros-table td {
+            padding: 12px 10px;
+            vertical-align: middle;
+            font-size: 13px;
+        }
 
-    th, td {
-        padding: 8px;
-    }
-}
+        .text-center {
+            text-align: center;
+        }
 
-/* Estilos para móviles (pantallas de hasta 768px) */
-@media screen and (max-width: 768px) {
-    
-    
-    header h1 {
-        font-size: 1.5em;
-    }
+        .titulo-cell {
+            font-weight: 600;
+            color: #2c3e50;
+            max-width: 200px;
+            word-wrap: break-word;
+        }
 
-    header span {
-        font-size: 1em;
-    }
+        .disponibilidad-cell {
+            text-align: center;
+        }
 
-    #modalContent {
-        width: 90%;
-        padding: 20px;
-    }
+        .disponible {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 11px;
+            font-weight: 600;
+            display: inline-block;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
 
-    #search-form {
-        max-width: 90%;
-    }
+        .no-disponible {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 11px;
+            font-weight: 600;
+            display: inline-block;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
 
-    table {
-        font-size: 12px;
-    }
+        .imagen-cell {
+            text-align: center;
+            padding: 8px;
+        }
 
-    th, td {
-        padding: 6px;
-    }
+        .libro-thumbnail {
+            width: 50px;
+            height: 70px;
+            object-fit: cover;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            transition: transform 0.2s ease;
+        }
 
-    .btn-carga-manual, .btn-carga-masiva {
-        display: block;
-        width: 100%;
-        text-align: center;
-        margin-bottom: 10px;
-    }
-}
+        .libro-thumbnail:hover {
+            transform: scale(1.1);
+        }
 
-/* Estilos para móviles pequeños (pantallas de hasta 480px) */
-@media screen and (max-width: 480px) {
-    header {
-        padding: 15px;
-    }
+        .acciones-cell {
+            text-align: center;
+            padding: 8px;
+        }
 
-    header h1 {
-        font-size: 1.2em;
-    }
+        .btn-icon {
+            background: none;
+            border: none;
+            padding: 8px;
+            margin: 0 2px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
 
-    #modalContent {
-        width: 95%;
-    }
+        .btn-icon:hover {
+            transform: translateY(-2px);
+        }
 
-    table {
-        display: block;
-        overflow-x: auto;
-        white-space: nowrap;
-    }
+        .btn-detalle:hover {
+            background-color: #3498db;
+            color: white;
+        }
 
-    .btn-carga-manual, .btn-carga-masiva {
-        font-size: 14px;
-        padding: 8px;
-    }
-}
+        .btn-editar:hover {
+            background-color: #f39c12;
+            color: white;
+        }
 
+        .btn-imprimir:hover {
+            background-color: #9b59b6;
+            color: white;
+        }
 
+        .btn-eliminar:hover {
+            background-color: #e74c3c;
+            color: white;
+        }
 
+        .icon-detalle, .icon-editar, .icon-imprimir, .icon-eliminar {
+            font-size: 16px;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 30px;
+            color: #7f8c8d;
+            font-style: italic;
+        }
+
+        /* Responsive Design */
+        @media screen and (max-width: 1024px) {
+            .libros-table {
+                font-size: 12px;
+            }
+            
+            .libros-table th, .libros-table td {
+                padding: 10px 8px;
+            }
+            
+            .libro-thumbnail {
+                width: 40px;
+                height: 56px;
+            }
+        }
+
+        @media screen and (max-width: 768px) {
+            .tabla-container {
+                overflow-x: auto;
+            }
+            
+            .libros-table {
+                min-width: 800px;
+            }
+        }
     </style>
 </head>
 <body>
-    <header>
-        <h1>Biblioteca Digital</h1>
-    </header>
-    <main>
-        <h2>Lista de Libros</h2>
-
-        <a href="{% url 'alta_libro' %}" class="btn-carga-manual">Carga Manual</a>
-        <a href="{% url 'cargar_csv' %}" class="btn-carga-masiva">Carga Masiva</a>
-        
-        <!-- Barra de búsqueda -->
-        <form id="search-form">
-            <input type="text" id="search-query" placeholder="Buscar libros por título, autor o resumen...">
-        </form>
-
-        <!-- Tabla para mostrar los libros -->
-        <table>
+    <!-- Tabla para mostrar los libros -->
+    <div class="tabla-container">
+        <table class="libros-table">
             <thead>
                 <tr>
-                    <th>ID</th>
+                    <th class="text-center">N° Inv.</th>
                     <th>Título</th>
                     <th>Autor</th>
                     <th>Editorial</th>
-                    <th>Edición</th>
-                    <th>Código de Materia</th>
-                    <th>Resumen</th>
-                    <th>Imagen</th>
-                    <th>Acciones</th>
+                    <th class="text-center">CDU</th>
+                    <th class="text-center">Siglas</th>
+                    <th class="text-center">Sede</th>
+                    <th class="text-center">Disponibilidad</th>
+                    <th class="text-center">Imagen</th>
+                    <th class="text-center">Acciones</th>
                 </tr>
             </thead>
             <tbody id="libros-table">
-                {% for libro in libros %}
                 <tr>
-                    <td>{{ libro.id_libro }}</td>
-                    <td>{{ libro.titulo }}</td>
-                    <td>{{ libro.autor }}</td>
-                    <td>{{ libro.editorial }}</td>
-                    <td>{{ libro.edicion }}</td>
-                    <td>{{ libro.codigo_materia }}</td>
-                    <td>{{ libro.resumen }}</td>
-                    <td><img src="{{ libro.img }}" alt="{{ libro.titulo }}" width="100"></td>
-                    <td>
-                        <a href="{% url 'editar_libro' libro.id_libro %}">
-                            <img src="{% static 'materiales/img/lapiz.png' %}" alt="Editar" style="cursor: pointer; width: 20px; height: 20px;">
-                        </a>
-                        <img src="{% static 'materiales/img/trash.png' %}" alt="Eliminar" onclick="abrirModal({{ libro.id_libro }})" style="cursor: pointer; width: 20px; height: 20px;">
+                    <td class="text-center">001</td>
+                    <td class="titulo-cell">Cien años de soledad</td>
+                    <td>Gabriel García Márquez</td>
+                    <td>Sudamericana</td>
+                    <td class="text-center">863</td>
+                    <td class="text-center">GAR-CIE</td>
+                    <td class="text-center">LA PLATA</td>
+                    <td class="disponibilidad-cell">
+                        <span class="disponible">Disponible para préstamo</span>
+                    </td>
+                    <td class="imagen-cell">
+                        <img src="https://via.placeholder.com/50x70/3498db/ffffff?text=Libro" alt="Cien años de soledad" class="libro-thumbnail">
+                    </td>
+                    <td class="acciones-cell">
+                        <button class="btn-icon btn-detalle" title="Ver detalles">
+                            <i class="icon-detalle">📋</i>
+                        </button>
+                        <button class="btn-icon btn-editar" title="Editar">
+                            <i class="icon-editar">✏️</i>
+                        </button>
+                        <button class="btn-icon btn-imprimir" title="Imprimir">
+                            <i class="icon-imprimir">🖨️</i>
+                        </button>
+                        <button class="btn-icon btn-eliminar" title="Eliminar">
+                            <i class="icon-eliminar">🗑️</i>
+                        </button>
                     </td>
                 </tr>
-                {% empty %}
                 <tr>
-                    <td colspan="9">No hay libros disponibles.</td>
+                    <td class="text-center">002</td>
+                    <td class="titulo-cell">Don Quijote de la Mancha</td>
+                    <td>Miguel de Cervantes</td>
+                    <td>Planeta</td>
+                    <td class="text-center">863</td>
+                    <td class="text-center">CER-DON</td>
+                    <td class="text-center">LA PLATA</td>
+                    <td class="disponibilidad-cell">
+                        <span class="disponible">Disponible para préstamo</span>
+                    </td>
+                    <td class="imagen-cell">
+                        <img src="https://via.placeholder.com/50x70/e74c3c/ffffff?text=Libro" alt="Don Quijote de la Mancha" class="libro-thumbnail">
+                    </td>
+                    <td class="acciones-cell">
+                        <button class="btn-icon btn-detalle" title="Ver detalles">
+                            <i class="icon-detalle">📋</i>
+                        </button>
+                        <button class="btn-icon btn-editar" title="Editar">
+                            <i class="icon-editar">✏️</i>
+                        </button>
+                        <button class="btn-icon btn-imprimir" title="Imprimir">
+                            <i class="icon-imprimir">🖨️</i>
+                        </button>
+                        <button class="btn-icon btn-eliminar" title="Eliminar">
+                            <i class="icon-eliminar">🗑️</i>
+                        </button>
+                    </td>
                 </tr>
-                {% endfor %}
+                <tr>
+                    <td class="text-center">003</td>
+                    <td class="titulo-cell">El Principito</td>
+                    <td>Antoine de Saint-Exupéry</td>
+                    <td>Emecé</td>
+                    <td class="text-center">843</td>
+                    <td class="text-center">SAI-PRI</td>
+                    <td class="text-center">LA PLATA</td>
+                    <td class="disponibilidad-cell">
+                        <span class="no-disponible">Prestado</span>
+                    </td>
+                    <td class="imagen-cell">
+                        <img src="https://via.placeholder.com/50x70/27ae60/ffffff?text=Libro" alt="El Principito" class="libro-thumbnail">
+                    </td>
+                    <td class="acciones-cell">
+                        <button class="btn-icon btn-detalle" title="Ver detalles">
+                            <i class="icon-detalle">📋</i>
+                        </button>
+                        <button class="btn-icon btn-editar" title="Editar">
+                            <i class="icon-editar">✏️</i>
+                        </button>
+                        <button class="btn-icon btn-imprimir" title="Imprimir">
+                            <i class="icon-imprimir">🖨️</i>
+                        </button>
+                        <button class="btn-icon btn-eliminar" title="Eliminar">
+                            <i class="icon-eliminar">🗑️</i>
+                        </button>
+                    </td>
+                </tr>
             </tbody>
         </table>
-
-        <!-- Modal para confirmación de baja -->
-        <div id="modal">
-            <div id="modalContent">
-                <h3>Confirmar Baja</h3>
-                <form id="bajaForm" method="POST" action="{% url 'baja_libro' %}" enctype="multipart/form-data">
-                    {% csrf_token %}
-                    <input type="hidden" name="libro_id" id="libroIdInput">
-                    <label for="motivoBaja">Motivo de baja:</label>
-                    <input type="text" name="motivo_baja" required>
-                    <label for="imagen_rota">Imagen del material roto:</label>
-                    <input type="file" name="imagen_rota" accept="image/*" required>
-                    <button type="submit">Confirmar</button>
-                    <button type="button" onclick="cerrarModal()">Cancelar</button>
-                </form>
-            </div>
-        </div>
-
-    </main>
-    <footer>
-        <p>© 2025 ISFD 210. Todos los derechos reservados</p>
-    </footer>
+    </div>
 </body>
 </html>

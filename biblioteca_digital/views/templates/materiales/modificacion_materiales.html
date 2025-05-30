@@ -2,5 +2,298 @@
 {% load static %}
 
 {% block content %}
+<style>
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
 
+    .content-wrapper {
+        padding: 20px 0;
+    }
+
+    .page-title {
+        color: #2c3e50;
+        font-size: 2.2em;
+        margin-bottom: 30px;
+        text-align: center;
+        font-weight: 300;
+    }
+
+    .page-title::before {
+        content: '📚';
+        font-size: 1.2em;
+        margin-right: 10px;
+    }
+
+    /* Tabla de libros */
+    .tabla-container {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 5px 25px rgba(0,0,0,0.1);
+        overflow: hidden;
+        margin-bottom: 30px;
+    }
+
+    .libros-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 14px;
+    }
+
+    .libros-table thead {
+        background: linear-gradient(135deg, #34495e, #2c3e50);
+        color: white;
+    }
+
+    .libros-table th {
+        padding: 15px 10px;
+        text-align: left;
+        font-weight: 600;
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .libros-table th.text-center {
+        text-align: center;
+    }
+
+    .libros-table tbody tr {
+        border-bottom: 1px solid #f0f0f0;
+        transition: all 0.2s ease;
+    }
+
+    .libros-table tbody tr:nth-child(odd) {
+        background-color: #f8f9fa;
+    }
+
+    .libros-table tbody tr:nth-child(even) {
+        background-color: white;
+    }
+
+    .libros-table tbody tr:hover {
+        background-color: #e3f2fd;
+        transform: scale(1.01);
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .libros-table td {
+        padding: 12px 10px;
+        vertical-align: middle;
+        font-size: 13px;
+    }
+
+    .text-center {
+        text-align: center;
+    }
+
+    .titulo-cell {
+        font-weight: 600;
+        color: #2c3e50;
+        max-width: 200px;
+        word-wrap: break-word;
+    }
+
+    .disponibilidad-cell {
+        text-align: center;
+    }
+
+    .disponible {
+        background: linear-gradient(135deg, #27ae60, #2ecc71);
+        color: white;
+        padding: 6px 12px;
+        border-radius: 15px;
+        font-size: 11px;
+        font-weight: 600;
+        display: inline-block;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .no-disponible {
+        background: linear-gradient(135deg, #e74c3c, #c0392b);
+        color: white;
+        padding: 6px 12px;
+        border-radius: 15px;
+        font-size: 11px;
+        font-weight: 600;
+        display: inline-block;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .imagen-cell {
+        text-align: center;
+        padding: 8px;
+    }
+
+    .libro-thumbnail {
+        width: 50px;
+        height: 70px;
+        object-fit: cover;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        transition: transform 0.2s ease;
+    }
+
+    .libro-thumbnail:hover {
+        transform: scale(1.1);
+    }
+
+    .acciones-cell {
+        text-align: center;
+        padding: 8px;
+    }
+
+    .btn-icon {
+        background: none;
+        border: none;
+        padding: 8px;
+        margin: 0 2px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .btn-icon:hover {
+        transform: translateY(-2px);
+    }
+
+    .btn-detalle:hover {
+        background-color: #3498db;
+        color: white;
+    }
+
+    .btn-editar:hover {
+        background-color: #f39c12;
+        color: white;
+    }
+
+    .btn-imprimir:hover {
+        background-color: #9b59b6;
+        color: white;
+    }
+
+    .btn-eliminar:hover {
+        background-color: #e74c3c;
+        color: white;
+    }
+
+    .icon-detalle, .icon-editar, .icon-imprimir, .icon-eliminar {
+        font-size: 16px;
+    }
+
+    .no-results {
+        text-align: center;
+        padding: 30px;
+        color: #7f8c8d;
+        font-style: italic;
+    }
+
+    /* Responsive Design */
+    @media screen and (max-width: 1024px) {
+        .libros-table {
+            font-size: 12px;
+        }
+        
+        .libros-table th, .libros-table td {
+            padding: 10px 8px;
+        }
+        
+        .libro-thumbnail {
+            width: 40px;
+            height: 56px;
+        }
+    }
+
+    @media screen and (max-width: 768px) {
+        .tabla-container {
+            overflow-x: auto;
+        }
+        
+        .libros-table {
+            min-width: 800px;
+        }
+    }
+
+    @media screen and (max-width: 480px) {
+        .page-title {
+            font-size: 1.8em;
+        }
+    }
+</style>
+
+<div class="content-wrapper">
+    <h1 class="page-title">Modificación de Materiales</h1>
+
+    <!-- Tabla para mostrar los libros -->
+    <div class="tabla-container">
+        <table class="libros-table">
+            <thead>
+                <tr>
+                    <th class="text-center">N° Inv.</th>
+                    <th>Título</th>
+                    <th>Autor</th>
+                    <th>Editorial</th>
+                    <th class="text-center">CDU</th>
+                    <th class="text-center">Siglas</th>
+                    <th class="text-center">Sede</th>
+                    <th class="text-center">Disponibilidad</th>
+                    <th class="text-center">Imagen</th>
+                    <th class="text-center">Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="libros-table">
+                {% if libros %}
+                    {% for libro in libros %}
+                    <tr>
+                        <td class="text-center">{{ libro.num_inventario|default:'' }}</td>
+                        <td class="titulo-cell">{{ libro.titulo }}</td>
+                        <td>{{ libro.autor }}</td>
+                        <td>{{ libro.editorial }}</td>
+                        <td class="text-center">{{ libro.codigo_materia }}</td>
+                        <td class="text-center">{{ libro.siglas_autor_titulo }}</td>
+                        <td class="text-center">LA PLATA</td>
+                        <td class="disponibilidad-cell">
+                            {% if libro.estado == 'Disponible' %}
+                                <span class="disponible">Disponible para préstamo</span>
+                            {% else %}
+                                <span class="no-disponible">{{ libro.estado }}</span>
+                            {% endif %}
+                        </td>
+                        <td class="imagen-cell">
+                            {% if libro.img %}
+                                <img src="{{ libro.img.url }}" alt="{{ libro.titulo }}" class="libro-thumbnail">
+                            {% else %}
+                                <img src="https://via.placeholder.com/50x70/95a5a6/ffffff?text=Sin+Imagen" alt="{{ libro.titulo }}" class="libro-thumbnail">
+                            {% endif %}
+                        </td>
+                        <td class="acciones-cell">
+                            <button class="btn-icon btn-detalle" title="Ver detalles">
+                                <i class="icon-detalle">📋</i>
+                            </button>
+                            <button class="btn-icon btn-editar" title="Editar">
+                                <i class="icon-editar">✏️</i>
+                            </button>
+                            <button class="btn-icon btn-imprimir" title="Imprimir">
+                                <i class="icon-imprimir">🖨️</i>
+                            </button>
+                            <button class="btn-icon btn-eliminar" title="Eliminar">
+                                <i class="icon-eliminar">🗑️</i>
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="10" class="no-results">No se encontraron libros disponibles.</td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
 {% endblock %}
