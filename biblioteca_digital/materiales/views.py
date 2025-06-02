@@ -1,27 +1,23 @@
 import json
-from django.shortcuts import render, redirect, get_object_or_404
-from django.http import HttpResponse
+import csv
+import io
 from collections import Counter
-# from .models import Libro, Inventario, Mapas, Multimedia, Notebook, Proyector, Varios  # Comentado: Inventario eliminado
-from .forms import LibroForm, MapaForm, MultimediaForm, NotebookForm, ProyectorForm, VariosForm
-import csv
-import io  # Agregar esta línea
-from django.contrib import messages #Para mensajes
-from django.http import JsonResponse
-from django.db.models import Q  # Añade esta línea
 
+import requests
+from django.core.files.base import ContentFile
+from urllib.parse import urlparse
+import os
+from django.shortcuts import render, redirect, get_object_or_404
+from django.http import HttpResponse, JsonResponse
+from django.contrib import messages
+from django.db.models import Q
 
-import csv
-import io
-from django.http import HttpResponse
-from django.shortcuts import render, redirect
-from .models import Libro, Mapas, Multimedia, Notebook, Proyector, Varios
-
-import csv
-import io
-from django.http import HttpResponse
-from django.shortcuts import render, redirect
-from .models import Libro, Mapas, Multimedia, Notebook, Proyector, Varios
+from .forms import (
+    LibroForm, MapaForm, MultimediaForm, NotebookForm, ProyectorForm, VariosForm
+)
+from .models import (
+    Libro, Mapas, Multimedia, Notebook, Proyector, Varios, Ejemplar
+)
 
 def cargar_csv(request):
     if request.method == 'POST':
@@ -317,7 +313,7 @@ def solicitar_prestamo(request):
 
 def lista_libros(request):
     # Filtra los libros disponibles
-    libros = Libro.objects.filter(estado='Disponible')
+    libros = Libro.objects.all()
     return render(request, 'materiales/lista_libros.html', {'libros': libros})
 
 # =========================
@@ -328,14 +324,26 @@ def lista_libros(request):
 # ALTAS
 # =========================
 
+
 def alta_libro(request):
     if request.method == 'POST':
         print("POST recibido:", request.POST)
-        libro_form = LibroForm(request.POST)
+        libro_form = LibroForm(request.POST, request.FILES)
         if libro_form.is_valid():
-            print("¿Form válido?", libro_form.is_valid())
-            print("Errores del form:", libro_form.errors)
-            libro = libro_form.save()
+            libro = libro_form.save(commit=False)
+            # --- NUEVO: Manejo de imagen por URL ---
+            url_imagen = request.POST.get('url_upload_input', '').strip()
+            if url_imagen and not request.FILES.get('imagen') and not getattr(libro, 'imagen', None):
+                try:
+                    response = requests.get(url_imagen)
+                    if response.status_code == 200:
+                        nombre_archivo = os.path.basename(urlparse(url_imagen).path)
+                        if not nombre_archivo:
+                            nombre_archivo = 'imagen_libro.jpg'
+                        libro.imagen.save(nombre_archivo, ContentFile(response.content), save=False)
+                except Exception as e:
+                    print("Error descargando imagen:", e)
+            libro.save()
             numeros = request.POST.getlist('numero_ejemplar[]')
             sedes = request.POST.getlist('sede[]')
             disponibilidades = request.POST.getlist('disponibilidad[]')
@@ -651,6 +659,12 @@ def editar_proyector(request, proyector_id):
 
 
 # Varios
+
+def alta_programa(request):
+    """
+    Vista temporal para el alta de programas. Devuelve una respuesta simple para evitar errores de importación.
+    """
+    return HttpResponse("Vista de alta de programa en construcción.")
 
 
 def varios_view(request):

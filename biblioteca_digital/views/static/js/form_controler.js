@@ -394,11 +394,11 @@ document.addEventListener("DOMContentLoaded", function () {
     // --- INICIO: Carga y previsualización de imagen en upload_box_container ---
     let imagenSeleccionada = null;
     // Obtener referencias solo una vez
-    const uploadBox = document.getElementById('upload_box'); // Declaración agregada para evitar ReferenceError
+    const uploadBox = document.getElementById('upload_box_container'); // Corregido: ahora referencia el id correcto del HTML
     // arriba ya existe uploadSimple
     const fileInput = document.getElementById('file_upload_input');
     const urlInput = document.getElementById('url_upload_input');
-    const simpleFileInput = document.getElementById('cargar_imagen');
+    const simpleFileInput = document.getElementById('cargar_archivo');
     const uploadSimple = document.getElementById('upload_simple_container');
     let imagenSimpleSeleccionada = null;
 

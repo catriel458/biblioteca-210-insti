@@ -46,7 +46,7 @@ urlpatterns = [
     # =========================
     # VISTAS PRINCIPALES
     # =========================
-    path('materiales/', views.lista_libros, name='lista_libros'),
+    path('', views.lista_libros, name='lista_libros'),
     path('mapas/', views.mapas_view, name='mapas'),
     path('multimedia/', views.multimedia_view, name='multimedia'),
     path('notebook/', views.notebook_view, name='notebook'),
@@ -57,7 +57,13 @@ urlpatterns = [
     # =========================
     path('alta-inventario/', views.alta_inventario, name='alta_inventario'),
     path('alta_libro/', views.alta_libro, name='alta_libro'),
-    # =========================
+    path('alta_mapa/', views.alta_mapa, name='alta_mapa'),
+    path('alta_multimedia/', views.alta_multimedia, name='alta_multimedia'),
+    path('alta_notebook/', views.alta_notebook, name='alta_notebook'),
+    path('alta_proyector/', views.alta_proyector, name='alta_proyector'),
+    path('alta_varios/', views.alta_varios, name='alta_varios'),
+    path('alta_programa/', views.alta_programa, name='alta_programa'),
+    # =========================y
     # BAJAS
     # =========================
     path('materiales/baja/', views.baja_libro, name='baja_libro'),
