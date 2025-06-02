@@ -79,13 +79,17 @@ function inicializarListenersTiposMaterial(selectorCantidad, selectorCheckbox, r
     });
 }
 
+// === Estado independiente ===
+window.gruposTiposMapa = [];
+window.gruposTiposVarios = [];
+
 // === VARIOS: solo resumen de tipo y cantidad ===
 window.renderizarTiposVarios = function() {
     const resumenContainer = document.getElementById('bloque-tipo-cantidad');
     if (!resumenContainer) return;
     let html = '<div class="table-responsive"><table class="table table-sm align-middle">';
     html += '<thead><tr><th></th><th></th><th>Cant. de ejemplares</th></tr></thead><tbody>';
-    gruposTiposElemento.forEach((g, idx) => {
+    window.gruposTiposVarios.forEach((g, idx) => {
         html += `<tr>
             <td style="vertical-align:middle; text-align:center;">
                 <input type='checkbox' class='chk-tipo-varios' data-idx='${idx}' checked style='vertical-align:middle;'>
@@ -110,7 +114,7 @@ window.renderizarTiposVarios = function() {
     const btnAgregarTipoVarios = document.getElementById('btn-agregar-tipo-varios');
     if (btnAgregarTipoVarios) {
         btnAgregarTipoVarios.addEventListener('click', function() {
-            window.agregarTipoMapaDesdeInputs('input-nuevo-tipo', 'input-nueva-cant', agregarGrupoTipoElemento, window.renderizarTiposVarios);
+            window.agregarTipoVariosDesdeInputs('input-nuevo-tipo', 'input-nueva-cant', agregarGrupoTipoVarios, window.renderizarTiposVarios);
         });
     }
     // Enter en input para agregar tipo
@@ -118,7 +122,7 @@ window.renderizarTiposVarios = function() {
     if (inputNuevoTipo) {
         inputNuevoTipo.addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
-                window.agregarTipoMapaDesdeInputs('input-nuevo-tipo', 'input-nueva-cant', agregarGrupoTipoElemento, window.renderizarTiposVarios);
+                window.agregarTipoVariosDesdeInputs('input-nuevo-tipo', 'input-nueva-cant', agregarGrupoTipoVarios, window.renderizarTiposVarios);
             }
         });
     }
@@ -131,6 +135,24 @@ window.renderizarTiposVarios = function() {
     if (container) container.innerHTML = '';
 };
 
+// Función para agregar tipo a gruposTiposVarios
+window.agregarGrupoTipoVarios = function(tipo, cantidad) {
+    window.gruposTiposVarios.push({ tipo, cantidad });
+};
+
+// Función auxiliar global para agregar tipo y limpiar campos en "varios"
+window.agregarTipoVariosDesdeInputs = function(inputTipoId = 'input-nuevo-tipo', inputCantId = 'input-nueva-cant', agregarGrupoFn = window.agregarGrupoTipoVarios, renderFn = window.renderizarTiposVarios) {
+    const nuevoTipoInput = document.getElementById(inputTipoId);
+    const nuevaCantInput = document.getElementById(inputCantId);
+    const nuevoTipo = nuevoTipoInput.value.trim();
+    const nuevaCant = parseInt(nuevaCantInput.value) || 1;
+    if (nuevoTipo !== '') {
+        agregarGrupoFn(nuevoTipo, nuevaCant);
+        renderFn();
+        nuevoTipoInput.value = '';
+        nuevaCantInput.value = 1;
+    }
+};
 
 // === MAPA: resumen y campos por ejemplar ===
 window.renderizarTiposMapa = function() {
@@ -138,7 +160,7 @@ window.renderizarTiposMapa = function() {
     if (!resumenContainer) return;
     let html = '<div class="table-responsive"><table class="table table-sm align-middle">';
     html += '<thead><tr><th></th><th></th><th>Cant. de ejemplares</th></tr></thead><tbody>';
-    gruposTiposElemento.forEach((g, idx) => {
+    window.gruposTiposMapa.forEach((g, idx) => {
         html += `<tr>
             <td style="vertical-align:middle; text-align:center;">
                 <input type='checkbox' class='chk-tipo-mapa' data-idx='${idx}' checked style='vertical-align:middle;'>
@@ -167,7 +189,7 @@ window.renderizarTiposMapa = function() {
         const nuevoTipo = nuevoTipoInput.value.trim();
         const nuevaCant = parseInt(nuevaCantInput.value) || 1;
         if (nuevoTipo !== '') {
-            agregarGrupoTipoElemento(nuevoTipo, nuevaCant);
+            window.agregarGrupoTipoMapa(nuevoTipo, nuevaCant);
             window.renderizarTiposMapa();
             nuevoTipoInput.value = '';
             nuevaCantInput.value = 1;
@@ -194,10 +216,10 @@ window.renderizarTiposMapa = function() {
     const container = document.getElementById('contenedor-ejemplares-mapa');
     if (!container) return;
     let htmlTotal = '';
-    if (gruposTiposElemento.length > 0) {
+    if (window.gruposTiposMapa.length > 0) {
         htmlTotal += '<div class="separador-punteado"></div>';
     }
-    gruposTiposElemento.forEach((grupo, idxGrupo) => {
+    window.gruposTiposMapa.forEach((grupo, idxGrupo) => {
         // Agrega el separador antes de cada grupo excepto el primero
         if (idxGrupo > 0) {
             htmlTotal += '<div class="separador-punteado"></div>';
@@ -219,7 +241,7 @@ window.renderizarTiposMapa = function() {
             const idx = parseInt(this.dataset.idx);
             let val = parseInt(this.value);
             if (isNaN(val) || val < 1) val = 1;
-            gruposTiposElemento[idx].cantidad = val;
+            window.gruposTiposMapa[idx].cantidad = val;
             window.renderizarTiposMapa();
         });
     });
@@ -228,15 +250,18 @@ window.renderizarTiposMapa = function() {
         chk.addEventListener('change', function() {
             const idx = parseInt(this.dataset.idx);
             if (!this.checked) {
-                gruposTiposElemento.splice(idx, 1);
+                window.gruposTiposMapa.splice(idx, 1);
                 window.renderizarTiposMapa();
             }
         });
     });
 };
 
-// --- Función auxiliar global para agregar tipo y limpiar campos ---
-window.agregarTipoMapaDesdeInputs = function(inputTipoId = 'input-nuevo-tipo-mapa', inputCantId = 'input-nueva-cant-mapa', agregarGrupoFn = agregarGrupoTipoElemento, renderFn = window.renderizarTiposMapa) {
+// --- Función auxiliar global para agregar tipo y limpiar campos para MAPA ---
+window.agregarGrupoTipoMapa = function(tipo, cantidad) {
+    window.gruposTiposMapa.push({ tipo, cantidad });
+};
+window.agregarTipoMapaDesdeInputs = function(inputTipoId = 'input-nuevo-tipo-mapa', inputCantId = 'input-nueva-cant-mapa', agregarGrupoFn = window.agregarGrupoTipoMapa, renderFn = window.renderizarTiposMapa) {
     const nuevoTipoInput = document.getElementById(inputTipoId);
     const nuevaCantInput = document.getElementById(inputCantId);
     const nuevoTipo = nuevoTipoInput.value.trim();

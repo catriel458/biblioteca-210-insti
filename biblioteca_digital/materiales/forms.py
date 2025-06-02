@@ -23,6 +23,7 @@ class LibroForm(forms.ModelForm):
             'siglas_autor_titulo',
             'clasificacion_cdu',
             'palabras_clave',
+            'imagen',
         ]
 
 class EjemplarForm(forms.ModelForm):

@@ -10,6 +10,7 @@ class Libro(models.Model):
     siglas_autor_titulo = models.CharField(max_length=255, null=True, blank=True)
     clasificacion_cdu = models.CharField(max_length=255, null=True, blank=True)
     palabras_clave = models.CharField(max_length=255, null=True, blank=True)
+    imagen = models.ImageField(upload_to='libros/', null=True, blank=True)  # <--- NUEVO
 
     def __str__(self):
         return f"{self.titulo} - {self.autor}"

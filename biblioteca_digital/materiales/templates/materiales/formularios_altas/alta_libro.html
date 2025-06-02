@@ -1,6 +1,6 @@
 
 {% load static %}
-<form id="form_alta_material" method="post" action="{% url 'alta_libro' %}">
+<form id="form_alta_material" method="post" action="{% url 'alta_libro' %}" enctype="multipart/form-data">
     {% csrf_token %}
     <div data-block="content">
         <div data-form="libro">

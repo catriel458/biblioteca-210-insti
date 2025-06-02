@@ -226,19 +226,29 @@
                 </tr>
             </thead>
             <tbody id="libros-table">
+                {% for libro in libros %}
+                {% for ejemplar in libro.ejemplares.all %}
                 <tr>
-                    <td class="text-center">001</td>
-                    <td class="titulo-cell">Cien años de soledad</td>
-                    <td>Gabriel García Márquez</td>
-                    <td>Sudamericana</td>
-                    <td class="text-center">863</td>
-                    <td class="text-center">GAR-CIE</td>
-                    <td class="text-center">LA PLATA</td>
+                    <td class="text-center">{{ ejemplar.numero_ejemplar|stringformat:"03d" }}</td>
+                    <td class="titulo-cell">{{ libro.titulo }}</td>
+                    <td>{{ libro.autor }}</td>
+                    <td>{{ libro.editorial }}</td>
+                    <td class="text-center">{{ libro.clasificacion_cdu }}</td>
+                    <td class="text-center">{{ libro.siglas_autor_titulo }}</td>
+                    <td class="text-center">{{ ejemplar.sede }}</td>
                     <td class="disponibilidad-cell">
-                        <span class="disponible">Disponible para préstamo</span>
+                        {% if ejemplar.disponibilidad|lower == "disponible" %}
+                            <span class="disponible">Disponible para préstamo</span>
+                        {% else %}
+                            <span class="no-disponible">{{ ejemplar.disponibilidad|capfirst }}</span>
+                        {% endif %}
                     </td>
                     <td class="imagen-cell">
-                        <img src="https://via.placeholder.com/50x70/3498db/ffffff?text=Libro" alt="Cien años de soledad" class="libro-thumbnail">
+                        {% if libro.imagen %}
+                            <img src="{{ libro.imagen.url }}" alt="{{ libro.titulo }}" class="libro-thumbnail">
+                        {% else %}
+                            <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='50' height='70'><rect width='50' height='70' fill='%233498db'/><text x='25' y='38' font-size='12' fill='white' text-anchor='middle' alignment-baseline='middle'>Libro</text></svg>" alt="{{ libro.titulo }}" class="libro-thumbnail">
+                        {% endif %}
                     </td>
                     <td class="acciones-cell">
                         <button class="btn-icon btn-detalle" title="Ver detalles">
@@ -255,66 +265,14 @@
                         </button>
                     </td>
                 </tr>
-                <tr>
-                    <td class="text-center">002</td>
-                    <td class="titulo-cell">Don Quijote de la Mancha</td>
-                    <td>Miguel de Cervantes</td>
-                    <td>Planeta</td>
-                    <td class="text-center">863</td>
-                    <td class="text-center">CER-DON</td>
-                    <td class="text-center">LA PLATA</td>
-                    <td class="disponibilidad-cell">
-                        <span class="disponible">Disponible para préstamo</span>
-                    </td>
-                    <td class="imagen-cell">
-                        <img src="https://via.placeholder.com/50x70/e74c3c/ffffff?text=Libro" alt="Don Quijote de la Mancha" class="libro-thumbnail">
-                    </td>
-                    <td class="acciones-cell">
-                        <button class="btn-icon btn-detalle" title="Ver detalles">
-                            <i class="icon-detalle">📋</i>
-                        </button>
-                        <button class="btn-icon btn-editar" title="Editar">
-                            <i class="icon-editar">✏️</i>
-                        </button>
-                        <button class="btn-icon btn-imprimir" title="Imprimir">
-                            <i class="icon-imprimir">🖨️</i>
-                        </button>
-                        <button class="btn-icon btn-eliminar" title="Eliminar">
-                            <i class="icon-eliminar">🗑️</i>
-                        </button>
-                    </td>
-                </tr>
-                <tr>
-                    <td class="text-center">003</td>
-                    <td class="titulo-cell">El Principito</td>
-                    <td>Antoine de Saint-Exupéry</td>
-                    <td>Emecé</td>
-                    <td class="text-center">843</td>
-                    <td class="text-center">SAI-PRI</td>
-                    <td class="text-center">LA PLATA</td>
-                    <td class="disponibilidad-cell">
-                        <span class="no-disponible">Prestado</span>
-                    </td>
-                    <td class="imagen-cell">
-                        <img src="https://via.placeholder.com/50x70/27ae60/ffffff?text=Libro" alt="El Principito" class="libro-thumbnail">
-                    </td>
-                    <td class="acciones-cell">
-                        <button class="btn-icon btn-detalle" title="Ver detalles">
-                            <i class="icon-detalle">📋</i>
-                        </button>
-                        <button class="btn-icon btn-editar" title="Editar">
-                            <i class="icon-editar">✏️</i>
-                        </button>
-                        <button class="btn-icon btn-imprimir" title="Imprimir">
-                            <i class="icon-imprimir">🖨️</i>
-                        </button>
-                        <button class="btn-icon btn-eliminar" title="Eliminar">
-                            <i class="icon-eliminar">🗑️</i>
-                        </button>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
+            {% endfor %}
+            {% empty %}
+            <tr>
+                <td colspan="10" class="no-results">No hay libros cargados en la base de datos.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
 </body>
 </html>

@@ -4,7 +4,7 @@
     <div class="row mb-3">
         <div class="col-2">
             <label for="sede">Sede:</label>
-            <select class="form-select select-sede" id="sede" name="sede" required>
+            <select class="form-select select-sede" id="sede-varios" name="sede_varios" required>
                 <option value="">Seleccione una sede</option>
                 <option value="sede1">La Plata</option>
                 <option value="sede2">Abasto</option>
@@ -13,7 +13,7 @@
     </div>
     <div class="row mb-3">
     <div class="col-2">
-        <label for="tipo">Tipo <span class="text-danger">*</span></label>
+        <label for="tipo-varios">Tipo <span class="text-danger">*</span></label>
     </div>
     <!-- Contenedor dinámico para tipo y cantidad -->
     <div class="row mb-3">
@@ -35,7 +35,7 @@
 <script src="{% static 'js/form_controller.js' %}"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const inputTipo = document.getElementById('tipo');
+        const inputTipo = document.getElementById('tipo-varios');
         if (inputTipo) {
             inputTipo.addEventListener('keypress', function(e) {
                 if (e.key === 'Enter' && inputTipo.value.trim() !== '') {

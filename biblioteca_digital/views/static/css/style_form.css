@@ -122,6 +122,13 @@ textarea {
     border-radius: 0;
     box-shadow: none;
     position: static;
+    margin-top: auto;
+}
+
+form#form-material {
+    display: flex;
+    flex-direction: column;
+    min-height: 400px;
 }
 
 /* Estilos adicionales para el formulario */
