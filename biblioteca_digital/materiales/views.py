@@ -2,7 +2,7 @@ import json
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse
 from collections import Counter
-from .models import Libro, Inventario, Mapas, Multimedia, Notebook, Proyector, Varios
+# from .models import Libro, Inventario, Mapas, Multimedia, Notebook, Proyector, Varios  # Comentado: Inventario eliminado
 from .forms import LibroForm, MapaForm, MultimediaForm, NotebookForm, ProyectorForm, VariosForm
 import csv
 import io  # Agregar esta línea
@@ -58,29 +58,35 @@ def cargar_csv(request):
 
                 tipo_material = row.get('tipo_material')  # Campo que determina el tipo de material
 
+                # --- BLOQUE RELACIONADO CON INVENTARIO ELIMINADO ---
+                # El siguiente bloque ha sido comentado porque dependía del modelo Inventario, ya eliminado.
+                # Refactorizar la lógica de alta de libros según el nuevo modelo actual.
+                # ---
                 # Procesar según el tipo de material
-                if tipo_material == 'Libro':
-                    num_inventario = int(row.get('num_inventario') or 1)  # Valor por defecto si está vacío
-                    libro = Libro(
-                        estado=estado,
-                        motivo_baja=motivo_baja,
-                        descripcion=descripcion,
-                        num_ejemplar=num_ejemplar,
-                        imagen_rota=row.get('imagen_rota'),
-                        titulo=row.get('titulo'),
-                        autor=row.get('autor'),
-                        editorial=row.get('editorial'),
-                        edicion=int(row.get('edicion') or 1999),  # Valor por defecto
-                        codigo_materia=row.get('codigo_materia', '1'),
-                        siglas_autor_titulo=row.get('siglas_autor_titulo', 'ABC'),
-                        num_inventario=num_inventario,
-                        resumen=row.get('resumen'),
-                        img=row.get('img')
-                    )
-                    libro.save()
-                    print(f"Libro guardado: {libro}")  # Imprimir confirmación
+                # if tipo_material == 'Libro':
+                #     num_inventario = int(row.get('num_inventario') or 1)  # Valor por defecto si está vacío
+                #     libro = Libro(
+                #         estado=estado,
+                #         motivo_baja=motivo_baja,
+                #         descripcion=descripcion,
+                #         num_ejemplar=num_ejemplar,
+                #         imagen_rota=row.get('imagen_rota'),
+                #         titulo=row.get('titulo'),
+                #         autor=row.get('autor'),
+                #         editorial=row.get('editorial'),
+                #         edicion=int(row.get('edicion') or 1999),  # Valor por defecto
+                #         codigo_materia=row.get('codigo_materia', '1'),
+                #         siglas_autor_titulo=row.get('siglas_autor_titulo', 'ABC'),
+                #         num_inventario=num_inventario,
+                #         resumen=row.get('resumen'),
+                #         img=row.get('img')
+                #     )
+                #   Nota: Este bloque fue comentado porque usaba campos de Inventario y otros que ya no existen en el modelo Libro. Refactorizar según la nueva estructura de modelos.
+                #     libro.save()
+                #     print(f"Libro guardado: {libro}")  # Imprimir confirmación
+                # --- FIN BLOQUE INVENTARIO ---
 
-                elif tipo_material == 'Mapa':
+                if tipo_material == 'Mapa':
                     mapa = Mapas(
                         estado=estado,
                         motivo_baja=motivo_baja,
@@ -323,17 +329,34 @@ def lista_libros(request):
 # =========================
 
 def alta_libro(request):
-    form = LibroForm(request.POST or None)
-    if request.method == 'POST' and form.is_valid():
-        libro = form.save(commit=False)
-        libro.save()
-        context = {'form': form, 'success': 'Libro registrado exitosamente.'}
+    if request.method == 'POST':
+        print("POST recibido:", request.POST)
+        libro_form = LibroForm(request.POST)
+        if libro_form.is_valid():
+            print("¿Form válido?", libro_form.is_valid())
+            print("Errores del form:", libro_form.errors)
+            libro = libro_form.save()
+            numeros = request.POST.getlist('numero_ejemplar[]')
+            sedes = request.POST.getlist('sede[]')
+            disponibilidades = request.POST.getlist('disponibilidad[]')
+            observaciones = request.POST.getlist('observaciones[]')
+            # Validación de longitud de arrays
+            total_ejemplares = min(len(numeros), len(sedes), len(disponibilidades), len(observaciones))
+            for i in range(total_ejemplares):
+                Ejemplar.objects.create(
+                    libro=libro,
+                    numero_ejemplar=numeros[i],
+                    sede=sedes[i],
+                    disponibilidad=disponibilidades[i],
+                    observaciones=observaciones[i]
+                )
+            return redirect('lista_libros')
+        else:
+            # Opcional: mensajes de error para el usuario
+            messages.error(request, "Por favor, corrige los errores en el formulario.")
     else:
-        context = {'form': form, 'error': 'Por favor complete todos los campos obligatorios.'} if request.method == 'POST' else {
-            'form': form}
-
-    return render(request, 'materiales/formularios_altas/alta_libro.html', context)
-
+        libro_form = LibroForm()
+    return render(request, 'materiales/formularios_altas/alta_libro.html', {'form': libro_form})
 # =========================
 # BAJAS
 # =========================

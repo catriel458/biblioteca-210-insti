@@ -1,0 +1,42 @@
+.buscar {
+  display: flex;
+  align-items: center;
+  background: #bdbdbd;
+  border: 2px solid #222;
+  border-radius: 2em;
+  padding: 0.2em 1em 0.2em 0.7em;
+  width: 320px; /* Ajusta según tu layout */
+  box-shadow: 1px 1px 5px #8883;
+  margin-bottom: 1em;
+}
+
+.buscar input[type="text"] {
+  border: none !important;
+  background: transparent !important;
+  outline: none !important;
+  flex: 1 !important;
+  font-size: 1em !important;
+  color: #333 !important;
+  padding: 0.3em 0 !important;
+}
+
+.buscar input[type="text"]::placeholder {
+  color: #555 !important;
+  opacity: 0.7 !important;
+}
+
+.buscar button {
+  background: none !important;
+  border: none !important;
+  outline: none !important;
+  cursor: pointer !important;
+  padding: 0 !important;
+  margin-left: 0.3em !important;
+  display: flex;
+  align-items: center;
+}
+
+.buscar button .icono-buscar {
+  font-size: 1.2em !important;
+  color: var(--primary-color) !important;
+}

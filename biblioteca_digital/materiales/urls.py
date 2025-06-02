@@ -56,7 +56,7 @@ urlpatterns = [
     # ALTAS
     # =========================
     path('alta-inventario/', views.alta_inventario, name='alta_inventario'),
-    path('alta-libro/', views.alta_libro, name='alta_libro'),
+    path('alta_libro/', views.alta_libro, name='alta_libro'),
     # =========================
     # BAJAS
     # =========================
