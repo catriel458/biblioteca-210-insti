@@ -10,10 +10,16 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
       </div>
       <div class="modal-body">
-        ¿Estás seguro de que deseas guardar este material?
+        <div id="resumenAltaMaterial" style="font-size: 0.98em;">
+          <!-- Aquí se mostrará el resumen dinámico -->
+        </div>
+        <div class="mt-3">
+          ¿Estás seguro de que deseas guardar este material?
+        </div>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <!-- Botón de confirmación: SOLO dispara el submit vía JS global en form_controler.js -->
         <button type="button" class="btn btn-primary" id="btnConfirmarAltaMaterial">Confirmar</button>
       </div>
     </div>

@@ -88,13 +88,52 @@
     <script src="{% static 'js/form_controler.js' %}" defer></script>
     <script>
     document.addEventListener("DOMContentLoaded", function () {
-      const btnConfirmar = document.getElementById('btnConfirmarAltaMaterial');
       const form = document.getElementById('form_alta_material');
-      if (btnConfirmar && form) {
-        btnConfirmar.addEventListener('click', function () {
-          form.submit();
+      const btnGuardar = document.querySelector('.boton-guardar');
+      const resumenDiv = document.getElementById('resumenAltaMaterial');
+      const btnConfirmar = document.getElementById('btnConfirmarAltaMaterial');
+
+      // Mostrar resumen al abrir el modal
+      if (btnGuardar && resumenDiv && form) {
+        btnGuardar.addEventListener('click', function () {
+          const formData = new FormData(form);
+          let resumen = '<h6 class="mb-2">Resumen de datos ingresados:</h6><ul style="padding-left: 1.1em;">';
+
+          // Campos principales
+          resumen += `<li><b>Tipo de material:</b> ${formData.get('tipo_material') || '-'}</li>`;
+          resumen += `<li><b>Título:</b> ${formData.get('titulo') || '-'}</li>`;
+          resumen += `<li><b>Autor:</b> ${formData.get('autor') || '-'}</li>`;
+          resumen += `<li><b>Editorial:</b> ${formData.get('editorial') || '-'}</li>`;
+          resumen += `<li><b>Descripción:</b> ${formData.get('descripcion') || '-'}</li>`;
+          resumen += `<li><b>Siglas Autor:</b> ${formData.get('siglas_autor_titulo') || '-'}</li>`;
+          resumen += `<li><b>Clasificación CDU:</b> ${formData.get('clasificacion_cdu') || '-'}</li>`;
+          resumen += `<li><b>Palabras clave:</b> ${formData.get('palabras_clave') || '-'}</li>`;
+
+          // Ejemplares dinámicos
+          const sedes = formData.getAll('sede[]');
+          const disponibilidades = formData.getAll('disponibilidad[]');
+          const observaciones = formData.getAll('observaciones[]');
+          if (sedes.length > 0) {
+            resumen += '<li><b>Ejemplares:</b><ul style="padding-left: 1em;">';
+            sedes.forEach((sede, i) => {
+              resumen += `<li>
+                <b>Ejemplar ${i + 1}:</b>
+                Sede: ${sede || '-'},
+                Disponibilidad: ${disponibilidades[i] || '-'},
+                Observaciones: ${observaciones[i] || '-'}
+              </li>`;
+            });
+            resumen += '</ul></li>';
+          }
+
+          resumen += '</ul>';
+          resumenDiv.innerHTML = resumen;
         });
       }
+
+      // [ELIMINADO] Submit real del formulario al confirmar.
+      // Ahora el submit solo se maneja desde form_controler.js para evitar listeners duplicados y problemas de doble envío.
+
     });
     </script>
     <script src="{% static 'js/form_altas.js' %}" defer></script>

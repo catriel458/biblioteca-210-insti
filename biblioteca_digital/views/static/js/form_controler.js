@@ -647,4 +647,22 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
     // --- FIN: Carga y previsualización de imagen en upload_simple_container ---
+
+    // --- INICIO: Confirmación y submit del formulario de alta de material (Solo Bootstrap) ---
+    // Este bloque centraliza el submit tras confirmación usando SOLO el modal Bootstrap.
+    // El botón 'Confirmar' debe ser type="button" y no debe haber listeners duplicados en ningún otro archivo ni en el HTML.
+    const btnConfirmar = document.getElementById('btnConfirmarAltaMaterial');
+    const formAltaMaterial = document.getElementById('form_alta_material');
+    if (btnConfirmar && formAltaMaterial) {
+        btnConfirmar.addEventListener('click', function() {
+            // Cierra el modal antes de enviar (delay para evitar glitches visuales)
+            const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('modalConfirmacionAltaMaterial'));
+            modal.hide();
+            setTimeout(() => {
+                console.log("Enviando formulario de alta material...");
+                formAltaMaterial.submit();
+            }, 300); // Espera 300ms para asegurar el cierre del modal
+        });
+    }
+    // --- FIN: Confirmación y submit del formulario de alta de material (Solo Bootstrap) ---
 });

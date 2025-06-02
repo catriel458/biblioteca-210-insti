@@ -1,44 +1,75 @@
 from django import forms
-from .models import Libro
-from .models import Mapas
-from .models import Multimedia
-from .models import Notebook
-from .models import Proyector
-from .models import Varios
-
+from .models import (
+    Libro,
+    Ejemplar,
+    Mapas,
+    Multimedia,
+    Notebook,
+    Programa,
+    Proyector,
+    Varios,
+    TipoVarios,
+    EjemplarVarios,
+)
 
 class LibroForm(forms.ModelForm):
     class Meta:
         model = Libro
         fields = [
-            'titulo', 'autor', 'editorial', 'edicion','codigo_materia','siglas_autor_titulo','num_inventario',
-            'resumen', 'img',
-            
+            'titulo',
+            'autor',
+            'editorial',
+            'descripcion',
+            'siglas_autor_titulo',
+            'clasificacion_cdu',
+            'palabras_clave',
+        ]
+
+class EjemplarForm(forms.ModelForm):
+    class Meta:
+        model = Ejemplar
+        fields = [
+            'libro',
+            'numero_ejemplar',
+            'sede',
+            'disponibilidad',
+            'observaciones',
         ]
             
 class MapaForm(forms.ModelForm):
     class Meta:
         model = Mapas
-        fields = ['id_mapa', 'tipo', 'descripcion', 'num_ejemplar']  # Agrega los campos que necesites
+        fields = ['sede']
 
+    
 class MultimediaForm(forms.ModelForm):
     class Meta:
         model = Multimedia
-        fields = ['id_multi', 'materia','contenido', 'descripcion', 'num_ejemplar']  # Agrega los campos que necesites
-
+        fields = [
+            'profesor',
+            'url',
+            'carrera',
+            'materia',
+            'titulo',
+            # Si necesitas campos de Inventario como 'num_ejemplar', agrégalos aquí
+        ]
 
 class NotebookForm(forms.ModelForm):
     class Meta:
         model = Notebook
-        fields = ['id_not', 'marca_not','modelo_not', 'descripcion', 'num_ejemplar']  # Agrega los campos que necesites
+        fields = ['marca_not']
+
+class ProgramaForm(forms.ModelForm):
+    class Meta:
+        model = Programa
+        fields = ['profesor', 'url', 'carrera', 'materia']
 
 class ProyectorForm(forms.ModelForm):
     class Meta:
         model = Proyector
-        fields = ['id_proyector', 'marca_pro','modelo_pro', 'descripcion', 'num_ejemplar']  # Agrega los campos que necesites
+        fields = ['marca_pro']  # 'sede' viene de Inventario
 
 class VariosForm(forms.ModelForm):
     class Meta:
         model = Varios
-        fields = ['id_varios', 'tipo', 'descripcion', 'num_ejemplar']  # Agrega los campos 
-
+        fields = ['sede']
