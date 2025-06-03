@@ -51,13 +51,18 @@ $(document).ready(function() {
                               <td>${libro.disponibilidad}</td>
                               <td><img src="${libro.img}" alt="${libro.titulo}" width="100"></td>
                               <td>
+                                
+                                {% if user.es_bibliotecaria %}
                                   <a href="/editar-libro/${libro.id_libro}" class="edit-link">
                                       <img src="{% static 'libros/img/lapiz.png' %}" alt="Editar" style="cursor: pointer; width: 20px; height: 20px;">
                                   </a>
                                   <img src="{% static 'libros/img/trash.png' %}" alt="Eliminar" onclick="abrirModal(${libro.id_libro})" style="cursor: pointer; width: 20px; height: 20px;">
+                                   {% endif %}
+                                   {% if user.is_authenticated %}
                                   <a href="/libros/solicitar-prestamo/${libro.id_libro}">
                                       <img src="{% static 'libros/img/libro-abierto.png' %}" alt="Solicitar Préstamo" style="cursor: pointer; width: 20px; height: 20px;" title="Solicitar Préstamo">
                                   </a>
+                                  {% endif %}
                               </td>
                           </tr>`
                       );
@@ -259,7 +264,7 @@ body{
 
         th, td {
             padding: 10px;
-            gap:4px
+            gap:4px;
             border-bottom: 1px solid #ddd;
         }
 
@@ -405,9 +410,11 @@ body{
     </header>
     <main>
         <h2>Lista de Libros</h2>
-
+        <!-- Solo mostrar botones de carga para bibliotecarias -->
+        {% if user.es_bibliotecaria %}
         <a href="{% url 'alta_libro' %}" class="btn-carga-manual">Carga Manual</a>
         <a href="{% url 'cargar_csv' %}" class="btn-carga-masiva">Carga Masiva</a>
+        {% endif %}
         
         <!-- Barra de búsqueda -->
         <form id="search-form">
@@ -443,14 +450,22 @@ body{
                     <td>{{ libro.disponibilidad }}</td>
                     <td><img src="{{ libro.img }}" alt="{{ libro.titulo }}" width="100"></td>
                     <td>
+                        {% if user.es_bibliotecaria %}
                         <a href="{% url 'editar_libro' libro.id_libro %}">
                             <img src="{% static 'libros/img/lapiz.png' %}" alt="Editar" style="cursor: pointer; width: 20px; height: 20px;">
                         </a>
                         <img src="{% static 'libros/img/trash.png' %}" alt="Eliminar" onclick="abrirModal({{ libro.id_libro }})" style="cursor: pointer; width: 20px; height: 20px;">
+                           {% endif %}
                         <!-- Nuevo botón para solicitar préstamo -->
+                          <!-- Botón de solicitar préstamo para todos los usuarios autenticados -->
+                        {% if user.is_authenticated %}
                         <a href="{% url 'solicitar_prestamo' libro.id_libro %}">
                             <img src="{% static 'libros/img/libro-abierto.png' %}" alt="Solicitar Préstamo" style="cursor: pointer; width: 20px; height: 20px;" title="Solicitar Préstamo">
                         </a>
+                        {% else %}
+                        <!-- Mensaje para usuarios no autenticados -->
+                <span style="font-size: 12px; color: #666;">Inicia sesión para solicitar préstamos</span>
+                {% endif %}
                     </td>
                 </tr>
                 {% empty %}

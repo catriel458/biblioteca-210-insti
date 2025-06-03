@@ -32,6 +32,14 @@ from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from .models import Libro, Mapas, Multimedia, Notebook, Proyector, Varios
 
+def es_bibliotecaria(user):
+    """Verifica si el usuario es bibliotecaria"""
+    return user.is_authenticated and user.perfil == 'bibliotecaria'
+
+def es_usuario_activo(user):
+    """Verifica si el usuario está autenticado y activo"""
+    return user.is_authenticated and user.is_active
+
 def cargar_csv(request):
     if request.method == 'POST':
         csv_file = request.FILES['csv_file']
@@ -236,7 +244,7 @@ def buscar_varios(request):
     return JsonResponse(list(varios), safe=False)
 
 # Borrar libros
-
+@user_passes_test(es_bibliotecaria, login_url='login')
 def borrar_libros(request):
     if request.method == 'POST':
         Libro.objects.all().delete()
@@ -294,7 +302,7 @@ def lista_libros(request):
 
 # Vista para dar de alta un libro:
 
-
+@user_passes_test(es_bibliotecaria, login_url='login')
 def alta_libro(request):
     form = LibroForm(request.POST or None)
     if request.method == 'POST' and form.is_valid():
@@ -309,7 +317,7 @@ def alta_libro(request):
 
 # Vista para dar de baja un libro:
 
-
+@user_passes_test(es_bibliotecaria, login_url='login')
 def baja_libro(request):
     if request.method == 'POST':
         libro_id = request.POST.get('libro_id')
@@ -333,7 +341,7 @@ def baja_libro(request):
 
 # Vista para editar un libro:
 
-
+@user_passes_test(es_bibliotecaria, login_url='login')
 def editar_libro(request, libro_id):
     libro = get_object_or_404(Libro, id_libro=libro_id)
 
@@ -380,7 +388,7 @@ def baja_mapa(request):
 
 # Vista para dar de alta un mapa:
 
-
+@user_passes_test(es_bibliotecaria, login_url='login')
 def alta_mapa(request):
     form = MapaForm(request.POST or None)
     if request.method == 'POST' and form.is_valid():
@@ -395,7 +403,7 @@ def alta_mapa(request):
 
 # Vista para editar un mapa:
 
-
+@user_passes_test(es_bibliotecaria, login_url='login')
 def editar_mapa(request, mapa_id):
     mapa = get_object_or_404(Mapas, id_mapa=mapa_id)
 
@@ -441,7 +449,7 @@ def baja_multimedia(request):
 
 # Vista para dar de alta un mapa:
 
-
+@user_passes_test(es_bibliotecaria, login_url='login')
 def alta_multimedia(request):
     form = MultimediaForm(request.POST or None)
     if request.method == 'POST' and form.is_valid():
@@ -457,7 +465,7 @@ def alta_multimedia(request):
 
 # Vista para editar un mapa:
 
-
+@user_passes_test(es_bibliotecaria, login_url='login')
 def editar_multimedia(request, multi_id):
     multimedia = get_object_or_404(Multimedia, id_multi=multi_id)
 
@@ -501,7 +509,7 @@ def baja_notebook(request):
 
 # Vista para dar de alta un mapa:
 
-
+@user_passes_test(es_bibliotecaria, login_url='login')
 def alta_notebook(request):
     form = NotebookForm(request.POST or None)
     if request.method == 'POST' and form.is_valid():
@@ -517,7 +525,7 @@ def alta_notebook(request):
 
 # Vista para editar un mapa:
 
-
+@user_passes_test(es_bibliotecaria, login_url='login')
 def editar_notebook(request, not_id):
     notebook = get_object_or_404(Notebook, id_not=not_id)
 
@@ -561,7 +569,7 @@ def baja_proyector(request):
 
 # Vista para dar de alta un mapa:
 
-
+@user_passes_test(es_bibliotecaria, login_url='login')
 def alta_proyector(request):
     form = ProyectorForm(request.POST or None)
     if request.method == 'POST' and form.is_valid():
@@ -577,7 +585,7 @@ def alta_proyector(request):
 
 # Vista para editar un mapa:
 
-
+@user_passes_test(es_bibliotecaria, login_url='login')
 def editar_proyector(request, proyector_id):
     proyector = get_object_or_404(Proyector, id_proyector=proyector_id)
 
@@ -622,7 +630,7 @@ def baja_varios(request):
 
 # Vista para dar de alta un mapa:
 
-
+@user_passes_test(es_bibliotecaria, login_url='login')
 def alta_varios(request):
     form = VariosForm(request.POST or None)
     if request.method == 'POST' and form.is_valid():
@@ -638,7 +646,7 @@ def alta_varios(request):
 
 # Vista para editar un mapa:
 
-
+@user_passes_test(es_bibliotecaria, login_url='login')
 def editar_varios(request, varios_id):
     varios = get_object_or_404(Varios, id_varios=varios_id)
 
