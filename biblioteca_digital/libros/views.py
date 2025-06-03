@@ -167,6 +167,7 @@ def success_view(request):
 
 # Busqueda libros
 
+@login_required(login_url='login')
 def buscar_libros(request):
     query = request.GET.get('q', '')
     libros = Libro.objects.filter(
@@ -174,8 +175,22 @@ def buscar_libros(request):
         Q(autor__icontains=query) | 
         Q(resumen__icontains=query),
         estado='Disponible'
-    ).values('num_inventario','titulo', 'autor', 'editorial', 'clasificacion_cdu', 'siglas_autor_titulo', 'descripcion', 'etiqueta_palabra_clave', 'sede', 'disponibilidad', 'observaciones', 'img')
+    ).values(
+        'id_libro',  # IMPORTANTE: Asegúrate de que este campo esté incluido
+        'num_inventario',
+        'titulo', 
+        'autor', 
+        'editorial', 
+        'clasificacion_cdu', 
+        'siglas_autor_titulo', 
+        'sede', 
+        'disponibilidad', 
+        'img'
+    )
 
+    # Para depuración, puedes imprimir los datos
+    print("Datos de libros:", list(libros))
+    
     return JsonResponse(list(libros), safe=False)
 
 # Buscar de mapas

@@ -29,7 +29,11 @@
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
         
-        h1, h2 {
+        h1 {
+            color: #fff;
+        }
+
+        h2 {
             color: #333;
         }
         
@@ -197,7 +201,7 @@
             <p>- Los préstamos a domicilio tienen una duración de 15 días hábiles.</p>
             <p>- Los profesores pueden solicitar una extensión de 15 días adicionales.</p>
             <p>- Cada usuario puede tener hasta 3 libros en préstamo simultáneamente.</p>
-            <p>- Tras solicitar el préstamo, tienes 5 días hábiles para retirar el material de la biblioteca.</p>
+            <p>- Tras solicitar el préstamo, tienes 3 días hábiles para retirar el material de la biblioteca.</p>
         </div>
         
         <form class="form-prestamo" method="POST" action="{% url 'solicitar_prestamo' libro.id_libro %}">
