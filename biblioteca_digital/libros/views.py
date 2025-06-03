@@ -12,7 +12,8 @@ from django.db.models import Q  # Añade esta línea
 from django.contrib import messages
 from django.utils import timezone
 import datetime
-
+import openpyxl
+from openpyxl.styles import Font, Alignment, PatternFill
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -32,9 +33,23 @@ from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from .models import Libro, Mapas, Multimedia, Notebook, Proyector, Varios
 
+from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
+
 def es_bibliotecaria(user):
     """Verifica si el usuario es bibliotecaria"""
     return user.is_authenticated and user.perfil == 'bibliotecaria'
+
+# AGREGAR este decorador personalizado (después de la función es_bibliotecaria existente)
+def bibliotecaria_required(view_func):
+    def _wrapped_view(request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return redirect('login')
+        if not hasattr(request.user, 'es_bibliotecaria') or not request.user.es_bibliotecaria:
+            messages.error(request, 'No tienes permisos para acceder a esta página.')
+            return redirect('lista_libros')
+        return view_func(request, *args, **kwargs)
+    return _wrapped_view
 
 def es_usuario_activo(user):
     """Verifica si el usuario está autenticado y activo"""
@@ -1233,3 +1248,236 @@ def rechazar_prestamo(request, prestamo_id):
 def finalizar_prestamo(request, prestamo_id):
     # ... código existente ...
     pass
+
+# AGREGAR estas nuevas vistas al final del archivo
+
+@bibliotecaria_required
+def gestion_usuarios(request):
+    """Vista principal para gestión de usuarios"""
+    usuarios = Usuario.objects.all().order_by('fecha_registro')
+    context = {
+        'usuarios': usuarios,
+        'total_usuarios': usuarios.count(),
+        'bibliotecarias': usuarios.filter(perfil='bibliotecaria').count(),
+        'alumnos': usuarios.filter(perfil='alumno').count(),
+    }
+    return render(request, 'libros/gestion_usuarios.html', context)
+
+@bibliotecaria_required
+def buscar_usuarios(request):
+    """Vista AJAX para búsqueda de usuarios"""
+    query = request.GET.get('q', '')
+    usuarios = Usuario.objects.filter(
+        Q(dni__icontains=query) |
+        Q(nombre__icontains=query) |
+        Q(apellido__icontains=query) |
+        Q(email__icontains=query)
+    ).values(
+        'id',
+        'dni',
+        'nombre',
+        'apellido', 
+        'email',
+        'perfil',
+        'is_active',
+        'fecha_registro'
+    )
+    
+    # Convertir fecha_registro a string para JSON
+    usuarios_list = []
+    for usuario in usuarios:
+        usuario['fecha_registro'] = usuario['fecha_registro'].strftime('%d/%m/%Y')
+        usuarios_list.append(usuario)
+    
+    return JsonResponse(usuarios_list, safe=False)
+
+@bibliotecaria_required
+def crear_usuario(request):
+    """Vista para crear nuevo usuario"""
+    if request.method == 'POST':
+        try:
+            dni = request.POST.get('dni')
+            nombre = request.POST.get('nombre')
+            apellido = request.POST.get('apellido')
+            email = request.POST.get('email')
+            password = request.POST.get('password')
+            perfil = request.POST.get('perfil', 'alumno')
+            
+            # Validaciones
+            if Usuario.objects.filter(dni=dni).exists():
+                return JsonResponse({
+                    'success': False, 
+                    'message': 'El DNI ya existe'
+                })
+            
+            if Usuario.objects.filter(email=email).exists():
+                return JsonResponse({
+                    'success': False, 
+                    'message': 'El email ya está registrado'
+                })
+            
+            # Crear usuario
+            usuario = Usuario.objects.create_user(
+                dni=dni,
+                password=password,
+                nombre=nombre,
+                apellido=apellido,
+                email=email,
+                perfil=perfil
+            )
+            
+            return JsonResponse({
+                'success': True, 
+                'message': 'Usuario creado exitosamente'
+            })
+            
+        except Exception as e:
+            return JsonResponse({
+                'success': False, 
+                'message': f'Error al crear usuario: {str(e)}'
+            })
+    
+    return render(request, 'libros/crear_usuario.html')
+
+@bibliotecaria_required
+def editar_usuario(request, usuario_id):
+    """Vista para editar usuario existente"""
+    usuario = get_object_or_404(Usuario, id=usuario_id)
+    
+    if request.method == 'POST':
+        try:
+            usuario.nombre = request.POST.get('nombre')
+            usuario.apellido = request.POST.get('apellido')
+            usuario.email = request.POST.get('email')
+            usuario.perfil = request.POST.get('perfil', 'alumno')
+            usuario.is_active = request.POST.get('is_active') == 'on'
+            
+            # Cambiar contraseña solo si se proporciona
+            new_password = request.POST.get('password')
+            if new_password and new_password.strip():
+                usuario.set_password(new_password)
+            
+            usuario.save()
+            
+            return JsonResponse({
+                'success': True, 
+                'message': 'Usuario actualizado exitosamente'
+            })
+            
+        except Exception as e:
+            return JsonResponse({
+                'success': False, 
+                'message': f'Error al actualizar usuario: {str(e)}'
+            })
+    
+    context = {'usuario': usuario}
+    return render(request, 'libros/editar_usuario.html', context)
+
+@bibliotecaria_required
+def eliminar_usuario(request):
+    """Vista para eliminar usuario"""
+    if request.method == 'POST':
+        try:
+            usuario_id = request.POST.get('usuario_id')
+            usuario = get_object_or_404(Usuario, id=usuario_id)
+            
+            # No permitir eliminar la última bibliotecaria
+            if usuario.perfil == 'bibliotecaria':
+                bibliotecarias_count = Usuario.objects.filter(perfil='bibliotecaria').count()
+                if bibliotecarias_count <= 1:
+                    return JsonResponse({
+                        'success': False,
+                        'message': 'No se puede eliminar la única bibliotecaria del sistema'
+                    })
+            
+            # No permitir que se elimine a sí mismo
+            if usuario.id == request.user.id:
+                return JsonResponse({
+                    'success': False,
+                    'message': 'No puedes eliminarte a ti mismo'
+                })
+            
+            dni = usuario.dni
+            usuario.delete()
+            
+            return JsonResponse({
+                'success': True,
+                'message': f'Usuario {dni} eliminado exitosamente'
+            })
+            
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'message': f'Error al eliminar usuario: {str(e)}'
+            })
+    
+    return JsonResponse({'success': False, 'message': 'Método no permitido'})
+
+@bibliotecaria_required
+def exportar_usuarios_excel(request):
+    """Vista para exportar usuarios a Excel"""
+    try:
+        # Crear workbook y worksheet
+        wb = openpyxl.Workbook()
+        ws = wb.active
+        ws.title = "Usuarios del Sistema"
+        
+        # Estilos
+        header_font = Font(bold=True, color="FFFFFF")
+        header_fill = PatternFill(start_color="366092", end_color="366092", fill_type="solid")
+        header_alignment = Alignment(horizontal="center", vertical="center")
+        
+        # Headers
+        headers = [
+            'ID', 'DNI', 'Nombre', 'Apellido', 'Email', 
+            'Tipo', 'Estado', 'Fecha Registro', 'Último Acceso'
+        ]
+        
+        for col, header in enumerate(headers, 1):
+            cell = ws.cell(row=1, column=col, value=header)
+            cell.font = header_font
+            cell.fill = header_fill
+            cell.alignment = header_alignment
+        
+        # Datos de usuarios
+        usuarios = Usuario.objects.all().order_by('fecha_registro')
+        for row, usuario in enumerate(usuarios, 2):
+            ws.cell(row=row, column=1, value=usuario.id)
+            ws.cell(row=row, column=2, value=usuario.dni)
+            ws.cell(row=row, column=3, value=usuario.nombre)
+            ws.cell(row=row, column=4, value=usuario.apellido)
+            ws.cell(row=row, column=5, value=usuario.email)
+            ws.cell(row=row, column=6, value="Bibliotecaria" if usuario.perfil == 'bibliotecaria' else "Alumno")
+            ws.cell(row=row, column=7, value="Activo" if usuario.is_active else "Inactivo")
+            ws.cell(row=row, column=8, value=usuario.fecha_registro.strftime('%d/%m/%Y %H:%M'))
+            ws.cell(row=row, column=9, value=usuario.last_login.strftime('%d/%m/%Y %H:%M') if usuario.last_login else 'Nunca')
+        
+        # Ajustar ancho de columnas
+        for column in ws.columns:
+            max_length = 0
+            column_letter = column[0].column_letter
+            for cell in column:
+                try:
+                    if len(str(cell.value)) > max_length:
+                        max_length = len(str(cell.value))
+                except:
+                    pass
+            adjusted_width = min(max_length + 2, 50)
+            ws.column_dimensions[column_letter].width = adjusted_width
+        
+        # Preparar respuesta
+        output = io.BytesIO()
+        wb.save(output)
+        output.seek(0)
+        
+        response = HttpResponse(
+            output.getvalue(),
+            content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        )
+        response['Content-Disposition'] = f'attachment; filename=usuarios_{timezone.now().strftime("%Y%m%d_%H%M%S")}.xlsx'
+        
+        return response
+        
+    except Exception as e:
+        messages.error(request, f'Error al exportar usuarios: {str(e)}')
+        return redirect('gestion_usuarios')

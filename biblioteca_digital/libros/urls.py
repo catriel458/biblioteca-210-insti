@@ -74,4 +74,13 @@ urlpatterns = [
     path('reactivar-libro/<int:libro_id>/', views.reactivar_libro, name='reactivar_libro'),
     path('cargar-csv/', views.cargar_csv, name='cargar_csv'),
     path('success/', views.success_view, name='success_url'),
+
+
+    # URLs para gestión de usuarios (AGREGAR AL FINAL)
+    path('gestion-usuarios/', views.gestion_usuarios, name='gestion_usuarios'),
+    path('buscar-usuarios/', views.buscar_usuarios, name='buscar_usuarios'),
+    path('crear-usuario/', views.crear_usuario, name='crear_usuario'),
+    path('editar-usuario/<int:usuario_id>/', views.editar_usuario, name='editar_usuario'),
+    path('eliminar-usuario/', views.eliminar_usuario, name='eliminar_usuario'),
+    path('exportar-usuarios-excel/', views.exportar_usuarios_excel, name='exportar_usuarios_excel'),
 ]

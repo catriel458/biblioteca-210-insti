@@ -1,0 +1,264 @@
+<!-- templates/libros/editar_usuario.html -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Usuario - Biblioteca</title>
+    {% load static %}
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    
+    <script>
+        $(document).ready(function() {
+            $('#formEditarUsuario').on('submit', function(e) {
+                e.preventDefault();
+                
+                // Validar que las contraseñas coincidan si se están cambiando
+                var password = $('#password').val();
+                var passwordConfirm = $('#password_confirm').val();
+                
+                if (password || passwordConfirm) {
+                    if (password !== passwordConfirm) {
+                        alert('Las contraseñas no coinciden');
+                        return;
+                    }
+                }
+                
+                $.ajax({
+                    url: window.location.href,
+                    method: 'POST',
+                    data: $(this).serialize(),
+                    success: function(response) {
+                        if (response.success) {
+                            alert(response.message);
+                            window.location.href = "{% url 'gestion_usuarios' %}";
+                        } else {
+                            alert('Error: ' + response.message);
+                        }
+                    },
+                    error: function() {
+                        alert('Error al actualizar usuario');
+                    }
+                });
+            });
+        });
+    </script>
+    
+    <style>
+        body {
+            font-family: 'Calibri', 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+        }
+        
+        header {
+            background-color: #004c8c;
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        header h1 {
+            font-family: 'Arial', sans-serif;
+            font-size: 2em;
+            margin: 0;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .back-btn {
+            background-color: #6c757d;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            display: inline-block;
+        }
+        
+        .back-btn:hover {
+            background-color: #5a6268;
+        }
+        
+        .form-container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .checkbox-group input[type="checkbox"] {
+            width: auto;
+        }
+        
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 30px;
+        }
+        
+        .btn-primary {
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        .btn-primary:hover {
+            background-color: #45a049;
+        }
+        
+        .btn-cancel {
+            background-color: #6c757d;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .btn-cancel:hover {
+            background-color: #5a6268;
+        }
+        
+        .info-card {
+            background-color: #e7f3ff;
+            border: 1px solid #b8daff;
+            border-radius: 4px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .info-card h4 {
+            margin: 0 0 10px 0;
+            color: #004085;
+        }
+        
+        .info-card p {
+            margin: 5px 0;
+            color: #004085;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>Editar Usuario</h1>
+    </header>
+    
+    <div class="container">
+        <a href="{% url 'gestion_usuarios' %}" class="back-btn">← Volver a Gestión de Usuarios</a>
+        
+        <div class="form-container">
+            <!-- Información del usuario -->
+            <div class="info-card">
+                <h4>Información del Usuario</h4>
+                <p><strong>ID:</strong> {{ usuario.id }}</p>
+                <p><strong>Fecha de registro:</strong> {{ usuario.fecha_registro|date:"d/m/Y H:i" }}</p>
+                <p><strong>Último acceso:</strong> 
+                    {% if usuario.last_login %}
+                        {{ usuario.last_login|date:"d/m/Y H:i" }}
+                    {% else %}
+                        Nunca
+                    {% endif %}
+                </p>
+            </div>
+            
+            <form id="formEditarUsuario">
+                {% csrf_token %}
+                
+                <div class="form-group">
+                    <label for="dni">DNI:</label>
+                    <input type="text" id="dni" name="dni" value="{{ usuario.dni }}" readonly style="background-color: #f8f9fa;">
+                    <small style="color: #6c757d;">El DNI no se puede modificar</small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="nombre">Nombre:</label>
+                    <input type="text" id="nombre" name="nombre" value="{{ usuario.nombre }}" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="apellido">Apellido:</label>
+                    <input type="text" id="apellido" name="apellido" value="{{ usuario.apellido }}" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" name="email" value="{{ usuario.email }}" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Nueva Contraseña:</label>
+                    <input type="password" id="password" name="password" placeholder="Dejar vacío para mantener la actual">
+                    <small style="color: #6c757d;">Solo completar si deseas cambiar la contraseña</small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password_confirm">Confirmar Nueva Contraseña:</label>
+                    <input type="password" id="password_confirm" name="password_confirm" placeholder="Confirmar nueva contraseña">
+                </div>
+                
+                <div class="form-group">
+                    <label for="perfil">Tipo de Usuario:</label>
+                    <select id="perfil" name="perfil" required>
+                        <option value="alumno" {% if usuario.perfil == 'alumno' %}selected{% endif %}>Alumno</option>
+                        <option value="bibliotecaria" {% if usuario.perfil == 'bibliotecaria' %}selected{% endif %}>Bibliotecaria</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="is_active" name="is_active" {% if usuario.is_active %}checked{% endif %}>
+                        <label for="is_active">Usuario activo</label>
+                    </div>
+                    <small style="color: #6c757d;">Los usuarios inactivos no pueden iniciar sesión</small>
+                </div>
+                
+                <div class="form-actions">
+                    <a href="{% url 'gestion_usuarios' %}" class="btn-cancel">Cancelar</a>
+                    <button type="submit" class="btn-primary">Guardar Cambios</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
