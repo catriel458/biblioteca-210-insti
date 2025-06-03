@@ -41,13 +41,14 @@ $(document).ready(function() {
                   data.forEach(function(libro) {
                       $('#libros-table').append(
                           `<tr>
-                              <td>${libro.id_libro}</td>
+                              <td>${libro.num_inventario}</td>
                               <td>${libro.titulo}</td>
                               <td>${libro.autor}</td>
                               <td>${libro.editorial}</td>
-                              <td>${libro.edicion}</td>
-                              <td>${libro.codigo_materia}</td>
-                              <td>${libro.resumen}</td>
+                              <td>${libro.clasificacion_cdu}</td>
+                              <td>${libro.siglas_autor_titulo}</td>
+                              <td>${libro.sede}</td>
+                              <td>${libro.disponibilidad}</td>
                               <td><img src="${libro.img}" alt="${libro.titulo}" width="100"></td>
                               <td>
                                   <a href="/editar-libro/${libro.id_libro}" class="edit-link">
@@ -258,7 +259,7 @@ body{
 
         th, td {
             padding: 10px;
-            text-align: left;
+            gap:4px
             border-bottom: 1px solid #ddd;
         }
 
@@ -417,13 +418,14 @@ body{
         <table>
             <thead>
                 <tr>
-                    <th>ID</th>
+                    <th>Num Inventario</th>
                     <th>Título</th>
                     <th>Autor</th>
                     <th>Editorial</th>
-                    <th>Edición</th>
-                    <th>Código de Materia</th>
-                    <th>Resumen</th>
+                    <th>CDU</th>
+                    <th>Siglas</th>
+                    <th>Sede</th>
+                    <th>Disponibilidad</th>
                     <th>Imagen</th>
                     <th>Acciones</th>
                 </tr>
@@ -431,13 +433,14 @@ body{
             <tbody id="libros-table">
                 {% for libro in libros %}
                 <tr>
-                    <td>{{ libro.id_libro }}</td>
+                    <td>{{ libro.num_inventario }}</td>
                     <td>{{ libro.titulo }}</td>
                     <td>{{ libro.autor }}</td>
                     <td>{{ libro.editorial }}</td>
-                    <td>{{ libro.edicion }}</td>
-                    <td>{{ libro.codigo_materia }}</td>
-                    <td>{{ libro.resumen }}</td>
+                    <td>{{ libro.clasificacion_cdu }}</td>
+                    <td>{{ libro.siglas_autor_titulo }}</td>
+                    <td>{{ libro.sede }}</td>
+                    <td>{{ libro.disponibilidad }}</td>
                     <td><img src="{{ libro.img }}" alt="{{ libro.titulo }}" width="100"></td>
                     <td>
                         <a href="{% url 'editar_libro' libro.id_libro %}">
@@ -452,7 +455,7 @@ body{
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="9">No hay libros disponibles.</td>
+                    <td colspan="13">No hay libros disponibles.</td>
                 </tr>
                 {% endfor %}
             </tbody>

@@ -3,151 +3,330 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pantalla Principal</title>
+    <title>Biblioteca Digital - ISFD 210</title>
+    {% load static %}
     <style>
-        /* Estilos generales */
-        html, body {
-            height: 100%;
+        body {
+            font-family: 'Calibri', 'Arial', sans-serif;
+            background-color: #f4f4f8;
             margin: 0;
             padding: 0;
-            font-family: Arial, sans-serif;
         }
-
-        body {
-            display: flex;
-            flex-direction: column;
-            background-color: #f0f4f8; /* Color suave de fondo (gris claro) */
-            color: #333;
-        }
-
-        /* Header */
+        
         header {
-            background-color: #004c8c; /* Azul oscuro */
+            background-color: #004c8c;
+            color: white;
+            padding: 20px 0;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+        }
+        
+        .logo-section h1 {
+            margin: 0;
+            font-size: 2.5em;
+        }
+        
+        .logo-section h1::before {
+            content: '📚';
+            margin-right: 15px;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .user-welcome {
+            text-align: right;
+        }
+        
+        .user-name {
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+        
+        .user-role {
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+        
+        .user-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 0.9em;
+        }
+        
+        .btn-outline-light {
+            border: 2px solid white;
+            color: white;
+        }
+        
+        .btn-outline-light:hover {
+            background: white;
+            color: #004c8c;
+        }
+        
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+            border: 2px solid #dc3545;
+        }
+        
+        .btn-danger:hover {
+            background: #c82333;
+            border-color: #c82333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+        
+        .welcome-section {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .welcome-section h2 {
+            color: #004c8c;
+            font-size: 2.5em;
+            margin-bottom: 20px;
+        }
+        
+        .welcome-section p {
+            font-size: 1.3em;
+            color: #666;
+            margin-bottom: 30px;
+        }
+        
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+        
+        .menu-card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .menu-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        }
+        
+        .menu-card .icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+        }
+        
+        .menu-card h3 {
+            color: #004c8c;
+            font-size: 1.5em;
+            margin-bottom: 15px;
+        }
+        
+        .menu-card p {
+            color: #666;
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+        
+        .btn-primary {
+            background: #004c8c;
+            color: white;
+            padding: 12px 30px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: background-color 0.3s;
+            border: none;
+        }
+        
+        .btn-primary:hover {
+            background: #003b6f;
+        }
+        
+        .messages {
+            margin-bottom: 20px;
+        }
+        
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+        
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        footer {
+            background-color: #004c8c;
             color: white;
             text-align: center;
             padding: 20px 0;
+            margin-top: 50px;
         }
-
-        header .logo {
-            width: 120px;
-            height: auto;
+        
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 20px;
+                text-align: center;
+            }
+            
+            .logo-section h1 {
+                font-size: 2em;
+            }
+            
+            .menu-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .welcome-section {
+                padding: 20px;
+            }
+            
+            .welcome-section h2 {
+                font-size: 2em;
+            }
         }
-
-        header h1 {
-            font-size: 2.5rem;
-            margin-top: 10px;
-        }
-
-        /* Main content */
-        main {
-            flex: 1;
-            max-width: 1200px;
-            margin: 20px auto;
-            padding: 30px;
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-
-        h2 {
-            font-size: 1.8rem;
-            text-align: center;
-            margin-bottom: 30px;
-            color: #004c8c; /* Azul oscuro */
-        }
-
-        /* Botones */
-        .button-container {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-
-        .button {
-            background-color: #388e3c; /* Verde oscuro */
-            color: white;
-            padding: 15px 30px;
-            text-align: center;
-            font-size: 18px;
-            margin: 10px;
-            border-radius: 8px;
-            text-decoration: none;
-            transition: background-color 0.3s ease;
-        }
-
-        .button:hover {
-            background-color: #2e7d32; /* Verde más oscuro */
-        }
-
-        /* Footer */
-        footer {
-            background-color: #004c8c; /* Azul oscuro */
-            color: white;
-            text-align: center;
-            padding: 10px 0;
-            font-size: 1rem;
-            margin-top: 30px;
-        }
-
-        .container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-}
-
-.btn-historial-bajas {
-    display: inline-block;
-    padding: 10px 20px;
-    width: auto;
-    min-width: 150px;
-    text-align: center;
-    border-radius: 8px;
-    text-decoration: none;
-    font-weight: bold;
-    transition: background-color 0.3s ease;
-    margin: 10px auto;
-    display: block;
-    text-align: center;
-}
-
-.btn-historial-bajas:hover {
-    background-color: #b71c1c;
-    color:white
-}
-
-
-</style>
-
     </style>
 </head>
 <body>
     <header>
-        <img src="https://i.imgur.com/xTqmTlf.png" alt="Logo ISFD 210" class="logo">
-        <h1>Bienvenido a la Biblioteca del ISFD 210</h1>
-    </header>
-    <main>
-        <h2>Seleccione el tipo de material</h2>
-        <div class="button-container">
-            <a href="{% url 'lista_libros' %}" class="button">📚 Libros</a>
-            <a href="{% url 'mapas' %}" class="button">🗺️ Mapas</a>
-            <a href="{% url 'multimedia' %}" class="button">🎥 Multimedia</a>
-            <a href="{% url 'notebook' %}" class="button">💻 Notebook</a>
-            <a href="{% url 'proyector' %}" class="button">📽️ Proyector</a>
-            <a href="{% url 'varios' %}" class="button">📦 Varios</a>
+        <div class="header-content">
+            <div class="logo-section">
+                <h1>Biblioteca Digital</h1>
+            </div>
+            <div class="user-info">
+                <div class="user-welcome">
+                    <div class="user-name">{{ user.get_full_name }}</div>
+                    <div class="user-role">{{ user.get_perfil_display }}</div>
+                </div>
+                <div class="user-actions">
+                    <a href="{% url 'perfil_usuario' %}" class="btn btn-outline-light btn-sm">👤 Perfil</a>
+                    <a href="{% url 'logout' %}" class="btn btn-danger btn-sm">🚪 Salir</a>
+                </div>
+            </div>
         </div>
-    </main>
+    </header>
     
     <div class="container">
-        <a href="{% url 'registro_de_bajas' %}" class="btn-historial-bajas" style="background-color: #d32f2f; color: white;">🗑️ Historial de bajas</a>
+        {% if messages %}
+            <div class="messages">
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
         
-        <div style="display: flex; justify-content: center; gap: 15px; margin-top: 15px;">
-            <a href="{% url 'prestamos_solicitados' %}" style="display: inline-block; padding: 10px 20px; background-color: #ff9800; color: white; text-align: center; border-radius: 8px; text-decoration: none; font-weight: bold; width: auto; min-width: 200px;">📚 Ver préstamos solicitados</a>
-            <a href="{% url 'gestionar_prestamos' %}" style="display: inline-block; padding: 10px 20px; background-color: #7b1fa2; color: white; text-align: center; border-radius: 8px; text-decoration: none; font-weight: bold; width: auto; min-width: 200px;">📋 Gestionar préstamos</a>
+        <div class="welcome-section">
+            <h2>¡Bienvenido/a!</h2>
+            <p>Sistema de Gestión Bibliotecaria - ISFD 210</p>
+        </div>
+        
+        <div class="menu-grid">
+            <div class="menu-card">
+                <div class="icon">📖</div>
+                <h3>Catálogo de Libros</h3>
+                <p>Explora nuestra colección de libros disponibles y solicita préstamos de manera fácil y rápida.</p>
+                <a href="{% url 'lista_libros' %}" class="btn btn-primary">Ver Libros</a>
+            </div>
+            
+            <div class="menu-card">
+                <div class="icon">🗺️</div>
+                <h3>Mapas</h3>
+                <p>Accede a nuestra colección de mapas geográficos e históricos para tus estudios.</p>
+                <a href="{% url 'mapas' %}" class="btn btn-primary">Ver Mapas</a>
+            </div>
+            
+            <div class="menu-card">
+                <div class="icon">💿</div>
+                <h3>Multimedia</h3>
+                <p>Descubre nuestros recursos multimedia: DVDs, CDs y material audiovisual educativo.</p>
+                <a href="{% url 'multimedia' %}" class="btn btn-primary">Ver Multimedia</a>
+            </div>
+            
+            <div class="menu-card">
+                <div class="icon">💻</div>
+                <h3>Notebooks</h3>
+                <p>Consulta la disponibilidad de notebooks para préstamo institucional.</p>
+                <a href="{% url 'notebook' %}" class="btn btn-primary">Ver Notebooks</a>
+            </div>
+            
+            <div class="menu-card">
+                <div class="icon">📽️</div>
+                <h3>Proyectores</h3>
+                <p>Reserva proyectores para tus presentaciones y actividades académicas.</p>
+                <a href="{% url 'proyector' %}" class="btn btn-primary">Ver Proyectores</a>
+            </div>
+            
+            <div class="menu-card">
+                <div class="icon">📋</div>
+                <h3>Mis Préstamos</h3>
+                <p>Revisa el estado de tus préstamos actuales y el historial de solicitudes.</p>
+                <a href="{% url 'prestamos_solicitados' %}" class="btn btn-primary">Ver Préstamos</a>
+            </div>
+            
+            {% if user.es_bibliotecaria %}
+            <div class="menu-card">
+                <div class="icon">⚙️</div>
+                <h3>Gestión de Préstamos</h3>
+                <p>Panel administrativo para gestionar solicitudes y préstamos activos.</p>
+                <a href="{% url 'gestionar_prestamos' %}" class="btn btn-primary">Gestionar</a>
+            </div>
+            
+            <div class="menu-card">
+                <div class="icon">📊</div>
+                <h3>Registro de Bajas</h3>
+                <p>Consulta el historial de materiales dados de baja y reactivaciones.</p>
+                <a href="{% url 'registro_de_bajas' %}" class="btn btn-primary">Ver Registro</a>
+            </div>
+            {% endif %}
         </div>
     </div>
+    
     <footer>
-        <p>© 2025 ISFD 210. Todos los derechos reservados.</p>
+        <p>© 2025 ISFD 210. Todos los derechos reservados</p>
     </footer>
 </body>
 </html>

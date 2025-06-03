@@ -13,6 +13,12 @@ from django.contrib import messages
 from django.utils import timezone
 import datetime
 
+from django.contrib.auth import login, logout, authenticate
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.mixins import LoginRequiredMixin
+from .forms import RegistroForm, LoginForm, CambiarPasswordForm
+from .models import Usuario
+
 
 import csv
 import io
@@ -29,7 +35,6 @@ from .models import Libro, Mapas, Multimedia, Notebook, Proyector, Varios
 def cargar_csv(request):
     if request.method == 'POST':
         csv_file = request.FILES['csv_file']
-
         # Verifica que el archivo sea un CSV
         if not csv_file.name.endswith('.csv'):
             return HttpResponse("El archivo no es un CSV.")
@@ -50,15 +55,12 @@ def cargar_csv(request):
 
         for row in reader:
             print(f"Fila procesada: {row}")  # Imprimir la fila para depuración
-
             try:
                 estado = "Disponible"
                 motivo_baja = row.get('motivo_baja')
                 descripcion = row.get('descripcion')
-
                 # Manejar num_ejemplar
                 num_ejemplar = int(row.get('num_ejemplar') or 1)
-
                 tipo_material = row.get('tipo_material')  # Campo que determina el tipo de material
 
                 # Procesar según el tipo de material
@@ -73,11 +75,14 @@ def cargar_csv(request):
                         titulo=row.get('titulo'),
                         autor=row.get('autor'),
                         editorial=row.get('editorial'),
-                        edicion=int(row.get('edicion') or 1999),  # Valor por defecto
-                        codigo_materia=row.get('codigo_materia', '1'),
-                        siglas_autor_titulo=row.get('siglas_autor_titulo', 'ABC'),
+                        clasificacion_cdu=row.get('clasificacion_cdu'),
+                        siglas_autor_titulo=row.get('siglas_autor_titulo'),
                         num_inventario=num_inventario,
                         resumen=row.get('resumen'),
+                        etiqueta_palabra_clave=row.get('etiqueta_palabra_clave'),
+                        sede=row.get('sede'),
+                        disponibilidad=row.get('disponibilidad'),
+                        observaciones=row.get('observaciones'),
                         img=row.get('img')
                     )
                     libro.save()
@@ -148,6 +153,7 @@ def cargar_csv(request):
 
     return render(request, 'libros/upload_csv.html')  # Cambia la plantilla según corresponda
 
+
 def success_view(request):
     return render(request, 'libros/success.html')
 
@@ -160,7 +166,7 @@ def buscar_libros(request):
         Q(autor__icontains=query) | 
         Q(resumen__icontains=query),
         estado='Disponible'
-    ).values('id_libro', 'titulo', 'autor', 'editorial', 'edicion', 'codigo_materia', 'resumen', 'img')
+    ).values('num_inventario','titulo', 'autor', 'editorial', 'clasificacion_cdu', 'siglas_autor_titulo', 'descripcion', 'etiqueta_palabra_clave', 'sede', 'disponibilidad', 'observaciones', 'img')
 
     return JsonResponse(list(libros), safe=False)
 
@@ -980,3 +986,227 @@ def marcar_no_retiro(request, prestamo_id):
         return redirect('gestionar_prestamos')
     
     return render(request, 'libros/marcar_no_retiro.html', {'prestamo': prestamo})
+
+# Agregar estos imports al inicio de tu archivo views.py
+from django.contrib.auth import login, logout, authenticate
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.mixins import LoginRequiredMixin
+from .forms import RegistroForm, LoginForm, CambiarPasswordForm
+from .models import Usuario
+
+# Funciones auxiliares para verificar permisos
+def es_bibliotecaria(user):
+    return user.is_authenticated and user.perfil == 'bibliotecaria'
+
+# Agregar estas vistas al final de tu archivo views.py
+
+def login_view(request):
+    if request.user.is_authenticated:
+        return redirect('pantalla_principal')
+    
+    if request.method == 'POST':
+        form = LoginForm(request, data=request.POST)
+        if form.is_valid():
+            dni = form.cleaned_data.get('username')
+            password = form.cleaned_data.get('password')
+            user = authenticate(request, username=dni, password=password)
+            if user is not None:
+                login(request, user)
+                messages.success(request, f'Bienvenido/a {user.get_full_name()}')
+                return redirect('pantalla_principal')
+    else:
+        form = LoginForm()
+    
+    return render(request, 'libros/login.html', {'form': form})
+
+def registro_view(request):
+    if request.method == 'POST':
+        form = RegistroForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            messages.success(request, 'Cuenta creada exitosamente. Ya puedes iniciar sesión.')
+            return redirect('login')
+    else:
+        form = RegistroForm()
+    
+    return render(request, 'libros/registro.html', {'form': form})
+
+@login_required
+def logout_view(request):
+    logout(request)
+    messages.success(request, 'Has cerrado sesión exitosamente.')
+    return redirect('login')
+
+@login_required
+def perfil_usuario(request):
+    return render(request, 'libros/perfil_usuario.html', {'usuario': request.user})
+
+@login_required
+def cambiar_password(request):
+    if request.method == 'POST':
+        form = CambiarPasswordForm(request.user, request.POST)
+        if form.is_valid():
+            request.user.set_password(form.cleaned_data['password_nueva'])
+            request.user.save()
+            messages.success(request, 'Contraseña cambiada exitosamente. Inicia sesión nuevamente.')
+            return redirect('login')
+    else:
+        form = CambiarPasswordForm(request.user)
+    
+    return render(request, 'libros/cambiar_password.html', {'form': form})
+
+# Actualizar estas vistas existentes para agregar autenticación
+
+@login_required  # Agregar este decorador
+def pantalla_principal(request):
+    return render(request, 'libros/pantalla_principal.html')
+
+@login_required  # Agregar este decorador
+def lista_libros(request):
+    libros = Libro.objects.filter(estado='Disponible')
+    return render(request, 'libros/lista_libros.html', {'libros': libros})
+
+@user_passes_test(es_bibliotecaria)  # Solo bibliotecarias pueden dar de alta libros
+def alta_libro(request):
+    # ... mantener el código existente ...
+    form = LibroForm(request.POST or None)
+    if request.method == 'POST' and form.is_valid():
+        libro = form.save(commit=False)
+        libro.save()
+        context = {'form': form, 'success': 'Libro registrado exitosamente.'}
+    else:
+        context = {'form': form, 'error': 'Por favor complete todos los campos obligatorios.'} if request.method == 'POST' else {
+            'form': form}
+    return render(request, 'libros/alta_libro.html', context)
+
+# Agregar decoradores similares a todas las vistas de alta de material
+@user_passes_test(es_bibliotecaria)
+def alta_mapa(request):
+    # ... código existente ...
+    pass
+
+@user_passes_test(es_bibliotecaria)
+def alta_multimedia(request):
+    # ... código existente ...
+    pass
+
+@user_passes_test(es_bibliotecaria)
+def alta_notebook(request):
+    # ... código existente ...
+    pass
+
+@user_passes_test(es_bibliotecaria)
+def alta_proyector(request):
+    # ... código existente ...
+    pass
+
+@user_passes_test(es_bibliotecaria)
+def alta_varios(request):
+    # ... código existente ...
+    pass
+
+# Actualizar la vista de préstamos solicitados para mostrar solo los del usuario actual
+@login_required
+def prestamos_solicitados(request):
+    # Verificar préstamos vencidos antes de mostrar
+    verificar_prestamos_vencidos()
+    
+    # Filtrar préstamos según el tipo de usuario
+    if request.user.es_bibliotecaria():
+        # La bibliotecaria ve todos los préstamos
+        prestamos = Prestamo.objects.all().order_by('-fecha_solicitud')
+    else:
+        # Los usuarios normales solo ven sus propios préstamos
+        prestamos = Prestamo.objects.filter(
+            Q(email_usuario=request.user.email) | Q(usuario=request.user)
+        ).order_by('-fecha_solicitud')
+    
+    # Verificar si hay alertas de tiempo (menos de 1 día hábil restante)
+    alertas = []
+    ahora = timezone.now()
+    
+    for prestamo in prestamos:
+        if prestamo.estado == 'solicitado' and prestamo.fecha_limite_reserva:
+            tiempo_restante = prestamo.fecha_limite_reserva - ahora
+            # Si queda menos de 24 horas
+            if tiempo_restante.total_seconds() > 0 and tiempo_restante.total_seconds() < 86400:  # 24 horas en segundos
+                alertas.append(f"¡ATENCIÓN! El préstamo del libro '{prestamo.libro.titulo}' vence pronto.")
+    
+    return render(request, 'libros/prestamos_solicitados.html', {
+        'prestamos': prestamos,
+        'alertas': alertas
+    })
+
+# Actualizar la vista de solicitar préstamo para usar el usuario logueado
+@login_required
+def solicitar_prestamo(request, libro_id):
+    libro = get_object_or_404(Libro, id_libro=libro_id)
+    
+    # Verificar si el libro está disponible
+    if libro.estado != 'Disponible':
+        messages.error(request, "Este libro no está disponible para préstamo.")
+        return redirect('lista_libros')
+    
+    # Crear el préstamo
+    if request.method == 'POST':
+        tipo_usuario = request.POST.get('tipo_usuario', 'alumno')
+        tipo_prestamo = request.POST.get('tipo_prestamo', 'domicilio')
+        
+        prestamo = Prestamo(
+            usuario=request.user,  # Asignar el usuario logueado
+            nombre_usuario=request.user.get_full_name(),  # Llenar automáticamente
+            email_usuario=request.user.email,  # Llenar automáticamente
+            libro=libro,
+            tipo_prestamo=tipo_prestamo,
+            tipo_usuario=tipo_usuario,
+            estado='solicitado',
+            fecha_limite_reserva=None
+        )
+        prestamo.save()
+        
+        # Cambiar estado del libro a reservado
+        libro.estado = 'Reservado'
+        libro.save()
+        
+        messages.success(request, f"Has solicitado el préstamo del libro '{libro.titulo}'. La biblioteca revisará tu solicitud.")
+        return redirect('prestamos_solicitados')
+    
+    return render(request, 'libros/solicitar_prestamo.html', {'libro': libro})
+
+# Gestión de préstamos solo para bibliotecarias
+@user_passes_test(es_bibliotecaria)
+def gestionar_prestamos(request):
+    # ... mantener el código existente ...
+    verificar_prestamos_vencidos()
+    
+    filtro = request.GET.get('filtro', 'todos')
+    
+    if filtro == 'solicitados':
+        prestamos = Prestamo.objects.filter(estado='solicitado').order_by('-fecha_solicitud')
+    elif filtro == 'activos':
+        prestamos = Prestamo.objects.filter(estado='aprobado').order_by('-fecha_aprobacion')
+    elif filtro == 'finalizados':
+        prestamos = Prestamo.objects.filter(estado__in=['finalizado', 'rechazado', 'vencido']).order_by('-fecha_solicitud')
+    else:
+        prestamos = Prestamo.objects.all().order_by('-fecha_solicitud')
+    
+    return render(request, 'libros/gestionar_prestamos.html', {
+        'prestamos': prestamos,
+        'filtro': filtro
+    })
+
+# Agregar el decorador a todas las funciones de gestión de préstamos
+@user_passes_test(es_bibliotecaria)
+def aprobar_prestamo(request, prestamo_id):
+    # ... código existente ...
+    pass
+
+@user_passes_test(es_bibliotecaria)
+def rechazar_prestamo(request, prestamo_id):
+    # ... código existente ...
+    pass
+
+@user_passes_test(es_bibliotecaria)
+def finalizar_prestamo(request, prestamo_id):
+    # ... código existente ...
+    pass

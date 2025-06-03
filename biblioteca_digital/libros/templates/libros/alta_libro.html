@@ -15,6 +15,7 @@
         --border-color: #e2e8f0;
         --success-color: #48bb78;
         --error-color: #e53e3e;
+        --warning-color: #ed8936;
     }
 
     body {
@@ -67,23 +68,70 @@
 
     input[type="text"],
     input[type="number"],
+    input[type="url"],
     textarea,
     select {
         width: 100%;
-        padding: 0.75rem;
+        padding: 0.25rem 0.5rem;
         border: 1px solid var(--border-color);
         border-radius: 4px;
-        font-size: 1rem;
-        transition: border-color 0.2s ease;
+        font-size: 0.9rem;
+        transition: all 0.2s ease;
+        box-sizing: border-box;
+        line-height: 1.3;
     }
 
+    /* Altura específica para inputs y selects */
+    input[type="text"],
+    input[type="number"],
+    input[type="url"],
+    select {
+        height: 2rem;
+    }
+
+    /* Textarea mantiene altura más pequeña */
+    textarea {
+        min-height: 3rem;
+        resize: vertical;
+        padding: 0.4rem;
+    }
+
+    /* Estados de focus */
     input[type="text"]:focus,
     input[type="number"]:focus,
+    input[type="url"]:focus,
     textarea:focus,
     select:focus {
         outline: none;
         border-color: var(--accent-color);
         box-shadow: 0 0 0 3px rgba(44, 82, 130, 0.1);
+    }
+
+    /* Estados de validación */
+    input:valid {
+        border-color: var(--success-color);
+    }
+
+    input:invalid:not(:focus):not(:placeholder-shown) {
+        border-color: var(--error-color);
+        background-color: #fff5f5;
+    }
+
+    /* Estilos específicos para los selects de sede y disponibilidad */
+    select[name="sede"],
+    select[name="disponibilidad"] {
+        width: auto;
+        min-width: 200px;
+        max-width: 300px;
+    }
+
+    /* Estilos para URLs */
+    input[type="url"] {
+        background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>');
+        background-repeat: no-repeat;
+        background-position: right 8px center;
+        background-size: 16px;
+        padding-right: 30px;
     }
 
     button[type="submit"] {
@@ -101,6 +149,11 @@
 
     button[type="submit"]:hover {
         background-color: #1a365d;
+    }
+
+    button[type="submit"]:disabled {
+        background-color: #a0aec0;
+        cursor: not-allowed;
     }
 
     /* Mensajes de éxito y error */
@@ -139,6 +192,38 @@
         font-size: 0.9rem;
     }
 
+    /* Mensajes de validación personalizados */
+    .validation-message {
+        font-size: 0.8rem;
+        margin-top: 0.25rem;
+        display: none;
+    }
+
+    .validation-message.error {
+        color: var(--error-color);
+        display: block;
+    }
+
+    .validation-message.success {
+        color: var(--success-color);
+        display: block;
+    }
+
+    /* Indicadores de validación */
+    .field-valid::after {
+        content: "✓";
+        color: var(--success-color);
+        font-weight: bold;
+        margin-left: 0.5rem;
+    }
+
+    .field-invalid::after {
+        content: "✗";
+        color: var(--error-color);
+        font-weight: bold;
+        margin-left: 0.5rem;
+    }
+
     footer {
         background-color: var(--primary-color);
         color: white;
@@ -161,29 +246,430 @@
         header h1 {
             font-size: 1.5rem;
         }
+
+        /* Mantener selects responsivos */
+        select[name="sede"],
+        select[name="disponibilidad"] {
+            min-width: 150px;
+        }
     }
 </style>
 
 <body>
+    <header>
+        <h1>Registrar Libro</h1>
+    </header>
 
-    <h1>Registrar Libro</h1>
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Registrar libro</button>
-    </form>
+    <main>
+        <form method="post" id="bookForm" novalidate>
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Registrar libro</button>
+        </form>
 
-    {% if success %}
-        <p style="color: green;">{{ success }}</p>
-    {% endif %}
-    
-    {% if error %}
-        <p style="color: red;">{{ error }}</p>
-    {% endif %}
+        {% if success %}
+            <div class="message success">{{ success }}</div>
+        {% endif %}
+        
+        {% if error %}
+            <div class="message error">{{ error }}</div>
+        {% endif %}
+    </main>
 
     <footer>
         <p>© 2025 ISFD 210. Todos los derechos reservados</p>
     </footer>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Esperar un poco para que Django cargue el formulario completamente
+    setTimeout(function() {
+        setupFormFields();
+        setupValidation();
+    }, 200);
+});
+
+function setupFormFields() {
+    // Convertir campo "Etiqueta palabra clave" de textarea a input
+    const palabrasClaveField = document.querySelector('textarea[name="etiqueta_palabra_clave"], textarea[name="palabras_clave"], textarea[name="palabra_clave"]');
+    if (palabrasClaveField) {
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.name = palabrasClaveField.name;
+        input.id = palabrasClaveField.id || 'id_palabras_clave';
+        input.className = palabrasClaveField.className;
+        input.placeholder = 'Ingrese palabras clave separadas por comas';
+        input.maxLength = 255;
+        
+        palabrasClaveField.parentNode.replaceChild(input, palabrasClaveField);
+        console.log('Campo palabras clave convertido a input');
+    }
+
+    // Convertir campo "Sede" de textarea a select
+    const sedeField = document.querySelector('textarea[name="sede"], input[name="sede"], select[name="sede"]');
+    if (sedeField) {
+        const select = document.createElement('select');
+        select.name = 'sede';
+        select.id = sedeField.id || 'id_sede';
+        select.required = sedeField.required;
+        select.className = sedeField.className;
+        
+        const defaultOption = document.createElement('option');
+        defaultOption.value = '';
+        defaultOption.textContent = 'Seleccione una sede';
+        select.appendChild(defaultOption);
+        
+        const abastoOption = document.createElement('option');
+        abastoOption.value = 'Abasto';
+        abastoOption.textContent = 'Abasto';
+        select.appendChild(abastoOption);
+        
+        const laPLataOption = document.createElement('option');
+        laPLataOption.value = 'La Plata';
+        laPLataOption.textContent = 'La Plata';
+        select.appendChild(laPLataOption);
+        
+        sedeField.parentNode.replaceChild(select, sedeField);
+        console.log('Campo sede convertido a select');
+    }
+
+    // Convertir campo "Disponibilidad" a select
+    const disponibilidadField = document.querySelector('textarea[name="disponibilidad"], input[name="disponibilidad"], select[name="disponibilidad"]');
+    if (disponibilidadField) {
+        const select = document.createElement('select');
+        select.name = 'disponibilidad';
+        select.id = disponibilidadField.id || 'id_disponibilidad';
+        select.required = disponibilidadField.required;
+        select.className = disponibilidadField.className;
+        
+        const defaultOption = document.createElement('option');
+        defaultOption.value = '';
+        defaultOption.textContent = 'Seleccione disponibilidad';
+        select.appendChild(defaultOption);
+        
+        const aulaOption = document.createElement('option');
+        aulaOption.value = 'Aula';
+        aulaOption.textContent = 'Aula';
+        select.appendChild(aulaOption);
+        
+        const domicilioOption = document.createElement('option');
+        domicilioOption.value = 'Domicilio';
+        domicilioOption.textContent = 'Domicilio';
+        select.appendChild(domicilioOption);
+        
+        disponibilidadField.parentNode.replaceChild(select, disponibilidadField);
+        console.log('Campo disponibilidad convertido a select');
+    }
+
+    // Convertir campo de imagen a URL si existe
+    const imagenField = document.querySelector('input[name="imagen"], input[name="img"], textarea[name="imagen"], textarea[name="img"]');
+    if (imagenField && imagenField.type !== 'url') {
+        if (imagenField.tagName === 'TEXTAREA') {
+            const input = document.createElement('input');
+            input.type = 'url';
+            input.name = imagenField.name;
+            input.id = imagenField.id || 'id_imagen';
+            input.className = imagenField.className;
+            input.placeholder = 'https://ejemplo.com/imagen.jpg';
+            
+            imagenField.parentNode.replaceChild(input, imagenField);
+        } else {
+            imagenField.type = 'url';
+            imagenField.placeholder = 'https://ejemplo.com/imagen.jpg';
+        }
+        console.log('Campo imagen convertido a URL');
+    }
+}
+
+function setupValidation() {
+    const form = document.getElementById('bookForm');
+    if (!form) return;
+
+    // Configurar validaciones para diferentes tipos de campos
+    setupTextValidation();
+    setupNumberValidation();
+    setupUrlValidation();
+    setupSelectValidation();
+    
+    // Validación en tiempo real
+    form.addEventListener('input', function(e) {
+        validateField(e.target);
+    });
+
+    // Validación al enviar formulario
+    form.addEventListener('submit', function(e) {
+        if (!validateForm()) {
+            e.preventDefault();
+            showFormErrors();
+        }
+    });
+}
+
+function setupTextValidation() {
+    // Validación para campos de texto requeridos
+    const textFields = document.querySelectorAll('input[type="text"]');
+    
+    textFields.forEach(field => {
+        // Configurar atributos de validación según el nombre del campo
+        const fieldName = field.name.toLowerCase();
+        
+        if (fieldName.includes('titulo')) {
+            field.required = true;
+            field.minLength = 2;
+            field.maxLength = 200;
+            field.pattern = '^[a-zA-ZÀ-ÿ0-9\\s\\-\\:\\.\\,\\;\\!\\?]+$';
+            addValidationMessage(field, 'El título debe tener entre 2 y 200 caracteres');
+        }
+        
+        if (fieldName.includes('autor')) {
+            field.required = true;
+            field.minLength = 2;
+            field.maxLength = 100;
+            field.pattern = '^[a-zA-ZÀ-ÿ\\s\\-\\.]+$';
+            addValidationMessage(field, 'El autor debe contener solo letras, espacios, guiones y puntos');
+        }
+        
+        if (fieldName.includes('editorial')) {
+            field.maxLength = 100;
+            field.pattern = '^[a-zA-ZÀ-ÿ0-9\\s\\-\\.]+$';
+            addValidationMessage(field, 'La editorial debe contener solo letras, números, espacios, guiones y puntos');
+        }
+        
+        if (fieldName.includes('isbn')) {
+            field.pattern = '^(97[89])?[0-9]{9}[0-9X]$';
+            field.maxLength = 13;
+            addValidationMessage(field, 'Formato de ISBN inválido (10 o 13 dígitos)');
+        }
+        
+        if (fieldName.includes('palabra') || fieldName.includes('etiqueta')) {
+            field.maxLength = 255;
+            field.pattern = '^[a-zA-ZÀ-ÿ0-9\\s\\,\\-]+$';
+            addValidationMessage(field, 'Palabras clave separadas por comas (solo letras, números, espacios, comas y guiones)');
+        }
+    });
+}
+
+function setupNumberValidation() {
+    const numberFields = document.querySelectorAll('input[type="number"]');
+    
+    numberFields.forEach(field => {
+        const fieldName = field.name.toLowerCase();
+        
+        if (fieldName.includes('año') || fieldName.includes('year')) {
+            const currentYear = new Date().getFullYear();
+            field.min = 1450; // Invención de la imprenta
+            field.max = currentYear + 1;
+            addValidationMessage(field, `El año debe estar entre 1450 y ${currentYear + 1}`);
+        }
+        
+        if (fieldName.includes('pagina') || fieldName.includes('page')) {
+            field.min = 1;
+            field.max = 9999;
+            addValidationMessage(field, 'El número de páginas debe ser entre 1 y 9999');
+        }
+        
+        if (fieldName.includes('edicion')) {
+            field.min = 1;
+            field.max = 99;
+            addValidationMessage(field, 'La edición debe ser entre 1 y 99');
+        }
+    });
+}
+
+function setupUrlValidation() {
+    const urlFields = document.querySelectorAll('input[type="url"]');
+    
+    urlFields.forEach(field => {
+        field.pattern = 'https?:\\/\\/(www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b([-a-zA-Z0-9()@:%_\\+.~#?&//=]*)';
+        addValidationMessage(field, 'Ingrese una URL válida (debe comenzar con http:// o https://)');
+    });
+}
+
+function setupSelectValidation() {
+    const selectFields = document.querySelectorAll('select');
+    
+    selectFields.forEach(field => {
+        const fieldName = field.name.toLowerCase();
+        
+        if (fieldName.includes('sede') || fieldName.includes('disponibilidad')) {
+            field.required = true;
+            addValidationMessage(field, 'Debe seleccionar una opción');
+        }
+    });
+}
+
+function addValidationMessage(field, message) {
+    const existingMessage = field.parentNode.querySelector('.validation-message');
+    if (existingMessage) return;
+    
+    const messageDiv = document.createElement('div');
+    messageDiv.className = 'validation-message';
+    messageDiv.textContent = message;
+    field.parentNode.appendChild(messageDiv);
+}
+
+function validateField(field) {
+    const messageDiv = field.parentNode.querySelector('.validation-message');
+    const label = field.parentNode.querySelector('label');
+    
+    // Limpiar clases anteriores
+    if (label) {
+        label.classList.remove('field-valid', 'field-invalid');
+    }
+    
+    if (messageDiv) {
+        messageDiv.classList.remove('error', 'success');
+    }
+    
+    let isValid = true;
+    let errorMessage = '';
+    
+    // Validaciones específicas
+    if (field.required && !field.value.trim()) {
+        isValid = false;
+        errorMessage = 'Este campo es obligatorio';
+    } else if (field.value.trim()) {
+        // Validaciones específicas por tipo
+        switch (field.type) {
+            case 'text':
+                if (field.pattern && !new RegExp(field.pattern).test(field.value)) {
+                    isValid = false;
+                    errorMessage = 'El formato no es válido';
+                }
+                if (field.minLength && field.value.length < field.minLength) {
+                    isValid = false;
+                    errorMessage = `Mínimo ${field.minLength} caracteres`;
+                }
+                if (field.maxLength && field.value.length > field.maxLength) {
+                    isValid = false;
+                    errorMessage = `Máximo ${field.maxLength} caracteres`;
+                }
+                break;
+                
+            case 'number':
+                const numValue = parseFloat(field.value);
+                if (field.min && numValue < parseFloat(field.min)) {
+                    isValid = false;
+                    errorMessage = `El valor mínimo es ${field.min}`;
+                }
+                if (field.max && numValue > parseFloat(field.max)) {
+                    isValid = false;
+                    errorMessage = `El valor máximo es ${field.max}`;
+                }
+                break;
+                
+            case 'url':
+                try {
+                    new URL(field.value);
+                    if (!field.value.startsWith('http://') && !field.value.startsWith('https://')) {
+                        isValid = false;
+                        errorMessage = 'La URL debe comenzar con http:// o https://';
+                    }
+                } catch {
+                    isValid = false;
+                    errorMessage = 'URL no válida';
+                }
+                break;
+        }
+        
+        // Validación para select
+        if (field.tagName === 'SELECT' && field.required && !field.value) {
+            isValid = false;
+            errorMessage = 'Debe seleccionar una opción';
+        }
+    }
+    
+    // Aplicar estilos y mensajes
+    if (label) {
+        label.classList.add(isValid ? 'field-valid' : 'field-invalid');
+    }
+    
+    if (messageDiv) {
+        if (!isValid) {
+            messageDiv.textContent = errorMessage;
+            messageDiv.classList.add('error');
+        } else if (field.value.trim()) {
+            messageDiv.classList.add('success');
+        }
+    }
+    
+    return isValid;
+}
+
+function validateForm() {
+    const form = document.getElementById('bookForm');
+    const fields = form.querySelectorAll('input, select, textarea');
+    let isFormValid = true;
+    
+    fields.forEach(field => {
+        if (!validateField(field)) {
+            isFormValid = false;
+        }
+    });
+    
+    return isFormValid;
+}
+
+function showFormErrors() {
+    const invalidFields = document.querySelectorAll('.field-invalid');
+    if (invalidFields.length > 0) {
+        invalidFields[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+        
+        // Mostrar mensaje general
+        let existingAlert = document.querySelector('.form-validation-alert');
+        if (existingAlert) {
+            existingAlert.remove();
+        }
+        
+        const alert = document.createElement('div');
+        alert.className = 'message error form-validation-alert';
+        alert.textContent = `Por favor, corrija los ${invalidFields.length} error(es) en el formulario`;
+        
+        const form = document.getElementById('bookForm');
+        form.parentNode.insertBefore(alert, form);
+        
+        setTimeout(() => {
+            alert.remove();
+        }, 5000);
+    }
+}
+
+// Funciones auxiliares para validaciones específicas
+function validateISBN(isbn) {
+    isbn = isbn.replace(/[-\s]/g, '');
+    
+    if (isbn.length === 10) {
+        return validateISBN10(isbn);
+    } else if (isbn.length === 13) {
+        return validateISBN13(isbn);
+    }
+    
+    return false;
+}
+
+function validateISBN10(isbn) {
+    let sum = 0;
+    for (let i = 0; i < 9; i++) {
+        sum += parseInt(isbn[i]) * (10 - i);
+    }
+    
+    const checkDigit = isbn[9] === 'X' ? 10 : parseInt(isbn[9]);
+    sum += checkDigit;
+    
+    return sum % 11 === 0;
+}
+
+function validateISBN13(isbn) {
+    let sum = 0;
+    for (let i = 0; i < 12; i++) {
+        sum += parseInt(isbn[i]) * (i % 2 === 0 ? 1 : 3);
+    }
+    
+    const checkDigit = parseInt(isbn[12]);
+    const calculatedCheck = (10 - (sum % 10)) % 10;
+    
+    return checkDigit === calculatedCheck;
+}
+</script>
 
 </body>
 </html>

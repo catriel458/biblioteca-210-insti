@@ -150,3 +150,11 @@ from django.contrib.messages import constants as messages
 MESSAGE_TAGS = {
     messages.SUCCESS: 'success',
 }
+
+# Usuario personalizado
+AUTH_USER_MODEL = 'libros.Usuario'
+
+# Configuración de redirección después del login
+LOGIN_URL = '/login/'
+LOGIN_REDIRECT_URL = '/libros/'
+LOGOUT_REDIRECT_URL = '/login/'
