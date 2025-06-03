@@ -264,9 +264,9 @@ header {
     </header>
     <main>
         <h2>Lista de Varios</h2>
-
+        {% if user.es_bibliotecaria %}
         <a href="{% url 'alta_varios' %}" class="btn-carga-manual">Carga Manual</a>
-
+        {% endif %}
         <!-- Barra de búsqueda -->
         <div id="search-form">
             <input type="text" id="search-input" placeholder="Buscar por tipo...">
