@@ -314,7 +314,7 @@ def solicitar_prestamo(request):
 def lista_libros(request):
     # Filtra los libros disponibles
     libros = Libro.objects.all()
-    return render(request, 'materiales/lista_libros.html', {'libros': libros})
+    return render(request, 'materiales/libros/lista_libros.html', {'libros': libros})
 
 # =========================
 # ALTAS
@@ -421,7 +421,7 @@ def editar_libro(request, libro_id):
 
 def mapas_view(request):
     mapas = Mapas.objects.filter(estado='Disponible')
-    return render(request, 'materiales/mapas.html', {'mapas': mapas})
+    return render(request, 'materiales/mapas/lista_mapas.html', {'mapas': mapas})
 
 # Vista para dar de baja un mapa:
 
@@ -482,7 +482,7 @@ def editar_mapa(request, mapa_id):
 
 def multimedia_view(request):
     multimedia = Multimedia.objects.filter(estado='Disponible')
-    return render(request, 'materiales/multimedia.html', {'multimedia': multimedia})
+    return render(request, 'materiales/multimedia/lista_multimedia.html', {'multimedia': multimedia})
 
 # Vista para dar de baja un mapa:
 
@@ -542,7 +542,7 @@ def editar_multimedia(request, multi_id):
 
 def notebook_view(request):
     notebook = Notebook.objects.filter(estado='Disponible')
-    return render(request, 'materiales/notebook.html', {'notebook': notebook})
+    return render(request, 'materiales/notebook/lista_notebooks.html', {'notebook': notebook})
 
 # Vista para dar de baja un mapa:
 
@@ -602,7 +602,7 @@ def editar_notebook(request, not_id):
 
 def proyector_view(request):
     proyector = Proyector.objects.filter(estado='Disponible')
-    return render(request, 'materiales/proyector.html', {'proyector': proyector})
+    return render(request, 'materiales/proyector/lista_proyectores.html', {'proyector': proyector})
 
 # Vista para dar de baja un mapa:
 
@@ -669,7 +669,7 @@ def alta_programa(request):
 
 def varios_view(request):
     varios = Varios.objects.filter(estado='Disponible')
-    return render(request, 'materiales/varios.html', {'varios': varios})
+    return render(request, 'materiales/varios/lista_varios.html', {'varios': varios})
 
 # Vista para dar de baja un mapa:
 
