@@ -47,6 +47,7 @@ urlpatterns = [
     # VISTAS PRINCIPALES
     # =========================
     path('', views.lista_libros, name='lista_libros'),
+    path('libros/', views.lista_libros, name='lista_libros_alt'),
     path('mapas/', views.mapas_view, name='mapas'),
     path('multimedia/', views.multimedia_view, name='multimedia'),
     path('notebook/', views.notebook_view, name='notebook'),
