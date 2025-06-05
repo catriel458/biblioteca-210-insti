@@ -48,8 +48,8 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('confirmAutor').textContent = getFieldValue('autor');
             document.getElementById('confirmEditorial').textContent = getFieldValue('editorial');
             document.getElementById('confirmDescripcion').textContent = getFieldValue('descripcion');
-            document.getElementById('confirmSiglasAutor').textContent = getFieldValue('siglas_autor');
-            document.getElementById('confirmClasificacion').textContent = getFieldValue('cdu');
+            document.getElementById('confirmSiglasAutor').textContent = getFieldValue('siglas_autor_titulo');
+            document.getElementById('confirmClasificacion').textContent = getFieldValue('clasificacion_cdu');
             document.getElementById('confirmPalabrasClave').textContent = getFieldValue('palabras_clave');
 
             // Obtener la cantidad de ejemplares
