@@ -1,113 +1,77 @@
+# libros/urls.py
 from django.urls import path
 from . import views
-from .views import lista_libros, baja_libro, editar_libro
-from django.conf import settings
-from django.conf.urls.static import static
-from django.urls import path
-from .views import cargar_csv
-from .views import buscar_libros
-from .views import buscar_mapas  
-from .views import buscar_multimedia
-from .views import buscar_notebooks
-from .views import buscar_proyectores
-from .views import buscar_varios
-from .views import registro_bajas
-
-from .views import (
-    mapas_view,
-    alta_mapa,
-    baja_mapa,
-    editar_mapa,
-    multimedia_view,
-    alta_multimedia,
-    baja_multimedia,
-    editar_multimedia,
-    lista_libros,
-    alta_inventario,
-    alta_libro,
-    baja_libro,
-    editar_libro,
-    notebook_view,
-    alta_notebook,
-    baja_notebook,
-    editar_notebook,
-    proyector_view,
-    alta_proyector,
-    baja_proyector,
-    editar_proyector,
-    varios_view,
-    alta_varios,
-    baja_varios,
-    editar_varios,
-)
 
 urlpatterns = [
-
-    # =========================
-    # VISTAS PRINCIPALES
-    # =========================
-    path('', views.lista_libros, name='lista_libros'),
-    path('libros/', views.lista_libros, name='lista_libros_alt'),
-    path('mapas/', views.mapas_view, name='mapas'),
-    path('multimedia/', views.multimedia_view, name='multimedia'),
-    path('notebook/', views.notebook_view, name='notebook'),
-    path('proyector/', views.proyector_view, name='proyector'),
-    path('varios/', views.varios_view, name='varios'),
-    # =========================
-    # ALTAS
-    # =========================
-    path('alta-inventario/', views.alta_inventario, name='alta_inventario'),
-    path('alta_libro/', views.alta_libro, name='alta_libro'),
-    path('alta_mapa/', views.alta_mapa, name='alta_mapa'),
-    path('alta_multimedia/', views.alta_multimedia, name='alta_multimedia'),
-    path('alta_notebook/', views.alta_notebook, name='alta_notebook'),
-    path('alta_proyector/', views.alta_proyector, name='alta_proyector'),
-    path('alta_varios/', views.alta_varios, name='alta_varios'),
-    path('alta_programa/', views.alta_programa, name='alta_programa'),
-    # =========================y
-    # BAJAS
-    # =========================
-    path('materiales/baja/', views.baja_libro, name='baja_libro'),
-    path('mapas/baja/', baja_mapa, name='baja_mapa'),
-    path('alta-mapa/', alta_mapa, name='alta_mapa'),
-    path('editar-mapa/<int:mapa_id>/', editar_mapa, name='editar_mapa'),
-    # =========================
-    # EDICIÓN
-    # =========================
+    # URLs de autenticación
+    path('', views.login_view, name='login'),  # Página principal es el login
+    path('login/', views.login_view, name='login'),
+    path('registro/', views.registro_view, name='registro'),
+    path('logout/', views.logout_view, name='logout'),
+    path('perfil/', views.perfil_usuario, name='perfil_usuario'),
+    path('cambiar-password/', views.cambiar_password, name='cambiar_password'),
+    
+    # URLs principales (requieren autenticación)
+    path('home/', views.pantalla_principal, name='pantalla_principal'),
+    
+    # URLs de libros
+    path('libros/', views.lista_libros, name='lista_libros'),
+    path('alta-libro/', views.alta_libro, name='alta_libro'),
+    path('baja-libro/', views.baja_libro, name='baja_libro'),
     path('editar-libro/<int:libro_id>/', views.editar_libro, name='editar_libro'),
-    path('multimedia/baja/', baja_multimedia, name='baja_multimedia'),
-    path('alta-multimedia/', alta_multimedia, name='alta_multimedia'),
-    path('editar-multimedia/<int:multi_id>/', editar_multimedia, name='editar_multimedia'),
-    path('alta-notebook/', alta_notebook, name='alta_notebook'),
+    path('buscar-libros/', views.buscar_libros, name='buscar_libros'),
+    path('borrar-libros/', views.borrar_libros, name='borrar_libros'),
+    
+    # URLs de mapas
+    path('mapas/', views.mapas_view, name='mapas'),
+    path('alta-mapa/', views.alta_mapa, name='alta_mapa'),
+    path('baja-mapa/', views.baja_mapa, name='baja_mapa'),
+    path('editar-mapa/<int:mapa_id>/', views.editar_mapa, name='editar_mapa'),
+    path('buscar-mapas/', views.buscar_mapas, name='buscar_mapas'),
+    
+    # URLs de multimedia
+    path('multimedia/', views.multimedia_view, name='multimedia'),
+    path('alta-multimedia/', views.alta_multimedia, name='alta_multimedia'),
+    path('baja-multimedia/', views.baja_multimedia, name='baja_multimedia'),
+    path('editar-multimedia/<int:multi_id>/', views.editar_multimedia, name='editar_multimedia'),
+    path('buscar-multimedia/', views.buscar_multimedia, name='buscar_multimedia'),
+    
+    # URLs de notebooks
+    path('notebook/', views.notebook_view, name='notebook'),
+    path('alta-notebook/', views.alta_notebook, name='alta_notebook'),
+    path('baja-notebook/', views.baja_notebook, name='baja_notebook'),
     path('editar-notebook/<int:not_id>/', views.editar_notebook, name='editar_notebook'),
-    path('baja_notebook/', baja_notebook, name='baja_notebook'),
-    path('alta-proyector/', alta_proyector, name='alta_proyector'),
+    path('buscar-notebooks/', views.buscar_notebooks, name='buscar_notebooks'),
+    
+    # URLs de proyectores
+    path('proyector/', views.proyector_view, name='proyector'),
+    path('alta-proyector/', views.alta_proyector, name='alta_proyector'),
+    path('baja-proyector/', views.baja_proyector, name='baja_proyector'),
     path('editar-proyector/<int:proyector_id>/', views.editar_proyector, name='editar_proyector'),
-    path('baja_proyector/', baja_proyector, name='baja_proyector'),
-    path('baja_varios/', baja_varios, name='baja_varios'),
-    path('alta-varios/', alta_varios, name='alta_varios'),
+    path('buscar-proyectores/', views.buscar_proyectores, name='buscar_proyectores'),
+    
+    # URLs de varios
+    path('varios/', views.varios_view, name='varios'),
+    path('alta-varios/', views.alta_varios, name='alta_varios'),
+    path('baja-varios/', views.baja_varios, name='baja_varios'),
     path('editar-varios/<int:varios_id>/', views.editar_varios, name='editar_varios'),
+    path('buscar-varios/', views.buscar_varios, name='buscar_varios'),
+    
+    # URLs de préstamos
+    path('solicitar-prestamo/<int:libro_id>/', views.solicitar_prestamo, name='solicitar_prestamo'),
+    path('prestamos-solicitados/', views.prestamos_solicitados, name='prestamos_solicitados'),
+    path('gestionar-prestamos/', views.gestionar_prestamos, name='gestionar_prestamos'),
+    path('aprobar-prestamo/<int:prestamo_id>/', views.aprobar_prestamo, name='aprobar_prestamo'),
+    path('rechazar-prestamo/<int:prestamo_id>/', views.rechazar_prestamo, name='rechazar_prestamo'),
+    path('finalizar-prestamo/<int:prestamo_id>/', views.finalizar_prestamo, name='finalizar_prestamo'),
+    path('aprobar-solicitud-prestamo/<int:prestamo_id>/', views.aprobar_solicitud_prestamo, name='aprobar_solicitud_prestamo'),
+    path('cancelar-reserva-usuario/<int:prestamo_id>/', views.cancelar_reserva_usuario, name='cancelar_reserva_usuario'),
+    path('confirmar-retiro-libro/<int:prestamo_id>/', views.confirmar_retiro_libro, name='confirmar_retiro_libro'),
+    path('marcar-no-retiro/<int:prestamo_id>/', views.marcar_no_retiro, name='marcar_no_retiro'),
+    
+    # URLs de gestión
+    path('registro-de-bajas/', views.registro_bajas, name='registro_de_bajas'),
+    path('reactivar-libro/<int:libro_id>/', views.reactivar_libro, name='reactivar_libro'),
     path('cargar-csv/', views.cargar_csv, name='cargar_csv'),
     path('success/', views.success_view, name='success_url'),
-    path('borrar-materiales/', views.borrar_libros, name='borrar_libros'),
-    # =========================
-    # BÚSQUEDAS
-    # =========================
-    path('buscar_materiales/', buscar_libros, name='buscar_libros'),
-    path('buscar_mapas/', buscar_mapas, name='buscar_mapas'),
-    path('buscar_multimedia/', buscar_multimedia, name='buscar_multimedia'),
-    path('buscar_notebook/', buscar_notebooks, name='buscar_notebooks'),
-    path('buscar_proyectores/', buscar_proyectores, name='buscar_proyectores'),
-    path('buscar_varios/', buscar_varios, name='buscar_varios'),
-    # =========================
-    # UTILIDADES Y OTRAS FUNCIONES
-    # =========================
-    path('registro_bajas/', views.registro_bajas, name='registro_de_bajas'),
-    path('modificacion-material/', views.modificacion_materiales, name='modificacion_materiales'),
-    path('prestamos/', views.prestamos, name='prestamos'),
-    # Ruta para obtener templates de materiales
-    path('get_material_template/<str:tipo>/', views.get_material_template, name='get_material_template'),
 ]
-
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

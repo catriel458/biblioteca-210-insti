@@ -1,28 +1,40 @@
 import json
+from django.shortcuts import render, redirect, get_object_or_404
+from django.http import HttpResponse
+from collections import Counter
+from .models import Libro, Inventario, Mapas, Multimedia, Notebook, Proyector, Varios, Prestamo
+from .forms import LibroForm, MapaForm, MultimediaForm, NotebookForm, ProyectorForm, VariosForm
+import csv
+import io  # Agregar esta línea
+from django.contrib import messages #Para mensajes
+from django.http import JsonResponse
+from django.db.models import Q  # Añade esta línea
+from django.contrib import messages
+from django.utils import timezone
+import datetime
+
+from django.contrib.auth import login, logout, authenticate
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.mixins import LoginRequiredMixin
+from .forms import RegistroForm, LoginForm, CambiarPasswordForm
+from .models import Usuario
+
+
 import csv
 import io
-from collections import Counter
+from django.http import HttpResponse
+from django.shortcuts import render, redirect
+from .models import Libro, Mapas, Multimedia, Notebook, Proyector, Varios
 
-import requests
-from django.core.files.base import ContentFile
-from urllib.parse import urlparse
-import os
-from django.shortcuts import render, redirect, get_object_or_404
-from django.http import HttpResponse, JsonResponse
-from django.contrib import messages
-from django.db.models import Q
-
-from .forms import (
-    LibroForm, MapaForm, MultimediaForm, NotebookForm, ProyectorForm, VariosForm
-)
-from .models import (
-    Libro, Mapas, Multimedia, Notebook, Proyector, Varios, Ejemplar
-)
+import csv
+import io
+from django.http import HttpResponse
+from django.shortcuts import render, redirect
+from .models import Libro, Mapas, Multimedia, Notebook, Proyector, Varios
 
 def cargar_csv(request):
     if request.method == 'POST':
         csv_file = request.FILES['csv_file']
-
         # Verifica que el archivo sea un CSV
         if not csv_file.name.endswith('.csv'):
             return HttpResponse("El archivo no es un CSV.")
@@ -43,46 +55,40 @@ def cargar_csv(request):
 
         for row in reader:
             print(f"Fila procesada: {row}")  # Imprimir la fila para depuración
-
             try:
                 estado = "Disponible"
                 motivo_baja = row.get('motivo_baja')
                 descripcion = row.get('descripcion')
-
                 # Manejar num_ejemplar
                 num_ejemplar = int(row.get('num_ejemplar') or 1)
-
                 tipo_material = row.get('tipo_material')  # Campo que determina el tipo de material
 
-                # --- BLOQUE RELACIONADO CON INVENTARIO ELIMINADO ---
-                # El siguiente bloque ha sido comentado porque dependía del modelo Inventario, ya eliminado.
-                # Refactorizar la lógica de alta de libros según el nuevo modelo actual.
-                # ---
                 # Procesar según el tipo de material
-                # if tipo_material == 'Libro':
-                #     num_inventario = int(row.get('num_inventario') or 1)  # Valor por defecto si está vacío
-                #     libro = Libro(
-                #         estado=estado,
-                #         motivo_baja=motivo_baja,
-                #         descripcion=descripcion,
-                #         num_ejemplar=num_ejemplar,
-                #         imagen_rota=row.get('imagen_rota'),
-                #         titulo=row.get('titulo'),
-                #         autor=row.get('autor'),
-                #         editorial=row.get('editorial'),
-                #         edicion=int(row.get('edicion') or 1999),  # Valor por defecto
-                #         codigo_materia=row.get('codigo_materia', '1'),
-                #         siglas_autor_titulo=row.get('siglas_autor_titulo', 'ABC'),
-                #         num_inventario=num_inventario,
-                #         resumen=row.get('resumen'),
-                #         img=row.get('img')
-                #     )
-                #   Nota: Este bloque fue comentado porque usaba campos de Inventario y otros que ya no existen en el modelo Libro. Refactorizar según la nueva estructura de modelos.
-                #     libro.save()
-                #     print(f"Libro guardado: {libro}")  # Imprimir confirmación
-                # --- FIN BLOQUE INVENTARIO ---
+                if tipo_material == 'Libro':
+                    num_inventario = int(row.get('num_inventario') or 1)  # Valor por defecto si está vacío
+                    libro = Libro(
+                        estado=estado,
+                        motivo_baja=motivo_baja,
+                        descripcion=descripcion,
+                        num_ejemplar=num_ejemplar,
+                        imagen_rota=row.get('imagen_rota'),
+                        titulo=row.get('titulo'),
+                        autor=row.get('autor'),
+                        editorial=row.get('editorial'),
+                        clasificacion_cdu=row.get('clasificacion_cdu'),
+                        siglas_autor_titulo=row.get('siglas_autor_titulo'),
+                        num_inventario=num_inventario,
+                        resumen=row.get('resumen'),
+                        etiqueta_palabra_clave=row.get('etiqueta_palabra_clave'),
+                        sede=row.get('sede'),
+                        disponibilidad=row.get('disponibilidad'),
+                        observaciones=row.get('observaciones'),
+                        img=row.get('img')
+                    )
+                    libro.save()
+                    print(f"Libro guardado: {libro}")  # Imprimir confirmación
 
-                if tipo_material == 'Mapa':
+                elif tipo_material == 'Mapa':
                     mapa = Mapas(
                         estado=estado,
                         motivo_baja=motivo_baja,
@@ -117,18 +123,6 @@ def cargar_csv(request):
                     notebook.save()
                     print(f"Notebook guardada: {notebook}")  # Imprimir confirmación
 
-                elif tipo_material == 'Programa':
-                    programa = Programa(
-                        estado=estado,
-                        motivo_baja=motivo_baja,
-                        descripcion=descripcion,
-                        num_ejemplar=num_ejemplar,
-                        marca_pro=row.get('marca_pro'),
-                        modelo_pro=row.get('modelo_pro')
-                    )
-                    programa.save()
-                    print(f"Programa guardado: {programa}")  # Imprimir confirmación
-            
                 elif tipo_material == 'Proyector':
                     proyector = Proyector(
                         estado=estado,
@@ -157,18 +151,11 @@ def cargar_csv(request):
 
         return redirect('success_url')  # Cambia 'success_url' por el nombre que has definido en urls.py
 
-    return render(request, 'materiales/utilidades/upload_csv.html')  # Cambia la plantilla según corresponda
+    return render(request, 'libros/upload_csv.html')  # Cambia la plantilla según corresponda
+
 
 def success_view(request):
-    return render(request, 'materiales/utilidades/success.html')
-
-# =========================
-# BÚSQUEDAS
-# =========================
-
-# =========================
-# BÚSQUEDAS
-# =========================
+    return render(request, 'libros/success.html')
 
 # Busqueda libros
 
@@ -179,7 +166,7 @@ def buscar_libros(request):
         Q(autor__icontains=query) | 
         Q(resumen__icontains=query),
         estado='Disponible'
-    ).values('id_libro', 'titulo', 'autor', 'editorial', 'edicion', 'codigo_materia', 'resumen', 'img')
+    ).values('num_inventario','titulo', 'autor', 'editorial', 'clasificacion_cdu', 'siglas_autor_titulo', 'descripcion', 'etiqueta_palabra_clave', 'sede', 'disponibilidad', 'observaciones', 'img')
 
     return JsonResponse(list(libros), safe=False)
 
@@ -248,10 +235,6 @@ def buscar_varios(request):
 
     return JsonResponse(list(varios), safe=False)
 
-# =========================
-# UTILIDADES Y OTRAS FUNCIONES
-# =========================
-
 # Borrar libros
 
 def borrar_libros(request):
@@ -260,7 +243,7 @@ def borrar_libros(request):
         messages.success(request, "Todos los libros han sido borrados.")
         return redirect('lista_libros')  # Cambia esto a la URL donde quieras redirigir después de borrar
 
-    return render(request, 'materiales/registros/borrar_libros.html')  # Crea un template para confirmar la acción
+    return render(request, 'libros/borrar_libros.html')  # Crea un template para confirmar la acción
 
 # Métodos de biblioteca:
 
@@ -291,87 +274,41 @@ def modificar_prestamo(request):
 # Método alumno y profesor:
 
 
-def solicitar_prestamo(request):
-    pass
-
-# =========================
-# VISTAS PRINCIPALES
-# =========================
-
 # Pantalla principal
 
 # Vista para la pantalla principal:
 
 
-# Libros
+def pantalla_principal(request):
+    return render(request, 'libros/pantalla_principal.html')
 
-# =========================
-# LIBROS
-# =========================
+# Libros
 
 # Vista para listar libros (todos los disponibles):
 
+
 def lista_libros(request):
     # Filtra los libros disponibles
-    libros = Libro.objects.all()
-    return render(request, 'materiales/libros/lista_libros.html', {'libros': libros})
+    libros = Libro.objects.filter(estado='Disponible')
+    return render(request, 'libros/lista_libros.html', {'libros': libros})
 
-# =========================
-# ALTAS
-# =========================
-
-# =========================
-# ALTAS
-# =========================
+# Vista para dar de alta un libro:
 
 
 def alta_libro(request):
-    if request.method == 'POST':
-        print("POST recibido:", request.POST)
-        libro_form = LibroForm(request.POST, request.FILES)
-        if libro_form.is_valid():
-            libro = libro_form.save(commit=False)
-            # --- NUEVO: Manejo de imagen por URL ---
-            url_imagen = request.POST.get('url_upload_input', '').strip()
-            if url_imagen and not request.FILES.get('imagen') and not getattr(libro, 'imagen', None):
-                try:
-                    response = requests.get(url_imagen)
-                    if response.status_code == 200:
-                        nombre_archivo = os.path.basename(urlparse(url_imagen).path)
-                        if not nombre_archivo:
-                            nombre_archivo = 'imagen_libro.jpg'
-                        libro.imagen.save(nombre_archivo, ContentFile(response.content), save=False)
-                except Exception as e:
-                    print("Error descargando imagen:", e)
-            libro.save()
-            numeros = request.POST.getlist('numero_ejemplar[]')
-            sedes = request.POST.getlist('sede[]')
-            disponibilidades = request.POST.getlist('disponibilidad[]')
-            observaciones = request.POST.getlist('observaciones[]')
-            # Validación de longitud de arrays
-            total_ejemplares = min(len(numeros), len(sedes), len(disponibilidades), len(observaciones))
-            for i in range(total_ejemplares):
-                Ejemplar.objects.create(
-                    libro=libro,
-                    numero_ejemplar=numeros[i],
-                    sede=sedes[i],
-                    disponibilidad=disponibilidades[i],
-                    observaciones=observaciones[i]
-                )
-            return redirect('lista_libros')
-        else:
-            # Opcional: mensajes de error para el usuario
-            messages.error(request, "Por favor, corrige los errores en el formulario.")
+    form = LibroForm(request.POST or None)
+    if request.method == 'POST' and form.is_valid():
+        libro = form.save(commit=False)
+        libro.save()
+        context = {'form': form, 'success': 'Libro registrado exitosamente.'}
     else:
-        libro_form = LibroForm()
-    return render(request, 'materiales/formularios_altas/alta_libro.html', {'form': libro_form})
-# =========================
-# BAJAS
-# =========================
+        context = {'form': form, 'error': 'Por favor complete todos los campos obligatorios.'} if request.method == 'POST' else {
+            'form': form}
 
-# =========================
-# BAJAS
-# =========================
+    return render(request, 'libros/alta_libro.html', context)
+
+# Vista para dar de baja un libro:
+
 
 def baja_libro(request):
     if request.method == 'POST':
@@ -394,11 +331,8 @@ def baja_libro(request):
     return redirect('lista_libros')
 
 
-# =========================
-# EDICIÓN
-# =========================
-
 # Vista para editar un libro:
+
 
 def editar_libro(request, libro_id):
     libro = get_object_or_404(Libro, id_libro=libro_id)
@@ -411,7 +345,7 @@ def editar_libro(request, libro_id):
     else:
         form = LibroForm(instance=libro)
 
-    return render(request, 'materiales/formularios_editar/editar_libro.html', {'form': form, 'libro': libro})
+    return render(request, 'libros/editar_libro.html', {'form': form, 'libro': libro})
 
 
 # Mapas
@@ -421,7 +355,7 @@ def editar_libro(request, libro_id):
 
 def mapas_view(request):
     mapas = Mapas.objects.filter(estado='Disponible')
-    return render(request, 'materiales/mapas/lista_mapas.html', {'mapas': mapas})
+    return render(request, 'libros/mapas.html', {'mapas': mapas})
 
 # Vista para dar de baja un mapa:
 
@@ -457,7 +391,7 @@ def alta_mapa(request):
         context = {'form': form, 'error': 'Por favor complete todos los campos obligatorios.'} if request.method == 'POST' else {
             'form': form}
 
-    return render(request, 'materiales/formularios_altas/alta_mapa.html', context)
+    return render(request, 'libros/alta_mapa.html', context)
 
 # Vista para editar un mapa:
 
@@ -473,7 +407,7 @@ def editar_mapa(request, mapa_id):
     else:
         form = MapaForm(instance=mapa)
 
-    return render(request, 'materiales/formularios_editar/editar_mapa.html', {'form': form, 'mapa': mapa})
+    return render(request, 'libros/editar_mapa.html', {'form': form, 'mapa': mapa})
 
 # Vista para mostrar elementos multimedia (por implementar):
 
@@ -482,7 +416,7 @@ def editar_mapa(request, mapa_id):
 
 def multimedia_view(request):
     multimedia = Multimedia.objects.filter(estado='Disponible')
-    return render(request, 'materiales/multimedia/lista_multimedia.html', {'multimedia': multimedia})
+    return render(request, 'libros/multimedia.html', {'multimedia': multimedia})
 
 # Vista para dar de baja un mapa:
 
@@ -519,7 +453,7 @@ def alta_multimedia(request):
         context = {'form': form, 'error': 'Por favor complete todos los campos obligatorios.'} if request.method == 'POST' else {
             'form': form}
 
-    return render(request, 'materiales/formularios_altas/alta_multimedia.html', context)
+    return render(request, 'libros/alta_multimedia.html', context)
 
 # Vista para editar un mapa:
 
@@ -535,14 +469,14 @@ def editar_multimedia(request, multi_id):
     else:
         form = MultimediaForm(instance=multimedia)
 
-    return render(request, 'materiales/formularios_editar/editar_multimedia.html', {'form': form, 'mapa': multimedia})
+    return render(request, 'libros/editar_multimedia.html', {'form': form, 'mapa': multimedia})
 
 # Notebook
 
 
 def notebook_view(request):
     notebook = Notebook.objects.filter(estado='Disponible')
-    return render(request, 'materiales/notebook/lista_notebooks.html', {'notebook': notebook})
+    return render(request, 'libros/notebook.html', {'notebook': notebook})
 
 # Vista para dar de baja un mapa:
 
@@ -579,7 +513,7 @@ def alta_notebook(request):
         context = {'form': form, 'error': 'Por favor complete todos los campos obligatorios.'} if request.method == 'POST' else {
             'form': form}
 
-    return render(request, 'materiales/formularios_altas/alta_notebook.html', context)
+    return render(request, 'libros/alta_notebook.html', context)
 
 # Vista para editar un mapa:
 
@@ -595,14 +529,14 @@ def editar_notebook(request, not_id):
     else:
         form = NotebookForm(instance=notebook)
 
-    return render(request, 'materiales/formularios_editar/editar_notebook.html', {'form': form, 'notebook': notebook})
+    return render(request, 'libros/editar_notebook.html', {'form': form, 'notebook': notebook})
 
 # Proyector
 
 
 def proyector_view(request):
     proyector = Proyector.objects.filter(estado='Disponible')
-    return render(request, 'materiales/proyector/lista_proyectores.html', {'proyector': proyector})
+    return render(request, 'libros/proyector.html', {'proyector': proyector})
 
 # Vista para dar de baja un mapa:
 
@@ -639,7 +573,7 @@ def alta_proyector(request):
         context = {'form': form, 'error': 'Por favor complete todos los campos obligatorios.'} if request.method == 'POST' else {
             'form': form}
 
-    return render(request, 'materiales/formularios_altas/alta_proyector.html', context)
+    return render(request, 'libros/alta_proyector.html', context)
 
 # Vista para editar un mapa:
 
@@ -655,21 +589,15 @@ def editar_proyector(request, proyector_id):
     else:
         form = ProyectorForm(instance=proyector)
 
-    return render(request, 'materiales/formularios_editar/editar_proyector.html', {'form': form, 'proyector': proyector})
+    return render(request, 'libros/editar_proyector.html', {'form': form, 'proyector': proyector})
 
 
 # Varios
 
-def alta_programa(request):
-    """
-    Vista temporal para el alta de programas. Devuelve una respuesta simple para evitar errores de importación.
-    """
-    return HttpResponse("Vista de alta de programa en construcción.")
-
 
 def varios_view(request):
     varios = Varios.objects.filter(estado='Disponible')
-    return render(request, 'materiales/varios/lista_varios.html', {'varios': varios})
+    return render(request, 'libros/varios.html', {'varios': varios})
 
 # Vista para dar de baja un mapa:
 
@@ -706,7 +634,7 @@ def alta_varios(request):
         context = {'form': form, 'error': 'Por favor complete todos los campos obligatorios.'} if request.method == 'POST' else {
             'form': form}
 
-    return render(request, 'materiales/formularios_altas/alta_varios.html', context)
+    return render(request, 'libros/alta_varios.html', context)
 
 # Vista para editar un mapa:
 
@@ -722,7 +650,7 @@ def editar_varios(request, varios_id):
     else:
         form = VariosForm(instance=varios)
 
-    return render(request, 'materiales/formularios_editar/editar_varios.html', {'form': form, 'varios': varios})
+    return render(request, 'libros/editar_varios.html', {'form': form, 'varios': varios})
 
 
 # Vista para registro de bajas 
@@ -736,27 +664,549 @@ def registro_bajas(request):
         'libros_no_disponibles': libros_no_disponibles,
     }
 
-    return render(request, 'materiales/registros/registro_bajas.html', context)
+    return render(request, 'libros/registro_bajas.html', context)
 
-# Estas funciones se han movido al proyecto principal (biblioteca_digital/views.py)
-'''def home(request):
-    return render(request, 'home.html')
+# Reactivar libros en el historial de bajas
+def reactivar_libro(request, libro_id):
+    if request.method == 'POST':
+        libro = get_object_or_404(Libro, id_libro=libro_id)
+        libro.estado = 'Disponible'
+        libro.motivo_baja = ''  # Opcional: limpiar el motivo de baja
+        libro.save()
+        messages.success(request, f'El libro "{libro.titulo}" ha sido reactivado exitosamente.')
+        return redirect('registro_de_bajas')
+    return redirect('registro_de_bajas')
 
-def alta_material(request):
-    return render(request, 'materiales/alta_material.html')'''
+# PRESTAMOS
 
-def get_material_template(request, tipo):
+def solicitar_prestamo(request, libro_id):
+    libro = get_object_or_404(Libro, id_libro=libro_id)
+    
+    # Verificar si el libro está disponible
+    if libro.estado != 'Disponible':
+        messages.error(request, "Este libro no está disponible para préstamo.")
+        return redirect('lista_libros')
+    
+    # Crear el préstamo
+    if request.method == 'POST':
+        nombre_usuario = request.POST.get('nombre_usuario', '')
+        email_usuario = request.POST.get('email_usuario', '')
+        tipo_usuario = request.POST.get('tipo_usuario', 'alumno')
+        tipo_prestamo = request.POST.get('tipo_prestamo', 'domicilio')
+        
+        # NO calcular fecha límite aquí - se calculará cuando se apruebe
+        prestamo = Prestamo(
+            nombre_usuario=nombre_usuario,
+            email_usuario=email_usuario,
+            libro=libro,
+            tipo_prestamo=tipo_prestamo,
+            tipo_usuario=tipo_usuario,
+            estado='solicitado',
+            fecha_limite_reserva=None  # Se establecerá cuando se apruebe la solicitud
+        )
+        prestamo.save()
+        
+        # Cambiar estado del libro a reservado
+        libro.estado = 'Reservado'
+        libro.save()
+        
+        messages.success(request, f"Has solicitado el préstamo del libro '{libro.titulo}'. La bibliotecaria revisará tu solicitud y tendrás 3 días hábiles para retirarlo una vez aprobada.")
+        return redirect('prestamos_solicitados')
+    
+    return render(request, 'libros/solicitar_prestamo.html', {'libro': libro})
+
+
+def aprobar_solicitud_prestamo(request, prestamo_id):
     """
-    Vista para servir los templates específicos de cada tipo de material
+    Aprueba la solicitud de préstamo y empieza el cronómetro de reserva
     """
-    template_name = f'materiales/formularios_altas/alta_{tipo}.html'
-    try:
-        return render(request, template_name)
-    except TemplateDoesNotExist:
-        return HttpResponse('', status=404)
+    prestamo = get_object_or_404(Prestamo, id_prestamo=prestamo_id)
+    
+    if prestamo.estado != 'solicitado':
+        messages.error(request, f"La solicitud no puede ser aprobada porque su estado actual es {prestamo.get_estado_display()}.")
+        return redirect('gestionar_prestamos')
+    
+    # AQUÍ es donde empieza el cronómetro de reserva (3 días hábiles)
+    fecha_limite = calcular_dias_habiles(timezone.now(), 3)
+    
+    prestamo.estado = 'aprobado_reserva'  # Nuevo estado: aprobado para reserva
+    prestamo.fecha_limite_reserva = fecha_limite
+    prestamo.fecha_aprobacion = timezone.now()
+    prestamo.save()
+    
+    # Calcular días hábiles restantes para mostrar en el mensaje
+    dias_habiles = 3
+    messages.success(request, f"✅ RESERVA APROBADA: '{prestamo.libro.titulo}' para {prestamo.nombre_usuario}. Tiempo límite: {fecha_limite.strftime('%d/%m/%Y a las %H:%M')} ({dias_habiles} días hábiles).")
+    
+    return redirect('gestionar_prestamos')
 
-def modificacion_materiales(request):
-    return render(request, 'materiales/modificacion_materiales.html')
+def cancelar_reserva_usuario(request, prestamo_id):
+    """
+    Permite al usuario cancelar su propia solicitud o reserva
+    """
+    prestamo = get_object_or_404(Prestamo, id_prestamo=prestamo_id)
+    
+    # Solo permitir cancelar si está en estado solicitado o aprobado_reserva
+    if prestamo.estado not in ['solicitado', 'aprobado_reserva']:
+        messages.error(request, f"No puedes cancelar este préstamo porque su estado actual es {prestamo.get_estado_display()}.")
+        return redirect('gestionar_prestamos')
+    
+    if request.method == 'POST':
+        motivo_cancelacion = request.POST.get('motivo_cancelacion', 'Cancelado por el usuario')
+        
+        # Cambiar estado a rechazado
+        prestamo.estado = 'rechazado'
+        prestamo.motivo_rechazo = f"CANCELADO POR USUARIO: {motivo_cancelacion}"
+        prestamo.save()
+        
+        # Devolver el libro al estado disponible
+        libro = prestamo.libro
+        libro.estado = 'Disponible'
+        libro.save()
+        
+        messages.success(request, f"Has cancelado exitosamente la reserva del libro '{prestamo.libro.titulo}'.")
+        
+        return redirect('gestionar_prestamos')
+    
+    return render(request, 'libros/cancelar_reserva_usuario.html', {'prestamo': prestamo})
 
-def prestamos(request):
-    return render(request, 'materiales/prestamos.html')
+def prestamos_solicitados(request):
+    # Verificar préstamos vencidos antes de mostrar
+    verificar_prestamos_vencidos()
+    
+    # Obtener todos los préstamos (simplificado sin filtrado por usuario)
+    prestamos = Prestamo.objects.all().order_by('-fecha_solicitud')
+    
+    # Verificar si hay alertas de tiempo (menos de 1 día hábil restante)
+    alertas = []
+    ahora = timezone.now()
+    
+    for prestamo in prestamos:
+        if prestamo.estado == 'solicitado' and prestamo.fecha_limite_reserva:
+            tiempo_restante = prestamo.fecha_limite_reserva - ahora
+            # Si queda menos de 24 horas
+            if tiempo_restante.total_seconds() > 0 and tiempo_restante.total_seconds() < 86400:  # 24 horas en segundos
+                alertas.append(f"¡ATENCIÓN! El préstamo del libro '{prestamo.libro.titulo}' vence pronto.")
+    
+    return render(request, 'libros/prestamos_solicitados.html', {
+        'prestamos': prestamos,
+        'alertas': alertas
+    })
+
+def aprobar_prestamo(request, prestamo_id):
+    prestamo = get_object_or_404(Prestamo, id_prestamo=prestamo_id)
+    
+    if prestamo.estado != 'solicitado':
+        messages.error(request, f"El préstamo no puede ser aprobado porque su estado actual es {prestamo.get_estado_display()}.")
+        return redirect('gestionar_prestamos')
+    
+    prestamo.estado = 'aprobado'
+    prestamo.fecha_aprobacion = timezone.now()
+    
+    # Calcular fecha de devolución (15 días)
+    prestamo.fecha_devolucion_programada = timezone.now() + datetime.timedelta(days=15)
+    
+    # Limpiar fecha límite de reserva ya que fue retirado
+    prestamo.fecha_limite_reserva = None
+    
+    prestamo.save()
+    
+    messages.success(request, f"El préstamo del libro '{prestamo.libro.titulo}' ha sido aprobado. Fecha de devolución: {prestamo.fecha_devolucion_programada.strftime('%d/%m/%Y')}.")
+    
+    return redirect('gestionar_prestamos')
+
+# MODIFICAR ESTA FUNCIÓN EXISTENTE
+def rechazar_prestamo(request, prestamo_id):
+    prestamo = get_object_or_404(Prestamo, id_prestamo=prestamo_id)
+    
+    if prestamo.estado not in ['solicitado', 'vencido']:
+        messages.error(request, f"El préstamo no puede ser rechazado porque su estado actual es {prestamo.get_estado_display()}.")
+        return redirect('gestionar_prestamos')
+    
+    if request.method == 'POST':
+        motivo_rechazo = request.POST.get('motivo_rechazo', '')
+        prestamo.estado = 'rechazado'
+        prestamo.motivo_rechazo = motivo_rechazo
+        prestamo.save()
+        
+        # Devolver el libro al estado disponible
+        libro = prestamo.libro
+        libro.estado = 'Disponible'
+        libro.save()
+        
+        messages.success(request, f"El préstamo del libro '{prestamo.libro.titulo}' ha sido rechazado.")
+        
+        return redirect('gestionar_prestamos')
+    
+    return render(request, 'libros/rechazar_prestamo.html', {'prestamo': prestamo})
+
+def finalizar_prestamo(request, prestamo_id):
+    prestamo = get_object_or_404(Prestamo, id_prestamo=prestamo_id)
+    
+    if prestamo.estado != 'aprobado':
+        messages.error(request, f"El préstamo no puede ser finalizado porque su estado actual es {prestamo.get_estado_display()}.")
+        return redirect('gestionar_prestamos')
+    
+    prestamo.estado = 'finalizado'
+    prestamo.fecha_devolucion_real = timezone.now()
+    prestamo.save()
+    
+    # Devolver el libro al estado disponible
+    libro = prestamo.libro
+    libro.estado = 'Disponible'
+    libro.save()
+    
+    messages.success(request, f"El préstamo del libro '{prestamo.libro.titulo}' ha sido finalizado.")
+    
+    return redirect('gestionar_prestamos')
+
+
+def gestionar_prestamos(request):
+    # Verificar préstamos vencidos antes de mostrar
+    verificar_prestamos_vencidos()
+    
+    # Obtener préstamos según filtro (sin verificación de permisos)
+    filtro = request.GET.get('filtro', 'todos')
+    
+    if filtro == 'solicitados':
+        prestamos = Prestamo.objects.filter(estado='solicitado').order_by('-fecha_solicitud')
+    elif filtro == 'activos':
+        prestamos = Prestamo.objects.filter(estado='aprobado').order_by('-fecha_aprobacion')
+    elif filtro == 'finalizados':
+        prestamos = Prestamo.objects.filter(estado__in=['finalizado', 'rechazado', 'vencido']).order_by('-fecha_solicitud')
+    else:
+        prestamos = Prestamo.objects.all().order_by('-fecha_solicitud')
+    
+    return render(request, 'libros/gestionar_prestamos.html', {
+        'prestamos': prestamos,
+        'filtro': filtro
+    })
+
+
+# FUNCIÓN PARA CALCULAR DÍAS HÁBILES (Lunes a Viernes)
+def calcular_dias_habiles(fecha_inicio, dias_habiles):
+    """
+    Calcula una fecha que esté N días hábiles después de la fecha de inicio
+    """
+    dias_agregados = 0
+    fecha_actual = fecha_inicio
+    
+    while dias_agregados < dias_habiles:
+        fecha_actual += datetime.timedelta(days=1)
+        # Si es día de semana (lunes=0, domingo=6), contar como día hábil
+        if fecha_actual.weekday() < 5:  # 0-4 son lunes a viernes
+            dias_agregados += 1
+    
+    return fecha_actual
+
+# FUNCIÓN PARA VERIFICAR PRÉSTAMOS VENCIDOS
+def verificar_prestamos_vencidos():
+    """
+    Verifica y actualiza préstamos que han vencido su tiempo de reserva
+    """
+    ahora = timezone.now()
+    
+    # Buscar préstamos aprobados para reserva que han vencido
+    prestamos_vencidos = Prestamo.objects.filter(
+        estado='aprobado_reserva',  # Cambio aquí: solo los aprobados para reserva
+        fecha_limite_reserva__lt=ahora
+    )
+    
+    for prestamo in prestamos_vencidos:
+        # Cambiar estado del préstamo a vencido
+        prestamo.estado = 'vencido'
+        prestamo.save()
+        
+        # Devolver el libro al estado disponible
+        libro = prestamo.libro
+        libro.estado = 'Disponible'
+        libro.save()
+
+# AGREGAR ESTAS FUNCIONES NUEVAS
+
+def confirmar_retiro_libro(request, prestamo_id):
+    """
+    Confirma que el alumno retiró el libro físicamente
+    """
+    prestamo = get_object_or_404(Prestamo, id_prestamo=prestamo_id)
+    
+    if prestamo.estado not in ['aprobado_reserva']:  # Cambio aquí
+        messages.error(request, f"No se puede confirmar el retiro porque el estado actual es {prestamo.get_estado_display()}.")
+        return redirect('gestionar_prestamos')
+    
+    # Verificar si aún está dentro del tiempo de reserva
+    if prestamo.fecha_limite_reserva and timezone.now() > prestamo.fecha_limite_reserva:
+        messages.error(request, "El tiempo de reserva ha vencido. No se puede confirmar el retiro.")
+        return redirect('gestionar_prestamos')
+    
+    if request.method == 'POST':
+        # Cambiar estado a aprobado (libro retirado y préstamo activo)
+        prestamo.estado = 'aprobado'
+        prestamo.fecha_retiro_real = timezone.now()  # Nueva fecha de retiro
+        
+        # Calcular fecha de devolución (15 días desde el retiro)
+        prestamo.fecha_devolucion_programada = timezone.now() + datetime.timedelta(days=15)
+        
+        # Limpiar fecha límite de reserva ya que fue retirado
+        prestamo.fecha_limite_reserva = None
+        
+        prestamo.save()
+        
+        messages.success(request, f"Se confirmó el retiro del libro '{prestamo.libro.titulo}'. Fecha de devolución: {prestamo.fecha_devolucion_programada.strftime('%d/%m/%Y')}.")
+        
+        return redirect('gestionar_prestamos')
+    
+    return render(request, 'libros/confirmar_retiro.html', {'prestamo': prestamo})
+
+def marcar_no_retiro(request, prestamo_id):
+    """
+    Marca que el alumno no retiró el libro
+    """
+    prestamo = get_object_or_404(Prestamo, id_prestamo=prestamo_id)
+    
+    if prestamo.estado != 'solicitado':
+        messages.error(request, f"No se puede marcar como no retirado porque el estado actual es {prestamo.get_estado_display()}.")
+        return redirect('gestionar_prestamos')
+    
+    if request.method == 'POST':
+        motivo = request.POST.get('motivo', 'No retirado por el usuario')
+        
+        # Cambiar estado a rechazado
+        prestamo.estado = 'rechazado'
+        prestamo.motivo_rechazo = motivo
+        prestamo.save()
+        
+        # Devolver el libro al estado disponible
+        libro = prestamo.libro
+        libro.estado = 'Disponible'
+        libro.save()
+        
+        messages.success(request, f"Se marcó como no retirado el libro '{prestamo.libro.titulo}'. El libro está nuevamente disponible.")
+        
+        return redirect('gestionar_prestamos')
+    
+    return render(request, 'libros/marcar_no_retiro.html', {'prestamo': prestamo})
+
+# Agregar estos imports al inicio de tu archivo views.py
+from django.contrib.auth import login, logout, authenticate
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.mixins import LoginRequiredMixin
+from .forms import RegistroForm, LoginForm, CambiarPasswordForm
+from .models import Usuario
+
+# Funciones auxiliares para verificar permisos
+def es_bibliotecaria(user):
+    return user.is_authenticated and user.perfil == 'bibliotecaria'
+
+# Agregar estas vistas al final de tu archivo views.py
+
+def login_view(request):
+    if request.user.is_authenticated:
+        return redirect('pantalla_principal')
+    
+    if request.method == 'POST':
+        form = LoginForm(request, data=request.POST)
+        if form.is_valid():
+            dni = form.cleaned_data.get('username')
+            password = form.cleaned_data.get('password')
+            user = authenticate(request, username=dni, password=password)
+            if user is not None:
+                login(request, user)
+                messages.success(request, f'Bienvenido/a {user.get_full_name()}')
+                return redirect('pantalla_principal')
+    else:
+        form = LoginForm()
+    
+    return render(request, 'libros/login.html', {'form': form})
+
+def registro_view(request):
+    if request.method == 'POST':
+        form = RegistroForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            messages.success(request, 'Cuenta creada exitosamente. Ya puedes iniciar sesión.')
+            return redirect('login')
+    else:
+        form = RegistroForm()
+    
+    return render(request, 'libros/registro.html', {'form': form})
+
+@login_required
+def logout_view(request):
+    logout(request)
+    messages.success(request, 'Has cerrado sesión exitosamente.')
+    return redirect('login')
+
+@login_required
+def perfil_usuario(request):
+    return render(request, 'libros/perfil_usuario.html', {'usuario': request.user})
+
+@login_required
+def cambiar_password(request):
+    if request.method == 'POST':
+        form = CambiarPasswordForm(request.user, request.POST)
+        if form.is_valid():
+            request.user.set_password(form.cleaned_data['password_nueva'])
+            request.user.save()
+            messages.success(request, 'Contraseña cambiada exitosamente. Inicia sesión nuevamente.')
+            return redirect('login')
+    else:
+        form = CambiarPasswordForm(request.user)
+    
+    return render(request, 'libros/cambiar_password.html', {'form': form})
+
+# Actualizar estas vistas existentes para agregar autenticación
+
+@login_required  # Agregar este decorador
+def pantalla_principal(request):
+    return render(request, 'libros/pantalla_principal.html')
+
+@login_required  # Agregar este decorador
+def lista_libros(request):
+    libros = Libro.objects.filter(estado='Disponible')
+    return render(request, 'libros/lista_libros.html', {'libros': libros})
+
+@user_passes_test(es_bibliotecaria)  # Solo bibliotecarias pueden dar de alta libros
+def alta_libro(request):
+    # ... mantener el código existente ...
+    form = LibroForm(request.POST or None)
+    if request.method == 'POST' and form.is_valid():
+        libro = form.save(commit=False)
+        libro.save()
+        context = {'form': form, 'success': 'Libro registrado exitosamente.'}
+    else:
+        context = {'form': form, 'error': 'Por favor complete todos los campos obligatorios.'} if request.method == 'POST' else {
+            'form': form}
+    return render(request, 'libros/alta_libro.html', context)
+
+# Agregar decoradores similares a todas las vistas de alta de material
+@user_passes_test(es_bibliotecaria)
+def alta_mapa(request):
+    # ... código existente ...
+    pass
+
+@user_passes_test(es_bibliotecaria)
+def alta_multimedia(request):
+    # ... código existente ...
+    pass
+
+@user_passes_test(es_bibliotecaria)
+def alta_notebook(request):
+    # ... código existente ...
+    pass
+
+@user_passes_test(es_bibliotecaria)
+def alta_proyector(request):
+    # ... código existente ...
+    pass
+
+@user_passes_test(es_bibliotecaria)
+def alta_varios(request):
+    # ... código existente ...
+    pass
+
+# Actualizar la vista de préstamos solicitados para mostrar solo los del usuario actual
+@login_required
+def prestamos_solicitados(request):
+    # Verificar préstamos vencidos antes de mostrar
+    verificar_prestamos_vencidos()
+    
+    # Filtrar préstamos según el tipo de usuario
+    if request.user.es_bibliotecaria():
+        # La bibliotecaria ve todos los préstamos
+        prestamos = Prestamo.objects.all().order_by('-fecha_solicitud')
+    else:
+        # Los usuarios normales solo ven sus propios préstamos
+        prestamos = Prestamo.objects.filter(
+            Q(email_usuario=request.user.email) | Q(usuario=request.user)
+        ).order_by('-fecha_solicitud')
+    
+    # Verificar si hay alertas de tiempo (menos de 1 día hábil restante)
+    alertas = []
+    ahora = timezone.now()
+    
+    for prestamo in prestamos:
+        if prestamo.estado == 'solicitado' and prestamo.fecha_limite_reserva:
+            tiempo_restante = prestamo.fecha_limite_reserva - ahora
+            # Si queda menos de 24 horas
+            if tiempo_restante.total_seconds() > 0 and tiempo_restante.total_seconds() < 86400:  # 24 horas en segundos
+                alertas.append(f"¡ATENCIÓN! El préstamo del libro '{prestamo.libro.titulo}' vence pronto.")
+    
+    return render(request, 'libros/prestamos_solicitados.html', {
+        'prestamos': prestamos,
+        'alertas': alertas
+    })
+
+# Actualizar la vista de solicitar préstamo para usar el usuario logueado
+@login_required
+def solicitar_prestamo(request, libro_id):
+    libro = get_object_or_404(Libro, id_libro=libro_id)
+    
+    # Verificar si el libro está disponible
+    if libro.estado != 'Disponible':
+        messages.error(request, "Este libro no está disponible para préstamo.")
+        return redirect('lista_libros')
+    
+    # Crear el préstamo
+    if request.method == 'POST':
+        tipo_usuario = request.POST.get('tipo_usuario', 'alumno')
+        tipo_prestamo = request.POST.get('tipo_prestamo', 'domicilio')
+        
+        prestamo = Prestamo(
+            usuario=request.user,  # Asignar el usuario logueado
+            nombre_usuario=request.user.get_full_name(),  # Llenar automáticamente
+            email_usuario=request.user.email,  # Llenar automáticamente
+            libro=libro,
+            tipo_prestamo=tipo_prestamo,
+            tipo_usuario=tipo_usuario,
+            estado='solicitado',
+            fecha_limite_reserva=None
+        )
+        prestamo.save()
+        
+        # Cambiar estado del libro a reservado
+        libro.estado = 'Reservado'
+        libro.save()
+        
+        messages.success(request, f"Has solicitado el préstamo del libro '{libro.titulo}'. La biblioteca revisará tu solicitud.")
+        return redirect('prestamos_solicitados')
+    
+    return render(request, 'libros/solicitar_prestamo.html', {'libro': libro})
+
+# Gestión de préstamos solo para bibliotecarias
+@user_passes_test(es_bibliotecaria)
+def gestionar_prestamos(request):
+    # ... mantener el código existente ...
+    verificar_prestamos_vencidos()
+    
+    filtro = request.GET.get('filtro', 'todos')
+    
+    if filtro == 'solicitados':
+        prestamos = Prestamo.objects.filter(estado='solicitado').order_by('-fecha_solicitud')
+    elif filtro == 'activos':
+        prestamos = Prestamo.objects.filter(estado='aprobado').order_by('-fecha_aprobacion')
+    elif filtro == 'finalizados':
+        prestamos = Prestamo.objects.filter(estado__in=['finalizado', 'rechazado', 'vencido']).order_by('-fecha_solicitud')
+    else:
+        prestamos = Prestamo.objects.all().order_by('-fecha_solicitud')
+    
+    return render(request, 'libros/gestionar_prestamos.html', {
+        'prestamos': prestamos,
+        'filtro': filtro
+    })
+
+# Agregar el decorador a todas las funciones de gestión de préstamos
+@user_passes_test(es_bibliotecaria)
+def aprobar_prestamo(request, prestamo_id):
+    # ... código existente ...
+    pass
+
+@user_passes_test(es_bibliotecaria)
+def rechazar_prestamo(request, prestamo_id):
+    # ... código existente ...
+    pass
+
+@user_passes_test(es_bibliotecaria)
+def finalizar_prestamo(request, prestamo_id):
+    # ... código existente ...
+    pass
