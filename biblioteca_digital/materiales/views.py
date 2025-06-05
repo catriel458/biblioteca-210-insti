@@ -305,7 +305,7 @@ def alta_libro(request):
         context = {'form': form, 'error': 'Por favor complete todos los campos obligatorios.'} if request.method == 'POST' else {
             'form': form}
 
-    return render(request, 'libros/alta_libro.html', context)
+    return render(request, 'views/templates/materiales/alta_material.html', context)
 
 # Vista para dar de baja un libro:
 

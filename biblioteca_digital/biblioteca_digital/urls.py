@@ -28,7 +28,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     # Rutas principales del sitio
     path('', views.home, name='home'),  # Nueva ruta para el home principal
-    path('alta_material/', views.alta_material, name='alta_material'),  # Nueva ruta para alta_material
+    path('alta_material/', views.alta_libro, name='alta_libro'),  # Nueva ruta para alta_material
     path('modificacion_editar_material/', views.modificacion_editar_material, name='modificacion_editar_material'),
     # Rutas de la app materiales
     path('materiales/', include('materiales.urls')),
