@@ -878,6 +878,7 @@ def rechazar_prestamo(request, prestamo_id):
     
     return render(request, 'libros/rechazar_prestamo.html', {'prestamo': prestamo})
 
+@user_passes_test(es_bibliotecaria)
 def finalizar_prestamo(request, prestamo_id):
     prestamo = get_object_or_404(Prestamo, id_prestamo=prestamo_id)
     
@@ -1244,10 +1245,7 @@ def rechazar_prestamo(request, prestamo_id):
     # ... código existente ...
     pass
 
-@user_passes_test(es_bibliotecaria)
-def finalizar_prestamo(request, prestamo_id):
-    # ... código existente ...
-    pass
+
 
 # AGREGAR estas nuevas vistas al final del archivo
 
