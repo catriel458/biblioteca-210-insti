@@ -11,7 +11,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse, JsonResponse
 from django.contrib import messages
 from django.db.models import Q
-
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
 from .forms import (
     LibroForm, MapaForm, MultimediaForm, NotebookForm, ProyectorForm, VariosForm
 )
@@ -401,7 +402,7 @@ def baja_libro(request):
 # Vista para editar un libro:
 
 def editar_libro(request, libro_id):
-    libro = get_object_or_404(Libro, id_libro=libro_id)
+    libro = get_object_or_404(Libro, id=libro_id)
 
     if request.method == 'POST':
         form = LibroForm(request.POST, instance=libro)
@@ -411,7 +412,7 @@ def editar_libro(request, libro_id):
     else:
         form = LibroForm(instance=libro)
 
-    return render(request, 'materiales/formularios_editar/editar_libro.html', {'form': form, 'libro': libro})
+    return render(request, 'components/modificacion_materiales/modificacion_editar_material.html', {'form': form, 'libro': libro})
 
 
 # Mapas
@@ -754,6 +755,88 @@ def get_material_template(request, tipo):
         return render(request, template_name)
     except TemplateDoesNotExist:
         return HttpResponse('', status=404)
+
+
+
+@csrf_exempt  # Si tienes CSRF en AJAX, puedes cambiarlo por @csrf_protect
+@require_POST
+def guardar_material_ajax(request):
+    """
+    Vista AJAX para guardar materiales de cualquier tipo y devolver JSON con el id creado.
+    """
+    tipo = request.POST.get('tipo_material')
+    if not tipo:
+        return JsonResponse({'success': False, 'error': 'Tipo de material no especificado'})
+
+    # --- Libro ---
+    if tipo == 'libro':
+        form = LibroForm(request.POST, request.FILES)
+        if form.is_valid():
+            libro = form.save()
+            # Crear ejemplares si se reciben arrays
+            numeros = request.POST.getlist('numero_ejemplar[]')
+            sedes = request.POST.getlist('sede[]')
+            disponibilidades = request.POST.getlist('disponibilidad[]')
+            observaciones = request.POST.getlist('observaciones[]')
+            total_ejemplares = min(len(numeros), len(sedes), len(disponibilidades), len(observaciones))
+            for i in range(total_ejemplares):
+                Ejemplar.objects.create(
+                    libro=libro,
+                    numero_ejemplar=numeros[i],
+                    sede=sedes[i],
+                    disponibilidad=disponibilidades[i],
+                    observaciones=observaciones[i]
+                )
+            return JsonResponse({'success': True, 'id_material': libro.id})
+        else:
+            return JsonResponse({'success': False, 'error': form.errors.as_json()})
+
+    # --- Mapa ---
+    elif tipo == 'mapa':
+        form = MapaForm(request.POST, request.FILES)
+        if form.is_valid():
+            mapa = form.save()
+            return JsonResponse({'success': True, 'id_material': mapa.id})
+        else:
+            return JsonResponse({'success': False, 'error': form.errors.as_json()})
+
+    # --- Multimedia ---
+    elif tipo == 'multimedia':
+        form = MultimediaForm(request.POST, request.FILES)
+        if form.is_valid():
+            multimedia = form.save()
+            return JsonResponse({'success': True, 'id_material': multimedia.id_multi})
+        else:
+            return JsonResponse({'success': False, 'error': form.errors.as_json()})
+
+    # --- Notebook ---
+    elif tipo == 'notebook':
+        form = NotebookForm(request.POST, request.FILES)
+        if form.is_valid():
+            notebook = form.save()
+            return JsonResponse({'success': True, 'id_material': notebook.id_not})
+        else:
+            return JsonResponse({'success': False, 'error': form.errors.as_json()})
+
+    # --- Proyector ---
+    elif tipo == 'proyector':
+        form = ProyectorForm(request.POST, request.FILES)
+        if form.is_valid():
+            proyector = form.save()
+            return JsonResponse({'success': True, 'id_material': proyector.id_proyector})
+        else:
+            return JsonResponse({'success': False, 'error': form.errors.as_json()})
+
+    # --- Varios ---
+    elif tipo == 'varios':
+        form = VariosForm(request.POST, request.FILES)
+        if form.is_valid():
+            varios = form.save()
+            return JsonResponse({'success': True, 'id_material': varios.id})
+        else:
+            return JsonResponse({'success': False, 'error': form.errors.as_json()})
+
+    return JsonResponse({'success': False, 'error': 'Tipo de material no soportado'})
 
 def modificacion_materiales(request):
     return render(request, 'materiales/modificacion_materiales.html')

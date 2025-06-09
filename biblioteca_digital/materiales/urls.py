@@ -64,6 +64,7 @@ urlpatterns = [
     path('alta_proyector/', views.alta_proyector, name='alta_proyector'),
     path('alta_varios/', views.alta_varios, name='alta_varios'),
     path('alta_programa/', views.alta_programa, name='alta_programa'),
+    path('guardar/', views.guardar_material_ajax, name='guardar_material_ajax'),
     # =========================y
     # BAJAS
     # =========================
@@ -75,6 +76,7 @@ urlpatterns = [
     # EDICIÓN
     # =========================
     path('editar-libro/<int:libro_id>/', views.editar_libro, name='editar_libro'),
+    path('material/<int:libro_id>/editar/', views.editar_libro, name='editar_libro_alt'),
     path('multimedia/baja/', baja_multimedia, name='baja_multimedia'),
     path('alta-multimedia/', alta_multimedia, name='alta_multimedia'),
     path('editar-multimedia/<int:multi_id>/', editar_multimedia, name='editar_multimedia'),

@@ -560,6 +560,7 @@ document.addEventListener("DOMContentLoaded", function () {
             // Ya existe en el HTML, solo lo limpiamos
             simpleFileName = document.createElement('div');
         }
+        // Crear contenedor para la previsualización si no existe
         if (!simplePreviewContainer) {
             simplePreviewContainer = document.createElement('div');
             simplePreviewContainer.id = 'img_simple_preview_container';
@@ -568,6 +569,7 @@ document.addEventListener("DOMContentLoaded", function () {
             simplePreviewContainer.style.width = '100%';
             uploadSimple.querySelector('.upload-box').appendChild(simplePreviewContainer);
         }
+        // Crear imagen de previsualización si no existe
         if (!simplePreview) {
             simplePreview = document.createElement('img');
             simplePreview.id = 'img_simple_preview';
@@ -576,6 +578,7 @@ document.addEventListener("DOMContentLoaded", function () {
             simplePreview.style.display = 'none';
             simplePreviewContainer.appendChild(simplePreview);
         }
+        // Crear contenedor para el nombre del archivo si no existe
         if (!simpleFileName) {
             simpleFileName = document.createElement('div');
             simpleFileName.id = 'nombre_archivo_carga_simple';
@@ -647,22 +650,55 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
     // --- FIN: Carga y previsualización de imagen en upload_simple_container ---
-
     // --- INICIO: Confirmación y submit del formulario de alta de material (Solo Bootstrap) ---
-    // Este bloque centraliza el submit tras confirmación usando SOLO el modal Bootstrap.
-    // El botón 'Confirmar' debe ser type="button" y no debe haber listeners duplicados en ningún otro archivo ni en el HTML.
     const btnConfirmar = document.getElementById('btnConfirmarAltaMaterial');
     const formAltaMaterial = document.getElementById('form_alta_material');
+
     if (btnConfirmar && formAltaMaterial) {
         btnConfirmar.addEventListener('click', function() {
-            // Cierra el modal antes de enviar (delay para evitar glitches visuales)
             const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('modalConfirmacionAltaMaterial'));
             modal.hide();
+
             setTimeout(() => {
-                console.log("Enviando formulario de alta material...");
-                formAltaMaterial.submit();
-            }, 300); // Espera 300ms para asegurar el cierre del modal
+                console.log("Enviando formulario de alta material por AJAX...");
+                const formData = new FormData(formAltaMaterial);
+
+                fetch('/materiales/guardar/', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRFToken': getCookie('csrftoken')
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        mostrarModalCargaExitosa(data.id_material);
+                    } else {
+                        alert('Error al guardar: ' + (data.error || 'Error desconocido'));
+                    }
+                })
+                .catch(error => {
+                    alert('Error de red o servidor');
+                });
+            }, 300);
         });
     }
-    // --- FIN: Confirmación y submit del formulario de alta de material (Solo Bootstrap) ---
+
+    // Función para obtener el CSRF token de Django
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+// --- FIN: Confirmación y submit del formulario de alta de material (Solo Bootstrap) ---
 });
