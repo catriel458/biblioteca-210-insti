@@ -311,6 +311,8 @@ small.text-muted {
     border-radius: 6px;
     box-shadow: none;
     transition: background 0.2s, border 0.2s;
+    padding: 0rem 0rem !important;
+
 }
 .custom-upload-btn:hover {
     background: #1ca2a6 !important;

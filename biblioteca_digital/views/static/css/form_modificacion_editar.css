@@ -211,7 +211,8 @@ textarea.form-control {
     padding-top: 0;
     border: none;
     background: transparent !important;
-    display: none;
+    display: flex;
+    margin-bottom: 20px;
 }
 
 .boton-cancelar {
@@ -295,6 +296,5 @@ textarea.form-control {
 
 /* Form modified indicator */
 .form-modified {
-    background-color: #fffbf0;
     transition: background-color 0.3s ease;
 }

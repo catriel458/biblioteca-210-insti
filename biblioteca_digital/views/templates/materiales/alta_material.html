@@ -5,6 +5,7 @@
     <link rel="stylesheet" href="{% static 'css/main.css' %}">
     <link rel="stylesheet" href="{% static 'css/style_form.css' %}">
     <link rel="stylesheet" href="{% static 'css/botones.css' %}">
+    <link rel="stylesheet" href="{% static 'css/confirmacion_carga_exitosa.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -59,8 +60,7 @@
                 <!-- Fila 4/5: Carga de Imagen -->
                 <div id="upload_box_container" class="custom-upload-box-container" style="display: none; width: 100%;">
                 <div class="custom-upload-box w-100">
-                    <small class="text-muted">Seleccione una imagen o ingrese una URL:</small>
-                    <button class="btn btn-sm custom-upload-btn w-100 mb-2" type="button" onclick="document.getElementById('file_upload_input').click();">↑ Seleccionar imagen</button>
+                    <button class="btn btn-sm custom-upload-btn w-100 " type="button" onclick="document.getElementById('file_upload_input').click();">↑</button>
                     <input type="file" id="file_upload_input" name="imagen" accept="image/*" style="display: none;">
                     <input type="text" id="url_upload_input" class="form-control custom-upload-input mb-2" placeholder="O pegue un enlace de imagen aquí...">
                 </div>
@@ -81,11 +81,19 @@
 {% block modals %}
   {% include 'modals/manual_modal.html' %}
   {% include 'modals/confirmacion_alta_material.html' %}
+  {% include 'modals/confirmacion_carga_exitosa.html' %}
+
 {% endblock %}
 
 {% block extra_scripts %}
     <script src="{% static 'js/form_controler.js' %}" defer></script>
+<<<<<<< Updated upstream
     <script src="{% static 'js/modals/confirmacion_alta_material.js' %}" defer></script>
+=======
+    <script src="{% static 'js/modales/confirmacion_alta_material.js' %}" defer></script>
+    <script src="{% static 'js/confirmacion_carga_exitosa.js' %}"></script>
+
+>>>>>>> Stashed changes
     <script>
     document.addEventListener("DOMContentLoaded", function () {
     const form = document.getElementById('form_alta_material');
