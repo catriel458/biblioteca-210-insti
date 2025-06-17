@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Libros - Biblioteca</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'libros/css/styles.css' %}">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+    <script>
+        // Variables globales para permisos del usuario
+        var userIsBibliotecaria = {% if user.es_bibliotecaria %}true{% else %}false{% endif %};
+        var userIsAuthenticated = {% if user.is_authenticated %}true{% else %}false{% endif %};
+        
+        // URLs base usando Django template tags (MÉTODO CORRECTO)
+        var editarLibroUrlBase = "{% url 'editar_libro' 12345 %}".replace('12345', '');
+        var solicitarPrestamoUrlBase = "{% url 'solicitar_prestamo' 12345 %}".replace('12345', '');
+        var lapizImg = "{% static 'libros/img/lapiz.png' %}";
+        var trashImg = "{% static 'libros/img/trash.png' %}";
+        var libroAbiertoImg = "{% static 'libros/img/libro-abierto.png' %}";
+
+        // Funciones para abrir y cerrar el modal de baja
+        function abrirModal(libroId) {
+            console.log("Abriendo modal para libro ID:", libroId);
+            document.getElementById('libroIdInput').value = libroId;
+            document.getElementById('modal').style.display = 'block';
+        }
+
+        function cerrarModal() {
+            document.getElementById('modal').style.display = 'none';
+        }
+
+        // Búsqueda en tiempo real usando AJAX
+        $(document).ready(function() {
+            $('#search-query').on('input', function() {
+                var query = $(this).val();
+                console.log("Buscando:", query);
+
+                $.ajax({
+                    url: '{% url "buscar_libros" %}',
+                    data: {
+                        'q': query
+                    },
+                    dataType: 'json',
+                    success: function(data) {
+                        console.log("Datos recibidos:", data);
+                        $('#libros-table').empty();
+
+                        if (data.length > 0) {
+                            data.forEach(function(libro) {
+                                console.log("Procesando libro:", libro);
+                                
+                                // Verificar que el libro tenga id_libro
+                                if (!libro.id_libro) {
+                                    console.error("Libro sin id_libro:", libro);
+                                    return; // Saltar este libro
+                                }
+                                
+                                var acciones = '';
+                                
+                                // Solo bibliotecarias pueden editar/eliminar
+                                if (userIsBibliotecaria) {
+                                    // Usar Django template tags para generar URLs correctas
+                                    var editUrl = "{% url 'editar_libro' 12345 %}".replace('12345', libro.id_libro);
+                                    acciones += '<a href="' + editUrl + '" class="edit-link">';
+                                    acciones += '<img src="' + lapizImg + '" alt="Editar" style="cursor: pointer; width: 20px; height: 20px;">';
+                                    acciones += '</a> ';
+                                    acciones += '<img src="' + trashImg + '" alt="Eliminar" onclick="abrirModal(' + libro.id_libro + ')" style="cursor: pointer; width: 20px; height: 20px; margin-left: 5px;"> ';
+                                }
+                                
+                                // Todos los usuarios autenticados pueden solicitar préstamos
+                                if (userIsAuthenticated) {
+                                    // Usar Django template tags para generar URLs correctas
+                                    var prestamoUrl = "{% url 'solicitar_prestamo' 12345 %}".replace('12345', libro.id_libro);
+                                    acciones += '<a href="' + prestamoUrl + '">';
+                                    acciones += '<img src="' + libroAbiertoImg + '" alt="Solicitar Préstamo" style="cursor: pointer; width: 20px; height: 20px; margin-left: 5px;" title="Solicitar Préstamo">';
+                                    acciones += '</a>';
+                                } else {
+                                    acciones += '<span style="font-size: 12px; color: #666;">Inicia sesión para solicitar préstamos</span>';
+                                }
+
+                                var fila = '<tr>';
+                                fila += '<td>' + (libro.num_inventario || '') + '</td>';
+                                fila += '<td>' + (libro.titulo || '') + '</td>';
+                                fila += '<td>' + (libro.autor || '') + '</td>';
+                                fila += '<td>' + (libro.editorial || '') + '</td>';
+                                fila += '<td>' + (libro.clasificacion_cdu || '') + '</td>';
+                                fila += '<td>' + (libro.siglas_autor_titulo || '') + '</td>';
+                                fila += '<td>' + (libro.sede || '') + '</td>';
+                                fila += '<td>' + (libro.disponibilidad || '') + '</td>';
+                                fila += '<td><img src="' + (libro.img || '') + '" alt="' + (libro.titulo || '') + '" width="100" onerror="this.src=\'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDEwMCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjEwMCIgaGVpZ2h0PSIxMDAiIGZpbGw9IiNmMGYwZjAiLz48dGV4dCB4PSI1MCIgeT0iNTAiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxMiIgZmlsbD0iIzk5OTk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPk5vIEltYWdlbjwvdGV4dD48L3N2Zz4=\'"></td>';
+                                fila += '<td>' + acciones + '</td>';
+                                fila += '</tr>';
+
+                                $('#libros-table').append(fila);
+                            });
+                        } else {
+                            $('#libros-table').append('<tr><td colspan="10">No se encontraron libros disponibles.</td></tr>');
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error en AJAX:', error);
+                        console.error('Status:', status);
+                        console.error('Response:', xhr.responseText);
+                        $('#libros-table').append('<tr><td colspan="10">Hubo un error al intentar realizar la búsqueda.</td></tr>');
+                    }
+                });
+            });
+        });
+    </script>
+
+    <style>
+        body{
+            font-family: 'Calibri', 'Arial', sans-serif;
+        }
+
+        /* Estilos para el modal */
+        #modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 60px 0;
+        }
+
+        #modalContent {
+            background-color: #ffffff;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            width: 60%;
+            max-width: 600px;
+            text-align: center;
+        }
+
+        #modalContent h3 {
+            font-size: 1.8em;
+            color: #333;
+            margin-bottom: 20px;
+            font-family: 'Arial', sans-serif;
+        }
+
+        #modalContent label {
+            font-size: 1.1em;
+            color: #555;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        #modalContent input[type="text"], #modalContent input[type="file"] {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 1em;
+            color: #555;
+        }
+
+        #modalContent button {
+            padding: 12px 25px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 1.1em;
+            cursor: pointer;
+            margin: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        #modalContent button:hover {
+            background-color: #45a049;
+        }
+
+        #modalContent button[type="button"] {
+            background-color: #f44336;
+        }
+
+        #modalContent button[type="button"]:hover {
+            background-color: #e53935;
+        }
+
+        /* Estilos para el formulario de búsqueda */
+        #search-form {
+            margin-bottom: 20px;
+            position: relative;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        #search-query {
+            width: 100%;
+            padding: 10px 40px 10px 20px;
+            border: 1px solid #ccc;
+            border-radius: 20px;
+            font-size: 16px;
+        }
+        
+        #search-query::placeholder {
+            color: #aaa;
+        }
+        
+        #search-form::after {
+            content: '🔍';
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+        }
+        
+        #search-query:hover {
+            border-color: #888;
+        }
+        
+        #search-query:focus {
+            border-color: #666;
+            outline: none;
+        }
+
+        /* Estilos para el header */
+        header {
+            background-color: #004c8c;
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+
+        header h1 {
+            font-family: 'Arial', sans-serif;
+            font-size: 2em;
+        }
+
+        header h1::before {
+            content: '📚';
+            font-size: 1.5em;
+        }
+
+        /* Estilos para la tabla de libros */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        th, td {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+            text-align: left;
+        }
+
+        th {
+            background-color: #004c8c;
+            color: white;
+        }
+
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+
+        /* Estilos para las acciones */
+        td img {
+            margin-right: 5px;
+        }
+
+        /* Footer */
+        footer {
+            background-color: #004c8c;
+            color: white;
+            text-align: center;
+            padding: 10px 0;
+            font-size: 1rem;
+            margin-top: 30px;
+        }
+
+        .btn-carga-manual, .btn-carga-masiva {
+            display: inline-block;
+            padding: 10px 20px;
+            color: white;
+            text-align: center;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+            margin-right: 10px;
+        }
+
+        .btn-carga-manual {
+            background-color: #4CAF50;
+        }
+
+        .btn-carga-manual:hover {
+            background-color: #45a049;
+        }
+
+        .btn-carga-masiva {
+            background-color: #2196F3;
+        }
+
+        .btn-carga-masiva:hover {
+            background-color: #1e87dc;
+        }
+
+        /* Responsive Design */
+        @media screen and (max-width: 768px) {
+            #modalContent {
+                width: 90%;
+                padding: 20px;
+            }
+
+            #search-form {
+                max-width: 90%;
+            }
+
+            table {
+                font-size: 12px;
+            }
+
+            th, td {
+                padding: 6px;
+            }
+
+            .btn-carga-manual, .btn-carga-masiva {
+                display: block;
+                width: 100%;
+                text-align: center;
+                margin-bottom: 10px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>Biblioteca Digital</h1>
+        {% if user.is_authenticated %}
+            <span>Bienvenido/a {{ user.get_full_name }} 
+                {% if user.es_bibliotecaria %}(Bibliotecaria){% else %}(Alumno){% endif %}
+            </span>
+            <a href="{% url 'logout' %}" style="color: white; margin-left: 20px;">Cerrar Sesión</a>
+        {% else %}
+            <a href="{% url 'login' %}" style="color: white;">Iniciar Sesión</a>
+        {% endif %}
+    </header>
+    
+    <main>
+        <h2>Lista de Libros</h2>
+        
+        <!-- Solo mostrar botones de administración para bibliotecarias -->
+        {% if user.es_bibliotecaria %}
+        <div style="margin-bottom: 20px;">
+            <a href="{% url 'alta_libro' %}" class="btn-carga-manual">Carga Manual</a>
+            <a href="{% url 'cargar_csv' %}" class="btn-carga-masiva">Carga Masiva</a>
+        </div>
+        {% endif %}
+        
+        <!-- Barra de búsqueda -->
+        <form id="search-form">
+            <input type="text" id="search-query" placeholder="Buscar libros por título, autor o resumen...">
+        </form>
+
+        <!-- Tabla para mostrar los libros -->
+        <table>
+            <thead>
+                <tr>
+                    <th>Num Inventario</th>
+                    <th>Título</th>
+                    <th>Autor</th>
+                    <th>Editorial</th>
+                    <th>CDU</th>
+                    <th>Siglas</th>
+                    <th>Sede</th>
+                    <th>Disponibilidad</th>
+                    <th>Imagen</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="libros-table">
+                {% for libro in libros %}
+                <tr>
+                    <td>{{ libro.num_inventario }}</td>
+                    <td>{{ libro.titulo }}</td>
+                    <td>{{ libro.autor }}</td>
+                    <td>{{ libro.editorial }}</td>
+                    <td>{{ libro.clasificacion_cdu }}</td>
+                    <td>{{ libro.siglas_autor_titulo }}</td>
+                    <td>{{ libro.sede }}</td>
+                    <td>{{ libro.disponibilidad }}</td>
+                    <td><img src="{{ libro.img }}" alt="{{ libro.titulo }}" width="100"></td>
+                    <td>
+                        {% if user.es_bibliotecaria %}
+                            <a href="{% url 'editar_libro' libro.id_libro %}">
+                                <img src="{% static 'libros/img/lapiz.png' %}" alt="Editar" style="cursor: pointer; width: 20px; height: 20px;">
+                            </a>
+                            <img src="{% static 'libros/img/trash.png' %}" alt="Eliminar" onclick="abrirModal({{ libro.id_libro }})" style="cursor: pointer; width: 20px; height: 20px; margin-left: 5px;">
+                        {% endif %}
+                        
+                        {% if user.is_authenticated %}
+                            <a href="{% url 'solicitar_prestamo' libro.id_libro %}">
+                                <img src="{% static 'libros/img/libro-abierto.png' %}" alt="Solicitar Préstamo" style="cursor: pointer; width: 20px; height: 20px; margin-left: 5px;" title="Solicitar Préstamo">
+                            </a>
+                        {% else %}
+                            <span style="font-size: 12px; color: #666;">Inicia sesión para solicitar préstamos</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="10">No hay libros disponibles.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- Modal para confirmación de baja (solo visible para bibliotecarias) -->
+        {% if user.es_bibliotecaria %}
+        <div id="modal">
+            <div id="modalContent">
+                <h3>Confirmar Baja</h3>
+                <form id="bajaForm" method="POST" action="{% url 'baja_libro' %}" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <input type="hidden" name="libro_id" id="libroIdInput">
+                    <label for="motivoBaja">Motivo de baja:</label>
+                    <input type="text" name="motivo_baja" required>
+                    <label for="imagen_rota">Imagen del material roto:</label>
+                    <input type="file" name="imagen_rota" accept="image/*" required>
+                    <button type="submit">Confirmar</button>
+                    <button type="button" onclick="cerrarModal()">Cancelar</button>
+                </form>
+            </div>
+        </div>
+        {% endif %}
+
+    </main>
+    
+    <footer>
+        <p>© 2025 ISFDyT 210. Todos los derechos reservados</p>
+    </footer>
+</body>
+</html>

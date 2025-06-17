@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rechazar Préstamo - Biblioteca</title>
+    {% load static %}
+    <style>
+        body {
+            font-family: 'Calibri', 'Arial', sans-serif;
+            background-color: #f4f4f8;
+            margin: 0;
+            padding: 0;
+        }
+        
+        header {
+            background-color: #004c8c;
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1, h2 {
+            color: #333;
+        }
+        
+        .prestamo-info {
+            background-color: #ffebee;
+            border-left: 4px solid #f44336;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            min-height: 100px;
+        }
+        
+        .btn-submit {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #f44336;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        
+        .btn-submit:hover {
+            background-color: #d32f2f;
+        }
+        
+        .btn-cancel {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #9e9e9e;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            margin-left: 10px;
+            text-decoration: none;
+        }
+        
+        .btn-cancel:hover {
+            background-color: #757575;
+        }
+        
+        footer {
+            background-color: #004c8c;
+            color: white;
+            text-align: center;
+            padding: 10px 0;
+            font-size: 1rem;
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Biblioteca Digital</h1>
+    </header>
+    
+    <div class="container">
+        <h2>Rechazar Préstamo</h2>
+        
+        <div class="prestamo-info">
+            <p><strong>Libro:</strong> {{ prestamo.libro.titulo }}</p>
+            <p><strong>Usuario:</strong> {{ prestamo.nombre_usuario }}</p>
+            <p><strong>Tipo de préstamo:</strong> {{ prestamo.get_tipo_prestamo_display }}</p>
+            <p><strong>Fecha de solicitud:</strong> {{ prestamo.fecha_solicitud|date:"d/m/Y H:i" }}</p>
+        </div>
+        
+        <form method="POST" action="{% url 'rechazar_prestamo' prestamo.id_prestamo %}">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="motivo_rechazo">Motivo del rechazo:</label>
+                <textarea name="motivo_rechazo" id="motivo_rechazo" required></textarea>
+            </div>
+            
+            <button type="submit" class="btn-submit">Confirmar Rechazo</button>
+            <a href="{% url 'gestionar_prestamos' %}" class="btn-cancel">Cancelar</a>
+        </form>
+    </div>
+    
+    <footer>
+        <p>© 2025 ISFD 210. Todos los derechos reservados</p>
+    </footer>
+</body>
+</html>

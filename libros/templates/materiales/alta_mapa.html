@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registrar Mapa</title>
+</head>
+
+<style>
+    :root {
+        --primary-color: #1a3a5e;
+        --secondary-color: #f0f4f8;
+        --accent-color: #2c5282;
+        --text-color: #2d3748;
+        --border-color: #e2e8f0;
+        --success-color: #48bb78;
+        --error-color: #e53e3e;
+    }
+
+    body {
+        font-family: 'Calibri', 'Arial', sans-serif;
+        line-height: 1.6;
+        color: var(--text-color);
+        background-color: #f8fafc;
+        margin: 0;
+    }
+
+    header {
+        background-color: var(--primary-color);
+        color: white;
+        padding: 1.5rem;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        text-align: center;
+    }
+
+    header h1 {
+        font-size: 1.8rem;
+        margin: 0;
+        font-weight: 600;
+    }
+
+    main {
+        max-width: 800px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+    }
+
+    form {
+        background-color: white;
+        padding: 2rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        border: 1px solid var(--border-color);
+    }
+
+    /* Estilo para los campos del formulario */
+    form p {
+        margin-bottom: 1.5rem;
+    }
+
+    label {
+        display: block;
+        font-weight: 600;
+        color: var(--text-color);
+        margin-bottom: 0.5rem;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    textarea,
+    select {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        font-size: 1rem;
+        transition: border-color 0.2s ease;
+    }
+
+    input[type="text"]:focus,
+    input[type="number"]:focus,
+    textarea:focus,
+    select:focus {
+        outline: none;
+        border-color: var(--accent-color);
+        box-shadow: 0 0 0 3px rgba(44, 82, 130, 0.1);
+    }
+
+    button[type="submit"] {
+        background-color: var(--accent-color);
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 4px;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+        display: block;
+        margin: 2rem auto 0;
+    }
+
+    button[type="submit"]:hover {
+        background-color: #1a365d;
+    }
+
+    /* Mensajes de éxito y error */
+    .message {
+        padding: 1rem;
+        border-radius: 4px;
+        margin-top: 1rem;
+        text-align: center;
+        font-weight: 500;
+    }
+
+    .success {
+        background-color: #e6fffa;
+        color: #234e52;
+        border: 1px solid #b2f5ea;
+    }
+
+    .error {
+        background-color: #fff5f5;
+        color: #742a2a;
+        border: 1px solid #fed7d7;
+    }
+
+    /* Estilos para campos requeridos */
+    .required label::after {
+        content: " *";
+        color: var(--error-color);
+    }
+
+    /* Estilos para campos con errores de validación */
+    .errorlist {
+        color: var(--error-color);
+        list-style: none;
+        padding: 0;
+        margin: 0.5rem 0;
+        font-size: 0.9rem;
+    }
+
+    footer {
+        background-color: var(--primary-color);
+        color: white;
+        text-align: center;
+        padding: 1rem;
+        margin-top: 3rem;
+        font-size: 0.9rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 640px) {
+        main {
+            padding: 0 0.5rem;
+        }
+        
+        form {
+            padding: 1rem;
+        }
+        
+        header h1 {
+            font-size: 1.5rem;
+        }
+    }
+</style>
+
+
+<body>
+    <h1>Registrar Mapa</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Registrar mapa</button>
+    </form>
+
+    {% if success %}
+        <p style="color: green;">{{ success }}</p>
+    {% endif %}
+    
+    {% if error %}
+        <p style="color: red;">{{ error }}</p>
+    {% endif %}
+
+    <footer>
+        <p>© 2025 ISFD 210. Todos los derechos reservados</p>
+    </footer>
+
+</body>
+</html>

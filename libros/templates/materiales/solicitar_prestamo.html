@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solicitar Préstamo - Biblioteca</title>
+    {% load static %}
+    <style>
+        body {
+            font-family: 'Calibri', 'Arial', sans-serif;
+            background-color: #f4f4f8;
+            margin: 0;
+            padding: 0;
+        }
+        
+        header {
+            background-color: #004c8c;
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            color: #fff;
+        }
+
+        h2 {
+            color: #333;
+        }
+        
+        .libro-info {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 20px;
+        }
+        
+        .libro-portada {
+            flex: 0 0 150px;
+            margin-right: 20px;
+        }
+        
+        .libro-portada img {
+            width: 100%;
+            border: 1px solid #ddd;
+        }
+        
+        .libro-detalles {
+            flex: 1;
+        }
+        
+        .form-prestamo {
+            margin-top: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        
+        .btn-submit {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        
+        .btn-submit:hover {
+            background-color: #45a049;
+        }
+        
+        .btn-cancel {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #f44336;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            margin-left: 10px;
+            text-decoration: none;
+        }
+        
+        .btn-cancel:hover {
+            background-color: #d32f2f;
+        }
+        
+        .info-box {
+            background-color: #e7f3fe;
+            border-left: 5px solid #2196F3;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        
+        footer {
+            background-color: #004c8c;
+            color: white;
+            text-align: center;
+            padding: 10px 0;
+            font-size: 1rem;
+            margin-top: 30px;
+        }
+        
+        .messages {
+            list-style: none;
+            padding: 0;
+            margin-bottom: 20px;
+        }
+        
+        .messages li {
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+        }
+        
+        .success {
+            background-color: #dff0d8;
+            color: #3c763d;
+            border-left: 4px solid #3c763d;
+        }
+        
+        .error {
+            background-color: #f2dede;
+            color: #a94442;
+            border-left: 4px solid #a94442;
+        }
+        
+        @media screen and (max-width: 768px) {
+            .libro-info {
+                flex-direction: column;
+            }
+            
+            .libro-portada {
+                margin-right: 0;
+                margin-bottom: 15px;
+                flex: 0 0 auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Biblioteca Digital</h1>
+    </header>
+    
+    <div class="container">
+        <h2>Solicitar Préstamo</h2>
+        
+        {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+            <li class="{{ message.tags }}">{{ message }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+        
+        <div class="libro-info">
+            <div class="libro-portada">
+                <img src="{{ libro.img }}" alt="{{ libro.titulo }}">
+            </div>
+            <div class="libro-detalles">
+                <h3>{{ libro.titulo }}</h3>
+                <p><strong>Autor:</strong> {{ libro.autor }}</p>
+                <p><strong>Editorial:</strong> {{ libro.editorial }}</p>
+                <p><strong>Edición:</strong> {{ libro.edicion }}</p>
+                <p><strong>Código de Materia:</strong> {{ libro.codigo_materia }}</p>
+                <p><strong>Resumen:</strong> {{ libro.resumen }}</p>
+            </div>
+        </div>
+        
+        <div class="info-box">
+            <p><strong>Información importante:</strong></p>
+            <p>- Los préstamos a domicilio tienen una duración de 15 días hábiles.</p>
+            <p>- Los profesores pueden solicitar una extensión de 15 días adicionales.</p>
+            <p>- Cada usuario puede tener hasta 3 libros en préstamo simultáneamente.</p>
+            <p>- Tras solicitar el préstamo, tienes 3 días hábiles para retirar el material de la biblioteca.</p>
+        </div>
+        
+        <form class="form-prestamo" method="POST" action="{% url 'solicitar_prestamo' libro.id_libro %}">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="nombre_usuario">Nombre completo:</label>
+                <input type="text" name="nombre_usuario" id="nombre_usuario" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="email_usuario">Correo electrónico:</label>
+                <input type="email" name="email_usuario" id="email_usuario" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="tipo_usuario">Tipo de usuario:</label>
+                <select name="tipo_usuario" id="tipo_usuario" required>
+                    <option value="alumno">Alumno</option>
+                    <option value="profesor">Profesor</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="tipo_prestamo">Tipo de préstamo:</label>
+                <select name="tipo_prestamo" id="tipo_prestamo" required>
+                    <option value="domicilio">Préstamo a Domicilio</option>
+                    <option value="aula">Préstamo en Aula</option>
+                </select>
+            </div>
+            
+            <button type="submit" class="btn-submit">Solicitar Préstamo</button>
+            <a href="{% url 'lista_libros' %}" class="btn-cancel">Cancelar</a>
+        </form>
+    </div>
+    
+    <footer>
+        <p>© 2025 ISFD 210. Todos los derechos reservados</p>
+    </footer>
+</body>
+</html>

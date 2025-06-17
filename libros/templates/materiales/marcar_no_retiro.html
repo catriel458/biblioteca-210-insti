@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marcar No Retiro - Biblioteca</title>
+    {% load static %}
+    <style>
+        body {
+            font-family: 'Calibri', 'Arial', sans-serif;
+            background-color: #f4f4f8;
+            margin: 0;
+            padding: 0;
+        }
+        
+        header {
+            background-color: #004c8c;
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1, h2 {
+            color: #333;
+        }
+        
+        .prestamo-info {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            border-left: 4px solid #f44336;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            resize: vertical;
+            min-height: 100px;
+            box-sizing: border-box;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            margin: 10px 5px;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: bold;
+            text-align: center;
+            cursor: pointer;
+            border: none;
+        }
+        
+        .btn-confirm {
+            background-color: #f44336;
+            color: white;
+        }
+        
+        .btn-confirm:hover {
+            background-color: #d32f2f;
+        }
+        
+        .btn-cancel {
+            background-color: #6c757d;
+            color: white;
+        }
+        
+        .btn-cancel:hover {
+            background-color: #5a6268;
+        }
+        
+        footer {
+            background-color: #004c8c;
+            color: white;
+            text-align: center;
+            padding: 10px 0;
+            font-size: 1rem;
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Biblioteca Digital</h1>
+    </header>
+    
+    <div class="container">
+        <h2>Marcar como No Retirado</h2>
+        
+        <div class="prestamo-info">
+            <h3>Información del Préstamo</h3>
+            <p><strong>Libro:</strong> {{ prestamo.libro.titulo }}</p>
+            <p><strong>Usuario:</strong> {{ prestamo.nombre_usuario }}</p>
+            <p><strong>Email:</strong> {{ prestamo.email_usuario }}</p>
+            <p><strong>Fecha de Solicitud:</strong> {{ prestamo.fecha_solicitud|date:"d/m/Y H:i" }}</p>
+            {% if prestamo.fecha_limite_reserva %}
+            <p><strong>Límite de Reserva:</strong> {{ prestamo.fecha_limite_reserva|date:"d/m/Y H:i" }}</p>
+            {% endif %}
+        </div>
+        
+        <p>Estás a punto de marcar que el usuario <strong>{{ prestamo.nombre_usuario }}</strong> NO retiró el libro <strong>"{{ prestamo.libro.titulo }}"</strong>.</p>
+        <p>El libro volverá a estar disponible para otros usuarios.</p>
+        
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="motivo">Motivo (opcional):</label>
+                <textarea id="motivo" name="motivo" placeholder="Escribe el motivo por el cual no se retiró el libro...">No retirado por el usuario</textarea>
+            </div>
+            
+            <button type="submit" class="btn btn-confirm">❌ Confirmar: No Retiró</button>
+            <a href="{% url 'gestionar_prestamos' %}" class="btn btn-cancel">🔙 Cancelar</a>
+        </form>
+    </div>
+    
+    <footer>
+        <p>© 2025 ISFD 210. Todos los derechos reservados</p>
+    </footer>
+</body>
+</html>
