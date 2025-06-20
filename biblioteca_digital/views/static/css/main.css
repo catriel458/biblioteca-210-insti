@@ -113,7 +113,6 @@ textarea.form-control {
     position: fixed;
     bottom: 20px;
     right: 20px;
-    width: auto;
     z-index: 1000;
 }
 
