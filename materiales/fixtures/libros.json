@@ -1,0 +1,2193 @@
+[
+    {
+
+    "base_libros": [
+        {
+            "titulo": "Formar y formarse en la enseñanza",
+            "autor": "Edelstein, Gloria",
+            "resumen": "ENSEÑANZA - PRÁCTICAS REFLEXIVAS",
+            "Editorial": "Sin información",
+            "img": "https://agmer.org.ar/index/wp-content/uploads/2013/05/formar_.jpg"
+        },
+        {
+            "titulo": "Gestionar una escuela con aulas heterogéneas",
+            "autor": "Anijovich, Rebeca",
+            "resumen": "AULAS HETEROGÉNEAS - ENTORNO EDUCATIVO - EVALUACIÓN",
+            "Editorial": "Sin información",
+            "img": "https://contentv2.tap-commerce.com//cover/large/9789501293685_1.jpg?id_com=717"
+        },
+        {
+            "titulo": "Hacer memoria: aportes de la neuropsicología al aprendizaje",
+            "autor": "Solcoff, Karina",
+            "resumen": "NEUROPSICOLOGÍA - MEMORIA - OLVIDO - COGNICIÓN ",
+            "Editorial": "Sin información",
+            "img": "https://scontent.faep9-2.fna.fbcdn.net/v/t39.30808-6/300682156_403634141878430_4604123339232319119_n.jpg?_nc_cat=111&ccb=1-7&_nc_sid=cc71e4&_nc_ohc=OqKVtputSLoQ7kNvgEH-nG6&_nc_ht=scontent.faep9-2.fna&oh=00_AYDkhW4dyewvCW7wJR0rP8ddu_DOsY6SmGGJAdbfNAv80A&oe=66CECF6C"
+        },
+        {
+            "titulo": "Ciencia entre todxs: tecnociencia en contexto social. Una propuesta de enseñanza",
+            "autor": "Massarini, Alicia y Schnek, Adriana",
+            "resumen": "CIENCIA - ÉTICA - AMBIENTALISMO - SOCIOCIENTÍFICA - CHAGAS - GENÉTICA - TECNOLOGÍA",
+            "Editorial": "Sin información",
+            "img": "https://contentv2.tap-commerce.com//cover/large/9789501202748_1.jpg?id_com=717"
+        },
+        {
+            "titulo": "Inteligencias múltiples en el aula",
+            "autor": "Armstrong, Thomas",
+            "resumen": "INTELIGENCIA MÚLTIPLES - COGNICIÓN ",
+            "Editorial": "Sin información",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "La orientación vocacional como experiencia subjetivante",
+            "autor": "Rascovan, Sergio",
+            "resumen": "ORIENTACIÓN VOCACIONAL - ",
+            "Editorial": "Sin información",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "La evaluación como oportunidad",
+            "autor": "Anijovich, Rebeca y Cappelletti, Graciela",
+            "resumen": "EVALUACIÓN - RÚBRICAS",
+            "Editorial": "Sin información",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Los artesanos de la enseñanza: acerca de la formación de maestros con oficio",
+            "autor": "Alliaud, Andrea",
+            "resumen": "FORMACIÓN DOCENTE - ENSEÑANZA - OFICIOS -",
+            "Editorial": "Sin información",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Conquistar la escritura: saberes y prácticas escolares",
+            "autor": "Finocchio, Ana María",
+            "resumen": "ESCRITURA DIDÁCTICA - ENSEÑAR A ESCRIBIR",
+            "Editorial": "Sin información",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Escribir para aprender: disciplinas y escritura en la escuela secundaria",
+            "autor": "Navarro, Federico y Revel Chion, Andrea",
+            "resumen": "ESCRITURA - SECUNDARIA - ",
+            "Editorial": "Sin información",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Volver a enseñar: padres y maestros antes un desafío urgente",
+            "autor": "Iaies, Gustavo",
+            "resumen": "ENSEÑANZA - MAESROS - PADRES -EQUIDAD",
+            "Editorial": "Sin información",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "El sentido de la lectura",
+            "autor": "Pradeli, Ángela",
+            "resumen": "LECTURA - ",
+            "Editorial": "Sin información",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Navegar entre culturas: educación, comunicación y ciudadanía digital",
+            "autor": "Bacher, Silvia",
+            "resumen": "EDUCACIÓN - DIGITAL - ESCUELAS CONECTADAS",
+            "Editorial": "Sin información",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "El oficio de enseñar: condiciones y contextos",
+            "autor": "Litwin, Edith",
+            "resumen": "ENSEÑANZA - APRENDIZAJE BASADO EN PROBLEMAS - TECNOLOGIAS",
+            "Editorial": "Sin información",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "La generación multimedia: significados, consumos y práctias culturales de los jóvenes",
+            "autor": "Morduchowicz, Roxana",
+            "resumen": "JÓVENES - MEDIOS - PRACTICAS CULTURALES ",
+            "Editorial": "Sin información",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "La educación de las élites: aspiraciones, estrategias y oportunidades",
+            "autor": "Tiramonti, Guillermina y Ziegler, Sandra",
+            "resumen": "SECTORES PRIVILEGIADOS - ESCUELA - GUARDERÍAS - PEDAGOGÍA DISCIPLINARIA - PEDAGOGÍA EMPRESARIAL",
+            "Editorial": "Sin información",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "La experiencia etnográfica: historia y cultura en los procesos educativos",
+            "autor": "Rockwell, Elsie",
+            "resumen": "ETNOGRAFÍA - CULTURA - ANTROPOLOGÍA",
+            "Editorial": "Sin información",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Matemáticas en la escuela primaria (II)",
+            "autor": "Broitman, Claudia",
+            "resumen": "MATEMÁTICAS - PRIMARIA",
+            "Editorial": "Sin información",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Textos gráficos y alfabetización múltiple: herramientas para el desarrollo del pensamiento y el aprendizaje en el nivel inicial",
+            "autor": "Teubal, Eva y Guberman, Ainat",
+            "resumen": "NIVEL INICIAL - DIBUJO - SIMBOLISMO - ÍCONOS - MAPAS - CALENDARIOS",
+            "Editorial": "Sin información",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Violencias en la escuela: nuevos problemas, diferentes intervenciones",
+            "autor": "Bringiotti, María Inés y Paggi, Patricia",
+            "resumen": "VIOLENCIA ESCOLAR - VIOLENCIA FAMILIAR - VIOLENCIA INSTITUCIONAL - ABUSO SEXUAL - CIBERBULLYING",
+            "Editorial": "Sin información",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "La autoridad en la universidad: vínculos y experiencias entre estudiantes, profesores y saberes",
+            "autor": "Pierella, María Paula ",
+            "resumen": "UNIVERSIDAD",
+            "Editorial": "Sin información",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Autismos: estrategias de intervención entre lo clínico y lo educativo",
+            "autor": "Valdez, Daniel",
+            "resumen": "AUTISMO - INTERVENCIÓN TEMPRANA - MODELO SCERTS",
+            "Editorial": "Sin información",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Geo-grafías: imágenes e instrucción visual en la geografía escolar",
+            "autor": "Hollman, Verónica y Lois, Carla",
+            "resumen": "GEOGRAFÍA ",
+            "Editorial": "Sin información",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "El aprendizaje pleno: principios de la enseñanza para trasformar la educación",
+            "autor": "Perkins, David",
+            "resumen": "APRENDIZAJE PLENO - TRANSFERENCIA ",
+            "Editorial": "Sin información",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "El estigma del fracaso escolar: nuevos formatos para la inclusión y la democratización de la educación ",
+            "autor": "Maddonni, Patricia",
+            "resumen": "FRACASO ESCOLAR - INCLUSIÓN  ",
+            "Editorial": "Sin información",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "La enseñaza para la comprensión: guía para el docente",
+            "autor": "Blythe, Tina",
+            "resumen": "ENSEÑANZA - PLANIFICACIÓN - ",
+            "Editorial": "Sin información",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "El método de la pedagogía científica: aplicado a la educación de la infancia",
+            "autor": "Montessori, María",
+            "resumen": "MÉTODO MONTESSORI - ",
+            "Editorial": "Sin información",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "La psicología de la inteligencia: lecciones en el college de france",
+            "autor": "Piaget, Jean",
+            "resumen": "INTELIGENCIA - PERCEPCIÓN - SENSORIOMOTRIZ - ESTADIOS",
+            "Editorial": "Sin información",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Los dispositivos para la formación en las prácticas profesionales",
+            "autor": "Sanjurjo, Liliana y otros",
+            "resumen": "PRÁCTICAS PROFESIONALES - TECNOLOGÍAS - NARRATIVAS",
+            "Editorial": "Sin información",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Pedagogía del oprimido",
+            "autor": "Freire, Paulo",
+            "resumen": "PEDAGOGÍA - EDUCACIÓN BANCARIA - DIALOGICIDAD",
+            "Editorial": "Sin información",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "¿Inclusión o accesibilidad educativa para tod@s?: pensar una escuela que no excluya. Análisis de casos",
+            "autor": "Boggino, Norberto",
+            "resumen": "ACCESIBILIDAD - INCLUSIÓN - ",
+            "Editorial": "Sin información",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Toda ecología es política: las luchas por el derecho al ambiente en busca de alternativas de mundos",
+            "autor": "Merlinsky, Gabriela",
+            "resumen": "ECOLOGÍA - MEDIO AMBIENTE - JUSTICIA AMBIENTAL - CONFLICTOS AMBIENTALES",
+            "Editorial": "Sin información",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "La enseñanza en la escuela infantil (0 a 3 años) un derecho: fundamentos teóricos y prácticas",
+            "autor": "Violante, Rosa",
+            "resumen": "INFANIL - PRIMERA INFANCIA - INICIAL - PREESCOLAR - PEDAGOGÍA DE LA CRIANZA",
+            "Editorial": "Sin información",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Discriminación: de Nelson Mandela al INADI",
+            "autor": "Ramos,  Víctor",
+            "resumen": "DISCRIMINACIÓN  - RACISMO - EUGENESIA - XENOFOBIA - MIGRANTES - INADI",
+            "Editorial": "Sin información",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "La autoridad como práctica: encuentros y experiencias en educación y formación docente",
+            "autor": "Greco, María Beatriz",
+            "resumen": "FORMACIÓN DOCENTE - EXPERIENCIAS EDUCAIVAS",
+            "Editorial": "Sin información",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "La vida en las escuelas: esperanzas y desencantos de la convivencia escolar",
+            "autor": "Kaplan, Carina V.",
+            "resumen": "CONVIVENIA ESCOLAR - VIOLENCIA - RACISMO - VIOLENCIA SIMBÓLICA",
+            "Editorial": "Sin información",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "El sentido de la escuela secundaria: nuevas prácticas, nuevos caminos",
+            "autor": "Anijovich, Rebeca y Cappelletti, Graciela",
+            "resumen": "ENSEÑANZA - ESCUELA SECUNDARIA - TECNOLOGÍAS - ",
+            "Editorial": "Sin información",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Pedagogías para tiempos de pandemias y perplejidad: de la información a la sabiduría",
+            "autor": "Pérez Gómez, Perez I.",
+            "resumen": "ENSEÑANZA - PANDEMIA - BIG DATA - POSTVERDAD - PLASTICIDAD - ",
+            "Editorial": "Sin información",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Aulas inclusivas: teorías en acto",
+            "autor": "Borsani, María José",
+            "resumen": "AULAS INCLUSIVAS - ",
+            "Editorial": "Sin información",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Pliegues de la formación: sentidos y herramientas para la formación docente ",
+            "autor": "Souto, Marta",
+            "resumen": "FORMACIÓN DOCENTE - NARRATIVAS - DISPOSITIVOS ",
+            "Editorial": "Sin información",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Pedagogías de las diferencias",
+            "autor": "Skliar, Carlos",
+            "resumen": "PEDAGOGÍA - EDUCAR - INFANCIA - LEER - ESCRIBIR",
+            "Editorial": "Sin información",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Guía urgente para enseñar en aulas virtuales",
+            "autor": "Libedinsky, Marta",
+            "resumen": "ENSEÑANZA - AULAS VIRTUALES - SINCRÓNICOS - TECNOLOGÍAS",
+            "Editorial": "Sin información",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Pedagogía del cuidado: la construcción de la cultura del cuidado en la escuela actual",
+            "autor": "Álvarez, Mercedes; Boilini, María Paula; Palazzolo, Fernando y otros",
+            "resumen": "PEDAGOGÍA - CUIDADOS - PERSPECTIVA DE GÉNERO - ",
+            "Editorial": "Sin información",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "El currículum inegrado en la práctica: el trabajo por proyectos ",
+            "autor": "Pozuelos Estrada, José; García Prieto, Javier y Rodriguez Miranda, Paula",
+            "resumen": "CURRÍCULUM - PROYECTOS DE TRABAJO - EVALUACIÓN - RÚBRICAS",
+            "Editorial": "Sin información",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Educación en pandemia: guía de supervivencia para docentes y familias",
+            "autor": "Maggio, Mariana",
+            "resumen": "EDUCACIÓN VIRTUAL - PANDEMIA - INCLUSIÓN DIGITAL",
+            "Editorial": "Sin información",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "La evaluación como aprendizaje: cuando la flecha impacta en la diana",
+            "autor": "Santos Guerra, Miguel Ángel",
+            "resumen": "EVALUACIÓN - EVALUACIÓN PROFESORADO - EVALUACIÓN ALUMNOS",
+            "Editorial": "Sin información",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Repensar las situaciones de lectura en Ciencias Naturales",
+            "autor": "Espinoza, Ana María y Casamajor, Adriana",
+            "resumen": "CIENCIAS NATURALES - ",
+            "Editorial": "Sin información",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Tecnologías en el aula: análisis y propuestas pedagógicas",
+            "autor": "Pini, Mónica; Landau, Mariana y Valente, Elena",
+            "resumen": "TICS - REDES SOCIALES - ALFABETIZACIÓN DIGITAL - MEDIOS",
+            "Editorial": "Sin información",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Relaciones escolares y diferencias culturales: la educación en perspectiva intercultural",
+            "autor": "Villa, Alicia Inés y Martínez, María Elena",
+            "resumen": "INCLUSIÓN - DISCAPACIDAD - INTERCULTURALIDAD - DESCOLONIZACIÓN - BOLIVIA",
+            "Editorial": "Sin información",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Derechos de la infancia y educación inclusiva en América Latina",
+            "autor": "Dávila, Paulí y Naya, Luis ",
+            "resumen": "DERECHOS - INFANCIA - DERECHOS DEL NIÑO - CONVENCIÓN",
+            "Editorial": "Sin información",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Juvenopedia: mapeo de las juventudes iberoamericanas",
+            "autor": "Feixa, Carles y Oliart, Patricia",
+            "resumen": "JÓVENES - DIGITAL - VIOLENCIA - INDÍGENAS",
+            "Editorial": "Sin información",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Nuevos escenarios educativos: otra gestión para otra enseñanza",
+            "autor": "Harf, Ruth; Azzerboni, Delia; Sánchez, Sandra y Zorzoli, Néstor",
+            "resumen": "GESTIÓN - ENSEÑANZA - INCLUSIÓN - DEMOCRATIZACIÓN - EVALUACIÓN - CURRÍCULUM - ESI",
+            "Editorial": "Sin información",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Gestionar es hacer que las cosas sucedan: competencias, actitudes y dispositivos para diseñar instituciones",
+            "autor": "Blejmar, Bernardo",
+            "resumen": "GESTIÓN - ORGANIZACIÓN - ",
+            "Editorial": "Sin información",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Estrategias de escritura en la formación: la experiencia de enseñar escribiendo ",
+            "autor": "Brailovsky, Daniel y Menchón, Ángela",
+            "resumen": "ESCRITURA - ESTRATEGIAS ESCRITURA",
+            "Editorial": "Sin información",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Planificar, enseñar, aprender y evaluar en educación superior: nuevos entornos integrados de aprendizajes. De la presencialidad a la virtualidad.",
+            "autor": "Ferreyra, Horacio Ademar y Tenutto Soldevilla, Marta Alicia",
+            "resumen": "PLANIFICACIÓN - SUPERIOR - ENSEÑANZA - EVALUACIÓN - VIRTUALIDAD",
+            "Editorial": "Sin información",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Pedagogía del nivel inicial: mirar el mundo desde el jardín",
+            "autor": "Brailovsky, Daniel",
+            "resumen": "JARDÍN - INICIAL - ",
+            "Editorial": "Sin información",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Problemas y desafíos de la educación ambiental: un abordaje en 12 lecciones",
+            "autor": "Canciani, María Laura",
+            "resumen": "EDUCACIÓN AMBIENTAL - AGUA - CAMBIO CLIMÁTICO - MEGAMINERÍA - CUESTIÓN ENERGÉTICA",
+            "Editorial": "Sin información",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Las señoritas: historia de las maestras estadounidenses que Sarmiento trajo a la Argentina en el siglo XIX",
+            "autor": "Ramos, Laura",
+            "resumen": "BIOGRAFÍA - MARY GORMAN - BOYD - FANNY BORGES - ",
+            "Editorial": "Sin información",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Peripecias de los derechos humanos: en el currículo escolar de Argentina",
+            "autor": "Siede, Isabelino A.",
+            "resumen": "DERECHOS HUMANOS - MEMORIA - ÉTICA - DEMOCRACIA",
+            "Editorial": "Sin información",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Formar en práctica reflexiva",
+            "autor": "Anijovich, Rebeca y Cappelletti, Graciela",
+            "resumen": "FORMACIÓN DOCENTE - INGLÉS - EDUCACIÓN FÍSICA - ENFERMERÍA",
+            "Editorial": "Sin información",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "ESI: educación sexual integral. Guía básica para trabajar en la escuela y en la familia",
+            "autor": "Cahn, Leandro; Lucas, Mar; Cortelletti, Florencia y Valeriano, Cecilia",
+            "resumen": "ESI - EDUCACIÓN SEXUAL",
+            "Editorial": "Sin información",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Enseñar distinto: guía para innovar sin perderse en el camino",
+            "autor": "Furman, Melina",
+            "resumen": "ENSEÑANZA - EDUCACIÓN - EVALUACIÓN - PLANIFICACIÓN - FEEDBACK",
+            "Editorial": "Sin información",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Los contenidos de la esi en acción: asesorías en salud integral para infancias y adolescencias ",
+            "autor": "Ríos Fernández, Camila y Niedzwiecki, Dora",
+            "resumen": "ESI - LENGUAJE INCLUSIVO - SUJETO DE DERECHO - GENERO - SEXO - ",
+            "Editorial": "Sin información",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Escuela secundaria, convivencia y participación",
+            "autor": "Núñez, Pedro; Litichever, Lucía y Fridman, Denise",
+            "resumen": "SECUNDARIA - INCLUSIÓN - VIOLENCIA - DEMOCRATIZACIÓN - ",
+            "Editorial": "Sin información",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "¿Puede un virus cambiar la escuela?",
+            "autor": "Tonucci, Francesco",
+            "resumen": "PANDEMIA - ",
+            "Editorial": "Sin información",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Evaluaciones: 29 preguntas y respuestas",
+            "autor": "Anijovich, Rebeca y Cappelletti, Graciela",
+            "resumen": "EVALUACIÓN - TÉCNICAS - FORMATIVA - APRENDIZAJE - VIRTUALIDAD",
+            "Editorial": "Sin información",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "La generación despierta",
+            "autor": "Rodríguez, Bruno y Weintraub, Eyal",
+            "resumen": "MEDIO AMBIENTE - CAMBIO CLIMÁTICO - ",
+            "Editorial": "Sin información",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "La evaluación institucional: tejiendo tramas",
+            "autor": "Spakowsky, Elisa",
+            "resumen": "EVALUACIÓN INSTITUCIONAL - ",
+            "Editorial": "Sin información",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Clases de hoy en las escuelas de ayer",
+            "autor": "Cuda, Mariela",
+            "resumen": "NEUROPEDAGGOGÍA - EMOCIONES - INTELIGENCIA EMOCIONAL ",
+            "Editorial": "Sin información",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "La didáctica en la formación docente",
+            "autor": "Asprelli, María Cristina",
+            "resumen": "DIDÁCTICA - HISTORIA DE DIDÁCTICA - FORMACIÓN DOCENTE",
+            "Editorial": "Sin información",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Volver a pensar la clase: las formas básicas de enseñar",
+            "autor": "Sanjurjo,  Liliana",
+            "resumen": "ENSEÑANZA - DIÁLOGO - DIDÁCTICA - ACTIVIDADES ",
+            "Editorial": "Sin información",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Enseñar hoy: apuntes para la formación",
+            "autor": "Alliaud, Andrea",
+            "resumen": "ENSEÑANZA - FORMACIÓN DOCENTE - EXPERIENCIAS - JÓVENES - DISPOSITIVOS ",
+            "Editorial": "Sin información",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Verdades y mitos del bicentenario: una interpretación latinoamericana",
+            "autor": "Galasso, Norberto",
+            "resumen": "BICENTENARIO - REVOLUCIÓN DE MAYO",
+            "Editorial": "Colihue",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "La maravillosa juventud",
+            "autor": "Rollano, Eduardo",
+            "resumen": "PERÓN - DEMOCRACIA - NOVELA ARGENTINA",
+            "Editorial": "Ciccus",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Caminos de hierro: políticas de estado y soberanía ",
+            "autor": "Funes, Olga Teresa",
+            "resumen": "TRANSPORTES - FERROCARRILES - POLÍTICA FERROVIARIA",
+            "Editorial": "Ciccus",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Filo (en) rompecabezas: búsqueda colectiva de la memoria histórica institucional (1966-1983)",
+            "autor": "Daleo, Graciela; Casareto, Samanta; Cabrera, Marcela y Pico, Andrea",
+            "resumen": "FILOSOFÍA - UBA - MEMORIA ",
+            "Editorial": "Editorial de la Facultad de Filosofía y Letras de la Universida de Buenos Aires",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "La filosofía desde el punto de vista de la existencia ",
+            "autor": "Jaspers, Karl",
+            "resumen": "FILOSOFÍA - ORIGEN  - FÉ - ILUSTRACIÓN",
+            "Editorial": "Fondo de Cultura Económica",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "La escuela que queremos: los objetivos por los cuales vale la pena luchar",
+            "autor": "Fullan, Michael y Hargreaves, Andy",
+            "resumen": "DOCENTES - SOBRECARGA - LINEAMIENTOS DOCENTES - CONTEXTO DE ENSEÑANZA - CULTURA DEL INDIVIDUALISMO",
+            "Editorial": "Amorrortu Editores",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Cognición y curriculum: una visión nueva",
+            "autor": "Eisner, Elliot W.",
+            "resumen": "REFORMA EDUCATIVA - CURRICULUM - ",
+            "Editorial": "Amorrortu Editores",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "La integración escolar como problemática profesional",
+            "autor": "Dubrovsky, Silvia y otros",
+            "resumen": "INTEGRACIÓN - INCLUSIÓN - ESCUELA DOMICILIARIA - NECESIDADES EDUCATIVAS ESPECIALES",
+            "Editorial": "Noveduc",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Experiencia y educación:  la educación tradicional frente a la educación progresiva",
+            "autor": "Dewey, John",
+            "resumen": "EDUCACIÓN TRADICIONAL - EDUCACIÓN PROGRESIVA - ",
+            "Editorial": "Losada",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Dar clase con la boca cerrada",
+            "autor": "Finkel, Don",
+            "resumen": "EXPERIENCIAS ENSEÑANZA - APRENDIZAJE",
+            "Editorial": "Waldhuter Editores",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "La educación,  puerta de la cultura",
+            "autor": "Bruner, Jerome",
+            "resumen": "EDUCACIÓN - CULTURA - EDUCACIÓN POPULAR - PEDAGOGÍA POPULAR",
+            "Editorial": "Ediciones Continente",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "La transposición didáctica: del saber sabio al saber enseñado",
+            "autor": "Chevallard, Yves",
+            "resumen": "TRASPOSICIÓN DIDÁCTICA - ",
+            "Editorial": "Aique educación",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Profesorado, cultura y postmodernidad. Cambian los tiempos, cambia el profesorado",
+            "autor": "Hargreaves, Andy",
+            "resumen": "PROFESORADO - ENSEÑANZA - INTENSIFICACIÓN - INDIVIDUALISMO ",
+            "Editorial": "Morata",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "El saber didáctico",
+            "autor": "Camillioni, Alicia R.W.",
+            "resumen": "DIDÁCTICA GENERAL - DIDÁCTICA ESPECÍFICA - PROBLEMAS DE ENSEÑANZA - CURRÍCULO",
+            "Editorial": "Sin información",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": " Enriquecer la enseñanza. Los ambientes con alta disposición tecnológica como oportunidad",
+            "autor": "Maggio, Mariana",
+            "resumen": "TECNOLOGÍA - DIDÁCTICA - REDES SOCIALES - WIKIS - ",
+            "Editorial": "Paidós",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "El plan",
+            "autor": "Batista, Ethel y Mastrogiulio, Eva",
+            "resumen": "LITERATURA INFANTIL - JUVENIL",
+            "Editorial": "Calibroscopio",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Cómo atrapar una estrella",
+            "autor": "Jeffers, Oliver",
+            "resumen": "LITERATURA INFANTIL - JUVENIL",
+            "Editorial": "Fondo de cultura económica",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Perdido y encontrado",
+            "autor": "Jeffers, Oliver",
+            "resumen": "LITERATURA INFANTIL - JUVENIL",
+            "Editorial": "Fondo de cultura económica",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "De vuelta a casa",
+            "autor": "Jeffers, Oliver",
+            "resumen": "LITERATURA INFANTIL - JUVENIL",
+            "Editorial": "Fondo de cultura económica",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Historia de un amor exagerado ",
+            "autor": "Montes, Graciela",
+            "resumen": "LITERATURA INFANTIL - JUVENIL",
+            "Editorial": "Colihue",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "El monte era una fiesta",
+            "autor": "Roldán, Gustavo",
+            "resumen": "LITERATURA INFANTIL - JUVENIL",
+            "Editorial": "Loqueleo",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Alicia en el país de las maravillas",
+            "autor": "Carroll, Lewis",
+            "resumen": "LITERATURA INFANTIL - JUVENIL",
+            "Editorial": "Fondo de cultura económica",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "A través del espejo y lo que Alicia encontró allí",
+            "autor": "Carroll, Lewis",
+            "resumen": "LITERATURA INFANTIL - JUVENIL",
+            "Editorial": "Sextopiso",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Un hueco ",
+            "autor": "Frankel, Yael",
+            "resumen": "LITERATURA INFANTIL - JUVENIL",
+            "Editorial": "Calibroscopio",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "¡No!",
+            "autor": "Altés, Marta",
+            "resumen": "LITERATURA INFANTIL - JUVENIL",
+            "Editorial": "Calibroscopio",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Cambios ",
+            "autor": "Browne, Anhony ",
+            "resumen": "LITERATURA INFANTIL - JUVENIL",
+            "Editorial": "Calibroscopio",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Tan tan grande",
+            "autor": "Sobral, Catarina",
+            "resumen": "LITERATURA INFANTIL - JUVENIL",
+            "Editorial": "Limonero",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "La princesa de Trujillo",
+            "autor": "Patacrúa y Solchaga, Javier",
+            "resumen": "LITERATURA INFANTIL - JUVENIL",
+            "Editorial": "Ediciones de la magnolia",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Pastel de mamut",
+            "autor": "Willis, Jeanne",
+            "resumen": "LITERATURA INFANTIL - JUVENIL",
+            "Editorial": "Zorro rojo",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Tres chicos muy valientes",
+            "autor": "Montes, Graciela y Degliuomini, Clau",
+            "resumen": "LITERATURA INFANTIL - JUVENIL",
+            "Editorial": "Loqueleo",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Cuentos de mamá osa",
+            "autor": "Crowther, Kitty",
+            "resumen": "LITERATURA INFANTIL - JUVENIL",
+            "Editorial": "Zorro rojo",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Vida de perros",
+            "autor": "Isol",
+            "resumen": "LITERATURA INFANTIL - JUVENIL",
+            "Editorial": "fondo de cultura económica",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Lorenzo y la escalera misteriosa",
+            "autor": "Goldfeder, Irene y Bragone, Fernanda",
+            "resumen": "LITERATURA INFANTIL - JUVENIL",
+            "Editorial": "Ediciones de la terraza",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "El diario del capitán Arseno",
+            "autor": "Bernasconi, Pablo",
+            "resumen": "LITERATURA INFANTIL - JUVENIL",
+            "Editorial": "Sudamericana",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Pájaro negro, pájaro rojo",
+            "autor": "Roldán, Gustavo y Wernicke, María",
+            "resumen": "LITERATURA INFANTIL - JUVENIL",
+            "Editorial": "Comunicarte ",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Por qué los elefantes prefieren jugar a la mancha ",
+            "autor": "Rocha, Silvian y Mey",
+            "resumen": "LITERATURA INFANTIL - JUVENIL",
+            "Editorial": "Pequeño editor",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "El soñador",
+            "autor": "Bella, Pablo de",
+            "resumen": "LITERATURA INFANTIL - JUVENIL",
+            "Editorial": "fondo de cultura económica",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Un mundo perdido (Ciencias Naturales)",
+            "autor": "Maddonni, Patricia (coord.)",
+            "resumen": "MATERIAL EDUCATIVO - CIENCIAS NATURALES",
+            "Editorial": "Ministerio de Educación ",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Luces y sombras (Ciencias Naturales)",
+            "autor": "Maddonni, Patricia (coord.)",
+            "resumen": "MATERIAL EDUCATIVO - CIENCIAS NATURALES",
+            "Editorial": "Ministerio de Educación ",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Materiales del presente y del futuro (Ciencias Naturales)",
+            "autor": "Maddonni, Patricia (coord.)",
+            "resumen": "MATERIAL EDUCATIVO - CIENCIAS NATURALES",
+            "Editorial": "Ministerio de Educación ",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Extraños mundos (Ciencias Naturales)",
+            "autor": "Maddonni, Patricia (coord.)",
+            "resumen": "MATERIAL EDUCATIVO - CIENCIAS NATURALES",
+            "Editorial": "Ministerio de Educación ",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Un mundo inquieto (Ciencias Naturales)",
+            "autor": "Maddonni, Patricia (coord.)",
+            "resumen": "MATERIAL EDUCATIVO - CIENCIAS NATURALES",
+            "Editorial": "Ministerio de Educación ",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Ambientes del pasado y del presente (Ciencias Naturales)",
+            "autor": "Maddonni, Patricia (coord.)",
+            "resumen": "MATERIAL EDUCATIVO - CIENCIAS NATURALES",
+            "Editorial": "Ministerio de Educación ",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Rutas argentinas",
+            "autor": "Maddonni, Patricia (coord.)",
+            "resumen": "MATERIAL EDUCATIVO - CIENCIAS SOCIALES",
+            "Editorial": "Ministerio de Educación ",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Imágenes y frases que atrapan",
+            "autor": "Maddonni, Patricia (coord.)",
+            "resumen": "MATERIAL EDUCATIVO - CIENCIAS SOCIALES",
+            "Editorial": "Ministerio de Educación ",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "A gusto del consumidor ",
+            "autor": "Maddonni, Patricia (coord.)",
+            "resumen": "MATERIAL EDUCATIVO - CIENCIAS SOCIALES",
+            "Editorial": "Ministerio de Educación ",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Un esfuerzo de producción",
+            "autor": "Maddonni, Patricia (coord.)",
+            "resumen": "MATERIAL EDUCATIVO - CIENCIAS SOCIALES",
+            "Editorial": "Ministerio de Educación ",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Un mundo para todos",
+            "autor": "Maddonni, Patricia (coord.)",
+            "resumen": "MATERIAL EDUCATIVO - CIENCIAS SOCIALES",
+            "Editorial": "Ministerio de Educación ",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Vamos por más",
+            "autor": "Maddonni, Patricia (coord.)",
+            "resumen": "MATERIAL EDUCATIVO - MATEMÁTICAS",
+            "Editorial": "Ministerio de Educación ",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Cifras a medias",
+            "autor": "Maddonni, Patricia (coord.)",
+            "resumen": "MATERIAL EDUCATIVO - MATEMÁTICAS",
+            "Editorial": "Ministerio de Educación ",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "¿Quién más, quién menos?",
+            "autor": "Maddonni, Patricia (coord.)",
+            "resumen": "MATERIAL EDUCATIVO - MATEMÁTICAS",
+            "Editorial": "Ministerio de Educación ",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Parte, comparte, reparte",
+            "autor": "Maddonni, Patricia (coord.)",
+            "resumen": "MATERIAL EDUCATIVO - MATEMÁTICAS",
+            "Editorial": "Ministerio de Educación ",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Uno más, uno menos",
+            "autor": "Maddonni, Patricia (coord.)",
+            "resumen": "MATERIAL EDUCATIVO - MATEMÁTICAS",
+            "Editorial": "Ministerio de Educación ",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Múltiples problemas",
+            "autor": "Maddonni, Patricia (coord.)",
+            "resumen": "MATERIAL EDUCATIVO - MATEMÁTICAS",
+            "Editorial": "Ministerio de Educación ",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Sobre las tablas",
+            "autor": "Maddonni, Patricia (coord.)",
+            "resumen": "MATERIAL EDUCATIVO - MATEMÁTICAS",
+            "Editorial": "Ministerio de Educación ",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "¿Hay un lugar para los números?",
+            "autor": "Maddonni, Patricia (coord.)",
+            "resumen": "MATERIAL EDUCATIVO - MATEMÁTICAS",
+            "Editorial": "Ministerio de Educación ",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Y los números... ¿dónde están?",
+            "autor": "Maddonni, Patricia (coord.)",
+            "resumen": "MATERIAL EDUCATIVO - MATEMÁTICAS",
+            "Editorial": "Ministerio de Educación ",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Relaciones múltiples",
+            "autor": "Maddonni, Patricia (coord.)",
+            "resumen": "MATERIAL EDUCATIVO - MATEMÁTICAS ",
+            "Editorial": "Ministerio de Educación ",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Grandes viajeros. Material de escritura",
+            "autor": "Maddonni, Patricia (coord.)",
+            "resumen": "MATERIAL EDUCATIVO - LENGUA",
+            "Editorial": "Ministerio de Educación ",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Una que sepamos todos",
+            "autor": "Maddonni, Patricia (coord.)",
+            "resumen": "MATERIAL EDUCATIVO - LENGUA",
+            "Editorial": "Ministerio de Educación ",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Al son de las palabras",
+            "autor": "Maddonni, Patricia (coord.)",
+            "resumen": "MATERIAL EDUCATIVO - LENGUA",
+            "Editorial": "Ministerio de Educación ",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Grandes viajeros 2. Fernando de Magallanes - Charles Darwin",
+            "autor": "Maddonni, Patricia (coord.)",
+            "resumen": "MATERIAL EDUCATIVO - LENGUA",
+            "Editorial": "Ministerio de Educación ",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Palabras en acción",
+            "autor": "Maddonni, Patricia (coord.)",
+            "resumen": "MATERIAL EDUCATIVO - LENGUA",
+            "Editorial": "Ministerio de Educación ",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "El mundo de la magia",
+            "autor": "Maddonni, Patricia (coord.)",
+            "resumen": "MATERIAL EDUCATIVO - LENGUA",
+            "Editorial": "Ministerio de Educación ",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "De terror",
+            "autor": "Maddonni, Patricia (coord.)",
+            "resumen": "MATERIAL EDUCATIVO - LENGUA",
+            "Editorial": "Ministerio de Educación ",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Grandes viajeros 1. Erik el rojo - Marco Polo",
+            "autor": "Maddonni, Patricia (coord.)",
+            "resumen": "MATERIAL EDUCATIVO - LENGUA",
+            "Editorial": "Ministerio de Educación ",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Letras sobre rieles",
+            "autor": "Maddonni, Patricia (coord.)",
+            "resumen": "MATERIAL EDUCATIVO - LENGUA",
+            "Editorial": "Ministerio de Educación ",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Cuaderno de Matemática 6",
+            "autor": "Bechara, María Patricia",
+            "resumen": "MATERIAL EDUCATIVO - MATEMÁTICA - PRIMARIA",
+            "Editorial": "Ministerio de Educación ",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "El libro de Mate 2",
+            "autor": "Broitman, Claudia",
+            "resumen": "MATERIAL EDUCATIVO - MATEMÁTICA - PRIMARIA",
+            "Editorial": "Ministerio de Educación ",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Matemática para armar 3",
+            "autor": "Chelle, María Teresa",
+            "resumen": "MATERIAL EDUCATIVO - MATEMÁTICA - PRIMARIA",
+            "Editorial": "Ministerio de Educación ",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Matetubers 5",
+            "autor": "Diaz, Adriana",
+            "resumen": "MATERIAL EDUCATIVO - MATEMÁTICA - PRIMARIA",
+            "Editorial": "Ministerio de Educación ",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Mirar con lupa 1",
+            "autor": "Alderoqui, Helena",
+            "resumen": "MATERIAL EDUCATIVO - MATEMÁTICA - PRIMARIA",
+            "Editorial": "Ministerio de Educación ",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Matetubers 6",
+            "autor": "Díaz, Adriana",
+            "resumen": "MATERIAL EDUCATIVO - MATEMÁTICA - PRIMARIA",
+            "Editorial": "Ministerio de Educación ",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Avanza. Prácticas del lenguaje 6",
+            "autor": "Sánchez Mariño, María Eugenia",
+            "resumen": "MATERIAL EDUCATIVO - LENGUA- PRIMARIA",
+            "Editorial": "Ministerio de Educación ",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Avanza. Prácticas del lenguaje 6. Wikibloc.",
+            "autor": "Sánchez Mariño, María Eugenia",
+            "resumen": "MATERIAL EDUCATIVO - LENGUA- PRIMARIA",
+            "Editorial": "Ministerio de Educación ",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "El libro de Mate 3",
+            "autor": "Broitman, Claudia",
+            "resumen": "MATERIAL EDUCATIVO - MATEMÁTICA - PRIMARIA",
+            "Editorial": "Ministerio de Educación ",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "El libro de 6. Prácticas del lenguaje. ",
+            "autor": "Moretti, María Andrea",
+            "resumen": "MATERIAL EDUCATIVO - LENGUA- PRIMARIA",
+            "Editorial": "Ministerio de Educación ",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Matemática para armar 5",
+            "autor": "Chelle, María Teresa",
+            "resumen": "MATERIAL EDUCATIVO - MATEMÁTICA - PRIMARIA",
+            "Editorial": "Ministerio de Educación ",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Matemática para armar 6",
+            "autor": "Chelle, María Teresa",
+            "resumen": "MATERIAL EDUCATIVO - MATEMÁTICA - PRIMARIA",
+            "Editorial": "Ministerio de Educación ",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Amigos en acción 2.",
+            "autor": "Silvestre, María Soledad",
+            "resumen": "MATERIAL EDUCATIVO - LENGUA- PRIMARIA",
+            "Editorial": "Ministerio de Educación ",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Emociones en acción 2",
+            "autor": "Silvestre, María Soledad",
+            "resumen": "MATERIAL EDUCATIVO - LENGUA- PRIMARIA",
+            "Editorial": "Ministerio de Educación ",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Manos a la obra 2",
+            "autor": "Silvestre, María Soledad",
+            "resumen": "MATERIAL EDUCATIVO - LENGUA- PRIMARIA",
+            "Editorial": "Ministerio de Educación ",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "El libro de 5. Prácticas del lenguaje.",
+            "autor": "Moretti, María Andrea",
+            "resumen": "MATERIAL EDUCATIVO - LENGUA- PRIMARIA",
+            "Editorial": "Ministerio de Educación ",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Las aventuras de Huckleberry Finn",
+            "autor": "Twain, Mark",
+            "resumen": "MATERIAL EDUCATIVO - LENGUA- PRIMARIA",
+            "Editorial": "Ministerio de Educación ",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Leer y escribir en 4. Proyectos y secuencias para el aula.",
+            "autor": "Seoane, Carolina",
+            "resumen": "MATERIAL EDUCATIVO - LENGUA- PRIMARIA",
+            "Editorial": "Ministerio de Educación ",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Carpeta de ortografía y puntuación 4. ",
+            "autor": "Seoane, Carolina",
+            "resumen": "MATERIAL EDUCATIVO - LENGUA- PRIMARIA",
+            "Editorial": "Ministerio de Educación ",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "La leyenda de Robin Hood",
+            "autor": "Pyle, Howard",
+            "resumen": "MATERIAL EDUCATIVO - LENGUA- PRIMARIA",
+            "Editorial": "Ministerio de Educación ",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Cuaderno de Maemática 5",
+            "autor": "Nise, Gladys ",
+            "resumen": "MATERIAL EDUCATIVO - MATEMÁTICA - PRIMARIA",
+            "Editorial": "Ministerio de Educación ",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Cuaderno de Maemática 4",
+            "autor": "Nise, Gladys ",
+            "resumen": "MATERIAL EDUCATIVO - MATEMÁTICA - PRIMARIA",
+            "Editorial": "Ministerio de Educación ",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Avanza. Prácticas del lenguaje 4.",
+            "autor": "Sánchez Mariño, María Eugenia",
+            "resumen": "MATERIAL EDUCATIVO - LENGUA- PRIMARIA",
+            "Editorial": "Ministerio de Educación ",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Avanza. Prácticas del lenguaje 4. Wikibloc.",
+            "autor": "Sánchez Mariño, María Eugenia",
+            "resumen": "MATERIAL EDUCATIVO - LENGUA- PRIMARIA",
+            "Editorial": "Ministerio de Educación ",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Avanza. Prácticas del lenguaje 5.",
+            "autor": "Sánchez Mariño, María Eugenia",
+            "resumen": "MATERIAL EDUCATIVO - LENGUA- PRIMARIA",
+            "Editorial": "Ministerio de Educación ",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Avanza. Prácticas del lenguaje 5. Wikibloc",
+            "autor": "Sánchez Mariño, María Eugenia",
+            "resumen": "MATERIAL EDUCATIVO - LENGUA- PRIMARIA",
+            "Editorial": "Ministerio de Educación ",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Súper árbol verde limón. Prácticas del lenguaje.",
+            "autor": "Martínez, Julia Elena",
+            "resumen": "MATERIAL EDUCATIVO - LENGUA- PRIMARIA",
+            "Editorial": "Ministerio de Educación ",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "A la plaza 2. Prácticas del lenguaje.",
+            "autor": "Moreno, Paula",
+            "resumen": "MATERIAL EDUCATIVO - LENGUA- PRIMARIA",
+            "Editorial": "Ministerio de Educación ",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Mirar con lupa 2",
+            "autor": "Alderoqui, Helena Gabriela",
+            "resumen": "MATERIAL EDUCATIVO - LENGUA- PRIMARIA",
+            "Editorial": "Ministerio de Educación ",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Buenas palabras 6. El libro de las aventuras. Prácticas del lenguaje. ",
+            "autor": "Roggio, Patricia",
+            "resumen": "MATERIAL EDUCATIVO - LENGUA- PRIMARIA",
+            "Editorial": "Ministerio de Educación ",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Matemática para armar 4.",
+            "autor": "Chelle, María Teresa",
+            "resumen": "MATERIAL EDUCATIVO - MATEMÁTICA - PRIMARIA",
+            "Editorial": "Ministerio de Educación ",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Buenas palabras 4. El libro de la magia. Prácticas del lenguaje.",
+            "autor": "Roggio, Patricia",
+            "resumen": "MATERIAL EDUCATIVO - LENGUA- PRIMARIA",
+            "Editorial": "Ministerio de Educación ",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Buenas palabras 5. El libro de la naturaleza. Prácticas del lenguaje.",
+            "autor": "Roggio, Patricia",
+            "resumen": "MATERIAL EDUCATIVO - LENGUA- PRIMARIA",
+            "Editorial": "Ministerio de Educación ",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Profesores y profesión docente: entre el ser y el estar",
+            "autor": "Zabalza Beraza, Miguel A. y Zabalza Cerdeiriña, Ainoha",
+            "resumen": "FORMACIÓN DOCENTE - MAGISTERIO - ENSEÑANZA - DEONTOLOGÍA PROFESIONAL",
+            "Editorial": "Narcea",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Leer a Comenio. Su tiempo y su didáctica",
+            "autor": "Camilloni, Alicia R.W.",
+            "resumen": "DIDÁCTICA - COMENIO - ",
+            "Editorial": "Sin información",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Desarrollo cognitivo y educación. Los inicios del conocimiento.",
+            "autor": "Castorina, José A. y Carretero, Mario",
+            "resumen": "PIAGET - VIGOTSKY - COGNICIÓN - CEREBRO - BEBÉ - LENGUAJE - SEMIOSIS - TEORÍA DE LA MENTE",
+            "Editorial": "Sin información",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "El borde del agua",
+            "autor": "Durini, Ángeles",
+            "resumen": "POESÍA",
+            "Editorial": "Editorial Maravilla",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "El gigante de Balvanera y otras leyendas urbanas",
+            "autor": "Silvestre, Sol",
+            "resumen": "LEYENDAS ",
+            "Editorial": "La brujita de papel",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Cuadernos de lengua y literatura. Vol I, II y III.",
+            "autor": "Ortiz, Mario",
+            "resumen": "POESÍA ",
+            "Editorial": "Hemisferio derecho",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "La sudestada",
+            "autor": "Sáenz Valiente, Juan",
+            "resumen": "CÓMIC - JUVENIL - HISTORIETA",
+            "Editorial": "Hotel de las ideas",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Las garras del niño inútil",
+            "autor": "Mey, Luis",
+            "resumen": "NOVELA ",
+            "Editorial": "Factotum",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "La traición de Rita Hayworth",
+            "autor": "Puig, Manuel",
+            "resumen": "NOVELA ",
+            "Editorial": "Seix Barral",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Donde no hago pie",
+            "autor": "López Peiró, Belén",
+            "resumen": "CRÓNICA",
+            "Editorial": "Sudamericana",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "El monstruo invisible y otros cuentos terroríficos",
+            "autor": "Lalia, Horacio",
+            "resumen": "CÓMIC - HISTORIETA",
+            "Editorial": "Colihue",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "La casita azul",
+            "autor": "Comino, Sandra",
+            "resumen": "NOVELA JUVENIL - INFANTIL",
+            "Editorial": "comunicarte",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "De boca en boca: historias y leyendas de Buenos Aires para chicos",
+            "autor": "Falbo, Graciela",
+            "resumen": "LEYENDAS - INFANTIL - BUENOS AIRES ",
+            "Editorial": "AZ",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Historias de abuelas",
+            "autor": "Ávila, Laura ... [et.all]",
+            "resumen": "ABUELAS PLAZA DE MAYO - ",
+            "Editorial": "Sin información",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Donde la ciudad termina",
+            "autor": "Kaufman, Ruth y Roldán, Daniel (il.)",
+            "resumen": "POESÍA INFANTIL ",
+            "Editorial": "Pequeño editor",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "La estrella de fuego",
+            "autor": "Ávila, Laura  ",
+            "resumen": "NOVELA ",
+            "Editorial": "Salim",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Cometierra",
+            "autor": "Reyes, Dolores",
+            "resumen": "NOVELA",
+            "Editorial": "Sigilo",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Contracorriente",
+            "autor": "Wernicke, María",
+            "resumen": "INFANTIL - JUVENIL",
+            "Editorial": "Calibroscopio",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "El libro de la selva",
+            "autor": "Kipling, Rudyard",
+            "resumen": "INFANTIL - JUVENIL",
+            "Editorial": "Salim",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Un elefante ocupa mucho espacio",
+            "autor": "Bornemann, Elsa",
+            "resumen": "INFANTIL - JUVENIL",
+            "Editorial": "Loqueleo",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Caperucita roja (tal como se lo contaron a Jorge)",
+            "autor": "Pescetti, Luis María",
+            "resumen": "INFANTIL - JUVENIL",
+            "Editorial": "Loqueleo",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Las velas malditas",
+            "autor": "Montes, Graciela y Torres, Elena (il.)",
+            "resumen": "INFANTIL - JUVENIL",
+            "Editorial": "Loqueleo",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "La familia delasoga",
+            "autor": "Montes, Graciela",
+            "resumen": "INFANTIL - JUVENIL",
+            "Editorial": "Colihue",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "La torre de cubos",
+            "autor": "Devetach, Laura",
+            "resumen": "INFANTIL - JUVENIL",
+            "Editorial": "Loqueleo",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Un gato como cualquiera - Bicho raro",
+            "autor": "Montes, Graciela",
+            "resumen": "INFANTIL - JUVENIL",
+            "Editorial": "Colihue",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Como si el ruido pudiera molestar",
+            "autor": "Roldán, Gustavo",
+            "resumen": "INFANTIL - JUVENIL",
+            "Editorial": "Norma",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "El pastorcito mentiroso",
+            "autor": "Esopo",
+            "resumen": "INFANTIL - JUVENIL",
+            "Editorial": "Colihue",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Cuentos de la selva",
+            "autor": "Quiroga, Horacio",
+            "resumen": "INFANTIL - JUVENIL",
+            "Editorial": "Salim",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Big data",
+            "autor": "Sosa Escudero, Walter",
+            "Editorial": "Sin información",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "La lista",
+            "autor": "García Ontiveros, Verónica",
+            "resumen": "INFANTIL - JUVENIL",
+            "Editorial": "Azulejos",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "La senda del puñal",
+            "autor": "Grubissich, Jorge",
+            "resumen": "INFANTIL - JUVENIL",
+            "Editorial": "Salim",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Las primas",
+            "autor": "Venturini, Aurora",
+            "resumen": "NOVELA",
+            "Editorial": "Tusquets",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "La balada del álamo carolina",
+            "autor": "Conti, Haroldo",
+            "resumen": "CUENTOS",
+            "Editorial": "Emecé",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Anchoa",
+            "autor": "Sancia Kawamichi, Martín",
+            "resumen": "NOVELA",
+            "Editorial": "Dábale Arroz",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Hudson a caballo",
+            "autor": "Franco, Luis",
+            "resumen": "CUENTOS/NARRACIONES",
+            "Editorial": "Leviatán",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Berazachussetts",
+            "autor": "Ávalos Blacha, Leandro",
+            "resumen": "NOVELA",
+            "Editorial": "Entropía",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Tres marcianos",
+            "autor": "Bizzio, Sergio",
+            "resumen": "CUENTOS",
+            "Editorial": "Interzona",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "ATP: (h)arta para todo público",
+            "autor": "Porcelli Piussi, Liza",
+            "resumen": "INFANTIL - JUVENIL",
+            "Editorial": "Comunicarte",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Íntima distancia",
+            "autor": "Zina, Alejandra",
+            "resumen": "CUENTOS/NARRACIONES",
+            "Editorial": "Dábale Arroz",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Humo",
+            "autor": "Lezcano, Walter",
+            "resumen": "POESÍA",
+            "Editorial": "Voz",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Análisis y diseño de sistemas.",
+            "autor": "Kendall, Kenneth y Kendall, Julie.E",
+            "resumen": "ANÁLISIS DE SISTEMAS - PROTOTIPOS - DIAGRAMA - FLUJO DE DATOS - UML ",
+            "Editorial": "Pearson",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "En la infancia los diagnósticos se escriben con lápiz. La patologización de las diferencias en la clínica y en la educación.",
+            "autor": "Untoiglich, Gisela",
+            "resumen": "INFANCIA - PATOLOGIZACIÓN - DIAGNÓSTICO - DISLEXIA - TDAH",
+            "Editorial": "Noveduc",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Acompañamiento Terapéutico. Clínica en las fronteras.",
+            "autor": "Frank, María Laura; Costa, Maricel  y Hernández, Dolores",
+            "resumen": "ACOMPAÑAMIENO TERAPÉUTICO - PSICODRAMA - ",
+            "Editorial": "Brujas",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Acompañamiento Terapéutico en la discapacidad. Acontecimiento y emancipación.",
+            "autor": "Bálsamo, Viviana",
+            "resumen": "ACOMPAÑAMIENO TERAPÉUTICO - DISCAPACIDAD - AUTONOMÍA - SEXUAL ",
+            "Editorial": "Lugar",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Huellas, silencios, horizontes. Una introducción crítica a la función del acompañante terapéutico",
+            "autor": "Pascolini, Alejandro ",
+            "resumen": "ACOMPAÑAMIENTO TERAPÉUTICO - ",
+            "Editorial": "Letra viva",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Introducción al acompañamiento terapéutico",
+            "autor": "Sáliche, Sergio Fernando ",
+            "resumen": "ACOMPAÑAMIENTO TERAPÉUTICO - PSICOFÁRMACOS",
+            "Editorial": "Letra viva",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Riesgos del trabajo. Ley n° 24.557",
+            "resumen": "RIESGOS DEL TRABAJO - LEY 26.773 - LEY 27.348 - DECRETO 669/2019 - ",
+            "Editorial": "Ediciones del país",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Decreto n° 911/96. Higiene y seguridad en el trabajo para la industria de la construcción",
+            "resumen": "HIGIENE Y SEGURIDAD",
+            "Editorial": "Ediciones del país",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Ley n° 19.587. Higiene y seguridad en el trabajo. Decreto reglamentario n° 351/79",
+            "resumen": "HIGIENE Y SEGURIDAD",
+            "Editorial": "Ediciones del país",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Asociaciones sindicales de trabajadores. Ley n° 23.551",
+            "resumen": "ASOCIACIÓN SINDICAL - DECRETO 467/88 - LEY N° 25.674 - DECRETO N° 514/2003 - LEY 25.674",
+            "Editorial": "Ediciones del país",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Contrato de trabajo. Ley n° 20.744.",
+            "resumen": "INDEMNIZACIÓN LABORAL - REFORMA LABORAL - NUEVA REFORMA LABORAL",
+            "Editorial": "Ediciones del país",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Condiciones y medio ambiente de trabajo.",
+            "autor": "Gomis, Duilio y Kordi, Silvana",
+            "resumen": "ENFERMERÍA - CyMAT - ",
+            "Editorial": "Akadia",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "La grasita",
+            "autor": "Pérez Sabbi, Mercedes",
+            "resumen": "LITERATURA JUVENIL",
+            "Editorial": "Comunicarte",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Catedrales",
+            "autor": "Piñeiro, Claudia",
+            "resumen": "NOVELA",
+            "Editorial": "Alfaguara",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Está allí todavía ",
+            "autor": "Drennen, Olga",
+            "resumen": "LITERATURA INFANTIL - JUVENIL",
+            "Editorial": "Ministerio de Educación ",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Un decreto incomprendido ",
+            "autor": "Bodoc, Liliana",
+            "resumen": "LITERATURA INFANTIL - JUVENIL",
+            "Editorial": "Ministerio de Educación ",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Los que aman, odian.",
+            "autor": "Ocampo, Silvina y Bioy Casares, Adolfo",
+            "resumen": "NOVELA",
+            "Editorial": "Emecé",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Frente al bosque de pinos.",
+            "autor": "García, Juan Fernando ",
+            "resumen": "POESÍA",
+            "Editorial": "Patronus",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Las visitas",
+            "autor": "Schujer, Silvia",
+            "resumen": "LITERATURA INFANTIL - JUVENIL",
+            "Editorial": "Loqueleo",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Ley de juego",
+            "autor": "Briante, Miguel",
+            "resumen": "CUENTOS",
+            "Editorial": "Mil botellas",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Lo que sale de su cauce",
+            "autor": "Gómez, Claudio",
+            "resumen": "POESÍA",
+            "Editorial": "Kintsugi Edittora",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "El que no salta es un holandés",
+            "autor": "Méndez, Mario",
+            "resumen": "NOVELA",
+            "Editorial": "Amauta",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Graymoor",
+            "autor": "Vargas, Sebastián",
+            "resumen": "NOVELA",
+            "Editorial": "Zona Libre",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Fútbol de autor",
+            "autor": "Birmajer... [et.all]",
+            "resumen": "CUENTOS",
+            "Editorial": "La letra del gato",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Flores robadas en los jardines de Quilmes ",
+            "autor": "Asís, Jorge",
+            "resumen": "NOVELA",
+            "Editorial": "Sudamericana",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "El río",
+            "autor": "Mundani, Débora",
+            "resumen": "NOVELA",
+            "Editorial": "Corregidor",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Mi herida zombi",
+            "autor": "Vaccarini, Franco",
+            "resumen": "LITERATURA JUVENIL - TERROR",
+            "Editorial": "La letra del gato",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Los sorrentinos",
+            "autor": "Higa, Virginia",
+            "resumen": "NOVELA",
+            "Editorial": "Sigilo",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Los fantasmas del Luxor",
+            "autor": "Colombo, Cristina",
+            "resumen": "LITERATURA INFANTIL - JUVENIL",
+            "Editorial": "La brujita de papel",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Frenéticas",
+            "autor": "Girardi, Magdalena",
+            "resumen": "NOVELA",
+            "Editorial": "Conejos",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Guitarras",
+            "autor": "Averbach, Márgara",
+            "resumen": "LITERATURA JUVENIL",
+            "Editorial": "Ruedamares",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Glaxo",
+            "autor": "Ronsino, Hernán",
+            "resumen": "NOVELA",
+            "Editorial": "Eterna cadencia editora",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Ensenada - Berisso: 1962",
+            "autor": "Faust, Marcelo",
+            "resumen": "NOVELA",
+            "Editorial": "Biblos",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Los nuevos",
+            "autor": "Huidobro, Norma",
+            "resumen": "NOVELA",
+            "Editorial": "Norma",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Los bandera",
+            "autor": "Ávila, Laura y Méndez, Mario",
+            "resumen": "LITERATURA JUVENIL",
+            "Editorial": "Norma",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "La larga noche de los lápices. Relatos de una sobreviviente",
+            "autor": "Moler, Emilce",
+            "resumen": "NOVELA HISTÓRICA - RELATOS AUTOBIOGRÁFICOS - NOCHE DE LOS LÁPICES",
+            "Editorial": "Marea",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Jorge Julio López. Memoria escrita. ",
+            "autor": "Caterbetti, Jorge (comp.)",
+            "resumen": "NOVELA HISTÓRICA - ESCRITOS - ",
+            "Editorial": "Marea",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "El nombre de los caracoles",
+            "autor": "Stella, Claudia",
+            "resumen": "NOVELA",
+            "Editorial": "Libros de UNAHUR",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "ESMA",
+            "autor": "Carrá, Juan y Echeverría, Iñaki",
+            "resumen": "RELATO HISTÓRICO - ESMA - NARRATIVA HISTÓRICA",
+            "Editorial": "Evaristo",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "El muchacho peronista ",
+            "autor": "Figueras, Marcelo",
+            "resumen": "NOVELA",
+            "Editorial": "Alfaguara",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Los pibes del santa",
+            "autor": "Britez, Rafael y Denza, Néstor",
+            "resumen": "NOVELA HISTÓRICA - DICTADURA ",
+            "Editorial": "Unqui",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "El acompañante terapéutico en la clínica de lo cotidiano",
+            "autor": "Vitelleschi, Belén y Audisio, Samanta",
+            "resumen": "ACOMPAÑAMIENTO TERAPÉUTICO - LEY DE SALUD MENTAL ",
+            "Editorial": "Bonum",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Señales del más acá: terror en el Parque Azul",
+            "autor": "Drennen, Olga",
+            "resumen": "LITERATURA INFANTIL - JUVENIL",
+            "Editorial": "Abran cancha",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Aventuras de pájaro",
+            "autor": "Forchetti, Laura",
+            "resumen": "POESÍA",
+            "Editorial": "La gran nilson",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Turba: memorias de Malvinas",
+            "autor": "Fernández, Lauri",
+            "resumen": "MALVINAS - MEMORIA ",
+            "Editorial": "Hotel de las ideas",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Sónoman 1: el hombre del poder músico-mental",
+            "autor": "Oswald",
+            "resumen": "CÓMIC - INFANTIL JUVENIL",
+            "Editorial": "De la flor",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Éste es el mar",
+            "autor": "Enriquez, Mariana",
+            "resumen": "NOVELA",
+            "Editorial": "Random House",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Las aventuras de la China Iron",
+            "autor": "Cabezón Cámara, Gabriela",
+            "resumen": "NOVELA",
+            "Editorial": "Randon House",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "De este lado del charco",
+            "autor": "Komiseroff, Mariana",
+            "resumen": "NOVELA",
+            "Editorial": "Conejos",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Agosto",
+            "autor": "Paula, Romina",
+            "resumen": "NOVELA",
+            "Editorial": "Entropía",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Una versión de Dios",
+            "autor": "Stok, Analuisa y Bodoc, Liliana",
+            "resumen": "LITERATURA INFANTIL - JUVENIL",
+            "Editorial": "La central",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Vida de un lápiz ",
+            "autor": "Schuff, Nicolás y Trach, Martina",
+            "resumen": "LITERATURA INFANTIL - JUVENIL",
+            "Editorial": "Limonero",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Letras sueltas",
+            "autor": "Lima, Juan y Cachimba, Max",
+            "resumen": "LITERATURA INFANTIL - JUVENIL",
+            "Editorial": "Ojoreja",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Cámara Gesell",
+            "autor": "Saccomanno, Guillermo",
+            "resumen": "NOVELA",
+            "Editorial": "Booket",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Una familia bajo la nieve",
+            "autor": "Zwaig, Mónica",
+            "resumen": "NOVELA ",
+            "Editorial": "Blatt y ríos",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Flipper",
+            "autor": "Decarli, Enrique",
+            "resumen": "NOVELA",
+            "Editorial": "Paisania Editora",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Once burros: novela futbolera",
+            "autor": "Garófalo, Cristian",
+            "resumen": "NOVELA - FÚTBOL",
+            "Editorial": "Corregidor",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Tilde, tilde, cruz",
+            "autor": "Chulak, Fernando",
+            "resumen": "NOVELA",
+            "Editorial": "Beatriz Viterbo",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Milla Loncó",
+            "autor": "Otero, Rodolfo",
+            "resumen": "NOVELA",
+            "Editorial": "Estrada",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Obra reunida",
+            "autor": "Chappa, Pedro",
+            "resumen": "NOVELA",
+            "Editorial": "Leviatán",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Pinceladas musicales",
+            "autor": "Aira, César",
+            "resumen": "NOVELA",
+            "Editorial": "Blatt y ríos",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "El aire del mundo",
+            "autor": "Manigot, Rodrigo",
+            "resumen": "NOVELA",
+            "Editorial": "La Crujía",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Tres son multitud",
+            "autor": "Dellutri, Ezequiel",
+            "resumen": "NOVELA",
+            "Editorial": "Ekeka",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "El crimen casi perfecto",
+            "autor": "Arlt, Roberto",
+            "resumen": "NOVELA",
+            "Editorial": "Ojoreja",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Furgón",
+            "autor": "Bermani, Ariel",
+            "resumen": "NOVELA",
+            "Editorial": "Paisania Editora",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Los mejores días",
+            "autor": "Etchebarne, Magalí",
+            "resumen": "NOVELA",
+            "Editorial": "Tenemos las máquinas",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Las cosas que perdimos en el fuego",
+            "autor": "Enriquez, Mariana",
+            "resumen": "NOVELA",
+            "Editorial": "Anagrama",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Turistas",
+            "autor": "Uhart, Hebe",
+            "resumen": "NOVELA",
+            "Editorial": "Adriana Hidalgo Editora",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Cuentos de amor, de locura y de muerte. Cuentos de la selva",
+            "autor": "Quiroga, Horacio",
+            "resumen": "CUENTOS",
+            "Editorial": "Barenhaus",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Villa Celina",
+            "autor": "Incardona, Juan Diego",
+            "resumen": "NOVELA",
+            "Editorial": "Interzona",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "La llanura pampeana: cuentos regionales argentinos",
+            "autor": "Ábalos, Jorge... [et.all]",
+            "resumen": "CUENTOS",
+            "Editorial": "Colihue",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Las esferas invisibles",
+            "autor": "Muzzio, Diego",
+            "resumen": "NOVELA",
+            "Editorial": "Entropía",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Doscientos canguros",
+            "autor": "Muzzio, Diego",
+            "resumen": "CUENTOS",
+            "Editorial": "Entropía",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Un lugar guardado para algo",
+            "autor": "Cáncer, Luciana",
+            "resumen": "NOVELA",
+            "Editorial": "Ediciones B",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Todos los soles mienten",
+            "autor": "Valentino, Esteban",
+            "resumen": "LITERATURA INFANTIL - JUVENIL",
+            "Editorial": "Loqueleo",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Paraguay",
+            "autor": "Di Lisio, Martín",
+            "resumen": "NOVELA",
+            "Editorial": "Alto Pogo",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Flora y fauna",
+            "autor": "Rivas, Leticia",
+            "resumen": "NOVELA",
+            "Editorial": "Tenemos las máquinas",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "El ladrido del tigre",
+            "autor": "Baigorria, Osvaldo",
+            "resumen": "NOVELA",
+            "Editorial": "Blatt y ríos",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "La voz del ciervo",
+            "autor": "Negri,Marisa y Collini, Paula",
+            "resumen": "LITERATURA INFANTIL - JUVENIL, LIBRO ALBÚM",
+            "Editorial": "Ediciones del Aromo",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Hombres en su mundo ",
+            "autor": "Muñoz, Pali",
+            "resumen": "HISTORIETA - HUMOR",
+            "Editorial": "Acercándonos",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Piedra, papel o tijera",
+            "autor": "Garland, Inés",
+            "resumen": "LITERATURA JUVENIL",
+            "Editorial": "Loqueleo",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Vida del muerto",
+            "autor": "Wapner, David y Trillo, Matías",
+            "resumen": "LITERATURA INFANTIL JUVENIL - ",
+            "Editorial": "Calibroscopio",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Misión Kenobi",
+            "autor": "Guinot, Juan",
+            "resumen": "LITERATURA INFANTIL JUVENIL - ",
+            "Editorial": "Corregidor",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Todas las tardes de sol",
+            "autor": "Blasco, Martín",
+            "resumen": "LITERATURA JUVENIL",
+            "Editorial": "Loqueleo",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "No abras la úlima puerta",
+            "autor": "Molina, Lucho",
+            "resumen": "LITERATURA JUVENIL",
+            "Editorial": "Rama negra",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Cristal",
+            "autor": "Cinetto, Liliana",
+            "resumen": "LITERATURA JUVENIL",
+            "Editorial": "La letra del gato",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Mujeres por la memoria. Escritoras argentinas cuentan la dictadura.",
+            "autor": "Valenzuela, Luisa... [et.all]",
+            "resumen": "CUENTOS - POESÍA - DICTADURA MILITAR ARGENTINA",
+            "Editorial": "Colihue",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "La patria al hombro: y otras obras teatrales sobre la historia de las mujeres en la Argentina",
+            "autor": "Tursi, Adriana",
+            "resumen": "TEATRO - TEATRO HISTÓRICO - HISTORIA DE LAS MUJERES - ARGENTINA",
+            "Editorial": "Proyecto Larsen contemporáneo",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Dos argentinas:Arturo Jauretche - Silvina Ocampo. Correspondencia inédita: sus vidas, sus ideas. ",
+            "autor": "Galasso, Norberto",
+            "resumen": "BIOGRAFÍA - ARTURO JAURETCHE - SILVINA OCAMPO ",
+            "Editorial": "Homosapiens",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Mis animales y los que no son míos.",
+            "autor": "Fernández, Denise",
+            "resumen": "POESÍA - ",
+            "Editorial": "Mágicas naranjas ",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Made in Lanús",
+            "autor": "Fernández Tiscornia, Nelly",
+            "resumen": "TEATRO ",
+            "Editorial": "Cántaro",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Rubios naturales",
+            "autor": "Rack, Carolina",
+            "resumen": "POESÍA",
+            "Editorial": "Vox",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Pueblo",
+            "autor": "Magistratti, María Julia",
+            "resumen": "POESÍA",
+            "Editorial": "La gran nilson",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Rectángulo de San Andrés",
+            "autor": "Kartun, Mauricio",
+            "resumen": "TEATRO ",
+            "Editorial": "Interzona",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Relatos de infancias y adolescencias trans-travesti",
+            "autor": "Mansilla, Gabriela",
+            "resumen": "ESI - INFANCIAS TRANS Y TRAVESTIS - RELATOS",
+            "Editorial": "UNGS",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Ernesto, el elefante",
+            "autor": "Browne, Anthony",
+            "resumen": "LITERATURA INFANTIL ",
+            "Editorial": "Fondo de cultura económica",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Los cuentos de Willy",
+            "autor": "Browne, Anthony",
+            "resumen": "LITERATURA INFANTIL",
+            "Editorial": "Fondo de cultura económica",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Nativas: flores argentinas",
+            "autor": "Salinas, Loreto; Fernandez, Paula y Burgos, Adriana",
+            "resumen": "FLORES NATIVAS - PLANTAS - FLORES ARGENTINAS",
+            "Editorial": "Ojoreja",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Si no fueras tan niña: memorias de la violencia",
+            "autor": "Fantin, Sol",
+            "resumen": "VIOLENCIA DE GÉNERO - MEMORIAS",
+            "Editorial": "Paidós",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Mapuches",
+            "autor": "Sugobono, Nahuel ",
+            "resumen": "MAPUCHES - PUEBLOS INDÍGENAS - ILUSTRACIONES ",
+            "Editorial": "EUDEBA",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        },
+        {
+            "titulo": "Las tribus de la Pampa ",
+            "autor": "Palermo, Miguel Ángel ",
+            "resumen": "PUBLOS ORIGINARIOS - PUEBLOS INDÍGENAS - PAMPAS",
+            "Editorial": "AZ",
+            "img": "https://static.vecteezy.com/system/resources/previews/005/377/487/non_2x/cartoon-doodle-book-isolated-on-white-background-education-hand-drawn-icon-free-vector.jpg"
+        }
+
+        ]
+    }
+]
