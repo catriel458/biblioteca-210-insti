@@ -5,6 +5,7 @@
     <link rel="stylesheet" href="{% static 'css/main.css' %}">
     <link rel="stylesheet" href="{% static 'css/style_form.css' %}">
     <link rel="stylesheet" href="{% static 'css/botones.css' %}">
+    <link rel="stylesheet" href="{% static 'css/confirmacion_carga_exitosa.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -32,10 +33,34 @@
                 <!-- Aquí se cargará dinámicamente el formulario -->
                 <div id="formulario-especifico" class="mt-2 row"></div>
             </div>
-            <!-- Columna derecha con manual y carga masiva si querés la mantenés aquí -->
+            
+            <!-- Columna derecha con manual y carga masiva -->
             <div class="col-12 col-lg-2 d-flex flex-column align-items-end mt-3 mt-lg-0">
                 <div class="w-100 mb-2">
                     <button type="button" class="btn btn-dark btn-sm manual-button w-100" onclick="document.getElementById('manualModal').style.display='flex'">MANUAL</button>
+                </div>
+                
+                <!-- Sección de carga masiva (solo visible al seleccionar material) -->
+                <div id="upload_simple_container" class="w-100 mb-4" style="display: none;">
+                    <div class="upload-box w-100">
+                        <small class="text-muted">Para carga masiva, suba un archivo CSV o Excel (.csv, .xls, .xlsx):</small>
+                        <label for="cargar_archivo" class="d-block my-3">
+                            <div class="boton-redondeado">
+                                <span>↑</span>
+                            </div>
+                            <input type="file" id="cargar_archivo" name="cargar_archivo" accept=".csv, .xls, .xlsx" style="display: none;">
+                        </label>
+                        <div id="nombre_archivo_carga_simple" style="text-align:center;font-size:0.92em;color:#444;margin-top:6px;margin-bottom:2px;word-break:break-all;"></div>
+                    </div>
+                </div>
+                
+                <!-- Fila 4/5: Carga de Imagen -->
+                <div id="upload_box_container" class="custom-upload-box-container" style="display: none; width: 100%;">
+                    <div class="custom-upload-box w-100">
+                        <button class="btn btn-sm custom-upload-btn w-100" type="button" onclick="document.getElementById('file_upload_input').click();">↑</button>
+                        <input type="file" id="file_upload_input" name="imagen" accept="image/*" style="display: none;">
+                        <input type="text" id="url_upload_input" class="form-control custom-upload-input mb-2" placeholder="O pegue un enlace de imagen aquí...">
+                    </div>
                 </div>
             </div>
         </div>
@@ -51,13 +76,24 @@
 </div>
 {% endblock %}
 
+{% block modals %}
+  {% include 'modals/manual_modal.html' %}
+  {% include 'modals/confirmacion_alta_material.html' %}
+  {% comment %} {% include 'modals/confirmacion_carga_exitosa.html' %} {% endcomment %}
+{% endblock %}
+
 {% block extra_scripts %}
 <script>
 document.addEventListener("DOMContentLoaded", function () {
     const tipoMaterial = document.getElementById('tipo_material');
     const formularioEspecifico = document.getElementById('formulario-especifico');
     const buttonsContainer = document.getElementById('buttons-container');
+    
+    // Elementos de carga masiva e imagen
+    const uploadSimple = document.getElementById('upload_simple_container');
+    const uploadBox = document.getElementById('upload_box_container');
 
+    // FUNCIONALIDAD ORIGINAL - NO TOCAR
     tipoMaterial.addEventListener('change', function () {
         const tipo = this.value;
         if (tipo === 'libro') {
@@ -69,6 +105,10 @@ document.addEventListener("DOMContentLoaded", function () {
                 .then(html => {
                     formularioEspecifico.innerHTML = html;
                     buttonsContainer.style.display = 'flex';
+                    
+                    // AGREGAR: Mostrar elementos de carga cuando se carga el formulario
+                    if (uploadSimple) uploadSimple.style.display = 'block';
+                    if (uploadBox) uploadBox.style.display = 'block';
                 })
                 .catch(error => {
                     formularioEspecifico.innerHTML = `<p class="text-danger">Error al cargar el formulario: ${error.message}</p>`;
@@ -77,8 +117,26 @@ document.addEventListener("DOMContentLoaded", function () {
         } else {
             formularioEspecifico.innerHTML = '';
             buttonsContainer.style.display = 'none';
+            
+            // AGREGAR: Ocultar elementos de carga cuando no hay formulario
+            if (uploadSimple) uploadSimple.style.display = 'none';
+            if (uploadBox) uploadBox.style.display = 'none';
         }
     });
+
+    // FUNCIONALIDAD AGREGADA: Mostrar nombre del archivo seleccionado
+    const cargarArchivo = document.getElementById('cargar_archivo');
+    const nombreArchivo = document.getElementById('nombre_archivo_carga_simple');
+    
+    if (cargarArchivo && nombreArchivo) {
+        cargarArchivo.addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                nombreArchivo.textContent = this.files[0].name;
+            } else {
+                nombreArchivo.textContent = '';
+            }
+        });
+    }
 });
 </script>
 {% endblock %}
