@@ -13,7 +13,6 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 from pathlib import Path
 from django.contrib.messages import constants as messages
 # Cargar variables de entorno desde .env
-from dotenv import load_dotenv
 import os
 
 # Construir rutas dentro del proyecto como esta: BASE_DIR / 'subdir'.
@@ -102,17 +101,6 @@ DATABASES = {
    }
 }
 
-# load_dotenv()
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.mysql',
-#         'NAME': os.environ.get('DB_NAME'),
-#         'USER': os.environ.get('DB_USER'),
-#         'PASSWORD': os.environ.get('DB_PASSWORD'),
-#         'HOST': os.environ.get('DB_HOST'),
-#         'PORT': os.environ.get('DB_PORT'),
-#     }
-# }
 
 
 # Password validation
