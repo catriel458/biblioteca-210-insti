@@ -40,6 +40,7 @@ STATICFILES_DIRS = [
     BASE_DIR / 'static',
     # BASE_DIR / 'views' / 'static',
     BASE_DIR / 'materiales' / 'views' / 'static',
+    BASE_DIR / 'materiales' / 'materiales'
 ]
 
 MEDIA_URL = '/media/'

@@ -1,0 +1,110 @@
+{% extends 'components/baseb.html' %}
+{% load static %}
+{% block extra_styles %}
+    <link rel="stylesheet" href="{% static 'css/manual_modal.css' %}">
+    <link rel="stylesheet" href="{% static 'css/main.css' %}">
+    <link rel="stylesheet" href="{% static 'css/style_form.css' %}">
+    <link rel="stylesheet" href="{% static 'css/botones.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <form id="form_alta_material" action="{% url 'alta_libro' %}" method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <!-- Tipo de material -->
+        
+
+        <!-- Campos principales -->
+        <div class="row">
+            <div class="col-12 col-sm-6 col-lg-6 form-group mb-3">
+                <label for="titulo" class="text-input" style="color:#25898D;">Título:</label>
+                <input type="text" class="form-control form-control-sm" id="titulo" name="titulo" required>
+            </div>
+            <div class="col-12 col-sm-6 col-lg-6 form-group mb-3">
+                <label for="descripcion" class="text-input" style="color:#25898D;">Descripción:</label>
+                <textarea class="form-control form-control-sm" id="descripcion" name="descripcion" rows="3" required></textarea>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12 col-sm-6 col-lg-4 form-group mb-3">
+                <label for="autor" class="text-input" style="color:#25898D;">Autor:</label>
+                <input type="text" class="form-control form-control-sm" id="autor" name="autor">
+            </div>
+            <div class="col-12 col-sm-6 col-lg-4 form-group mb-3">
+                <label for="editorial" class="text-input" style="color:#25898D;">Editorial:</label>
+                <input type="text" class="form-control form-control-sm" id="editorial" name="editorial">
+            </div>
+            <div class="col-12 col-sm-6 col-lg-4 form-group mb-3">
+                <label for="siglas_autor_titulo" class="text-input" style="color:#25898D;">Siglas Autor/Título:</label>
+                <input type="text" class="form-control form-control-sm" id="siglas_autor_titulo" name="siglas_autor_titulo">
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12 col-sm-6 col-lg-4 form-group mb-3">
+                <label for="clasificacion_cdu" class="text-input" style="color:#25898D;">Clasificación CDU:</label>
+                <input type="text" class="form-control form-control-sm" id="clasificacion_cdu" name="clasificacion_cdu">
+            </div>
+            <div class="col-12 col-sm-6 col-lg-8 form-group mb-3">
+                <label for="palabras_clave" class="text-input" style="color:#25898D;">Palabras clave:</label>
+                <input type="text" class="form-control form-control-sm" id="palabras_clave" name="palabras_clave">
+            </div>
+        </div>
+
+        <!-- Cantidad de ejemplares -->
+        <div class="row mb-3">
+            <div class="col-12 col-lg-4 form-group">
+                <label for="cant_ejemplares" style="color:#25898D;">Cantidad de Ejemplares:</label>
+                <input type="number" class="form-control" id="cant_ejemplares" name="cant_ejemplares" min="1" value="1" required>
+            </div>
+        </div>
+
+        <!-- Ejemplares (se podrían repetir o usar JS simple para agregar más) -->
+        <div class="row mb-3">
+            <div class="col-12 col-lg-2 form-group">
+                <label for="numero_ejemplar_0" style="color:#25898D;">Ejemplar N°:</label>
+                <input type="text" class="form-control" id="numero_ejemplar_0" name="numero_ejemplar[]" value="1" readonly required>
+            </div>
+            <div class="col-12 col-lg-3 form-group">
+                <label for="sede_0" style="color:#25898D;">Sede:</label>
+                <select class="form-control" id="sede_0" name="sede[]" required>
+                    <option value="">Selecciona una sede</option>
+                    <option value="sede1">La Plata</option>
+                    <option value="sede2">Abasto</option>
+                </select>
+            </div>
+            <div class="col-12 col-lg-5 form-group">
+                <label for="observaciones_0" style="color:#25898D;">Observaciones:</label>
+                <textarea class="form-control" id="observaciones_0" name="observaciones[]" rows="3" placeholder="Escriba aquí..."></textarea>
+            </div>
+            <div class="col-12 col-lg-2 form-group">
+                <label for="disponibilidad_0" style="color:#25898D;">Disponibilidad:</label>
+                <select class="form-control" id="disponibilidad_0" name="disponibilidad[]" required>
+                    <option value="">Selecciona disponibilidad</option>
+                    <option value="disponible">Disponible</option>
+                    <option value="no_disponible">No Disponible</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Botones -->
+        <div class="row">
+            <div class="col-12 d-flex justify-content-end gap-3">
+                <button type="reset" class="btn btn-outline-danger btn-sm">Cancelar</button>
+                <button type="submit" class="btn btn-primary btn-sm">Guardar</button>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block modals %}
+  {% include 'modals/manual_modal.html' %}
+  {% include 'modals/confirmacion_alta_material.html' %}
+{% endblock %}
+
+{% block extra_scripts %}
+    <script src="{% static 'js/modals/confirmacion_alta_material.js' %}" defer></script>
+{% endblock %}

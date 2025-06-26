@@ -1079,6 +1079,10 @@ def alta_libro(request):
             'form': form}
     return render(request, 'materiales/formularios_altas/alta_libro.html', context)
 
+def formulario_libro(request):
+    form = LibroForm()
+    return render(request, 'materiales/formularios_altas/formulario_libro.html', {'form': form})
+
 # Agregar decoradores similares a todas las vistas de alta de material
 #@user_passes_test(es_bibliotecaria)
 def alta_mapa(request):

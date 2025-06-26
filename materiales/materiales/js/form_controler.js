@@ -1,6 +1,6 @@
 document.addEventListener("DOMContentLoaded", function () {
     const tipoMaterialSelect = document.getElementById('tipo_material');
-    const formContainer = document.getElementById('form-container');
+    const formContainer = document.getElementById('formulario-especifico');
     const cantTituloDescripcionContainer = document.getElementById('cant-titulo-descripcion-container');
     const cargaMasivaInput = document.getElementById('carga_masiva');
 
@@ -15,23 +15,42 @@ document.addEventListener("DOMContentLoaded", function () {
         let url = '';
         switch (tipo) {
             case 'libro':
-                url = '/biblioteca/formulario/libro/';
-                break;
+                fetch('/materiales/formulario/libro/')  // esta ruta debe devolver solo el fragmento parcial
+                        .then(response => {
+            if (!response.ok) throw new Error('Error al cargar el formulario');
+            return response.text();
+        })
+        .then(data => {
+            formContainer.innerHTML = data;
+            mostrarCantidadEjemplares();
+        })
+        .catch(error => {
+            formContainer.innerHTML = '<p>Error al cargar el formulario.</p>';
+            console.error(error);
+        });
+        break;
             case 'mapa':
-                url = '/biblioteca/formulario/mapa/';
+                url = `/materiales/formulario/mapa/`; // ajustá para que exista esta vista y url
                 break;
             case 'multimedia':
-                url = '/biblioteca/formulario/multimedia/';
+                url = `/materiales/formulario/multimedia/`;
                 break;
             case 'proyector':
-                url = '/biblioteca/formulario/proyector/';
+                url = `/materiales/formulario/proyector/`;
                 break;
             case 'programa':
-                url = '/biblioteca/formulario/programa/';
+                url = `/materiales/formulario/programa/`;
                 break;
             case 'notebook':
-                url = '/biblioteca/formulario/notebook/';
+                url = `/materiales/formulario/notebook/`;
                 break;
+            case 'varios':
+                url = `/materiales/formulario/varios/`;
+                break;
+            default:
+                formContainer.innerHTML = '';
+                cantTituloDescripcionContainer.innerHTML = '';
+                return;
         }
 
         fetch(url)
@@ -43,9 +62,7 @@ document.addEventListener("DOMContentLoaded", function () {
             })
             .then(data => {
                 formContainer.innerHTML = data;
-                //updateRows();
                 mostrarCantidadEjemplares();
-                //moverElementos();
             })
             .catch(error => {
                 console.error('Error al cargar el formulario:', error);
@@ -65,7 +82,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 <input type="number" class="form-control" id="cant_ejemplares" name="cant_ejemplares" required min="1">
             </div>
             <div id="dynamic-rows"></div>`;
-        
+
         cantTituloDescripcionContainer.innerHTML = cantEjemplaresHTML;
 
         const cantEjemplaresInput = document.getElementById('cant_ejemplares');
@@ -77,20 +94,16 @@ document.addEventListener("DOMContentLoaded", function () {
     function updateRows() {
         const cantEjemplares = parseInt(document.getElementById('cant_ejemplares').value) || 0;
         const dynamicRowsContainer = document.getElementById('dynamic-rows');
-        
-        // Limpiar filas dinámicas previas
+
         if (dynamicRowsContainer) {
             dynamicRowsContainer.innerHTML = '';
 
-            // Mostrar u ocultar el contenedor dinámico basado en la cantidad de ejemplares
             if (cantEjemplares > 1) {
                 dynamicRowsContainer.classList.remove('hidden');
-                
-                // Agregar filas basadas en la cantidad de ejemplares
+
                 for (let i = 0; i < cantEjemplares; i++) {
-                    // Crear filas 6 y 7
                     const row6 = document.createElement('div');
-                    row6.className = 'row mt-2'; // Estilo de fila
+                    row6.className = 'row mt-2';
                     row6.innerHTML = `
                         <div class="col-2">
                             <label for="numero_ejemplar_${i}">Ejemplar N°:</label>
@@ -105,9 +118,9 @@ document.addEventListener("DOMContentLoaded", function () {
                             </select>
                         </div>
                     `;
-        
+
                     const row7 = document.createElement('div');
-                    row7.className = 'row mt-2'; // Estilo de fila
+                    row7.className = 'row mt-2';
                     row7.innerHTML = `
                         <div class="col-10">
                             <label for="observaciones_${i}">Observaciones:</label>
@@ -122,24 +135,25 @@ document.addEventListener("DOMContentLoaded", function () {
                             </select>
                         </div>
                     `;
-        
-                    // Agregar las filas al contenedor dinámico
+
                     dynamicRowsContainer.appendChild(row6);
                     dynamicRowsContainer.appendChild(row7);
                 }
             } else {
-                // Si la cantidad de ejemplares es 1 o menos, ocultar el contenedor dinámico
                 dynamicRowsContainer.classList.add('hidden');
             }
         }
     }
-    
-    cargaMasivaInput.addEventListener('change', function () {
-        const fileList = this.files;
-        const fileCount = fileList.length;
-        const label = this.nextElementSibling;
 
-        label.innerHTML = fileCount > 0 ? `${fileCount} archivo(s) seleccionado(s)` : '';
-    });
-    
+    if (cargaMasivaInput) {
+        cargaMasivaInput.addEventListener('change', function () {
+            const fileList = this.files;
+            const fileCount = fileList.length;
+            const label = this.nextElementSibling;
+
+            if (label) {
+                label.innerHTML = fileCount > 0 ? `${fileCount} archivo(s) seleccionado(s)` : '';
+            }
+        });
+    }
 });

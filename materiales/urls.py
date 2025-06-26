@@ -74,4 +74,7 @@ urlpatterns = [
     path('reactivar-libro/<int:libro_id>/', views.reactivar_libro, name='reactivar_libro'),
     path('cargar-csv/', views.cargar_csv, name='cargar_csv'),
     path('success/', views.success_view, name='success_url'),
+    path('formulario/libro/', views.formulario_libro, name='formulario_libro'),
+    
+    
 ]
