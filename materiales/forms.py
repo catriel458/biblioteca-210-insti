@@ -22,6 +22,7 @@ class LibroForm(forms.ModelForm):
             'siglas_autor_titulo', 
             'descripcion',  # Campo agregado
             'etiqueta_palabra_clave', 
+            'num_inventario',
             'sede',
             'disponibilidad',  # Campo específico de disponibilidad
             'observaciones', 

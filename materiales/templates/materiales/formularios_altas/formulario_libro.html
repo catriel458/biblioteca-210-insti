@@ -9,83 +9,116 @@
 
 {% block content %}
 <div class="container-fluid">
+    {% if success %}
+        <div class="alert alert-success">{{ success }}</div>
+    {% endif %}
+    {% if error %}
+        <div class="alert alert-danger">{{ error }}</div>
+    {% endif %}
+
     <form id="form_alta_material" action="{% url 'alta_libro' %}" method="POST" enctype="multipart/form-data">
         {% csrf_token %}
-
-        <!-- Tipo de material -->
-        
 
         <!-- Campos principales -->
         <div class="row">
             <div class="col-12 col-sm-6 col-lg-6 form-group mb-3">
-                <label for="titulo" class="text-input" style="color:#25898D;">Título:</label>
-                <input type="text" class="form-control form-control-sm" id="titulo" name="titulo" required>
+                <label for="{{ form.titulo.id_for_label }}" class="text-input" style="color:#25898D;">Título:</label>
+                {{ form.titulo }}
+                {% if form.titulo.errors %}
+                    <div class="text-danger">{{ form.titulo.errors }}</div>
+                {% endif %}
             </div>
             <div class="col-12 col-sm-6 col-lg-6 form-group mb-3">
-                <label for="descripcion" class="text-input" style="color:#25898D;">Descripción:</label>
-                <textarea class="form-control form-control-sm" id="descripcion" name="descripcion" rows="3" required></textarea>
+                <label for="{{ form.descripcion.id_for_label }}" class="text-input" style="color:#25898D;">Descripción:</label>
+                {{ form.descripcion }}
+                {% if form.descripcion.errors %}
+                    <div class="text-danger">{{ form.descripcion.errors }}</div>
+                {% endif %}
             </div>
         </div>
 
         <div class="row">
             <div class="col-12 col-sm-6 col-lg-4 form-group mb-3">
-                <label for="autor" class="text-input" style="color:#25898D;">Autor:</label>
-                <input type="text" class="form-control form-control-sm" id="autor" name="autor">
+                <label for="{{ form.autor.id_for_label }}" class="text-input" style="color:#25898D;">Autor:</label>
+                {{ form.autor }}
+                {% if form.autor.errors %}
+                    <div class="text-danger">{{ form.autor.errors }}</div>
+                {% endif %}
             </div>
             <div class="col-12 col-sm-6 col-lg-4 form-group mb-3">
-                <label for="editorial" class="text-input" style="color:#25898D;">Editorial:</label>
-                <input type="text" class="form-control form-control-sm" id="editorial" name="editorial">
+                <label for="{{ form.editorial.id_for_label }}" class="text-input" style="color:#25898D;">Editorial:</label>
+                {{ form.editorial }}
+                {% if form.editorial.errors %}
+                    <div class="text-danger">{{ form.editorial.errors }}</div>
+                {% endif %}
             </div>
             <div class="col-12 col-sm-6 col-lg-4 form-group mb-3">
-                <label for="siglas_autor_titulo" class="text-input" style="color:#25898D;">Siglas Autor/Título:</label>
-                <input type="text" class="form-control form-control-sm" id="siglas_autor_titulo" name="siglas_autor_titulo">
+                <label for="{{ form.siglas_autor_titulo.id_for_label }}" class="text-input" style="color:#25898D;">Siglas Autor/Título:</label>
+                {{ form.siglas_autor_titulo }}
+                {% if form.siglas_autor_titulo.errors %}
+                    <div class="text-danger">{{ form.siglas_autor_titulo.errors }}</div>
+                {% endif %}
             </div>
         </div>
 
         <div class="row">
             <div class="col-12 col-sm-6 col-lg-4 form-group mb-3">
-                <label for="clasificacion_cdu" class="text-input" style="color:#25898D;">Clasificación CDU:</label>
-                <input type="text" class="form-control form-control-sm" id="clasificacion_cdu" name="clasificacion_cdu">
+                <label for="{{ form.clasificacion_cdu.id_for_label }}" class="text-input" style="color:#25898D;">Clasificación CDU:</label>
+                {{ form.clasificacion_cdu }}
+                {% if form.clasificacion_cdu.errors %}
+                    <div class="text-danger">{{ form.clasificacion_cdu.errors }}</div>
+                {% endif %}
             </div>
             <div class="col-12 col-sm-6 col-lg-8 form-group mb-3">
-                <label for="palabras_clave" class="text-input" style="color:#25898D;">Palabras clave:</label>
-                <input type="text" class="form-control form-control-sm" id="palabras_clave" name="palabras_clave">
+                <label for="{{ form.etiqueta_palabra_clave.id_for_label }}" class="text-input" style="color:#25898D;">Palabras clave:</label>
+                {{ form.etiqueta_palabra_clave }}
+                {% if form.etiqueta_palabra_clave.errors %}
+                    <div class="text-danger">{{ form.etiqueta_palabra_clave.errors }}</div>
+                {% endif %}
             </div>
         </div>
 
-        <!-- Cantidad de ejemplares -->
-        <div class="row mb-3">
-            <div class="col-12 col-lg-4 form-group">
-                <label for="cant_ejemplares" style="color:#25898D;">Cantidad de Ejemplares:</label>
-                <input type="number" class="form-control" id="cant_ejemplares" name="cant_ejemplares" min="1" value="1" required>
+        <div class="row">
+            <div class="col-12 col-sm-6 col-lg-4 form-group mb-3">
+                <label for="{{ form.num_inventario.id_for_label }}" class="text-input" style="color:#25898D;">Número de Inventario:</label>
+                {{ form.num_inventario }}
+                {% if form.num_inventario.errors %}
+                    <div class="text-danger">{{ form.num_inventario.errors }}</div>
+                {% endif %}
+            </div>
+            <div class="col-12 col-sm-6 col-lg-4 form-group mb-3">
+                <label for="{{ form.sede.id_for_label }}" class="text-input" style="color:#25898D;">Sede:</label>
+                {{ form.sede }}
+                {% if form.sede.errors %}
+                    <div class="text-danger">{{ form.sede.errors }}</div>
+                {% endif %}
+            </div>
+            <div class="col-12 col-sm-6 col-lg-4 form-group mb-3">
+                <label for="{{ form.disponibilidad.id_for_label }}" class="text-input" style="color:#25898D;">Disponibilidad:</label>
+                {{ form.disponibilidad }}
+                {% if form.disponibilidad.errors %}
+                    <div class="text-danger">{{ form.disponibilidad.errors }}</div>
+                {% endif %}
             </div>
         </div>
 
-        <!-- Ejemplares (se podrían repetir o usar JS simple para agregar más) -->
-        <div class="row mb-3">
-            <div class="col-12 col-lg-2 form-group">
-                <label for="numero_ejemplar_0" style="color:#25898D;">Ejemplar N°:</label>
-                <input type="text" class="form-control" id="numero_ejemplar_0" name="numero_ejemplar[]" value="1" readonly required>
+        <div class="row">
+            <div class="col-12 form-group mb-3">
+                <label for="{{ form.observaciones.id_for_label }}" class="text-input" style="color:#25898D;">Observaciones:</label>
+                {{ form.observaciones }}
+                {% if form.observaciones.errors %}
+                    <div class="text-danger">{{ form.observaciones.errors }}</div>
+                {% endif %}
             </div>
-            <div class="col-12 col-lg-3 form-group">
-                <label for="sede_0" style="color:#25898D;">Sede:</label>
-                <select class="form-control" id="sede_0" name="sede[]" required>
-                    <option value="">Selecciona una sede</option>
-                    <option value="sede1">La Plata</option>
-                    <option value="sede2">Abasto</option>
-                </select>
-            </div>
-            <div class="col-12 col-lg-5 form-group">
-                <label for="observaciones_0" style="color:#25898D;">Observaciones:</label>
-                <textarea class="form-control" id="observaciones_0" name="observaciones[]" rows="3" placeholder="Escriba aquí..."></textarea>
-            </div>
-            <div class="col-12 col-lg-2 form-group">
-                <label for="disponibilidad_0" style="color:#25898D;">Disponibilidad:</label>
-                <select class="form-control" id="disponibilidad_0" name="disponibilidad[]" required>
-                    <option value="">Selecciona disponibilidad</option>
-                    <option value="disponible">Disponible</option>
-                    <option value="no_disponible">No Disponible</option>
-                </select>
+        </div>
+
+        <div class="row">
+            <div class="col-12 form-group mb-3">
+                <label for="{{ form.img.id_for_label }}" class="text-input" style="color:#25898D;">Imagen:</label>
+                {{ form.img }}
+                {% if form.img.errors %}
+                    <div class="text-danger">{{ form.img.errors }}</div>
+                {% endif %}
             </div>
         </div>
 

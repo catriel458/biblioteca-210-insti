@@ -75,6 +75,9 @@ urlpatterns = [
     path('cargar-csv/', views.cargar_csv, name='cargar_csv'),
     path('success/', views.success_view, name='success_url'),
     path('formulario/libro/', views.formulario_libro, name='formulario_libro'),
+
+    # URL principal para alta de materiales
+    path('alta/', views.alta_materiales, name='alta_materiales'),
     
     
 ]

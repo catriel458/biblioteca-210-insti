@@ -1066,22 +1066,48 @@ def lista_libros(request):
     libros = Libro.objects.filter(estado='Disponible')
     return render(request, 'materiales/libros/lista_libros.html', {'libros': libros})
 
-#@user_passes_test(es_bibliotecaria)  # Solo bibliotecarias pueden dar de alta libros
-def alta_libro(request):
-    # ... mantener el código existente ...
-    form = LibroForm(request.POST or None)
-    if request.method == 'POST' and form.is_valid():
-        libro = form.save(commit=False)
-        libro.save()
-        context = {'form': form, 'success': 'Libro registrado exitosamente.'}
-    else:
-        context = {'form': form, 'error': 'Por favor complete todos los campos obligatorios.'} if request.method == 'POST' else {
-            'form': form}
-    return render(request, 'materiales/formularios_altas/alta_libro.html', context)
-
 def formulario_libro(request):
+    """
+    Vista para mostrar el formulario de alta de libro (solo GET)
+    """
     form = LibroForm()
     return render(request, 'materiales/formularios_altas/formulario_libro.html', {'form': form})
+
+def alta_materiales(request):
+    """
+    Vista principal para mostrar la página de alta de materiales
+    Desde aquí se selecciona el tipo de material y se carga el formulario específico
+    """
+    return render(request, 'materiales/formularios_altas/alta_materiales.html')
+
+def alta_libro(request):
+    """
+    Vista para procesar el envío del formulario de alta de libro (solo POST)
+    """
+    if request.method == 'POST':
+        form = LibroForm(request.POST, request.FILES)
+        if form.is_valid():
+            try:
+                libro = form.save(commit=False)
+                # Establecer valores por defecto si es necesario
+                if not hasattr(libro, 'estado') or not libro.estado:
+                    libro.estado = 'Disponible'
+                libro.save()
+                
+                messages.success(request, f'Libro "{libro.titulo}" registrado exitosamente.')
+                return redirect('lista_libros')
+                
+            except Exception as e:
+                messages.error(request, f'Error al guardar el libro: {str(e)}')
+                # En caso de error, volver al formulario con los datos
+                return render(request, 'materiales/formularios_altas/formulario_libro.html', {'form': form})
+        else:
+            # Si el formulario no es válido, mostrar errores
+            messages.error(request, 'Por favor corrige los errores en el formulario.')
+            return render(request, 'materiales/formularios_altas/formulario_libro.html', {'form': form})
+    else:
+        # Si es GET, redirigir al formulario
+        return redirect('formulario_libro')
 
 # Agregar decoradores similares a todas las vistas de alta de material
 #@user_passes_test(es_bibliotecaria)
