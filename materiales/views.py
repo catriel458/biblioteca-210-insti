@@ -203,6 +203,12 @@ def buscar_multimedia(request):
 
     return JsonResponse(list(notebooks), safe=False)'''
 
+def home(request):
+    """
+    Vista principal de la aplicación - Pantalla de inicio
+    """
+    return render(request, 'home.html')  # ← CORRECTO
+
 # Código modificado (funcionando)
 def buscar_notebooks(request):
     query = request.GET.get('q', '')
@@ -1071,14 +1077,14 @@ def formulario_libro(request):
     Vista para mostrar el formulario de alta de libro (solo GET)
     """
     form = LibroForm()
-    return render(request, 'materiales/formularios_altas/formulario_libro.html', {'form': form})
+    return render(request, 'materiales/formularios_altas/formulario_libro.html', {'form': form})  
 
 def alta_materiales(request):
     """
     Vista principal para mostrar la página de alta de materiales
     Desde aquí se selecciona el tipo de material y se carga el formulario específico
     """
-    return render(request, 'materiales/formularios_altas/alta_materiales.html')
+    return render(request, 'materiales/formularios_altas/alta_materiales.html') # con materiales
 
 def alta_libro(request):
     """

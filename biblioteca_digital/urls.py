@@ -21,17 +21,11 @@ from django.conf import settings
 from django.http import HttpResponseRedirect
 from django.conf import settings
 from django.conf.urls.static import static
-# from . import views  # Importamos las vistas del proyecto principal
-
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    # Rutas principales del sitio
-    # path('', views.home, name='home'),  # Nueva ruta para el home principal
-    path('materiales/', include('materiales.urls')),
-
-    # Ruta opcional para redirigir a /materiales/
-    #path('redirigir_materiales/', lambda request: HttpResponseRedirect('/materiales/')),
+    # Incluir las URLs de materiales en la raíz
+    path('', include('materiales.urls')),
 ]
 
 if settings.DEBUG:

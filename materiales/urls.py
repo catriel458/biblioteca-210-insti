@@ -1,18 +1,16 @@
-# libros/urls.py
+# materiales/urls.py
 from django.urls import path
 from . import views
 
 urlpatterns = [
+    # URL principal - Home
+    path('', views.home, name='home'),
+    
     # URLs de autenticación
-    # path('', views.login_view, name='login'),  # Página principal es el login
-    # path('login/', views.login_view, name='login'),
     path('registro/', views.registro_view, name='registro'),
     path('logout/', views.logout_view, name='logout'),
     path('perfil/', views.perfil_usuario, name='perfil_usuario'),
     path('cambiar-password/', views.cambiar_password, name='cambiar_password'),
-    
-    # URLs principales (requieren autenticación)
-    path('home/', views.pantalla_principal, name='pantalla_principal'),
     
     # URLs de libros
     path('libros/', views.lista_libros, name='lista_libros'),
@@ -74,10 +72,8 @@ urlpatterns = [
     path('reactivar-libro/<int:libro_id>/', views.reactivar_libro, name='reactivar_libro'),
     path('cargar-csv/', views.cargar_csv, name='cargar_csv'),
     path('success/', views.success_view, name='success_url'),
-    # path('formulario/libro/', views.formulario_libro, name='formulario_libro') para probar si el alta anda,
+    path('formulario/libro/', views.formulario_libro, name='formulario_libro'),
 
     # URL principal para alta de materiales
     path('alta/', views.alta_materiales, name='alta_materiales'),
-    
-    
 ]

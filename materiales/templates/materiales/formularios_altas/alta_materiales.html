@@ -61,7 +61,7 @@ document.addEventListener("DOMContentLoaded", function () {
     tipoMaterial.addEventListener('change', function () {
         const tipo = this.value;
         if (tipo === 'libro') {
-            fetch('/materiales/formulario/libro/')
+            fetch('/formulario/libro/')
                 .then(response => {
                     if (!response.ok) throw new Error('No se pudo cargar el formulario.');
                     return response.text();
