@@ -78,4 +78,5 @@ urlpatterns = [
     path('alta/', views.alta_materiales, name='alta_materiales'),
     path('confirmar-alta-libro/', views.confirmar_alta_libro, name='confirmar_alta_libro'),
     path('guardar-libro-confirmado/', views.guardar_libro_confirmado, name='guardar_libro_confirmado'),
+    path('cancelar-alta-libro/', views.cancelar_alta_libro, name='cancelar_alta_libro'),
 ]

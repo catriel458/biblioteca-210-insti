@@ -1076,91 +1076,165 @@ def alta_materiales(request):
 
 def alta_libro(request):
     """
-    Vista para procesar el envío del formulario de alta de libro (solo POST)
+    Vista para procesar el envío del formulario de alta de libro
+    CORREGIDA: NO guarda en base de datos, solo valida y redirige al modal
     """
+    print(f"🔥🔥🔥 INICIO alta_libro")
+    print(f"🔥 Método: {request.method}")
+    print(f"🔥 URL: {request.path}")
+    print(f"🔥 POST data keys: {list(request.POST.keys()) if request.method == 'POST' else 'No POST'}")
+    
     if request.method == 'POST':
+        print("🔥 POST recibido en alta_libro - procesando para modal")
+        
+        # Verificar si hay datos en POST
+        if not request.POST:
+            print("❌ POST está vacío!")
+            return redirect('formulario_libro')
+            
         form = LibroForm(request.POST, request.FILES)
+        print(f"🔍 Formulario creado. Es válido? {form.is_valid()}")
+        
         if form.is_valid():
+            print("✅ Formulario válido - guardando en sesión")
             try:
-                libro = form.save(commit=False)
-                # Establecer valores por defecto si es necesario
-                if not hasattr(libro, 'estado') or not libro.estado:
-                    libro.estado = 'Disponible'
-                libro.save()
+                # NO guardar en base de datos, solo en sesión
+                form_data = {
+                    'titulo': form.cleaned_data.get('titulo', ''),
+                    'autor': form.cleaned_data.get('autor', ''),
+                    'editorial': form.cleaned_data.get('editorial', ''),
+                    'descripcion': form.cleaned_data.get('descripcion', ''),
+                    'siglas_autor_titulo': form.cleaned_data.get('siglas_autor_titulo', ''),
+                    'clasificacion_cdu': form.cleaned_data.get('clasificacion_cdu', ''),
+                    'etiqueta_palabra_clave': form.cleaned_data.get('etiqueta_palabra_clave', ''),
+                    'num_inventario': form.cleaned_data.get('num_inventario', 1),
+                    'sede': form.cleaned_data.get('sede', ''),
+                    'disponibilidad': form.cleaned_data.get('disponibilidad', ''),
+                    'observaciones': form.cleaned_data.get('observaciones', ''),
+                    'resumen': form.cleaned_data.get('resumen', ''),
+                    'num_ejemplar': form.cleaned_data.get('num_ejemplar', 1),
+                }
                 
-                messages.success(request, f'Libro "{libro.titulo}" registrado exitosamente.')
-                # Redirigir a vista de confirmación
-                return confirmar_alta_libro(request)
+                # Manejar imagen si existe
+                img_field = form.cleaned_data.get('img')
+                if img_field:
+                    # Verificar si es un archivo o una URL/string
+                    if hasattr(img_field, 'name'):
+                        form_data['img_name'] = img_field.name
+                    else:
+                        form_data['img_name'] = str(img_field)
+                    print(f"📷 Imagen procesada: {form_data['img_name']}")
+                
+                # Guardar en sesión
+                request.session['libro_data'] = form_data
+                print(f"📦 Datos guardados en sesión: {form_data}")
+                
+                # Redirigir al modal de confirmación
+                print("🚀 Redirigiendo a confirmar_alta_libro")
+                return redirect('confirmar_alta_libro')
                 
             except Exception as e:
-                messages.error(request, f'Error al guardar el libro: {str(e)}')
-                # En caso de error, volver al formulario con los datos
+                print(f"❌ Error al procesar: {e}")
+                import traceback
+                traceback.print_exc()
+                messages.error(request, f'Error al procesar el libro: {str(e)}')
                 return render(request, 'materiales/formularios_altas/formulario_libro.html', {'form': form})
         else:
-            # Si el formulario no es válido, mostrar errores
+            print(f"❌ Formulario inválido: {form.errors}")
             messages.error(request, 'Por favor corrige los errores en el formulario.')
             return render(request, 'materiales/formularios_altas/formulario_libro.html', {'form': form})
     else:
         # Si es GET, redirigir al formulario
+        print("🔄 GET recibido en alta_libro, redirigiendo a formulario")
         return redirect('formulario_libro')
-
 
 def confirmar_alta_libro(request):
     """
     Vista para mostrar el modal de confirmación
+    CORREGIDA: Verifica datos en sesión
     """
-    if request.method == 'POST':
-        form = LibroForm(request.POST, request.FILES)
-        if form.is_valid():
-            # Guardar datos del formulario en la sesión
-            request.session['libro_data'] = {
-                'titulo': form.cleaned_data['titulo'],
-                'autor': form.cleaned_data['autor'],
-                'editorial': form.cleaned_data['editorial'],
-                'descripcion': form.cleaned_data['descripcion'],
-                'siglas_autor_titulo': form.cleaned_data['siglas_autor_titulo'],
-                'clasificacion_cdu': form.cleaned_data['clasificacion_cdu'],
-                'etiqueta_palabra_clave': form.cleaned_data['etiqueta_palabra_clave'],
-                'num_inventario': form.cleaned_data['num_inventario'],
-                'sede': form.cleaned_data['sede'],
-                'disponibilidad': form.cleaned_data['disponibilidad'],
-                'observaciones': form.cleaned_data['observaciones'],
-                # Para archivos necesitamos manejar diferente
-            }
-            
-            # Renderizar página con modal automático
-            return render(request, 'materiales/formularios_altas/confirmacion_alta_material.html', {
-                'form_data': request.session['libro_data'],
-                'form': form
-            })
-        else:
-            # Si hay errores, volver al formulario
-            return render(request, 'materiales/formularios_altas/formulario_libro.html', {'form': form})
+    print("🎯 Llegó a confirmar_alta_libro")  # Debug
     
-    return redirect('alta_libro')
+    # Verificar que existan datos en la sesión
+    if 'libro_data' not in request.session:
+        print("❌ No hay datos en sesión")  # Debug
+        messages.error(request, 'No hay datos para confirmar. Por favor, complete el formulario nuevamente.')
+        return redirect('formulario_libro')
+    
+    # Obtener datos de la sesión
+    form_data = request.session['libro_data']
+    print(f"📋 Datos de sesión: {form_data}")  # Debug
+    
+    # Renderizar página con modal automático
+    return render(request, 'materiales/formularios_altas/confirmacion_alta_material.html', {
+        'form_data': form_data
+    })
+
 
 def guardar_libro_confirmado(request):
     """
-    Vista para guardar definitivamente después de confirmar
+    Vista para guardar definitivamente después de confirmar en el modal
+    ESTA ES LA ÚNICA FUNCIÓN QUE GUARDA EN BASE DE DATOS
     """
+    print("💾 Llegó a guardar_libro_confirmado")  # Debug
+    
     if request.method == 'POST' and 'libro_data' in request.session:
-        # Recrear el formulario con los datos de la sesión
-        libro_data = request.session['libro_data']
-        form = LibroForm(libro_data)
-        
-        if form.is_valid():
-            libro = form.save(commit=False)
-            libro.estado = 'Disponible'
+        try:
+            # Obtener datos de la sesión
+            libro_data = request.session['libro_data']
+            print(f"📦 Datos a guardar: {libro_data}")  # Debug
+            
+            # Crear el libro en base de datos
+            libro = Libro(
+                estado='Disponible',
+                titulo=libro_data.get('titulo', ''),
+                autor=libro_data.get('autor', ''),
+                editorial=libro_data.get('editorial', ''),
+                descripcion=libro_data.get('descripcion', ''),
+                siglas_autor_titulo=libro_data.get('siglas_autor_titulo', ''),
+                clasificacion_cdu=libro_data.get('clasificacion_cdu', ''),
+                etiqueta_palabra_clave=libro_data.get('etiqueta_palabra_clave', ''),
+                num_inventario=libro_data.get('num_inventario', 1),
+                sede=libro_data.get('sede', ''),
+                disponibilidad=libro_data.get('disponibilidad', ''),
+                observaciones=libro_data.get('observaciones', ''),
+                resumen=libro_data.get('resumen', ''),
+                num_ejemplar=libro_data.get('num_ejemplar', 1),
+                # img se manejará después si es necesario
+            )
+            
+            # GUARDAR EN BASE DE DATOS
             libro.save()
+            print(f"✅ Libro guardado en BD: {libro.id}")  # Debug
             
             # Limpiar sesión
             del request.session['libro_data']
             
-            messages.success(request, f'Libro "{libro.titulo}" registrado exitosamente.')
+            messages.success(request, f'✅ Libro "{libro.titulo}" registrado exitosamente.')
             return redirect('lista_libros')
-    
-    return redirect('alta_libro')
+            
+        except Exception as e:
+            print(f"❌ Error al guardar: {e}")  # Debug
+            messages.error(request, f'❌ Error al guardar el libro: {str(e)}')
+            return redirect('formulario_libro')
+    else:
+        print("❌ No hay datos o método incorrecto")  # Debug
+        messages.error(request, 'No hay datos para guardar.')
+        return redirect('formulario_libro')
 
+
+def cancelar_alta_libro(request):
+    """
+    Vista para cancelar la alta y limpiar datos de sesión
+    """
+    print("🔴 Cancelando alta de libro")  # Debug
+    
+    if 'libro_data' in request.session:
+        del request.session['libro_data']
+        print("🗑️ Datos de sesión eliminados")  # Debug
+    
+    messages.info(request, 'Operación cancelada.')
+    return redirect('formulario_libro')
 # Agregar decoradores similares a todas las vistas de alta de material
 #@user_passes_test(es_bibliotecaria)
 def alta_mapa(request):
