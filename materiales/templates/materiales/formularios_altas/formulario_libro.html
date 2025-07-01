@@ -5,6 +5,76 @@
     <link rel="stylesheet" href="{% static 'css/main.css' %}">
     <link rel="stylesheet" href="{% static 'css/style_form.css' %}">
     <link rel="stylesheet" href="{% static 'css/botones.css' %}">
+    <style>
+        /* Estilos del modal */
+        .modal-lg {
+            max-width: 900px;
+        }
+
+        .modal-header {
+            background-color: #25898D;
+            color: white;
+            border-bottom: none;
+        }
+
+        .modal-header .btn-close {
+            background: none;
+            border: none;
+            color: white;
+            opacity: 0.8;
+        }
+
+        .modal-header .btn-close:hover {
+            opacity: 1;
+        }
+
+        .section-container {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #25898D;
+            margin-bottom: 15px;
+        }
+
+        .section-title {
+            color: #25898D;
+            font-weight: bold;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .tipo-material-title {
+            color: #25898D;
+            font-weight: bold;
+            text-align: center;
+            font-size: 1.2em;
+        }
+
+        .info-text {
+            background-color: white;
+            padding: 8px 12px;
+            border-radius: 4px;
+            min-height: 35px;
+            margin-bottom: 0;
+            border: 1px solid #e9ecef;
+            word-wrap: break-word;
+        }
+
+        .modal-footer .btn-primary {
+            background-color: #25898D;
+            border-color: #25898D;
+        }
+
+        .modal-footer .btn-primary:hover {
+            background-color: #1e7075;
+            border-color: #1e7075;
+        }
+
+        .modal-body {
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+    </style>
 {% endblock %}
 
 {% block content %}
@@ -16,7 +86,7 @@
         <div class="alert alert-danger">{{ error }}</div>
     {% endif %}
 
-    <form id="form_alta_material" action="{% url 'alta_libro' %}" method="POST" enctype="multipart/form-data">
+    <form id="form_alta_material" action="{% url 'confirmar_alta_libro' %}" method="POST" enctype="multipart/form-data">
         {% csrf_token %}
 
         <!-- Campos principales -->
@@ -131,13 +201,202 @@
         </div>
     </form>
 </div>
-{% endblock %}
 
-{% block modals %}
-  {% include 'modals/manual_modal.html' %}
-  {% include 'modals/confirmacion_alta_material.html' %}
+<!-- Modal de Confirmación de Alta de Material -->
+<div class="modal fade" id="modalConfirmacionAltaMaterial" tabindex="-1" aria-labelledby="modalConfirmacionLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalConfirmacionLabel">CONFIRME LOS DATOS</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body">
+        <div class="container-fluid">
+          <!-- Tipo de Material -->
+          <div class="section-container mb-4">
+            <h6 class="tipo-material-title">TIPO DE MATERIAL: <span id="confirmTipoMaterial" class="text-primary"></span></h6>
+          </div>
+
+          <!-- Información Principal -->
+          <div class="section-container mb-4">
+            <h6 class="section-title">Información Principal</h6>
+            <div class="row g-3">
+              <div class="col-md-4">
+                <strong>Título:</strong>
+                <p id="confirmTitulo" class="info-text"></p>
+              </div>
+              <div class="col-md-4">
+                <strong>Autor:</strong>
+                <p id="confirmAutor" class="info-text"></p>
+              </div>
+              <div class="col-md-4">
+                <strong>Editorial:</strong>
+                <p id="confirmEditorial" class="info-text"></p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Descripción -->
+          <div class="section-container mb-4">
+            <div class="row">
+              <div class="col-12">
+                <strong>Descripción:</strong>
+                <p id="confirmDescripcion" class="info-text"></p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Clasificación -->
+          <div class="section-container mb-4">
+            <h6 class="section-title">Clasificación</h6>
+            <div class="row g-3">
+              <div class="col-md-4">
+                <strong>Siglas Autor:</strong>
+                <p id="confirmSiglasAutor" class="info-text"></p>
+              </div>
+              <div class="col-md-4">
+                <strong>Clasificación / CDU:</strong>
+                <p id="confirmClasificacion" class="info-text"></p>
+              </div>
+              <div class="col-md-4">
+                <strong>Palabras Clave:</strong>
+                <p id="confirmPalabrasClave" class="info-text"></p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Ubicación y Disponibilidad -->
+          <div class="section-container mb-4">
+            <h6 class="section-title">Ubicación y Disponibilidad</h6>
+            <div class="row g-3">
+              <div class="col-md-4">
+                <strong>Sede:</strong>
+                <p id="confirmSede" class="info-text"></p>
+              </div>
+              <div class="col-md-4">
+                <strong>Disponibilidad:</strong>
+                <p id="confirmDisponibilidad" class="info-text"></p>
+              </div>
+              <div class="col-md-4">
+                <strong>Ejemplar N°:</strong>
+                <p id="confirmEjemplarNum" class="info-text"></p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Observaciones -->
+          <div class="section-container mb-4">
+            <h6 class="section-title">Observaciones</h6>
+            <div class="row">
+              <div class="col-12">
+                <p id="confirmObservaciones" class="info-text"></p>
+              </div>
+            </div>
+          </div>
+        </div>  
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-primary" id="btnConfirmarAltaMaterial">Confirmar</button>
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock %}
 
 {% block extra_scripts %}
-    <script src="{% static 'js/modals/confirmacion_alta_material.js' %}" defer></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('✅ Script cargado correctamente');
+    
+    const form = document.getElementById('form_alta_material');
+    const modalElement = document.getElementById('modalConfirmacionAltaMaterial');
+    
+    if (!form) {
+        console.error('❌ Formulario no encontrado');
+        return;
+    }
+    
+    if (!modalElement) {
+        console.error('❌ Modal no encontrado');
+        return;
+    }
+    
+    // Verificar que Bootstrap está disponible
+    if (typeof bootstrap === 'undefined') {
+        console.error('❌ Bootstrap no está cargado');
+        alert('Error: Bootstrap no está cargado. Verifique que esté incluido en baseb.html');
+        return;
+    }
+    
+    console.log('✅ Todo está listo');
+    
+    const modal = new bootstrap.Modal(modalElement);
+    
+    // Interceptar el submit del formulario
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        console.log('🚀 Formulario interceptado - mostrando modal');
+        
+        try {
+            // Obtener valores del formulario
+            const titulo = form.querySelector('[name="titulo"]')?.value || 'Sin especificar';
+            const autor = form.querySelector('[name="autor"]')?.value || 'Sin especificar';
+            const editorial = form.querySelector('[name="editorial"]')?.value || 'Sin especificar';
+            const descripcion = form.querySelector('[name="descripcion"]')?.value || 'Sin especificar';
+            const siglas = form.querySelector('[name="siglas_autor_titulo"]')?.value || 'Sin especificar';
+            const clasificacion = form.querySelector('[name="clasificacion_cdu"]')?.value || 'Sin especificar';
+            const palabras = form.querySelector('[name="etiqueta_palabra_clave"]')?.value || 'Sin especificar';
+            const inventario = form.querySelector('[name="num_inventario"]')?.value || 'Sin especificar';
+            const observaciones = form.querySelector('[name="observaciones"]')?.value || 'Sin observaciones';
+            
+            // Obtener texto de selects
+            const sedeSelect = form.querySelector('[name="sede"]');
+            const sede = sedeSelect ? sedeSelect.options[sedeSelect.selectedIndex]?.text || 'Sin especificar' : 'Sin especificar';
+            
+            const disponibilidadSelect = form.querySelector('[name="disponibilidad"]');
+            const disponibilidad = disponibilidadSelect ? disponibilidadSelect.options[disponibilidadSelect.selectedIndex]?.text || 'Sin especificar' : 'Sin especificar';
+            
+            // Llenar el modal con los datos
+            document.getElementById('confirmTipoMaterial').textContent = 'LIBRO';
+            document.getElementById('confirmTitulo').textContent = titulo;
+            document.getElementById('confirmAutor').textContent = autor;
+            document.getElementById('confirmEditorial').textContent = editorial;
+            document.getElementById('confirmDescripcion').textContent = descripcion;
+            document.getElementById('confirmSiglasAutor').textContent = siglas;
+            document.getElementById('confirmClasificacion').textContent = clasificacion;
+            document.getElementById('confirmPalabrasClave').textContent = palabras;
+            document.getElementById('confirmSede').textContent = sede;
+            document.getElementById('confirmDisponibilidad').textContent = disponibilidad;
+            document.getElementById('confirmEjemplarNum').textContent = inventario;
+            document.getElementById('confirmObservaciones').textContent = observaciones;
+            
+            // Mostrar el modal
+            modal.show();
+            console.log('✅ Modal mostrado correctamente');
+            
+        } catch (error) {
+            console.error('❌ Error al llenar el modal:', error);
+            alert('Error al mostrar la vista previa. Se guardará directamente.');
+            form.submit();
+        }
+    });
+    
+    // Manejar el botón de confirmación
+    document.getElementById('btnConfirmarAltaMaterial').addEventListener('click', function() {
+        console.log('✅ Usuario confirmó - enviando formulario');
+        modal.hide();
+        
+        // Esperar a que se cierre el modal y luego enviar
+        setTimeout(() => {
+            // Remover el event listener para evitar bucle infinito
+            const newForm = form.cloneNode(true);
+            form.parentNode.replaceChild(newForm, form);
+            newForm.submit();
+        }, 300);
+    });
+    
+    console.log('🎉 Todo configurado correctamente');
+});
+</script>
 {% endblock %}

@@ -301,19 +301,7 @@ def lista_libros(request):
 # Vista para dar de alta un libro:
 
 
-def alta_libro(request):
-    form = LibroForm(request.POST or None)
-    if request.method == 'POST' and form.is_valid():
-        libro = form.save(commit=False)
-        libro.save()
-        context = {'form': form, 'success': 'Libro registrado exitosamente.'}
-    else:
-        context = {'form': form, 'error': 'Por favor complete todos los campos obligatorios.'} if request.method == 'POST' else {
-            'form': form}
 
-    return render(request, 'materiales/formularios_alta/alta_libro.html', context)
-
-# Vista para dar de baja un libro:
 
 
 def baja_libro(request):
@@ -1101,7 +1089,8 @@ def alta_libro(request):
                 libro.save()
                 
                 messages.success(request, f'Libro "{libro.titulo}" registrado exitosamente.')
-                return redirect('lista_libros')
+                # Redirigir a vista de confirmación
+                return confirmar_alta_libro(request)
                 
             except Exception as e:
                 messages.error(request, f'Error al guardar el libro: {str(e)}')
@@ -1114,6 +1103,63 @@ def alta_libro(request):
     else:
         # Si es GET, redirigir al formulario
         return redirect('formulario_libro')
+
+
+def confirmar_alta_libro(request):
+    """
+    Vista para mostrar el modal de confirmación
+    """
+    if request.method == 'POST':
+        form = LibroForm(request.POST, request.FILES)
+        if form.is_valid():
+            # Guardar datos del formulario en la sesión
+            request.session['libro_data'] = {
+                'titulo': form.cleaned_data['titulo'],
+                'autor': form.cleaned_data['autor'],
+                'editorial': form.cleaned_data['editorial'],
+                'descripcion': form.cleaned_data['descripcion'],
+                'siglas_autor_titulo': form.cleaned_data['siglas_autor_titulo'],
+                'clasificacion_cdu': form.cleaned_data['clasificacion_cdu'],
+                'etiqueta_palabra_clave': form.cleaned_data['etiqueta_palabra_clave'],
+                'num_inventario': form.cleaned_data['num_inventario'],
+                'sede': form.cleaned_data['sede'],
+                'disponibilidad': form.cleaned_data['disponibilidad'],
+                'observaciones': form.cleaned_data['observaciones'],
+                # Para archivos necesitamos manejar diferente
+            }
+            
+            # Renderizar página con modal automático
+            return render(request, 'materiales/formularios_altas/confirmacion_alta_material.html', {
+                'form_data': request.session['libro_data'],
+                'form': form
+            })
+        else:
+            # Si hay errores, volver al formulario
+            return render(request, 'materiales/formularios_altas/formulario_libro.html', {'form': form})
+    
+    return redirect('alta_libro')
+
+def guardar_libro_confirmado(request):
+    """
+    Vista para guardar definitivamente después de confirmar
+    """
+    if request.method == 'POST' and 'libro_data' in request.session:
+        # Recrear el formulario con los datos de la sesión
+        libro_data = request.session['libro_data']
+        form = LibroForm(libro_data)
+        
+        if form.is_valid():
+            libro = form.save(commit=False)
+            libro.estado = 'Disponible'
+            libro.save()
+            
+            # Limpiar sesión
+            del request.session['libro_data']
+            
+            messages.success(request, f'Libro "{libro.titulo}" registrado exitosamente.')
+            return redirect('lista_libros')
+    
+    return redirect('alta_libro')
 
 # Agregar decoradores similares a todas las vistas de alta de material
 #@user_passes_test(es_bibliotecaria)

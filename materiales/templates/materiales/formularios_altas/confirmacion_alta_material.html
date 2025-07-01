@@ -1,6 +1,6 @@
 {% load static %}
-<link rel="stylesheet" href="{% static 'css/modales/modal_confirmacion_material.css' %}">
-
+<link rel="stylesheet" href="{% static 'css/modals/modal_confirmacion_material.css' %}">
+<link rel="stylesheet" href="{% static 'css/modal_confirmacion_material.css' %}">
 <!-- Modal de Confirmación de Alta de Material -->
 <div class="modal fade" id="modalConfirmacionAltaMaterial" tabindex="-1" aria-labelledby="modalConfirmacionLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-lg">
@@ -100,13 +100,7 @@
               <!-- El contenido de los ejemplares se generará dinámicamente -->
             </div>
           </div>
-        </div>
-        <div id="resumenAltaMaterial" style="font-size: 0.98em;">
-          <!-- Aquí se mostrará el resumen dinámico -->
-        </div>
-        <div class="mt-3">
-          ¿Estás seguro de que deseas guardar este material?
-        </div>
+        </div>  
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>

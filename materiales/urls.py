@@ -76,4 +76,6 @@ urlpatterns = [
 
     # URL principal para alta de materiales
     path('alta/', views.alta_materiales, name='alta_materiales'),
+    path('confirmar-alta-libro/', views.confirmar_alta_libro, name='confirmar_alta_libro'),
+    path('guardar-libro-confirmado/', views.guardar_libro_confirmado, name='guardar_libro_confirmado'),
 ]
