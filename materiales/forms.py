@@ -1,86 +1,102 @@
+# forms.py - REEMPLAZAR LibroForm completo
+
 from django import forms
-from .models import Libro
-from .models import Mapas
-from .models import Multimedia
-from .models import Notebook
-from .models import Proyector
-from .models import Varios
+from .models import Libro, Mapas, Multimedia, Notebook, Proyector, Varios
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import authenticate
 from .models import Usuario
-
-
 
 class LibroForm(forms.ModelForm):
     class Meta:
         model = Libro
         fields = [
-            'titulo', 
-            'autor', 
-            'editorial', 
-            'clasificacion_cdu',
-            'siglas_autor_titulo', 
-            'descripcion',  # Campo agregado
-            'etiqueta_palabra_clave', 
-            'num_inventario',
-            'sede',
-            'disponibilidad',  # Campo específico de disponibilidad
-            'observaciones', 
-            'img'
-            # Nota: 'estado' se maneja automáticamente desde Inventario
-        ]   
-        labels = {
-            'resumen': 'Descripción',
+            'titulo', 'autor', 'editorial', 'descripcion',
+            'siglas_autor_titulo', 'clasificacion_cdu', 
+            'etiqueta_palabra_clave', 'num_inventario',
+            'sede', 'disponibilidad', 'observaciones', 
+            'num_ejemplar', 'img'
+        ]
+        
+        widgets = {
+            'titulo': forms.TextInput(attrs={'class': 'form-control'}),
+            'autor': forms.TextInput(attrs={'class': 'form-control'}),
+            'editorial': forms.TextInput(attrs={'class': 'form-control'}),
+            'descripcion': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'siglas_autor_titulo': forms.TextInput(attrs={'class': 'form-control'}),
+            'clasificacion_cdu': forms.TextInput(attrs={'class': 'form-control'}),
+            'etiqueta_palabra_clave': forms.Textarea(attrs={'class': 'form-control', 'rows': 2}),
+            'num_inventario': forms.NumberInput(attrs={'class': 'form-control', 'min': 1}),
+            'sede': forms.Select(attrs={'class': 'form-control'}, choices=[
+                ('', 'Seleccione una sede'),
+                ('La Plata', 'La Plata'),
+                ('Abasto', 'Abasto'),
+            ]),
+            'disponibilidad': forms.Select(attrs={'class': 'form-control'}, choices=[
+                ('', 'Seleccione disponibilidad'),
+                ('Aula', 'Aula'),
+                ('Domicilio', 'Domicilio'),
+            ]),
+            'observaciones': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'num_ejemplar': forms.NumberInput(attrs={'class': 'form-control', 'min': 1}),
+            'img': forms.URLInput(attrs={'class': 'form-control'}),
         }
+        
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        
+        # Hacer campos opcionales
+        self.fields['img'].required = False
+        self.fields['img'].help_text = 'Ingrese la URL completa de la imagen del libro'
+        self.fields['autor'].required = False
+        self.fields['editorial'].required = False
+        self.fields['descripcion'].required = False
+        self.fields['clasificacion_cdu'].required = False
+        self.fields['etiqueta_palabra_clave'].required = False
+        self.fields['observaciones'].required = False
+        
+    def clean_img(self):
+        """Validación personalizada para imagen URL"""
+        img_url = self.cleaned_data.get('img')
+        
+        # Si está vacío, permitirlo
+        if not img_url:
+            return ''
             
+        return img_url
+
+# Mantener el resto de formularios igual
 class MapaForm(forms.ModelForm):
     class Meta:
         model = Mapas
-        fields = ['id_mapa', 'tipo', 'descripcion', 'num_ejemplar']  # Agrega los campos que necesites
+        fields = ['id_mapa', 'tipo', 'descripcion', 'num_ejemplar']
 
 class MultimediaForm(forms.ModelForm):
     class Meta:
         model = Multimedia
-        fields = ['id_multi', 'materia','contenido', 'descripcion', 'num_ejemplar']  # Agrega los campos que necesites
-
+        fields = ['id_multi', 'materia','contenido', 'descripcion', 'num_ejemplar']
 
 class NotebookForm(forms.ModelForm):
     class Meta:
         model = Notebook
-        fields = ['id_not', 'marca_not','modelo_not', 'descripcion', 'num_ejemplar']  # Agrega los campos que necesites
+        fields = ['id_not', 'marca_not','modelo_not', 'descripcion', 'num_ejemplar']
 
 class ProyectorForm(forms.ModelForm):
     class Meta:
         model = Proyector
-        fields = ['id_proyector', 'marca_pro','modelo_pro', 'descripcion', 'num_ejemplar']  # Agrega los campos que necesites
+        fields = ['id_proyector', 'marca_pro','modelo_pro', 'descripcion', 'num_ejemplar']
 
 class VariosForm(forms.ModelForm):
     class Meta:
         model = Varios
-        fields = ['id_varios', 'tipo', 'descripcion', 'num_ejemplar']  # Agrega los campos 
+        fields = ['id_varios', 'tipo', 'descripcion', 'num_ejemplar']
 
 class RegistroForm(UserCreationForm):
-    nombre = forms.CharField(
-        max_length=100,
-        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nombre'})
-    )
-    apellido = forms.CharField(
-        max_length=100,
-        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Apellido'})
-    )
-    email = forms.EmailField(
-        widget=forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'correo@ejemplo.com'})
-    )
-    dni = forms.CharField(
-        max_length=8,
-        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': '12345678'})
-    )
-    password1 = forms.CharField(
-        widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Contraseña'})
-    )
-    password2 = forms.CharField(
-        widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Confirmar contraseña'})
-    )
+    nombre = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'class': 'form-control'}))
+    apellido = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'class': 'form-control'}))
+    email = forms.EmailField(widget=forms.EmailInput(attrs={'class': 'form-control'}))
+    dni = forms.CharField(max_length=8, widget=forms.TextInput(attrs={'class': 'form-control'}))
+    password1 = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control'}))
+    password2 = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control'}))
     
     class Meta:
         model = Usuario
@@ -105,18 +121,11 @@ class RegistroForm(UserCreationForm):
 class LoginForm(AuthenticationForm):
     username = forms.CharField(
         max_length=8,
-        widget=forms.TextInput(attrs={
-            'class': 'form-control',
-            'placeholder': 'DNI',
-            'autofocus': True
-        }),
+        widget=forms.TextInput(attrs={'class': 'form-control', 'autofocus': True}),
         label='DNI'
     )
     password = forms.CharField(
-        widget=forms.PasswordInput(attrs={
-            'class': 'form-control',
-            'placeholder': 'Contraseña'
-        }),
+        widget=forms.PasswordInput(attrs={'class': 'form-control'}),
         label='Contraseña'
     )
     
@@ -125,11 +134,7 @@ class LoginForm(AuthenticationForm):
         password = self.cleaned_data.get('password')
         
         if username and password:
-            self.user_cache = authenticate(
-                self.request,
-                username=username,
-                password=password
-            )
+            self.user_cache = authenticate(self.request, username=username, password=password)
             if self.user_cache is None:
                 raise forms.ValidationError('DNI o contraseña incorrectos.')
             else:
@@ -138,15 +143,9 @@ class LoginForm(AuthenticationForm):
         return self.cleaned_data
 
 class CambiarPasswordForm(forms.Form):
-    password_actual = forms.CharField(
-        widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Contraseña actual'})
-    )
-    password_nueva = forms.CharField(
-        widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Nueva contraseña'})
-    )
-    password_confirmar = forms.CharField(
-        widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Confirmar nueva contraseña'})
-    )
+    password_actual = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control'}))
+    password_nueva = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control'}))
+    password_confirmar = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control'}))
     
     def __init__(self, user, *args, **kwargs):
         self.user = user

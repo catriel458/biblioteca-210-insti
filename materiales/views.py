@@ -293,10 +293,6 @@ def pantalla_principal(request):
 # Vista para listar libros (todos los disponibles):
 
 
-def lista_libros(request):
-    # Filtra los libros disponibles
-    libros = Libro.objects.filter(estado='Disponible')
-    return render(request, 'materiales/libros/lista_libros.html', {'libros': libros})
 
 # Vista para dar de alta un libro:
 
@@ -320,9 +316,9 @@ def baja_libro(request):
         libro.save()
 
         # Redirigir a la lista de libros después de la baja
-        return redirect('lista_libros')
+        return redirect('modificacion_materiales')
 
-    return redirect('lista_libros')
+    return redirect('modificacion_materiales')
 
 
 # Vista para editar un libro:
@@ -1139,7 +1135,7 @@ def alta_materiales(request):
 def alta_libro(request):
     """
     Vista para procesar el envío del formulario de alta de libro
-    CORREGIDA: NO guarda en base de datos, solo valida y redirige al modal
+    CORREGIDA: Sin campo resumen y con manejo completo de URLs de imagen
     """
     print(f"🔥🔥🔥 INICIO alta_libro")
     print(f"🔥 Método: {request.method}")
@@ -1154,12 +1150,19 @@ def alta_libro(request):
             print("❌ POST está vacío!")
             return redirect('formulario_libro')
             
-        form = LibroForm(request.POST, request.FILES)
+        form = LibroForm(request.POST)  # Solo POST, no FILES porque usamos URL
         print(f"🔍 Formulario creado. Es válido? {form.is_valid()}")
+        
+        if not form.is_valid():
+            print(f"❌ Errores del formulario: {form.errors}")
         
         if form.is_valid():
             print("✅ Formulario válido - guardando en sesión")
             try:
+                # Obtener la URL de imagen del formulario
+                img_url = form.cleaned_data.get('img', '').strip()
+                print(f"📷 URL de imagen recibida: '{img_url}'")
+                
                 # NO guardar en base de datos, solo en sesión
                 form_data = {
                     'titulo': form.cleaned_data.get('titulo', ''),
@@ -1173,19 +1176,9 @@ def alta_libro(request):
                     'sede': form.cleaned_data.get('sede', ''),
                     'disponibilidad': form.cleaned_data.get('disponibilidad', ''),
                     'observaciones': form.cleaned_data.get('observaciones', ''),
-                    'resumen': form.cleaned_data.get('resumen', ''),
                     'num_ejemplar': form.cleaned_data.get('num_ejemplar', 1),
+                    'img': img_url  # Guardar la URL directamente
                 }
-                
-                # Manejar imagen si existe
-                img_field = form.cleaned_data.get('img')
-                if img_field:
-                    # Verificar si es un archivo o una URL/string
-                    if hasattr(img_field, 'name'):
-                        form_data['img_name'] = img_field.name
-                    else:
-                        form_data['img_name'] = str(img_field)
-                    print(f"📷 Imagen procesada: {form_data['img_name']}")
                 
                 # Guardar en sesión
                 request.session['libro_data'] = form_data
@@ -1209,7 +1202,8 @@ def alta_libro(request):
         # Si es GET, redirigir al formulario
         print("🔄 GET recibido en alta_libro, redirigiendo a formulario")
         return redirect('formulario_libro')
-
+    
+    
 def confirmar_alta_libro(request):
     """
     Vista para mostrar el modal de confirmación
@@ -1236,7 +1230,7 @@ def confirmar_alta_libro(request):
 def guardar_libro_confirmado(request):
     """
     Vista para guardar definitivamente después de confirmar en el modal
-    ESTA ES LA ÚNICA FUNCIÓN QUE GUARDA EN BASE DE DATOS
+    CORREGIDA: Maneja correctamente las URLs de imagen
     """
     print("💾 Llegó a guardar_libro_confirmado")  # Debug
     
@@ -1260,30 +1254,33 @@ def guardar_libro_confirmado(request):
                 sede=libro_data.get('sede', ''),
                 disponibilidad=libro_data.get('disponibilidad', ''),
                 observaciones=libro_data.get('observaciones', ''),
-                resumen=libro_data.get('resumen', ''),
                 num_ejemplar=libro_data.get('num_ejemplar', 1),
-                # img se manejará después si es necesario
+                # IMPORTANTE: Manejar la imagen correctamente
+                img=libro_data.get('img', '') or ''  # Asegurar que sea string vacío si es None
             )
             
             # GUARDAR EN BASE DE DATOS
             libro.save()
-            print(f"✅ Libro guardado en BD: {libro.id}")  # Debug
+            print(f"✅ Libro guardado en BD con ID: {libro.id_libro}")  # Debug
+            print(f"📷 URL de imagen guardada: '{libro.img}'")  # Debug
             
             # Limpiar sesión
             del request.session['libro_data']
             
             messages.success(request, f'✅ Libro "{libro.titulo}" registrado exitosamente.')
-            return redirect('lista_libros')
+            return redirect('alta_materiales')
             
         except Exception as e:
             print(f"❌ Error al guardar: {e}")  # Debug
+            import traceback
+            traceback.print_exc()
             messages.error(request, f'❌ Error al guardar el libro: {str(e)}')
             return redirect('formulario_libro')
     else:
         print("❌ No hay datos o método incorrecto")  # Debug
         messages.error(request, 'No hay datos para guardar.')
         return redirect('formulario_libro')
-
+    
 
 def cancelar_alta_libro(request):
     """

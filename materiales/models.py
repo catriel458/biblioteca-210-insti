@@ -95,6 +95,8 @@ class Inventario(models.Model):
         return f"id_inventario: {self.id_inventario}, estado: {self.estado}, motivo_baja: {self.motivo_baja}, descripcion: {self.descripcion}, numero ejemplar: {self.num_ejemplar}"
 
 
+# 1. ACTUALIZAR models.py - Asegurar que el campo img permita URLs vacías
+
 class Libro(Inventario):
     id_libro = models.AutoField(primary_key=True)
     titulo = models.CharField(max_length=255)
@@ -103,15 +105,20 @@ class Libro(Inventario):
     clasificacion_cdu = models.CharField(max_length=255, null=False, default='Sin clasificar')
     siglas_autor_titulo = models.CharField(max_length=255, null=False, default='ABC')
     num_inventario = models.IntegerField(null=False, default=1)
-    resumen = models.TextField()
     etiqueta_palabra_clave = models.TextField(default='Roma,Historia,Clasica')
     sede = models.TextField(default='La Plata')
     disponibilidad = models.CharField(max_length=255, null=True, default="Disponible")
     observaciones = models.TextField(default='Esta es una observación')
-    img = models.URLField()
+    
+    # CAMBIAR ESTE CAMPO para permitir URLs vacías
+    img = models.URLField(max_length=500, blank=True, null=True, default='')
 
     def __str__(self):
         return f"{self.titulo} - {self.autor}"
+    
+    def get_imagen_url(self):
+        """Método para obtener la URL de la imagen"""
+        return self.img if self.img else None
 
 
 class Mapas(Inventario):
