@@ -1,168 +1,657 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Editar Libro</title>
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
-</head>
-<body>
-    <style>
-        /* Variables de colores institucionales */
-        :root {
-            --primary-color: #1a3a5e;
-            --secondary-color: #f0f4f8;
-            --accent-color: #2c5282;
-            --text-color: #2d3748;
-            --border-color: #e2e8f0;
+{% extends 'components/baseb.html' %}
+{% load static %}
+
+{% block title %}Editar Libro | Biblioteca Digital{% endblock %}
+
+{% block extra_styles %}
+<link rel="stylesheet" href="{% static 'css/modificacion_material.css' %}">
+<link rel="stylesheet" href="{% static 'css/style_form.css' %}">
+<link rel="stylesheet" href="{% static 'css/manual_modal.css' %}">
+<link rel="stylesheet" href="{% static 'css/main.css' %}">
+<link rel="stylesheet" href="{% static 'css/botones.css' %}">
+<style>
+    .page-header {
+        background: linear-gradient(135deg, #e8f4f8, #f0f8ff);
+        padding: 2rem 0;
+        text-align: center;
+        border-bottom: 1px solid #e0e6ed;
+        background-image: 
+            radial-gradient(circle at 20% 50%, rgba(78, 205, 196, 0.1) 0%, transparent 50%),
+            radial-gradient(circle at 80% 20%, rgba(123, 104, 238, 0.1) 0%, transparent 50%),
+            radial-gradient(circle at 40% 80%, rgba(78, 205, 196, 0.05) 0%, transparent 50%);
+        background-size: 400px 400px, 300px 300px, 500px 500px;
+        background-position: 0% 50%, 100% 0%, 50% 100%;
+        background-repeat: no-repeat;
+    }
+
+    .page-title {
+        color: #4ECDC4;
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin: 0 0 0.5rem 0;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .subtitle {
+        color: #7B68EE;
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin: 0;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .form-container {
+        max-width: 900px;
+        margin: 2rem auto;
+        padding: 0 2rem;
+    }
+
+    .form-card {
+        background: white;
+        padding: 3rem;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        border: 1px solid #e0e6ed;
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group.full-width {
+        grid-column: 1 / -1;
+    }
+
+    .form-group label {
+        display: block;
+        font-weight: 600;
+        color: #2d3748;
+        margin-bottom: 0.8rem;
+        font-size: 14px;
+    }
+
+    .required::after {
+        content: " *";
+        color: #e53e3e;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        width: 100%;
+        padding: 12px 16px;
+        border: 2px solid #e0e6ed;
+        border-radius: 8px;
+        font-size: 14px;
+        transition: all 0.3s ease;
+        background: white;
+        color: #2d3748;
+        box-sizing: border-box;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+        outline: none;
+        border-color: #4ECDC4;
+        box-shadow: 0 0 0 3px rgba(78, 205, 196, 0.1);
+    }
+
+    .form-group textarea {
+        min-height: 100px;
+        resize: vertical;
+    }
+
+    .textarea-large {
+        min-height: 120px;
+    }
+
+    .etiquetas-help {
+        font-size: 12px;
+        color: #e53e3e;
+        margin-top: 4px;
+        font-style: italic;
+    }
+
+    /* Sección de imagen */
+    .image-section {
+        grid-column: 1 / -1;
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 2rem;
+        align-items: start;
+        background: #f8fafc;
+        padding: 2rem;
+        border-radius: 8px;
+        border: 1px solid #e0e6ed;
+        margin-top: 1rem;
+    }
+
+    .image-upload {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .upload-container {
+        display: flex;
+        gap: 1rem;
+        align-items: stretch;
+    }
+
+    .upload-button {
+        background: #4ECDC4;
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        min-width: 150px;
+        font-size: 14px;
+    }
+
+    .upload-button:hover {
+        background: #44C3B8;
+        transform: translateY(-2px);
+    }
+
+    .url-input {
+        flex: 1;
+        padding: 12px 16px;
+        border: 2px solid #e0e6ed;
+        border-radius: 8px;
+        font-size: 14px;
+        background: white;
+    }
+
+    .url-input:focus {
+        outline: none;
+        border-color: #4ECDC4;
+        box-shadow: 0 0 0 3px rgba(78, 205, 196, 0.1);
+    }
+
+    .image-preview {
+        text-align: center;
+    }
+
+    .image-preview img {
+        max-width: 120px;
+        max-height: 160px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        border: 2px solid #e0e6ed;
+    }
+
+    .image-placeholder {
+        width: 120px;
+        height: 160px;
+        background: #f0f4f8;
+        border: 2px dashed #cbd5e0;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #a0aec0;
+        font-size: 12px;
+        text-align: center;
+    }
+
+    /* Botones de acción */
+    .action-buttons {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 3rem;
+        padding-top: 2rem;
+        border-top: 1px solid #e0e6ed;
+    }
+
+    .btn {
+        display: inline-block;
+        font-family: 'Roboto', sans-serif;
+        cursor: pointer;
+        border: none;
+        outline: none;
+    }
+
+    .btn-guardar {
+        background: #4285F4;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        padding: 8px 16px;
+        font-size: 13px;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+    }
+
+    .btn-guardar:hover {
+        background: #3367D6;
+        color: white;
+        text-decoration: none;
+    }
+
+    .btn-cancelar {
+        background: none;
+        color: #d93025;
+        border: none;
+        padding: 8px 16px;
+        font-size: 13px;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        cursor: pointer;
+        text-decoration: none;
+        transition: color 0.2s ease;
+    }
+
+    .btn-cancelar:hover {
+        background: none;
+        color: #b52d20;
+        text-decoration: none;
+    }
+
+    /* Dropdown personalizado */
+    select {
+        background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right 12px center;
+        background-size: 16px;
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .form-grid {
+            grid-template-columns: 1fr;
+            gap: 1rem;
         }
 
-        body {
-            font-family: 'Calibri', 'Arial', sans-serif;
-            line-height: 1.6;
-            color: var(--text-color);
-            background-color: #f8fafc;
-            margin: 0;
-        }
-
-        header {
-            background-color: var(--primary-color);
-            color: white;
-            padding: 1.5rem;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-
-        header h1 {
-            font-size: 1.8rem;
-            margin: 0;
-            font-weight: 600;
+        .image-section {
+            grid-template-columns: 1fr;
             text-align: center;
         }
 
-        main {
-            max-width: 800px;
-            margin: 2rem auto;
+        .upload-container {
+            flex-direction: column;
+        }
+
+        .form-container {
             padding: 0 1rem;
         }
 
-        form {
-            background-color: white;
+        .form-card {
             padding: 2rem;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            border: 1px solid var(--border-color);
         }
 
-        label {
-            display: block;
-            font-weight: 600;
-            color: var(--text-color);
-            margin-bottom: 0.5rem;
+        .page-title {
+            font-size: 2rem;
         }
 
-        input[type="text"],
-        input[type="file"],
-        textarea {
-            width: 100%;
-            padding: 0.75rem;
-            border: 1px solid var(--border-color);
-            border-radius: 4px;
-            margin-bottom: 1.5rem;
-            font-size: 1rem;
-            transition: border-color 0.2s ease;
+        .subtitle {
+            font-size: 1.2rem;
         }
 
-        input[type="text"]:focus,
-        input[type="file"]:focus,
-        textarea:focus {
-            outline: none;
-            border-color: var(--accent-color);
-            box-shadow: 0 0 0 3px rgba(44, 82, 130, 0.1);
+        .action-buttons {
+            flex-direction: column;
+            gap: 1rem;
+            align-items: stretch;
         }
 
-        button {
-            background-color: var(--accent-color);
-            color: white;
-            padding: 0.75rem 1.5rem;
-            border: none;
-            border-radius: 4px;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: background-color 0.2s ease;
+        .action-buttons .btn {
+            justify-content: center;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .form-card {
+            padding: 1.5rem;
         }
 
-        button:hover {
-            background-color: #1a365d;
+        .page-title {
+            font-size: 1.8rem;
         }
+    }
+</style>
+{% endblock %}
 
-        a {
-            display: inline-block;
-            color: var(--accent-color);
-            text-decoration: none;
-            margin-top: 1rem;
-            font-weight: 500;
-        }
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">MODIFICACIÓN</h1>
+    <h2 class="subtitle">EDITAR</h2>
+</div>
 
-        a:hover {
-            text-decoration: underline;
-        }
-
-        .alert {
-            padding: 1rem;
-            border-radius: 4px;
-            margin-bottom: 1rem;
-            font-size: 0.95rem;
-        }
-
-        .alert-success {
-            background-color: #e6fffa;
-            color: #234e52;
-            border: 1px solid #b2f5ea;
-        }
-
-        .alert-error {
-            background-color: #fff5f5;
-            color: #742a2a;
-            border: 1px solid #fed7d7;
-        }
-
-        footer {
-            background-color: var(--primary-color);
-            color: white;
-            text-align: center;
-            padding: 1rem;
-            margin-top: 3rem;
-            font-size: 0.9rem;
-        }
-
-        @media (max-width: 640px) {
-            main {
-                padding: 0 0.5rem;
-            }
-            
-            form {
-                padding: 1rem;
-            }
-            
-            header h1 {
-                font-size: 1.5rem;
-            }
-        }
-    </style>
-    <header>
-        <h1>Editar Libro: {{ libro.titulo }}</h1>
-    </header>
-    <main>
-        <form method="POST">
+<div class="form-container">
+    <div class="form-card">
+        <!-- FORMULARIO PRINCIPAL (OCULTO) -->
+        <form id="editForm" method="POST" enctype="multipart/form-data" action="{% url 'editar_libro' libro.id_libro %}" style="display: none;">
             {% csrf_token %}
             {{ form.as_p }}
-            <button type="submit">Guardar Cambios</button>
+            <!-- Campo oculto para URL de imagen -->
+            <input type="hidden" name="url_input" id="hidden_url_input" value="">
         </form>
-        <a href="{% url 'lista_libros' %}">← Volver a la lista</a>
-    </main>
-    <footer>
-        <p>&copy; 2024 Biblioteca Instituto. Todos los derechos reservados.</p>
-    </footer>
-</body>
-</html>
+
+        <!-- FORMULARIO VISUAL (SOLO PARA MOSTRAR) -->
+        <div class="form-grid">
+            <!-- Título -->
+            <div class="form-group">
+                <label for="visual_titulo" class="required">Título</label>
+                <input type="text" id="visual_titulo" name="visual_titulo" value="{{ libro.titulo }}" required>
+            </div>
+
+            <!-- Autor -->
+            <div class="form-group">
+                <label for="visual_autor">Autor</label>
+                <input type="text" id="visual_autor" name="visual_autor" value="{{ libro.autor }}">
+            </div>
+
+            <!-- Editorial -->
+            <div class="form-group">
+                <label for="visual_editorial">Editorial</label>
+                <input type="text" id="visual_editorial" name="visual_editorial" value="{{ libro.editorial }}">
+            </div>
+
+            <!-- Clasificación / CDU -->
+            <div class="form-group">
+                <label for="visual_clasificacion_cdu">Clasificación / CDU</label>
+                <input type="text" id="visual_clasificacion_cdu" name="visual_clasificacion_cdu" value="{{ libro.clasificacion_cdu }}">
+            </div>
+
+            <!-- Siglas de autor / título -->
+            <div class="form-group">
+                <label for="visual_siglas_autor_titulo" class="required">Siglas de autor / título</label>
+                <input type="text" id="visual_siglas_autor_titulo" name="visual_siglas_autor_titulo" value="{{ libro.siglas_autor_titulo }}" required>
+            </div>
+
+            <!-- Número de inventario -->
+            <div class="form-group">
+                <label for="visual_num_inventario">N° Inventario:</label>
+                <input type="number" id="visual_num_inventario" name="visual_num_inventario" value="{{ libro.num_inventario }}" min="1">
+            </div>
+
+            <!-- Etiquetas / palabras clave -->
+            <div class="form-group full-width">
+                <label for="visual_etiqueta_palabra_clave">Etiquetas / palabras clave</label>
+                <textarea id="visual_etiqueta_palabra_clave" name="visual_etiqueta_palabra_clave" rows="3">{{ libro.etiqueta_palabra_clave }}</textarea>
+                <div class="etiquetas-help">
+                    Las etiquetas deben estar separadas por comas. Ejemplo: etiqueta, etiqueta, ...
+                </div>
+            </div>
+
+            <!-- Sede -->
+            <div class="form-group">
+                <label for="visual_sede" class="required">Sede</label>
+                <select id="visual_sede" name="visual_sede" required>
+                    <option value="">Seleccione una sede</option>
+                    <option value="CENTRAL" {% if libro.sede == 'CENTRAL' %}selected{% endif %}>CENTRAL</option>
+                    <option value="NORTE" {% if libro.sede == 'NORTE' %}selected{% endif %}>NORTE</option>
+                    <option value="SUR" {% if libro.sede == 'SUR' %}selected{% endif %}>SUR</option>
+                    <option value="OESTE" {% if libro.sede == 'OESTE' %}selected{% endif %}>OESTE</option>
+                </select>
+            </div>
+
+            <!-- Disponibilidad -->
+            <div class="form-group">
+                <label for="visual_disponibilidad" class="required">Disponibilidad</label>
+                <select id="visual_disponibilidad" name="visual_disponibilidad" required>
+                    <option value="">Seleccione disponibilidad</option>
+                    <option value="SALA" {% if libro.disponibilidad == 'SALA' %}selected{% endif %}>SALA</option>
+                    <option value="DOMICILIO" {% if libro.disponibilidad == 'DOMICILIO' %}selected{% endif %}>DOMICILIO</option>
+                    <option value="AMBOS" {% if libro.disponibilidad == 'AMBOS' %}selected{% endif %}>AMBOS</option>
+                </select>
+            </div>
+
+            <!-- Descripción -->
+            <div class="form-group full-width">
+                <label for="visual_descripcion">Descripción</label>
+                <textarea id="visual_descripcion" name="visual_descripcion" rows="4" class="textarea-large">{{ libro.descripcion }}</textarea>
+            </div>
+
+            <!-- Observaciones -->
+            <div class="form-group full-width">
+                <label for="visual_observaciones">Observaciones</label>
+                <textarea id="visual_observaciones" name="visual_observaciones" rows="3">{{ libro.observaciones }}</textarea>
+            </div>
+
+
+            <!-- Número de ejemplar -->
+            <div class="form-group">
+                <label for="visual_num_ejemplar">N° Ejemplar:</label>
+                <input type="number" id="visual_num_ejemplar" name="visual_num_ejemplar" value="{{ libro.num_ejemplar }}" min="1">
+            </div>
+
+            <!-- Sección de imagen -->
+            <div class="image-section">
+                <div class="image-upload">
+                    <label for="visual_img">Imagen</label>
+                    <div class="upload-container">
+                        <button type="button" class="upload-button" onclick="document.getElementById('real_img_input').click()">
+                            ↑ Elegir archivo aquí...
+                        </button>
+                        <input type="text" class="url-input" placeholder="O pegue un enlace aquí..." id="url_input" value="{{ libro.img|default:'' }}">
+                    </div>
+                    <input type="file" id="real_img_input" style="display: none;" accept="image/*">
+                </div>
+                <div class="image-preview">
+                    {% if libro.img %}
+                        <img src="{{ libro.img }}" alt="{{ libro.titulo }}" id="preview-image">
+                    {% else %}
+                        <div class="image-placeholder" id="preview-placeholder">
+                            Sin imagen
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="action-buttons">
+            <div></div>
+            <div style="display: flex; gap: 2rem; align-items: center;">
+                <button type="button" class="btn btn-cancelar" onclick="window.history.back()">
+                    CANCELAR
+                </button>
+                <button type="button" class="btn btn-guardar" onclick="mostrarModalConfirmacion()">
+                    GUARDAR
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de confirmación -->
+<div class="modal fade" id="confirmacionModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius: 8px; border: none;">
+            <div class="modal-body text-center" style="padding: 2rem;">
+                <div style="margin-bottom: 1.5rem;">
+                    <h5 style="color: #2c3e50; font-weight: 600; font-size: 1.1rem; margin-bottom: 0.5rem;">
+                        ¿DESEA CONFIRMAR LOS CAMBIOS REALIZADOS EN
+                    </h5>
+                    <div id="codigoLibro" style="color: #e74c3c; font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;"></div>
+                    <p style="color: #666; font-size: 0.9rem; margin: 0;">
+                        Pulse un botón para continuar. Una vez aceptado, los datos serán guardados en la base de datos.
+                    </p>
+                </div>
+                
+                <div style="display: flex; gap: 1rem; justify-content: center;">
+                    <button type="button" class="btn-modal-cancelar" data-bs-dismiss="modal" 
+                            style="background: #4285F4; color: white; border: none; padding: 10px 24px; border-radius: 4px; font-weight: 500; text-transform: uppercase; cursor: pointer;">
+                        CANCELAR
+                    </button>
+                    <button type="button" class="btn-modal-confirmar" onclick="confirmarGuardado()" 
+                            style="background: #ff6b35; color: white; border: none; padding: 10px 24px; border-radius: 4px; font-weight: 500; text-transform: uppercase; cursor: pointer;">
+                        CONFIRMAR
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const fileInput = document.getElementById('real_img_input');
+    const urlInput = document.getElementById('url_input');
+    const previewImage = document.getElementById('preview-image');
+    const previewPlaceholder = document.getElementById('preview-placeholder');
+
+    // Manejar carga de archivo
+    if (fileInput) {
+        fileInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    updatePreview(e.target.result);
+                    urlInput.value = ''; // Limpiar URL input
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+
+    // Manejar URL de imagen
+    if (urlInput) {
+        urlInput.addEventListener('input', function() {
+            const url = this.value.trim();
+            if (url) {
+                updatePreview(url);
+                if (fileInput) fileInput.value = ''; // Limpiar file input
+            }
+        });
+    }
+
+    // Función para actualizar preview
+    function updatePreview(src) {
+        if (previewImage) {
+            previewImage.src = src;
+        } else if (previewPlaceholder) {
+            previewPlaceholder.style.display = 'none';
+            const img = document.createElement('img');
+            img.src = src;
+            img.id = 'preview-image';
+            img.style.maxWidth = '120px';
+            img.style.maxHeight = '160px';
+            img.style.borderRadius = '8px';
+            img.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+            img.style.border = '2px solid #e0e6ed';
+            previewPlaceholder.parentNode.appendChild(img);
+        }
+    }
+});
+
+// Función para copiar datos del formulario visual al formulario real
+function copiarDatosAlFormularioReal() {
+    // Obtener referencia al formulario real
+    const form = document.getElementById('editForm');
+    
+    // Mapeo de campos visuales a campos reales
+    const camposMapeados = {
+        'titulo': 'visual_titulo',
+        'autor': 'visual_autor',
+        'editorial': 'visual_editorial',
+        'clasificacion_cdu': 'visual_clasificacion_cdu',
+        'siglas_autor_titulo': 'visual_siglas_autor_titulo',
+        'num_inventario': 'visual_num_inventario',
+        'etiqueta_palabra_clave': 'visual_etiqueta_palabra_clave',
+        'sede': 'visual_sede',
+        'disponibilidad': 'visual_disponibilidad',
+        'descripcion': 'visual_descripcion',
+        'observaciones': 'visual_observaciones',
+        'resumen': 'visual_resumen',
+        'num_ejemplar': 'visual_num_ejemplar'
+    };
+    
+    // Copiar valores de campos visuales a campos reales
+    for (const [campoReal, campoVisual] of Object.entries(camposMapeados)) {
+        const campoVisualElement = document.getElementById(campoVisual);
+        const campoRealElement = form.querySelector(`[name="${campoReal}"]`);
+        
+        if (campoVisualElement && campoRealElement) {
+            campoRealElement.value = campoVisualElement.value;
+        }
+    }
+    
+    // Manejar imagen especialmente
+    const urlInput = document.getElementById('url_input');
+    const fileInput = document.getElementById('real_img_input');
+    const hiddenUrlInput = document.getElementById('hidden_url_input');
+    const realImgInput = form.querySelector('[name="img"]');
+    
+    if (urlInput && urlInput.value.trim()) {
+        // Si hay URL de imagen
+        hiddenUrlInput.value = urlInput.value.trim();
+        // Limpiar el input de archivo real si existe
+        if (realImgInput) {
+            realImgInput.value = '';
+        }
+    } else if (fileInput && fileInput.files.length > 0) {
+        // Si hay archivo seleccionado
+        if (realImgInput) {
+            realImgInput.files = fileInput.files;
+        }
+        hiddenUrlInput.value = '';
+    }
+    
+    console.log('✅ Datos copiados al formulario real');
+}
+
+// Función para mostrar modal de confirmación
+function mostrarModalConfirmacion() {
+    // Obtener valores de los campos visuales
+    const clasificacionCdu = document.getElementById('visual_clasificacion_cdu').value || 'Sin clasificar';
+    const siglasAutorTitulo = document.getElementById('visual_siglas_autor_titulo').value || 'ABC';
+    const numInventario = document.getElementById('visual_num_inventario').value || '1';
+    
+    // Crear el código del libro
+    const codigoLibro = `${clasificacionCdu} ${siglasAutorTitulo} ${numInventario}`;
+    
+    // Mostrar en el modal
+    document.getElementById('codigoLibro').textContent = codigoLibro;
+    
+    // Mostrar el modal
+    const modal = new bootstrap.Modal(document.getElementById('confirmacionModal'));
+    modal.show();
+}
+
+// Función para confirmar el guardado
+function confirmarGuardado() {
+    console.log('🚀 Confirmando guardado...');
+    
+    // Cerrar el modal
+    const modal = bootstrap.Modal.getInstance(document.getElementById('confirmacionModal'));
+    modal.hide();
+    
+    // Copiar datos del formulario visual al real
+    copiarDatosAlFormularioReal();
+    
+    // Enviar el formulario real
+    const form = document.getElementById('editForm');
+    console.log('📤 Enviando formulario...');
+    form.submit();
+}
+</script>
+{% endblock %}

@@ -328,18 +328,80 @@ def baja_libro(request):
 # Vista para editar un libro:
 
 
+# views.py - Función editar_libro corregida
+
 def editar_libro(request, libro_id):
     libro = get_object_or_404(Libro, id_libro=libro_id)
-
+    
     if request.method == 'POST':
-        form = LibroForm(request.POST, instance=libro)
+        print(f"🔥 POST recibido para editar libro ID: {libro_id}")
+        print(f"🔥 Datos POST: {dict(request.POST)}")
+        
+        # Crear una copia mutable de POST para modificar
+        post_data = request.POST.copy()
+        
+        # ARREGLAR: Manejar URL de imagen ANTES de crear el formulario
+        url_input = post_data.get('url_input', '').strip()
+        if url_input and not request.FILES.get('img'):
+            print(f"🔗 Procesando URL de imagen: {url_input}")
+            # Si hay URL pero no archivo, guardar la URL directamente en el libro
+            libro.img = url_input
+            # Remover el campo img del formulario para que no sea requerido
+            post_data['img'] = url_input
+        
+        # ARREGLAR: Verificar campos requeridos vacíos
+        if not post_data.get('sede'):
+            print("⚠️ Sede vacía, usando valor actual del libro")
+            post_data['sede'] = libro.sede or 'CENTRAL'  # Valor por defecto
+            
+        if not post_data.get('disponibilidad'):
+            print("⚠️ Disponibilidad vacía, usando valor actual del libro")
+            post_data['disponibilidad'] = libro.disponibilidad or 'DOMICILIO'  # Valor por defecto
+        
+        print(f"🔧 Datos POST corregidos: {dict(post_data)}")
+        
+        # Crear formulario con datos corregidos
+        form = LibroForm(post_data, request.FILES, instance=libro)
+        
         if form.is_valid():
-            form.save()
-            return redirect('lista_libros')
+            print("✅ Formulario válido - guardando...")
+            
+            try:
+                # Guardar el formulario
+                libro_actualizado = form.save()
+                
+                # Si había URL de imagen, asegurar que se guarde
+                if url_input and not request.FILES.get('img'):
+                    libro_actualizado.img = url_input
+                    libro_actualizado.save()
+                
+                print(f"✅ Libro actualizado: {libro_actualizado.titulo}")
+                print(f"📋 Imagen final: {libro_actualizado.img}")
+                
+                messages.success(request, f'✅ Libro "{libro_actualizado.titulo}" actualizado exitosamente.')
+                return redirect('modificacion_materiales')
+                
+            except Exception as e:
+                print(f"❌ Error al guardar: {e}")
+                import traceback
+                traceback.print_exc()
+                messages.error(request, f'❌ Error al actualizar el libro: {str(e)}')
+        else:
+            print(f"❌ Formulario TODAVÍA inválido!")
+            print(f"❌ Errores: {form.errors}")
+            
+            # Mostrar errores específicos
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f'Error en {field}: {error}')
+                    print(f"❌ Error en {field}: {error}")
     else:
         form = LibroForm(instance=libro)
-
-    return render(request, 'materiales/formularios_editar/editar_libro.html', {'form': form, 'libro': libro})
+    
+    return render(request, 'materiales/formularios_editar/editar_libro.html', {
+        'form': form, 
+        'libro': libro
+    })
 
 
 # Mapas
@@ -1235,6 +1297,19 @@ def cancelar_alta_libro(request):
     
     messages.info(request, 'Operación cancelada.')
     return redirect('formulario_libro')
+
+def modificacion_materiales(request):
+    """
+    Vista para mostrar la página de modificación de materiales
+    Muestra todos los libros disponibles para modificar
+    """
+    # Obtener todos los libros (disponibles y no disponibles)
+    libros = Libro.objects.all().order_by('-id_libro')
+    
+    return render(request, 'materiales/formularios_editar/modificacion_materiales.html', {
+        'libros': libros
+    })
+
 # Agregar decoradores similares a todas las vistas de alta de material
 #@user_passes_test(es_bibliotecaria)
 def alta_mapa(request):
@@ -1366,3 +1441,4 @@ def rechazar_prestamo(request, prestamo_id):
 def finalizar_prestamo(request, prestamo_id):
     # ... código existente ...
     pass
+
