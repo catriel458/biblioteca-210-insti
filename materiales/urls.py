@@ -84,5 +84,12 @@ urlpatterns = [
 
     path('modificacion/', views.modificacion_materiales, name='modificacion_materiales'),
 
+    # URLs para sistema de obleas y dar de alta libros REACTIVADOS
+
+    path('dar-alta-libro/', views.dar_alta_libro, name='dar_alta_libro'),
+    path('obtener-informe-baja/', views.obtener_informe_baja, name='obtener_informe_baja'),
+    path('ver-detalles-material/<int:libro_id>/', views.ver_detalles_material, name='ver_detalles_material'),
+    path('reactivar-libro-mejorado/<int:libro_id>/', views.reactivar_libro_mejorado, name='reactivar_libro_mejorado'),
+
 ]
 

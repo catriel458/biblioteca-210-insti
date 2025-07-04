@@ -19,6 +19,10 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from .forms import RegistroForm, LoginForm, CambiarPasswordForm
 from .models import Usuario
 
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
+import json
 
 import csv
 import io
@@ -306,16 +310,20 @@ def baja_libro(request):
         motivo_baja = request.POST.get('motivo_baja')
         imagen_rota = request.FILES.get('imagen_rota')
 
-        # Lógica para actualizar el estado del libro
-        # Cambiado para asegurar que sea Libro
+        # Obtener el libro
         libro = get_object_or_404(Libro, id_libro=libro_id)
-        libro.estado = 'No disponible'  # Asegúrate de cambiar el estado
+        
+        # Cambiar estado
+        libro.estado = 'No disponible'
         libro.motivo_baja = motivo_baja
+        
+        # IMPORTANTE: Guardar imagen en el campo imagen_rota del modelo Inventario
         if imagen_rota:
             libro.imagen_rota = imagen_rota
+        
         libro.save()
 
-        # Redirigir a la lista de libros después de la baja
+        messages.success(request, f'Libro "{libro.titulo}" dado de baja exitosamente.')
         return redirect('modificacion_materiales')
 
     return redirect('modificacion_materiales')
@@ -1306,6 +1314,179 @@ def modificacion_materiales(request):
     return render(request, 'materiales/formularios_editar/modificacion_materiales.html', {
         'libros': libros
     })
+
+
+@require_POST
+def dar_alta_libro(request):
+    """Vista para dar de alta un libro (cambiar estado a disponible)"""
+    try:
+        libro_id = request.POST.get('libro_id')
+        sede = request.POST.get('sede', 'LA PLATA')
+        disponibilidad = request.POST.get('disponibilidad', 'Domicilio')  # Cambio aquí
+        observaciones = request.POST.get('observaciones', '')
+        
+        if not libro_id:
+            return JsonResponse({
+                'success': False, 
+                'error': 'ID de libro requerido'
+            }, status=400)
+        
+        # Obtener el libro
+        libro = get_object_or_404(Libro, id_libro=libro_id)
+        
+        # Verificar que esté dado de baja
+        if libro.estado != 'No disponible':
+            return JsonResponse({
+                'success': False, 
+                'error': 'El libro no está dado de baja'
+            }, status=400)
+        
+        # Actualizar el libro
+        libro.estado = 'Disponible'
+        libro.sede = sede
+        libro.disponibilidad = disponibilidad  # Usar el campo correcto del modelo
+        
+        # Agregar observaciones si las hay
+        if observaciones:
+            libro.observaciones = observaciones
+        
+        # Limpiar motivo de baja al reactivar
+        libro.motivo_baja = ''
+        # NO borrar la imagen_rota - mantenerla como historial
+        
+        libro.save()
+        
+        print(f"✅ Libro '{libro.titulo}' dado de alta - Disponibilidad: {disponibilidad}")
+        
+        return JsonResponse({
+            'success': True,
+            'message': f'Libro "{libro.titulo}" dado de alta correctamente',
+            'libro_id': libro_id,
+            'nuevo_estado': 'Disponible'
+        })
+        
+    except Exception as e:
+        print(f"❌ Error en dar_alta_libro: {e}")
+        return JsonResponse({
+            'success': False,
+            'error': f'Error interno: {str(e)}'
+        }, status=500)
+@require_POST  
+
+def obtener_informe_baja(request):
+    """Vista para obtener los datos del informe de baja"""
+    try:
+        libro_id = request.POST.get('libro_id')
+        
+        print(f"🔍 Obteniendo informe para libro ID: {libro_id}")
+        
+        if not libro_id:
+            return JsonResponse({
+                'success': False,
+                'error': 'ID de libro requerido'
+            }, status=400)
+        
+        libro = get_object_or_404(Libro, id_libro=libro_id)
+        
+        print(f"📚 Libro encontrado: {libro.titulo}")
+        print(f"📝 Motivo de baja: {libro.motivo_baja}")
+        print(f"🖼️ Imagen rota: {libro.imagen_rota}")
+        
+        # Construir URL de imagen si existe
+        imagen_baja_url = None
+        if libro.imagen_rota:
+            # IMPORTANTE: Construir la URL completa
+            imagen_baja_url = libro.imagen_rota.url
+            print(f"✅ URL de imagen construida: {imagen_baja_url}")
+        else:
+            print("❌ No hay imagen de baja")
+        
+        # Obtener los datos reales de la baja desde tu modelo
+        informe_data = {
+            'motivo': libro.motivo_baja if libro.motivo_baja else 'Motivo no registrado',
+            'fecha_baja': '30/10/2024',  # Puedes agregar este campo a tu modelo si lo necesitas
+            'imagen_baja': imagen_baja_url,  # URL completa o None
+            'usuario_baja': 'Admin',  # Puedes agregar este campo a tu modelo si lo necesitas
+            'descripcion': libro.descripcion if libro.descripcion else '',
+        }
+        
+        print(f"📋 Datos del informe enviados: {informe_data}")
+        
+        return JsonResponse({
+            'success': True,
+            'informe': informe_data
+        })
+        
+    except Exception as e:
+        print(f"❌ Error en obtener_informe_baja: {e}")
+        import traceback
+        traceback.print_exc()
+        return JsonResponse({
+            'success': False,
+            'error': f'Error: {str(e)}'
+        }, status=500)
+
+# NUEVA VISTA para ver detalles del material (modal con imagen)
+def ver_detalles_material(request, libro_id):
+    """Vista para obtener detalles completos del material"""
+    try:
+        libro = get_object_or_404(Libro, id_libro=libro_id)
+        
+        detalles = {
+            'titulo': libro.titulo,
+            'autor': libro.autor,
+            'editorial': libro.editorial,
+            'num_inventario': libro.num_inventario,
+            'clasificacion_cdu': libro.clasificacion_cdu,
+            'siglas_autor_titulo': libro.siglas_autor_titulo,
+            'sede': libro.sede,
+            'disponibilidad': libro.disponibilidad,
+            'estado': libro.estado,
+            'descripcion': libro.descripcion,
+            'etiqueta_palabra_clave': libro.etiqueta_palabra_clave,
+            'observaciones': libro.observaciones,
+            'num_ejemplar': libro.num_ejemplar,
+            'img': libro.img if libro.img else None,
+            'imagen_rota': libro.imagen_rota.url if libro.imagen_rota else None,
+            'motivo_baja': libro.motivo_baja if libro.motivo_baja else None,
+        }
+        
+        return JsonResponse({
+            'success': True,
+            'detalles': detalles
+        })
+        
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': f'Error: {str(e)}'
+        }, status=500)
+    
+    
+
+def reactivar_libro_mejorado(request, libro_id):
+    """
+    Función mejorada para reactivar libros que integra con el sistema de obleas
+    """
+    if request.method == 'POST':
+        libro = get_object_or_404(Libro, id_libro=libro_id)
+        
+        # Verificar que esté dado de baja
+        if libro.estado != 'No disponible':
+            messages.error(request, f'El libro "{libro.titulo}" no está dado de baja.')
+            return redirect('modificacion_materiales')
+        
+        # Actualizar estado
+        libro.estado = 'Disponible'
+        libro.motivo_baja = ''  # Limpiar motivo de baja
+        
+        # Mantener otros datos como están
+        libro.save()
+        
+        messages.success(request, f'✅ El libro "{libro.titulo}" ha sido reactivado exitosamente.')
+        return redirect('modificacion_materiales')
+    
+    return redirect('modificacion_materiales')   
 
 # Agregar decoradores similares a todas las vistas de alta de material
 #@user_passes_test(es_bibliotecaria)

@@ -46,6 +46,11 @@ STATICFILES_DIRS = [
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
+# Asegurar que la carpeta de imagenes_rota se cree automáticamente
+IMAGENES_ROTA_PATH = os.path.join(MEDIA_ROOT, 'imagenes_rota')
+if not os.path.exists(IMAGENES_ROTA_PATH):
+    os.makedirs(IMAGENES_ROTA_PATH, exist_ok=True)
+
 # Installed apps
 INSTALLED_APPS = [
     'django.contrib.admin',

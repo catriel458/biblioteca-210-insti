@@ -1,6 +1,9 @@
 {% extends 'components/baseb.html' %}
 {% load static %}
+{% csrf_token %}
 
+<!-- Agregar esto justo después de {% load static %} en tu template -->
+<input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
 {% block title %}Modificación de Materiales | Biblioteca Digital{% endblock %}
 
 {% block extra_styles %}
@@ -318,6 +321,87 @@
         background: white;
     }
 
+    /* Estilos para libros no disponibles */
+.libro-no-disponible {
+    background-color: #f8d7da !important; /* Rosa claro para libros no disponibles */
+}
+
+.libro-no-disponible:hover {
+    background-color: #f5c6cb !important;
+}
+
+.libro-no-disponible:nth-child(even) {
+    background-color: #f8d7da !important;
+}
+
+.libro-no-disponible:nth-child(odd) {
+    background-color: #f8d7da !important;
+}
+
+/* Botón de ver informe */
+.btn-ver-informe:hover {
+    background-color: #17a2b8;
+    color: white;
+}
+
+/* Estilos para modales de dar de alta */
+.modal-dar-alta .modal-content {
+    border: none;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+
+.modal-dar-alta .modal-header {
+    background: linear-gradient(135deg, #28a745, #20c997);
+    color: white;
+    padding: 1.5rem;
+    border: none;
+}
+
+.modal-dar-alta .modal-title {
+    font-weight: 700;
+    font-size: 1.2rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin: 0;
+}
+
+.form-group-custom {
+    margin-bottom: 1rem;
+}
+
+.form-group-custom label {
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+.form-control-custom {
+    width: 100%;
+    padding: 0.75rem;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    font-size: 14px;
+    transition: border-color 0.3s ease;
+}
+
+.form-control-custom:focus {
+    border-color: #28a745;
+    box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.1);
+    outline: none;
+}
+
+.select-custom {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 0.5rem center;
+    background-repeat: no-repeat;
+    background-size: 1.5em 1.5em;
+    padding-right: 2.5rem;
+}
+
     /* Responsive Design */
     @media screen and (max-width: 1024px) {
         .libros-table {
@@ -447,7 +531,7 @@
             <tbody id="libros-table">
                 {% if libros %}
                     {% for libro in libros %}
-                    <tr class="libro-row" 
+                    <tr class="libro-row{% if libro.estado == 'No disponible' %} libro-no-disponible{% endif %}" 
                         data-estado="{{ libro.estado|lower }}"
                         data-titulo="{{ libro.titulo|lower }}"
                         data-autor="{{ libro.autor|lower }}"
@@ -491,10 +575,11 @@
                                     🗑️
                                 </button>
                             {% elif libro.estado == 'No disponible' %}
-                                <button class="btn-icon btn-reactivar" title="Reactivar" 
-                                        onclick="reactivarLibro({{ libro.id_libro }}, '{{ libro.titulo|escapejs }}')">
-                                    ↩️
+                                <button class="btn-icon btn-ver-informe" title="Ver informe de baja" 
+                                        onclick="verInformeBaja({{ libro.id_libro }})">
+                                    📄
                                 </button>
+                                
                             {% endif %}
                         </td>
                     </tr>
@@ -860,6 +945,362 @@
                     </button>
                 </div>
             </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para ver informe de baja -->
+<div class="modal fade" id="verInformeModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content" style="border: none; border-radius: 15px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
+            <!-- Header del modal -->
+            <div class="modal-header" style="background: linear-gradient(135deg, #dc3545, #c82333); color: white; padding: 1.5rem; border: none;">
+                <h5 class="modal-title" style="font-weight: 700; font-size: 1.2rem; text-transform: uppercase; letter-spacing: 1px; margin: 0;">
+                    📋 INFORME DE BAJA DEL MATERIAL
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" 
+                        style="filter: brightness(0) invert(1); opacity: 0.8; font-size: 1.2rem;"></button>
+            </div>
+
+            <div class="modal-body" style="padding: 2rem; background: #f8f9fa;">
+                <!-- Información del libro dado de baja -->
+                <div style="background: white; padding: 1.5rem; border-radius: 10px; margin-bottom: 1.5rem; border-left: 5px solid #dc3545;">
+                    <div class="row">
+                        <div class="col-3 text-center">
+                            <div style="width: 100px; height: 130px; background: #ddd; border-radius: 8px; margin: 0 auto; position: relative; overflow: hidden; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+                                <img id="informe_imagen" src="" alt="Libro" style="width: 100%; height: 100%; object-fit: cover; display: none;">
+                                <div id="informe_placeholder" style="width: 100%; height: 100%; background: #bdc3c7; display: flex; align-items: center; justify-content: center; color: white; font-size: 12px; text-align: center;">
+                                    Sin<br>Imagen
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-9">
+                            <table style="width: 100%; font-size: 14px; color: #2c3e50;">
+                                <tr style="border-bottom: 1px solid #dee2e6;">
+                                    <td style="padding: 8px 0; font-weight: 600; width: 30%;">N° Inventario:</td>
+                                    <td style="padding: 8px 0;" id="informe_num_inventario">-</td>
+                                </tr>
+                                <tr style="border-bottom: 1px solid #dee2e6;">
+                                    <td style="padding: 8px 0; font-weight: 600;">Título:</td>
+                                    <td style="padding: 8px 0; font-weight: 600; color: #dc3545;" id="informe_titulo">-</td>
+                                </tr>
+                                <tr style="border-bottom: 1px solid #dee2e6;">
+                                    <td style="padding: 8px 0; font-weight: 600;">Autor:</td>
+                                    <td style="padding: 8px 0;" id="informe_autor">-</td>
+                                </tr>
+                                <tr style="border-bottom: 1px solid #dee2e6;">
+                                    <td style="padding: 8px 0; font-weight: 600;">CDU:</td>
+                                    <td style="padding: 8px 0;" id="informe_cdu">-</td>
+                                </tr>
+                                <tr style="border-bottom: 1px solid #dee2e6;">
+                                    <td style="padding: 8px 0; font-weight: 600;">Siglas:</td>
+                                    <td style="padding: 8px 0;" id="informe_siglas">-</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 8px 0; font-weight: 600;">Fecha de baja:</td>
+                                    <td style="padding: 8px 0; color: #dc3545;" id="informe_fecha_baja">30/10/2024</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Motivo de baja -->
+                <div style="background: white; padding: 1.5rem; border-radius: 10px; margin-bottom: 1.5rem;">
+                    <h6 style="color: #dc3545; font-weight: 700; text-transform: uppercase; margin-bottom: 1rem; font-size: 14px; letter-spacing: 0.5px;">
+                        Motivo de la baja
+                    </h6>
+                    <div id="informe_motivo" style="padding: 1rem; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #dc3545; font-size: 14px; line-height: 1.5;">
+                        Cargando motivo de baja...
+                    </div>
+                </div>
+
+                <!-- Imagen de la baja (si existe) -->
+                <div id="imagen_baja_container" style="background: white; padding: 1.5rem; border-radius: 10px; margin-bottom: 1.5rem; display: none;">
+                    <h6 style="color: #dc3545; font-weight: 700; text-transform: uppercase; margin-bottom: 1rem; font-size: 14px; letter-spacing: 0.5px;">
+                        Imagen de la baja
+                    </h6>
+                    <div style="text-align: center;">
+                        <img id="imagen_baja" src="" alt="Imagen de baja" style="max-width: 300px; max-height: 200px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer del modal -->
+            <div class="modal-footer" style="background: #f8f9fa; padding: 1rem 2rem; border: none; justify-content: center; gap: 1rem;">
+                <button type="button" class="btn" data-bs-dismiss="modal" 
+                        style="background: #6c757d; color: white; border: none; padding: 10px 30px; border-radius: 25px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; font-size: 13px;">
+                    CERRAR
+                </button>
+                <button type="button" id="btnDarDeAlta" class="btn"
+                        style="background: #28a745; color: white; border: none; padding: 10px 30px; border-radius: 25px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; font-size: 13px;">
+                    🔄 DAR DE ALTA
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ========== PARTE 3: MODAL CONFIRMACIÓN DAR DE ALTA ========== -->
+
+<!-- Modal de confirmación para dar de alta -->
+<div class="modal fade" id="confirmarAltaModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content modal-dar-alta">
+            <!-- Header del modal -->
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    ¿DESEA VOLVER A PONER EL MATERIAL COMO DISPONIBLE?
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" 
+                        style="filter: brightness(0) invert(1); opacity: 0.8;"></button>
+            </div>
+
+            <div class="modal-body" style="padding: 2rem; background: white; text-align: center;">
+                <div style="font-size: 48px; color: #28a745; margin-bottom: 1rem;">📚</div>
+                <p style="font-size: 16px; color: #495057; margin-bottom: 2rem; line-height: 1.5;">
+                    El libro <strong id="confirm_titulo_libro">título del libro</strong> volverá a estar disponible para préstamos.
+                </p>
+            </div>
+
+            <!-- Footer del modal -->
+            <div class="modal-footer" style="background: #f8f9fa; padding: 1rem 2rem; border: none; justify-content: center; gap: 1rem;">
+                <button type="button" class="btn" data-bs-dismiss="modal" 
+                        style="background: #6c757d; color: white; border: none; padding: 10px 30px; border-radius: 25px; font-weight: 600; text-transform: uppercase;">
+                    CANCELAR
+                </button>
+                <button type="button" id="confirmarDarAlta" class="btn"
+                        style="background: #fd7e14; color: white; border: none; padding: 10px 30px; border-radius: 25px; font-weight: 600; text-transform: uppercase;">
+                    CONFIRMAR
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ========== PARTE 4: MODAL MODIFICAR DATOS ANTES DE DAR DE ALTA ========== -->
+
+<!-- Modal para modificar datos antes de dar de alta -->
+<div class="modal fade" id="modificarDatosModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content modal-dar-alta">
+            <!-- Header del modal -->
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    CONFIRMAR DAR DE ALTA EL MATERIAL
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" 
+                        style="filter: brightness(0) invert(1); opacity: 0.8;"></button>
+            </div>
+
+            <form id="formDarAlta" method="POST" action="{% url 'dar_alta_libro' %}">
+                {% csrf_token %}
+                <div class="modal-body" style="padding: 2rem; background: white;">
+                    <input type="hidden" id="alta_libro_id" name="libro_id">
+                    
+                    <div class="row">
+                        <!-- Sede -->
+                        <div class="col-md-6">
+                            <div class="form-group-custom">
+                                <label for="alta_sede">Sede*</label>
+                                <select class="form-control-custom select-custom" id="alta_sede" name="sede" required>
+                                    <option value="LA PLATA" selected>LA PLATA</option>
+                                    <option value="BERISSO">BERISSO</option>
+                                    <option value="ENSENADA">ENSENADA</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Disponibilidad -->
+                        <div class="col-md-6">
+                            <div class="form-group-custom">
+                                <label for="alta_disponibilidad">Disponibilidad*</label>
+                                <select class="form-control-custom select-custom" id="alta_disponibilidad" name="disponibilidad" required>
+                                    <option value="Domicilio" selected>Domicilio</option>
+                                    <option value="Aula">Aula</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Observaciones -->
+                    <div class="form-group-custom">
+                        <label for="alta_observaciones">Observaciones</label>
+                        <textarea class="form-control-custom" id="alta_observaciones" name="observaciones" 
+                                  rows="3" placeholder="Observaciones adicionales sobre la reactivación del material..."></textarea>
+                    </div>
+                </div>
+
+                <!-- Footer del modal -->
+                <div class="modal-footer" style="background: #f8f9fa; padding: 1rem 2rem; border: none; justify-content: center; gap: 1rem;">
+                    <button type="button" class="btn" data-bs-dismiss="modal" 
+                            style="background: #6c757d; color: white; border: none; padding: 10px 30px; border-radius: 25px; font-weight: 600; text-transform: uppercase;">
+                        CANCELAR
+                    </button>
+                    <button type="submit" class="btn"
+                            style="background: #28a745; color: white; border: none; padding: 10px 30px; border-radius: 25px; font-weight: 600; text-transform: uppercase;">
+                        CONFIRMAR
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- ========== PARTE 5: MODAL ÉXITO ========== -->
+
+<!-- Modal de éxito -->
+<div class="modal fade" id="exitoModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content modal-dar-alta">
+            <div class="modal-body" style="padding: 3rem; background: white; text-align: center;">
+                <div style="font-size: 64px; color: #28a745; margin-bottom: 1rem;">✅</div>
+                <h5 style="color: #28a745; font-weight: 700; margin-bottom: 1rem; text-transform: uppercase;">
+                    EL ALTA DEL MATERIAL<br>
+                    <span id="exito_titulo">TITULO</span> COL S<br>
+                    HA CONCLUIDO CON ÉXITO
+                </h5>
+            </div>
+            
+            <div class="modal-footer" style="background: white; border: none; justify-content: center; padding-bottom: 2rem;">
+                <button type="button" class="btn" data-bs-dismiss="modal" onclick="location.reload()"
+                        style="background: #28a745; color: white; border: none; padding: 12px 40px; border-radius: 25px; font-weight: 600; text-transform: uppercase;">
+                    ACEPTAR
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para ver detalles del material -->
+<div class="modal fade" id="detallesModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content" style="border: none; border-radius: 15px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
+            <!-- Header del modal -->
+            <div class="modal-header" style="background: linear-gradient(135deg, #3498db, #2980b9); color: white; padding: 1.5rem; border: none;">
+                <h5 class="modal-title" style="font-weight: 700; font-size: 1.2rem; text-transform: uppercase; letter-spacing: 1px; margin: 0;">
+                    📋 DETALLES DEL MATERIAL
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" 
+                        style="filter: brightness(0) invert(1); opacity: 0.8; font-size: 1.2rem;"></button>
+            </div>
+
+            <div class="modal-body" style="padding: 2rem; background: #f8f9fa; max-height: 80vh; overflow-y: auto;">
+                <!-- Información principal con imagen -->
+                <div class="row mb-4">
+                    <!-- Imagen del libro -->
+                    <div class="col-md-4 text-center">
+                        <div style="background: white; padding: 1.5rem; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+                            <h6 style="color: #3498db; font-weight: 700; text-transform: uppercase; margin-bottom: 1rem; font-size: 14px;">
+                                Imagen del Material
+                            </h6>
+                            <div style="width: 200px; height: 280px; margin: 0 auto; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.15); position: relative;">
+                                <img id="detalle_imagen_principal" src="" alt="Material" style="width: 100%; height: 100%; object-fit: cover; display: none;">
+                                <div id="detalle_placeholder_principal" style="width: 100%; height: 100%; background: linear-gradient(135deg, #bdc3c7, #95a5a6); display: flex; align-items: center; justify-content: center; color: white; font-size: 16px; text-align: center; font-weight: 600;">
+                                    Sin<br>Imagen<br>Disponible
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Información detallada -->
+                    <div class="col-md-8">
+                        <div style="background: white; padding: 1.5rem; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+                            <h6 style="color: #3498db; font-weight: 700; text-transform: uppercase; margin-bottom: 1rem; font-size: 14px;">
+                                Información del Material
+                            </h6>
+                            
+                            <table style="width: 100%; font-size: 14px; color: #2c3e50;">
+                                <tr style="border-bottom: 1px solid #dee2e6;">
+                                    <td style="padding: 12px 0; font-weight: 600; width: 35%;">N° Inventario:</td>
+                                    <td style="padding: 12px 0;" id="detalle_num_inventario">-</td>
+                                </tr>
+                                <tr style="border-bottom: 1px solid #dee2e6;">
+                                    <td style="padding: 12px 0; font-weight: 600;">Título:</td>
+                                    <td style="padding: 12px 0; font-weight: 600; color: #3498db;" id="detalle_titulo">-</td>
+                                </tr>
+                                <tr style="border-bottom: 1px solid #dee2e6;">
+                                    <td style="padding: 12px 0; font-weight: 600;">Autor:</td>
+                                    <td style="padding: 12px 0;" id="detalle_autor">-</td>
+                                </tr>
+                                <tr style="border-bottom: 1px solid #dee2e6;">
+                                    <td style="padding: 12px 0; font-weight: 600;">Editorial:</td>
+                                    <td style="padding: 12px 0;" id="detalle_editorial">-</td>
+                                </tr>
+                                <tr style="border-bottom: 1px solid #dee2e6;">
+                                    <td style="padding: 12px 0; font-weight: 600;">CDU:</td>
+                                    <td style="padding: 12px 0;" id="detalle_cdu">-</td>
+                                </tr>
+                                <tr style="border-bottom: 1px solid #dee2e6;">
+                                    <td style="padding: 12px 0; font-weight: 600;">Siglas:</td>
+                                    <td style="padding: 12px 0;" id="detalle_siglas">-</td>
+                                </tr>
+                                <tr style="border-bottom: 1px solid #dee2e6;">
+                                    <td style="padding: 12px 0; font-weight: 600;">Sede:</td>
+                                    <td style="padding: 12px 0;" id="detalle_sede">-</td>
+                                </tr>
+                                <tr style="border-bottom: 1px solid #dee2e6;">
+                                    <td style="padding: 12px 0; font-weight: 600;">Disponibilidad:</td>
+                                    <td style="padding: 12px 0;" id="detalle_disponibilidad">-</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 12px 0; font-weight: 600;">Estado:</td>
+                                    <td style="padding: 12px 0;" id="detalle_estado">-</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Descripción y detalles adicionales -->
+                <div class="row">
+                    <!-- Descripción -->
+                    <div class="col-md-6 mb-3">
+                        <div style="background: white; padding: 1.5rem; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); height: 100%;">
+                            <h6 style="color: #3498db; font-weight: 700; text-transform: uppercase; margin-bottom: 1rem; font-size: 14px;">
+                                Descripción
+                            </h6>
+                            <div id="detalle_descripcion" style="padding: 1rem; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #3498db; font-size: 14px; line-height: 1.5; min-height: 80px;">
+                                Cargando descripción...
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Observaciones -->
+                    <div class="col-md-6 mb-3">
+                        <div style="background: white; padding: 1.5rem; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); height: 100%;">
+                            <h6 style="color: #3498db; font-weight: 700; text-transform: uppercase; margin-bottom: 1rem; font-size: 14px;">
+                                Observaciones
+                            </h6>
+                            <div id="detalle_observaciones" style="padding: 1rem; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #28a745; font-size: 14px; line-height: 1.5; min-height: 80px;">
+                                Cargando observaciones...
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Palabras clave -->
+                <div class="row">
+                    <div class="col-12">
+                        <div style="background: white; padding: 1.5rem; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+                            <h6 style="color: #3498db; font-weight: 700; text-transform: uppercase; margin-bottom: 1rem; font-size: 14px;">
+                                Etiquetas / Palabras Clave
+                            </h6>
+                            <div id="detalle_etiquetas" style="display: flex; flex-wrap: wrap; gap: 8px;">
+                                <!-- Las etiquetas se cargarán dinámicamente -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer del modal -->
+            <div class="modal-footer" style="background: #f8f9fa; padding: 1rem 2rem; border: none; justify-content: center;">
+                <button type="button" class="btn" data-bs-dismiss="modal" 
+                        style="background: #6c757d; color: white; border: none; padding: 10px 30px; border-radius: 25px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; font-size: 13px;">
+                    CERRAR
+                </button>
+            </div>
         </div>
     </div>
 </div>
@@ -1316,6 +1757,9 @@ document.addEventListener("DOMContentLoaded", function() {
     searchInput.addEventListener('input', filtrarLibros);
     mostrarNoDisponibles.addEventListener('change', filtrarLibros);
 
+    // ===== APLICAR FILTRO INICIAL AL CARGAR LA PÁGINA =====
+    filtrarLibros(); // <- AGREGAR ESTA LÍNEA
+
     // ===== FUNCIONALIDAD DE ORDENAMIENTO =====
     ordenarPor.addEventListener('change', function() {
         const tbody = document.getElementById('libros-table');
@@ -1459,10 +1903,220 @@ function reactivarLibro(libroId, titulo) {
 }
 
 // Función para ver detalles de un libro
+
 function verDetalles(libroId) {
-    // TODO: Implementar modal de detalles
-    console.log('Ver detalles del libro:', libroId);
-    alert('Funcionalidad de detalles en desarrollo');
+    try {
+        // Hacer llamada AJAX para obtener detalles completos
+        const formData = new FormData();
+        formData.append('libro_id', libroId);
+        
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        formData.append('csrfmiddlewaretoken', csrfToken);
+        
+        fetch(`/ver-detalles-material/${libroId}/`, {
+            method: 'GET',
+            headers: {
+                'X-CSRFToken': csrfToken
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const detalles = data.detalles;
+                
+                // Llenar datos en el modal
+                document.getElementById('detalle_num_inventario').textContent = detalles.num_inventario || '-';
+                document.getElementById('detalle_titulo').textContent = detalles.titulo || '-';
+                document.getElementById('detalle_autor').textContent = detalles.autor || 'Sin autor';
+                document.getElementById('detalle_editorial').textContent = detalles.editorial || 'Sin editorial';
+                document.getElementById('detalle_cdu').textContent = detalles.clasificacion_cdu || '-';
+                document.getElementById('detalle_siglas').textContent = detalles.siglas_autor_titulo || '-';
+                document.getElementById('detalle_sede').textContent = detalles.sede || '-';
+                document.getElementById('detalle_disponibilidad').textContent = detalles.disponibilidad || '-';
+                document.getElementById('detalle_estado').textContent = detalles.estado || '-';
+                document.getElementById('detalle_descripcion').textContent = detalles.descripcion || 'Sin descripción disponible';
+                document.getElementById('detalle_observaciones').textContent = detalles.observaciones || 'Sin observaciones';
+                
+                // Manejar imagen principal
+                const imagenPrincipal = document.getElementById('detalle_imagen_principal');
+                const placeholderPrincipal = document.getElementById('detalle_placeholder_principal');
+                
+                if (detalles.img && detalles.img.trim() !== '') {
+                    imagenPrincipal.src = detalles.img;
+                    imagenPrincipal.style.display = 'block';
+                    placeholderPrincipal.style.display = 'none';
+                } else {
+                    imagenPrincipal.style.display = 'none';
+                    placeholderPrincipal.style.display = 'flex';
+                }
+                
+                // Manejar etiquetas/palabras clave
+                const etiquetasContainer = document.getElementById('detalle_etiquetas');
+                if (detalles.etiqueta_palabra_clave) {
+                    const etiquetas = detalles.etiqueta_palabra_clave.split(',');
+                    etiquetasContainer.innerHTML = etiquetas.map(etiqueta => 
+                        `<span style="background: #3498db; color: white; padding: 4px 12px; border-radius: 15px; font-size: 12px; font-weight: 600;">${etiqueta.trim()}</span>`
+                    ).join('');
+                } else {
+                    etiquetasContainer.innerHTML = '<span style="color: #6c757d; font-style: italic;">Sin etiquetas</span>';
+                }
+                
+                // Mostrar el modal
+                const modal = new bootstrap.Modal(document.getElementById('detallesModal'));
+                modal.show();
+                
+            } else {
+                alert(`Error: ${data.error}`);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error al cargar los detalles del material');
+        });
+        
+    } catch (error) {
+        console.error('Error al ver detalles:', error);
+        alert('Error inesperado al cargar los detalles');
+    }
+}
+
+// ACTUALIZAR LA FUNCIÓN verInformeBaja para usar datos reales:
+function verInformeBaja(libroId) {
+    try {
+        // Buscar la fila del libro
+        const botonInforme = document.querySelector(`button[onclick*="verInformeBaja(${libroId})"]`);
+        if (!botonInforme) {
+            console.error('No se encontró el botón de informe para el libro ID:', libroId);
+            alert('Error: No se pudo encontrar la información del libro');
+            return;
+        }
+        
+        const filaLibro = botonInforme.closest('tr');
+        const celdas = filaLibro.querySelectorAll('td');
+        
+        // Extraer datos básicos del libro
+        const datosLibro = {
+            id: libroId,
+            numInventario: celdas[0].textContent.trim(),
+            titulo: celdas[1].textContent.trim(),
+            autor: celdas[2].textContent.trim(),
+            editorial: celdas[3].textContent.trim(),
+            cdu: celdas[4].textContent.trim(),
+            siglas: celdas[5].textContent.trim(),
+            sede: celdas[6].textContent.trim()
+        };
+        
+        // Obtener imagen del libro de la tabla
+        const imagenElement = filaLibro.querySelector('.libro-thumbnail');
+        const imagenSrc = imagenElement ? imagenElement.src : '';
+        
+        // Llenar datos básicos en el modal
+        document.getElementById('informe_num_inventario').textContent = datosLibro.numInventario || '-';
+        document.getElementById('informe_titulo').textContent = datosLibro.titulo;
+        document.getElementById('informe_autor').textContent = datosLibro.autor || 'Sin autor';
+        document.getElementById('informe_cdu').textContent = datosLibro.cdu || '-';
+        document.getElementById('informe_siglas').textContent = datosLibro.siglas || '-';
+        
+        // Manejar imagen del libro
+        const imagenModal = document.getElementById('informe_imagen');
+        const placeholderModal = document.getElementById('informe_placeholder');
+        
+        if (imagenSrc && !imagenSrc.includes('placeholder')) {
+            imagenModal.src = imagenSrc;
+            imagenModal.style.display = 'block';
+            placeholderModal.style.display = 'none';
+        } else {
+            imagenModal.style.display = 'none';
+            placeholderModal.style.display = 'flex';
+        }
+        
+        // Guardar datos para dar de alta
+        libroActualParaAlta = datosLibro;
+        
+        // Mostrar el modal
+        const modal = new bootstrap.Modal(document.getElementById('verInformeModal'));
+        modal.show();
+        
+        // Obtener datos REALES del informe en segundo plano
+        const formData = new FormData();
+        formData.append('libro_id', libroId);
+        
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        formData.append('csrfmiddlewaretoken', csrfToken);
+        
+        fetch('/obtener-informe-baja/', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': csrfToken
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const informe = data.informe;
+                
+                // Actualizar con datos REALES de la base de datos
+                document.getElementById('informe_fecha_baja').textContent = informe.fecha_baja || '30/10/2024';
+                document.getElementById('informe_motivo').textContent = informe.motivo || 'Motivo no registrado';
+                
+                // Manejar imagen de la baja REAL
+                const imagenBajaContainer = document.getElementById('imagen_baja_container');
+                const imagenBaja = document.getElementById('imagen_baja');
+                
+                if (informe.imagen_baja) {
+                    imagenBaja.src = informe.imagen_baja;
+                    imagenBajaContainer.style.display = 'block';
+                } else {
+                    imagenBajaContainer.style.display = 'none';
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Error al obtener informe:', error);
+            // Mantener datos por defecto si hay error
+        });
+        
+        console.log('Informe mostrado para libro:', datosLibro);
+        
+    } catch (error) {
+        console.error('Error al mostrar informe de baja:', error);
+        alert('Error inesperado al cargar el informe. Verifique la consola para más detalles.');
+    }
+}
+
+// ACTUALIZAR LA FUNCIÓN actualizarBotonesAcciones para quitar el botón de reactivar:
+function actualizarBotonesAcciones() {
+    const rows = document.querySelectorAll('.libro-row');
+    rows.forEach(row => {
+        const estado = row.dataset.estado;
+        const celdaAcciones = row.querySelector('.acciones-cell');
+        const libroId = row.querySelector('.btn-icon').getAttribute('onclick').match(/\d+/)[0];
+        
+        if (estado === 'no disponible') {
+            // Verificar si ya tiene el botón de ver informe
+            const tieneBotonInforme = celdaAcciones.querySelector(`button[onclick*="verInformeBaja"]`);
+            if (!tieneBotonInforme) {
+                // Agregar botón de ver informe después del botón de editar
+                const botonEditar = celdaAcciones.querySelector('.btn-editar');
+                if (botonEditar) {
+                    const botonInforme = document.createElement('button');
+                    botonInforme.className = 'btn-icon btn-ver-informe';
+                    botonInforme.title = 'Ver informe de baja';
+                    botonInforme.innerHTML = '📄';
+                    botonInforme.setAttribute('onclick', `verInformeBaja(${libroId})`);
+                    
+                    botonEditar.insertAdjacentElement('afterend', botonInforme);
+                }
+            }
+            
+            // QUITAR cualquier botón de reactivar existente
+            const botonReactivar = celdaAcciones.querySelector('.btn-reactivar');
+            if (botonReactivar) {
+                botonReactivar.remove();
+            }
+        }
+    });
 }
 
 // ===== FUNCIÓN PRINCIPAL PARA IMPRIMIR LIBRO (SISTEMA DE OBLEAS) =====
@@ -1630,6 +2284,541 @@ document.addEventListener('keydown', function(e) {
         }
     }
 });
+
+// ===== SISTEMA DE GESTIÓN DE LIBROS DADOS DE BAJA =====
+
+// Variable para almacenar el libro actual en proceso
+let libroActualParaAlta = null;
+
+// Función para aplicar estilos a filas de libros no disponibles
+function aplicarEstilosLibrosNoDisponibles() {
+    const rows = document.querySelectorAll('.libro-row');
+    rows.forEach(row => {
+        const estado = row.dataset.estado;
+        if (estado === 'no disponible') {
+            row.classList.add('libro-no-disponible');
+        } else {
+            row.classList.remove('libro-no-disponible');
+        }
+    });
+}
+
+// Función para ver informe de baja
+// REEMPLAZAR LA PARTE DE OBTENER INFORME EN TU JAVASCRIPT CON ESTO:
+
+// FUNCIÓN ACTUALIZADA para verInformeBaja
+function verInformeBaja(libroId) {
+    try {
+        // Buscar la fila del libro
+        const botonInforme = document.querySelector(`button[onclick*="verInformeBaja(${libroId})"]`);
+        if (!botonInforme) {
+            console.error('No se encontró el botón de informe para el libro ID:', libroId);
+            alert('Error: No se pudo encontrar la información del libro');
+            return;
+        }
+        
+        const filaLibro = botonInforme.closest('tr');
+        const celdas = filaLibro.querySelectorAll('td');
+        
+        // Extraer datos básicos del libro
+        const datosLibro = {
+            id: libroId,
+            numInventario: celdas[0].textContent.trim(),
+            titulo: celdas[1].textContent.trim(),
+            autor: celdas[2].textContent.trim(),
+            editorial: celdas[3].textContent.trim(),
+            cdu: celdas[4].textContent.trim(),
+            siglas: celdas[5].textContent.trim(),
+            sede: celdas[6].textContent.trim()
+        };
+        
+        // Obtener imagen del libro de la tabla
+        const imagenElement = filaLibro.querySelector('.libro-thumbnail');
+        const imagenSrc = imagenElement ? imagenElement.src : '';
+        
+        // Llenar datos básicos en el modal
+        document.getElementById('informe_num_inventario').textContent = datosLibro.numInventario || '-';
+        document.getElementById('informe_titulo').textContent = datosLibro.titulo;
+        document.getElementById('informe_autor').textContent = datosLibro.autor || 'Sin autor';
+        document.getElementById('informe_cdu').textContent = datosLibro.cdu || '-';
+        document.getElementById('informe_siglas').textContent = datosLibro.siglas || '-';
+        
+        // Manejar imagen del libro
+        const imagenModal = document.getElementById('informe_imagen');
+        const placeholderModal = document.getElementById('informe_placeholder');
+        
+        if (imagenSrc && !imagenSrc.includes('placeholder')) {
+            imagenModal.src = imagenSrc;
+            imagenModal.style.display = 'block';
+            placeholderModal.style.display = 'none';
+        } else {
+            imagenModal.style.display = 'none';
+            placeholderModal.style.display = 'flex';
+        }
+        
+        // Guardar datos para dar de alta
+        libroActualParaAlta = datosLibro;
+        
+        // INICIALIZAR con valores por defecto mientras carga
+        document.getElementById('informe_fecha_baja').textContent = '30/10/2024';
+        document.getElementById('informe_motivo').textContent = 'Cargando motivo...';
+        
+        // Ocultar imagen de baja inicialmente
+        const imagenBajaContainer = document.getElementById('imagen_baja_container');
+        imagenBajaContainer.style.display = 'none';
+        
+        // Mostrar el modal INMEDIATAMENTE
+        const modal = new bootstrap.Modal(document.getElementById('verInformeModal'));
+        modal.show();
+        
+        // Obtener datos REALES del informe en segundo plano
+        const formData = new FormData();
+        formData.append('libro_id', libroId);
+        
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        formData.append('csrfmiddlewaretoken', csrfToken);
+        
+        console.log('🔍 Obteniendo informe para libro ID:', libroId);
+        
+        fetch('/obtener-informe-baja/', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': csrfToken
+            }
+        })
+        .then(response => {
+            console.log('📡 Respuesta recibida:', response.status);
+            return response.json();
+        })
+        .then(data => {
+            console.log('📋 Datos del informe:', data);
+            
+            if (data.success) {
+                const informe = data.informe;
+                
+                // Actualizar con datos REALES de la base de datos
+                document.getElementById('informe_fecha_baja').textContent = informe.fecha_baja || '30/10/2024';
+                document.getElementById('informe_motivo').textContent = informe.motivo || 'Motivo no registrado';
+                
+                // MANEJAR IMAGEN DE LA BAJA REAL
+                console.log('🖼️ URL de imagen de baja:', informe.imagen_baja);
+                
+                if (informe.imagen_baja && informe.imagen_baja.trim() !== '') {
+                    console.log('✅ Mostrando imagen de baja');
+                    
+                    const imagenBaja = document.getElementById('imagen_baja');
+                    imagenBaja.src = informe.imagen_baja;
+                    imagenBaja.onload = function() {
+                        console.log('🖼️ Imagen cargada correctamente');
+                        imagenBajaContainer.style.display = 'block';
+                    };
+                    imagenBaja.onerror = function() {
+                        console.error('❌ Error al cargar imagen de baja');
+                        imagenBajaContainer.style.display = 'none';
+                    };
+                } else {
+                    console.log('❌ No hay imagen de baja disponible');
+                    imagenBajaContainer.style.display = 'none';
+                }
+            } else {
+                console.error('❌ Error en respuesta:', data.error);
+                document.getElementById('informe_motivo').textContent = 'Error al cargar motivo de baja';
+            }
+        })
+        .catch(error => {
+            console.error('❌ Error al obtener informe:', error);
+            document.getElementById('informe_motivo').textContent = 'Error de conexión al obtener motivo';
+        });
+        
+        console.log('✅ Informe mostrado para libro:', datosLibro);
+        
+    } catch (error) {
+        console.error('❌ Error al mostrar informe de baja:', error);
+        alert('Error inesperado al cargar el informe. Verifique la consola para más detalles.');
+    }
+}
+
+// Función para iniciar proceso de dar de alta
+function iniciarDarDeAlta() {
+    if (!libroActualParaAlta) {
+        alert('Error: No se encontraron datos del libro');
+        return;
+    }
+    
+    // Cerrar modal de informe
+    const modalInforme = bootstrap.Modal.getInstance(document.getElementById('verInformeModal'));
+    if (modalInforme) {
+        modalInforme.hide();
+    }
+    
+    // Llenar datos en modal de confirmación
+    document.getElementById('confirm_titulo_libro').textContent = libroActualParaAlta.titulo;
+    
+    // Mostrar modal de confirmación
+    setTimeout(() => {
+        const modal = new bootstrap.Modal(document.getElementById('confirmarAltaModal'));
+        modal.show();
+    }, 300);
+}
+
+// Función para proceder con modificación de datos
+function procederConModificacion() {
+    if (!libroActualParaAlta) {
+        alert('Error: No se encontraron datos del libro');
+        return;
+    }
+    
+    // Cerrar modal de confirmación
+    const modalConfirm = bootstrap.Modal.getInstance(document.getElementById('confirmarAltaModal'));
+    if (modalConfirm) {
+        modalConfirm.hide();
+    }
+    
+    // Llenar datos en modal de modificación
+    document.getElementById('alta_libro_id').value = libroActualParaAlta.id;
+    document.getElementById('alta_sede').value = libroActualParaAlta.sede || 'LA PLATA';
+    document.getElementById('alta_disponibilidad').value = 'Disponible';
+    document.getElementById('alta_observaciones').value = '';
+    
+    // Mostrar modal de modificación
+    setTimeout(() => {
+        const modal = new bootstrap.Modal(document.getElementById('modificarDatosModal'));
+        modal.show();
+    }, 300);
+}
+
+// Función para procesar dar de alta (simulada)
+// Función para procesar dar de alta (con AJAX real)
+function procesarDarDeAlta(event) {
+    event.preventDefault();
+    
+    if (!libroActualParaAlta) {
+        alert('Error: No se encontraron datos del libro');
+        return;
+    }
+    
+    // Obtener datos del formulario
+    const formData = new FormData();
+    formData.append('libro_id', libroActualParaAlta.id);
+    formData.append('sede', document.getElementById('alta_sede').value);
+    formData.append('disponibilidad', document.getElementById('alta_disponibilidad').value);
+    formData.append('observaciones', document.getElementById('alta_observaciones').value);
+    
+    // Obtener token CSRF
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    formData.append('csrfmiddlewaretoken', csrfToken);
+    
+    // Cerrar modal de modificación
+    const modalModificar = bootstrap.Modal.getInstance(document.getElementById('modificarDatosModal'));
+    if (modalModificar) {
+        modalModificar.hide();
+    }
+    
+    // Mostrar loading
+    mostrarNotificacionAlta('Procesando dar de alta...', 'info');
+    
+    // Hacer llamada AJAX
+    fetch('/dar-alta-libro/', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': csrfToken
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Mostrar modal de éxito
+            document.getElementById('exito_titulo').textContent = libroActualParaAlta.titulo.substring(0, 20) + '...';
+            const modal = new bootstrap.Modal(document.getElementById('exitoModal'));
+            modal.show();
+            
+            // Actualizar la fila en la tabla
+            actualizarFilaTabla(libroActualParaAlta.id, data.nuevo_estado);
+            
+            // Mostrar notificación de éxito
+            mostrarNotificacionAlta(`✅ ${data.message}`, 'success');
+            
+        } else {
+            // Mostrar error
+            alert(`Error: ${data.error}`);
+            mostrarNotificacionAlta(`❌ Error: ${data.error}`, 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error de conexión. Inténtalo nuevamente.');
+        mostrarNotificacionAlta('❌ Error de conexión', 'error');
+    })
+    .finally(() => {
+        // Limpiar variable
+        libroActualParaAlta = null;
+    });
+}
+
+// NUEVA FUNCIÓN PARA ACTUALIZAR LA FILA EN LA TABLA
+function actualizarFilaTabla(libroId, nuevoEstado) {
+    const filaLibro = document.querySelector(`button[onclick*="verInformeBaja(${libroId})"]`).closest('tr');
+    if (!filaLibro) return;
+    
+    // Remover clase de no disponible
+    filaLibro.classList.remove('libro-no-disponible');
+    filaLibro.dataset.estado = 'disponible';
+    
+    // Actualizar celda de disponibilidad
+    const celdaDisponibilidad = filaLibro.querySelector('.disponibilidad-cell');
+    celdaDisponibilidad.innerHTML = '<span class="disponible">Disponible para préstamo</span>';
+    
+    // Actualizar botones de acciones
+    const celdaAcciones = filaLibro.querySelector('.acciones-cell');
+    
+    // Remover botones de informe y reactivar
+    const botonInforme = celdaAcciones.querySelector(`button[onclick*="verInformeBaja(${libroId})"]`);
+    const botonReactivar = celdaAcciones.querySelector(`button[onclick*="reactivarLibro(${libroId})"]`);
+    
+    if (botonInforme) botonInforme.remove();
+    if (botonReactivar) botonReactivar.remove();
+    
+    // Encontrar el título del libro para el botón
+    const titulo = filaLibro.querySelector('.titulo-cell').textContent;
+    
+    // Agregar botón de dar de baja normal
+    const nuevoBotonBaja = document.createElement('button');
+    nuevoBotonBaja.className = 'btn-icon btn-eliminar';
+    nuevoBotonBaja.title = 'Dar de baja';
+    nuevoBotonBaja.innerHTML = '🗑️';
+    nuevoBotonBaja.onclick = function() {
+        darDeBaja(libroId, titulo);
+    };
+    
+    celdaAcciones.appendChild(nuevoBotonBaja);
+}
+
+// AGREGAR FUNCIÓN PARA OBTENER INFORME REAL (OPCIONAL)
+function obtenerInformeReal(libroId) {
+    const formData = new FormData();
+    formData.append('libro_id', libroId);
+    
+    // Obtener token CSRF
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    formData.append('csrfmiddlewaretoken', csrfToken);
+    
+    return fetch('/obtener-informe-baja/', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': csrfToken
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            return data.informe;
+        } else {
+            throw new Error(data.error);
+        }
+    });
+}
+
+// MODIFICAR LA FUNCIÓN verInformeBaja PARA USAR DATOS REALES (OPCIONAL)
+function verInformeBajaConDatosReales(libroId) {
+    try {
+        // Primero obtener datos básicos del libro de la tabla
+        const botonInforme = document.querySelector(`button[onclick*="verInformeBaja(${libroId})"]`);
+        if (!botonInforme) {
+            console.error('No se encontró el botón de informe para el libro ID:', libroId);
+            alert('Error: No se pudo encontrar la información del libro');
+            return;
+        }
+        
+        const filaLibro = botonInforme.closest('tr');
+        const celdas = filaLibro.querySelectorAll('td');
+        
+        const datosLibro = {
+            id: libroId,
+            numInventario: celdas[0].textContent.trim(),
+            titulo: celdas[1].textContent.trim(),
+            autor: celdas[2].textContent.trim(),
+            editorial: celdas[3].textContent.trim(),
+            cdu: celdas[4].textContent.trim(),
+            siglas: celdas[5].textContent.trim(),
+            sede: celdas[6].textContent.trim()
+        };
+        
+        // Obtener imagen del libro
+        const imagenElement = filaLibro.querySelector('.libro-thumbnail');
+        const imagenSrc = imagenElement ? imagenElement.src : '';
+        
+        // Llenar datos básicos en el modal
+        document.getElementById('informe_num_inventario').textContent = datosLibro.numInventario || '-';
+        document.getElementById('informe_titulo').textContent = datosLibro.titulo;
+        document.getElementById('informe_autor').textContent = datosLibro.autor || 'Sin autor';
+        document.getElementById('informe_cdu').textContent = datosLibro.cdu || '-';
+        document.getElementById('informe_siglas').textContent = datosLibro.siglas || '-';
+        
+        // Manejar imagen del libro
+        const imagenModal = document.getElementById('informe_imagen');
+        const placeholderModal = document.getElementById('informe_placeholder');
+        
+        if (imagenSrc && !imagenSrc.includes('placeholder')) {
+            imagenModal.src = imagenSrc;
+            imagenModal.style.display = 'block';
+            placeholderModal.style.display = 'none';
+        } else {
+            imagenModal.style.display = 'none';
+            placeholderModal.style.display = 'flex';
+        }
+        
+        // Guardar datos para dar de alta
+        libroActualParaAlta = datosLibro;
+        
+        // Mostrar el modal
+        const modal = new bootstrap.Modal(document.getElementById('verInformeModal'));
+        modal.show();
+        
+        // Obtener datos reales del informe en segundo plano
+        obtenerInformeReal(libroId)
+            .then(informe => {
+                // Actualizar con datos reales
+                document.getElementById('informe_fecha_baja').textContent = informe.fecha_baja || '30/10/2024';
+                document.getElementById('informe_motivo').textContent = informe.motivo || 'Motivo no registrado';
+                
+                // Manejar imagen de la baja
+                const imagenBajaContainer = document.getElementById('imagen_baja_container');
+                const imagenBaja = document.getElementById('imagen_baja');
+                
+                if (informe.imagen_baja) {
+                    imagenBaja.src = informe.imagen_baja;
+                    imagenBajaContainer.style.display = 'block';
+                } else {
+                    imagenBajaContainer.style.display = 'none';
+                }
+            })
+            .catch(error => {
+                console.error('Error al obtener informe:', error);
+                // Mantener datos por defecto
+            });
+        
+        console.log('Informe mostrado para libro:', datosLibro);
+        
+    } catch (error) {
+        console.error('Error al mostrar informe de baja:', error);
+        alert('Error inesperado al cargar el informe. Verifique la consola para más detalles.');
+    }
+}
+
+// Función para mostrar notificación de dar de alta
+function mostrarNotificacionAlta(mensaje, tipo = 'success') {
+    const colores = {
+        success: '#28a745',
+        warning: '#ffc107',
+        info: '#17a2b8',
+        error: '#dc3545'
+    };
+    
+    const notificacion = document.createElement('div');
+    notificacion.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: ${colores[tipo]};
+        color: white;
+        padding: 12px 20px;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 14px;
+        z-index: 10000;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        animation: slideInRight 0.3s ease;
+    `;
+    notificacion.textContent = mensaje;
+    
+    document.body.appendChild(notificacion);
+    
+    setTimeout(() => {
+        notificacion.style.animation = 'slideOutRight 0.3s ease';
+        setTimeout(() => notificacion.remove(), 300);
+    }, 3000);
+}
+
+// Event listeners para los modales
+document.addEventListener('DOMContentLoaded', function() {
+    // Aplicar estilos iniciales
+    aplicarEstilosLibrosNoDisponibles();
+    
+    // Event listener para botón "DAR DE ALTA" en modal de informe
+    const btnDarDeAlta = document.getElementById('btnDarDeAlta');
+    if (btnDarDeAlta) {
+        btnDarDeAlta.addEventListener('click', iniciarDarDeAlta);
+    }
+    
+    // Event listener para botón "CONFIRMAR" en modal de confirmación
+    const btnConfirmarAlta = document.getElementById('confirmarDarAlta');
+    if (btnConfirmarAlta) {
+        btnConfirmarAlta.addEventListener('click', procederConModificacion);
+    }
+    
+    // Event listener para formulario de dar de alta
+    const formDarAlta = document.getElementById('formDarAlta');
+    if (formDarAlta) {
+        formDarAlta.addEventListener('submit', procesarDarDeAlta);
+    }
+    
+    // Aplicar estilos después de filtrar
+    const originalFiltrarLibros = window.filtrarLibros;
+    if (originalFiltrarLibros) {
+        window.filtrarLibros = function() {
+            originalFiltrarLibros();
+            aplicarEstilosLibrosNoDisponibles();
+        };
+    }
+});
+
+// Función para actualizar botones de acciones según el estado
+function actualizarBotonesAcciones() {
+    const rows = document.querySelectorAll('.libro-row');
+    rows.forEach(row => {
+        const estado = row.dataset.estado;
+        const celdaAcciones = row.querySelector('.acciones-cell');
+        const libroId = row.querySelector('.btn-icon').getAttribute('onclick').match(/\d+/)[0];
+        const titulo = row.dataset.titulo;
+        
+        if (estado === 'no disponible') {
+            // Verificar si ya tiene el botón de ver informe
+            const tieneBotonInforme = celdaAcciones.querySelector(`button[onclick*="verInformeBaja"]`);
+            if (!tieneBotonInforme) {
+                // Agregar botón de ver informe después del botón de editar
+                const botonEditar = celdaAcciones.querySelector('.btn-editar');
+                if (botonEditar) {
+                    const botonInforme = document.createElement('button');
+                    botonInforme.className = 'btn-icon btn-ver-informe';
+                    botonInforme.title = 'Ver informe de baja';
+                    botonInforme.innerHTML = '📄';
+                    botonInforme.setAttribute('onclick', `verInformeBaja(${libroId})`);
+                    
+                    botonEditar.insertAdjacentElement('afterend', botonInforme);
+                }
+            }
+        }
+    });
+}
+
+// Sobrescribir la función de filtrado para incluir los estilos
+const originalFiltrarLibros = window.filtrarLibros;
+if (typeof filtrarLibros === 'function') {
+    window.filtrarLibros = function() {
+        originalFiltrarLibros();
+        aplicarEstilosLibrosNoDisponibles();
+        actualizarBotonesAcciones();
+    };
+}
+
+// Inicializar todo al cargar
+setTimeout(() => {
+    aplicarEstilosLibrosNoDisponibles();
+    actualizarBotonesAcciones();
+}, 100);
 
 console.log('✅ Sistema de obleas inicializado correctamente');
 </script>
