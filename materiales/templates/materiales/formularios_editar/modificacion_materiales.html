@@ -362,7 +362,6 @@
 
 {% block content %}
 
-
 <div class="container-fluid">
     <!-- Controles principales -->
     <div class="controls-row">
@@ -510,9 +509,245 @@
     </div>
 </div>
 
-<!-- Modal para dar de baja -->
+<!-- MODAL PARA IMPRIMIR OBLEAS -->
+<div class="modal fade" id="obleasModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content" style="border: none; border-radius: 15px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
+            <!-- Header del modal -->
+            <div class="modal-header" style="background: linear-gradient(135deg, #4ECDC4, #44A08D); color: white; padding: 1.5rem; border: none;">
+                <h5 class="modal-title" style="font-weight: 700; font-size: 1.2rem; text-transform: uppercase; letter-spacing: 1px; margin: 0;">
+                    📋 IMPRIMIR OBLEAS - <span id="contadorObleas">0</span> OBLEAS SELECCIONADAS
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" 
+                        style="filter: brightness(0) invert(1); opacity: 0.8; font-size: 1.2rem;"></button>
+            </div>
 
-<!-- Modal para dar de baja - REEMPLAZAR el modal existente -->
+            <div class="modal-body" style="padding: 2rem; background: #f8f9fa; max-height: 70vh; overflow-y: auto;">
+                <!-- Área de vista previa de obleas -->
+                <div id="obleasContainer" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 15px; min-height: 200px; background: white; padding: 20px; border-radius: 10px; border: 2px dashed #4ECDC4;">
+                    <div id="placeholder" style="grid-column: 1 / -1; text-align: center; color: #95a5a6; font-style: italic; padding: 40px;">
+                        Haz clic en "Imprimir" de cualquier libro para agregar obleas aquí
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer del modal -->
+            <div class="modal-footer" style="background: #f8f9fa; padding: 1rem 2rem; border: none; justify-content: space-between;">
+                <div style="display: flex; gap: 1rem;">
+                    <button type="button" id="limpiarObleas" class="btn" 
+                            style="background: #95a5a6; color: white; border: none; padding: 10px 25px; border-radius: 25px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; font-size: 13px;">
+                        🗑️ LIMPIAR TODO
+                    </button>
+                </div>
+                <div style="display: flex; gap: 1rem;">
+                    <button type="button" class="btn" data-bs-dismiss="modal" 
+                            style="background: #4285F4; color: white; border: none; padding: 10px 30px; border-radius: 25px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; font-size: 13px;">
+                        CANCELAR
+                    </button>
+                    <button type="button" id="imprimirPDF" class="btn"
+                            style="background: #27ae60; color: white; border: none; padding: 10px 30px; border-radius: 25px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; font-size: 13px;">
+                        🖨️ GENERAR PDF
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* ===== ESTILOS PARA EL MODAL DE OBLEAS ===== */
+
+/* Modal de obleas */
+#obleasModal .modal-dialog {
+    max-width: 95%;
+    width: 1200px;
+}
+
+/* Estilos para las obleas */
+.oblea {
+    width: 100px;
+    height: 140px;
+    border: 2px solid #2c3e50;
+    border-radius: 8px;
+    padding: 8px;
+    background: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    text-align: center;
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    position: relative;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.oblea:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+.oblea .cdu {
+    font-size: 14px;
+    color: #2c3e50;
+    font-weight: 900;
+    line-height: 1.2;
+    margin-bottom: 8px;
+    padding: 4px;
+    border-bottom: 1px solid #bdc3c7;
+}
+
+.oblea .siglas {
+    font-size: 12px;
+    color: #34495e;
+    font-weight: 700;
+    margin-bottom: 8px;
+    word-wrap: break-word;
+    line-height: 1.1;
+}
+
+.oblea .ejemplar {
+    font-size: 11px;
+    color: #7f8c8d;
+    font-weight: 600;
+    margin-top: auto;
+    padding-top: 4px;
+    border-top: 1px solid #ecf0f1;
+}
+
+.oblea .eliminar {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: #e74c3c;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    font-size: 12px;
+    cursor: pointer;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+}
+
+.oblea:hover .eliminar {
+    display: flex;
+}
+
+/* Animaciones */
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.oblea {
+    animation: slideIn 0.3s ease;
+}
+
+/* Responsive para obleas */
+@media (max-width: 768px) {
+    #obleasContainer {
+        grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+        gap: 10px;
+    }
+    
+    .oblea {
+        width: 85px;
+        height: 120px;
+        padding: 6px;
+    }
+    
+    .oblea .cdu {
+        font-size: 12px;
+    }
+    
+    .oblea .siglas {
+        font-size: 10px;
+    }
+    
+    .oblea .ejemplar {
+        font-size: 9px;
+    }
+}
+
+/* Estilos para impresión */
+@media print {
+    body * {
+        visibility: hidden;
+    }
+    
+    #obleasContainer, #obleasContainer * {
+        visibility: visible;
+    }
+    
+    #obleasContainer {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background: white !important;
+        border: none !important;
+        padding: 10mm !important;
+        display: grid !important;
+        grid-template-columns: repeat(auto-fill, minmax(30mm, 1fr)) !important;
+        gap: 5mm !important;
+    }
+    
+    .oblea {
+        width: 30mm !important;
+        height: 40mm !important;
+        border: 1px solid black !important;
+        margin: 0 !important;
+        box-shadow: none !important;
+        page-break-inside: avoid;
+    }
+    
+    .oblea .eliminar {
+        display: none !important;
+    }
+}
+
+/* Efectos hover para botones del modal */
+#obleasModal .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideOutRight {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+}
+</style>
+
+<!-- MODAL PARA DAR DE BAJA -->
 <div class="modal fade" id="bajaModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content" style="border: none; border-radius: 15px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
@@ -630,7 +865,8 @@
 </div>
 
 <style>
-/* Estilos adicionales para el modal */
+/* ===== ESTILOS PARA EL MODAL DE BAJA ===== */
+
 .modal-backdrop {
     background-color: rgba(0, 0, 0, 0.6);
 }
@@ -678,8 +914,356 @@
 
 {% block extra_scripts %}
 <script>
+// ===== SISTEMA DE GESTIÓN DE OBLEAS =====
+class SistemaObleas {
+    constructor() {
+        this.obleas = [];
+        this.contadorEjemplar = {};
+        this.init();
+    }
+    
+    init() {
+        // Event listeners para el modal de obleas
+        document.getElementById('limpiarObleas').addEventListener('click', () => this.limpiarTodo());
+        document.getElementById('imprimirPDF').addEventListener('click', () => this.generarPDF());
+        
+        // Cerrar modal con escape
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && document.getElementById('obleasModal').classList.contains('show')) {
+                this.cerrarModal();
+            }
+        });
+        
+        // Inicializar estado del botón imprimir
+        this.actualizarContador();
+    }
+    
+    agregarOblea(libroData) {
+        // Generar número de ejemplar único por CDU + Siglas
+        const clave = `${libroData.cdu}_${libroData.siglas}`;
+        if (!this.contadorEjemplar[clave]) {
+            this.contadorEjemplar[clave] = 0;
+        }
+        this.contadorEjemplar[clave]++;
+        
+        // Crear oblea con datos del libro
+        const oblea = {
+            id: Date.now() + Math.random(),
+            cdu: libroData.cdu || 'SIN CDU',
+            siglas: libroData.siglas || 'ABC',
+            ejemplar: this.contadorEjemplar[clave],
+            titulo: libroData.titulo,
+            autor: libroData.autor
+        };
+        
+        // Agregar a la colección y actualizar vista
+        this.obleas.push(oblea);
+        this.renderizarObleas();
+        this.actualizarContador();
+        this.mostrarModal();
+        
+        // Mostrar notificación de éxito
+        this.mostrarNotificacion(`Oblea agregada: ${oblea.cdu} - ${oblea.siglas} (Ej. ${oblea.ejemplar})`);
+    }
+    
+    eliminarOblea(id) {
+        // Encontrar la oblea a eliminar
+        const obleaAEliminar = this.obleas.find(oblea => oblea.id === id);
+        if (!obleaAEliminar) return;
+        
+        // Confirmar eliminación
+        if (confirm(`¿Eliminar oblea ${obleaAEliminar.cdu} - ${obleaAEliminar.siglas}?`)) {
+            this.obleas = this.obleas.filter(oblea => oblea.id !== id);
+            this.renderizarObleas();
+            this.actualizarContador();
+            
+            // Mostrar notificación
+            this.mostrarNotificacion(`Oblea eliminada: ${obleaAEliminar.cdu} - ${obleaAEliminar.siglas}`, 'warning');
+        }
+    }
+    
+    limpiarTodo() {
+        if (this.obleas.length === 0) {
+            alert('No hay obleas para limpiar');
+            return;
+        }
+        
+        if (confirm(`¿Está seguro de eliminar todas las ${this.obleas.length} obleas?`)) {
+            this.obleas = [];
+            this.contadorEjemplar = {};
+            this.renderizarObleas();
+            this.actualizarContador();
+            
+            // Mostrar notificación
+            this.mostrarNotificacion('Todas las obleas han sido eliminadas', 'info');
+        }
+    }
+    
+    renderizarObleas() {
+        const container = document.getElementById('obleasContainer');
+        
+        if (this.obleas.length === 0) {
+            container.innerHTML = `
+                <div id="placeholder" style="grid-column: 1 / -1; text-align: center; color: #95a5a6; font-style: italic; padding: 40px;">
+                    Haz clic en "Imprimir" de cualquier libro para agregar obleas aquí
+                </div>
+            `;
+            return;
+        }
+        
+        // Generar HTML para cada oblea
+        container.innerHTML = this.obleas.map(oblea => `
+            <div class="oblea" title="Título: ${oblea.titulo} | Autor: ${oblea.autor}">
+                <button class="eliminar" onclick="sistemaObleas.eliminarOblea(${oblea.id})" title="Eliminar oblea">×</button>
+                <div class="cdu">${oblea.cdu}</div>
+                <div class="siglas">${oblea.siglas}</div>
+                <div class="ejemplar">Ej. ${oblea.ejemplar}</div>
+            </div>
+        `).join('');
+    }
+    
+    actualizarContador() {
+        const contador = document.getElementById('contadorObleas');
+        const btnImprimir = document.getElementById('imprimirPDF');
+        
+        // Actualizar texto del contador
+        contador.textContent = this.obleas.length;
+        
+        // Cambiar estado del botón según la cantidad de obleas
+        if (this.obleas.length === 0) {
+            btnImprimir.style.background = '#95a5a6';
+            btnImprimir.disabled = true;
+            btnImprimir.textContent = '🖨️ GENERAR PDF';
+        } else {
+            btnImprimir.style.background = '#27ae60';
+            btnImprimir.disabled = false;
+            btnImprimir.textContent = `🖨️ GENERAR PDF (${this.obleas.length})`;
+        }
+    }
+    
+    mostrarModal() {
+        const modal = new bootstrap.Modal(document.getElementById('obleasModal'));
+        modal.show();
+    }
+    
+    cerrarModal() {
+        const modal = bootstrap.Modal.getInstance(document.getElementById('obleasModal'));
+        if (modal) {
+            modal.hide();
+        }
+    }
+    
+    mostrarNotificacion(mensaje, tipo = 'success') {
+        // Crear notificación temporal
+        const colores = {
+            success: '#27ae60',
+            warning: '#f39c12',
+            info: '#3498db',
+            error: '#e74c3c'
+        };
+        
+        const notificacion = document.createElement('div');
+        notificacion.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: ${colores[tipo]};
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            z-index: 10000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            animation: slideInRight 0.3s ease;
+        `;
+        notificacion.textContent = mensaje;
+        
+        document.body.appendChild(notificacion);
+        
+        // Eliminar después de 3 segundos
+        setTimeout(() => {
+            notificacion.style.animation = 'slideOutRight 0.3s ease';
+            setTimeout(() => notificacion.remove(), 300);
+        }, 3000);
+    }
+    
+    generarPDF() {
+        if (this.obleas.length === 0) {
+            alert('No hay obleas para imprimir');
+            return;
+        }
+        
+        // Crear ventana de impresión optimizada
+        const ventanaImpresion = window.open('', '_blank', 'width=800,height=600');
+        
+        ventanaImpresion.document.write(`
+            <!DOCTYPE html>
+            <html lang="es">
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Obleas - Biblioteca Digital - ${new Date().toLocaleDateString()}</title>
+                <style>
+                    @page {
+                        margin: 10mm;
+                        size: A4;
+                    }
+                    
+                    * {
+                        margin: 0;
+                        padding: 0;
+                        box-sizing: border-box;
+                    }
+                    
+                    body {
+                        font-family: 'Courier New', monospace;
+                        background: white;
+                    }
+                    
+                    .header {
+                        text-align: center;
+                        margin-bottom: 10mm;
+                        border-bottom: 2px solid #333;
+                        padding-bottom: 5mm;
+                    }
+                    
+                    .header h1 {
+                        font-size: 18pt;
+                        font-weight: bold;
+                        margin-bottom: 2mm;
+                    }
+                    
+                    .header p {
+                        font-size: 12pt;
+                        color: #666;
+                    }
+                    
+                    .obleas-grid {
+                        display: grid;
+                        grid-template-columns: repeat(auto-fill, minmax(35mm, 1fr));
+                        gap: 8mm;
+                        width: 100%;
+                        justify-items: center;
+                    }
+                    
+                    .oblea-print {
+                        width: 35mm;
+                        height: 45mm;
+                        border: 2px solid #000;
+                        padding: 3mm;
+                        display: flex;
+                        flex-direction: column;
+                        justify-content: space-between;
+                        text-align: center;
+                        font-weight: bold;
+                        page-break-inside: avoid;
+                        background: white;
+                        border-radius: 2mm;
+                    }
+                    
+                    .oblea-print .cdu {
+                        font-size: 12pt;
+                        font-weight: 900;
+                        line-height: 1.1;
+                        margin-bottom: 3mm;
+                        padding-bottom: 2mm;
+                        border-bottom: 1pt solid #333;
+                        color: #000;
+                    }
+                    
+                    .oblea-print .siglas {
+                        font-size: 10pt;
+                        font-weight: 700;
+                        margin-bottom: 3mm;
+                        word-wrap: break-word;
+                        line-height: 1.0;
+                        color: #333;
+                        flex-grow: 1;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                    }
+                    
+                    .oblea-print .ejemplar {
+                        font-size: 8pt;
+                        font-weight: 600;
+                        padding-top: 2mm;
+                        border-top: 1pt solid #666;
+                        color: #666;
+                    }
+                    
+                    .footer {
+                        position: fixed;
+                        bottom: 5mm;
+                        left: 0;
+                        right: 0;
+                        text-align: center;
+                        font-size: 8pt;
+                        color: #666;
+                        border-top: 1pt solid #ddd;
+                        padding-top: 2mm;
+                    }
+                    
+                    @media print {
+                        .no-print { display: none !important; }
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="header no-print">
+                    <h1>OBLEAS DE BIBLIOTECA</h1>
+                    <p>Total de obleas: ${this.obleas.length} | Fecha: ${new Date().toLocaleDateString('es-ES')}</p>
+                </div>
+                
+                <div class="obleas-grid">
+                    ${this.obleas.map((oblea, index) => `
+                        <div class="oblea-print">
+                            <div class="cdu">${oblea.cdu}</div>
+                            <div class="siglas">${oblea.siglas}</div>
+                            <div class="ejemplar">Ej. ${oblea.ejemplar}</div>
+                        </div>
+                    `).join('')}
+                </div>
+                
+                <div class="footer">
+                    <p>Biblioteca Digital - Instituto Superior de Formación Docente y Técnica N° 210</p>
+                </div>
+            </body>
+            </html>
+        `);
+        
+        ventanaImpresion.document.close();
+        
+        // Esperar carga y luego imprimir
+        ventanaImpresion.onload = function() {
+            setTimeout(() => {
+                ventanaImpresion.print();
+                // Preguntar si cerrar la ventana
+                setTimeout(() => {
+                    if (confirm('¿Desea cerrar la ventana de vista previa?')) {
+                        ventanaImpresion.close();
+                    }
+                }, 1000);
+            }, 500);
+        };
+        
+        // Mostrar notificación de éxito
+        this.mostrarNotificacion(`PDF generado con ${this.obleas.length} obleas`, 'success');
+        
+        // Cerrar el modal después de generar PDF
+        setTimeout(() => this.cerrarModal(), 1000);
+    }
+}
+
+// Variable global para el sistema de obleas
+let sistemaObleas;
+
 document.addEventListener("DOMContentLoaded", function() {
-    // Funcionalidad de búsqueda en tiempo real
+    // ===== INICIALIZAR SISTEMA DE OBLEAS =====
+    sistemaObleas = new SistemaObleas();
+    
+    // ===== FUNCIONALIDAD DE BÚSQUEDA Y FILTROS =====
     const searchInput = document.getElementById('searchInput');
     const mostrarNoDisponibles = document.getElementById('mostrar_no_disponibles');
     const ordenarPor = document.getElementById('ordenar_por');
@@ -707,7 +1291,6 @@ document.addEventListener("DOMContentLoaded", function() {
             if (showRow) visibleCount++;
         });
 
-        // Mostrar mensaje si no hay resultados
         updateNoResultsMessage(visibleCount);
     }
 
@@ -729,11 +1312,11 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     }
 
-    // Event listeners
+    // Event listeners para filtros
     searchInput.addEventListener('input', filtrarLibros);
     mostrarNoDisponibles.addEventListener('change', filtrarLibros);
 
-    // Funcionalidad de ordenamiento
+    // ===== FUNCIONALIDAD DE ORDENAMIENTO =====
     ordenarPor.addEventListener('change', function() {
         const tbody = document.getElementById('libros-table');
         const rowsArray = Array.from(rows);
@@ -747,7 +1330,6 @@ document.addEventListener("DOMContentLoaded", function() {
                     bValue = b.dataset.autor;
                     break;
                 case 'fecha':
-                    // Ordenar por número de inventario como proxy de fecha
                     aValue = parseInt(a.querySelector('td:first-child').textContent) || 0;
                     bValue = parseInt(b.querySelector('td:first-child').textContent) || 0;
                     return bValue - aValue; // Descendente para fechas
@@ -759,14 +1341,61 @@ document.addEventListener("DOMContentLoaded", function() {
             return aValue.localeCompare(bValue);
         });
         
-        // Reordenar en el DOM
         rowsArray.forEach(row => tbody.appendChild(row));
+    });
+
+    // ===== MANEJO DE SUBIDA DE IMÁGENES EN MODAL DE BAJA =====
+    const inputImagen = document.getElementById('imagen_rota');
+    
+    if (inputImagen) {
+        inputImagen.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            const uploadZone = document.querySelector('[onclick="document.getElementById(\'imagen_rota\').click()"]');
+            
+            if (file) {
+                uploadZone.innerHTML = `
+                    <div style="text-align: center; color: #27ae60;">
+                        <div style="font-size: 20px; margin-bottom: 4px;">✅</div>
+                        <div style="font-size: 10px; font-weight: 600;">${file.name}</div>
+                    </div>
+                `;
+                uploadZone.style.background = '#d5f4e6';
+                uploadZone.style.borderColor = '#27ae60';
+            } else {
+                uploadZone.innerHTML = `
+                    <div style="text-align: center; color: #f39c12;">
+                        <div style="font-size: 24px; margin-bottom: 4px;">📁</div>
+                        <div style="font-size: 11px; font-weight: 600;">SUBIR ARCHIVO</div>
+                    </div>
+                `;
+                uploadZone.style.background = '#fef9e7';
+                uploadZone.style.borderColor = '#f39c12';
+            }
+        });
+    }
+
+    // ===== EFECTOS HOVER PARA BOTONES DE MODALES =====
+    document.addEventListener('mouseover', function(e) {
+        if (e.target.style.background === 'rgb(66, 133, 244)') {
+            e.target.style.background = '#3367D6';
+        } else if (e.target.style.background === 'rgb(255, 107, 53)') {
+            e.target.style.background = '#e55a2b';
+        }
+    });
+    
+    document.addEventListener('mouseout', function(e) {
+        if (e.target.style.background === 'rgb(51, 103, 214)') {
+            e.target.style.background = '#4285F4';
+        } else if (e.target.style.background === 'rgb(229, 90, 43)') {
+            e.target.style.background = '#ff6b35';
+        }
     });
 });
 
-// Funciones para los botones de acción
+// ===== FUNCIONES PARA ACCIONES DE LIBROS =====
+
+// Función para dar de baja un libro
 function darDeBaja(libroId, titulo) {
-    // Obtener la fila del libro para extraer todos los datos
     const filaLibro = document.querySelector(`tr[data-titulo*="${titulo.toLowerCase()}"]`);
     
     if (!filaLibro) {
@@ -822,72 +1451,186 @@ function darDeBaja(libroId, titulo) {
     modal.show();
 }
 
-// AGREGAR este event listener para manejar la subida de archivos:
-document.addEventListener('DOMContentLoaded', function() {
-    // Manejar preview de imagen subida
-    const inputImagen = document.getElementById('imagen_rota');
-    
-    if (inputImagen) {
-        inputImagen.addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            const uploadZone = document.querySelector('[onclick="document.getElementById(\'imagen_rota\').click()"]');
-            
-            if (file) {
-                // Mostrar nombre del archivo
-                uploadZone.innerHTML = `
-                    <div style="text-align: center; color: #27ae60;">
-                        <div style="font-size: 20px; margin-bottom: 4px;">✅</div>
-                        <div style="font-size: 10px; font-weight: 600;">${file.name}</div>
-                    </div>
-                `;
-                uploadZone.style.background = '#d5f4e6';
-                uploadZone.style.borderColor = '#27ae60';
-            } else {
-                // Restaurar estado original
-                uploadZone.innerHTML = `
-                    <div style="text-align: center; color: #f39c12;">
-                        <div style="font-size: 24px; margin-bottom: 4px;">📁</div>
-                        <div style="font-size: 11px; font-weight: 600;">SUBIR ARCHIVO</div>
-                    </div>
-                `;
-                uploadZone.style.background = '#fef9e7';
-                uploadZone.style.borderColor = '#f39c12';
-            }
-        });
-    }
-    
-    // Efectos hover para botones
-    document.addEventListener('mouseover', function(e) {
-        if (e.target.style.background === 'rgb(66, 133, 244)') { // Botón cancelar
-            e.target.style.background = '#3367D6';
-        } else if (e.target.style.background === 'rgb(255, 107, 53)') { // Botón confirmar
-            e.target.style.background = '#e55a2b';
-        }
-    });
-    
-    document.addEventListener('mouseout', function(e) {
-        if (e.target.style.background === 'rgb(51, 103, 214)') { // Botón cancelar hover
-            e.target.style.background = '#4285F4';
-        } else if (e.target.style.background === 'rgb(229, 90, 43)') { // Botón confirmar hover
-            e.target.style.background = '#ff6b35';
-        }
-    });
-});
-
+// Función para reactivar un libro
 function reactivarLibro(libroId, titulo) {
     if (confirm(`¿Está seguro de reactivar el libro "${titulo}"?`)) {
         window.location.href = `/reactivar-libro/${libroId}/`;
     }
 }
 
+// Función para ver detalles de un libro
 function verDetalles(libroId) {
-    // Implementar vista de detalles
+    // TODO: Implementar modal de detalles
     console.log('Ver detalles del libro:', libroId);
+    alert('Funcionalidad de detalles en desarrollo');
 }
 
+// ===== FUNCIÓN PRINCIPAL PARA IMPRIMIR LIBRO (SISTEMA DE OBLEAS) =====
 function imprimirLibro(libroId) {
-    // Implementar funcionalidad de impresión
-    console.log('Imprimir libro:', libroId);
+    try {
+        // Buscar la fila del libro por el botón de imprimir
+        const botonImprimir = document.querySelector(`button[onclick*="imprimirLibro(${libroId})"]`);
+        if (!botonImprimir) {
+            console.error('No se encontró el botón de imprimir para el libro ID:', libroId);
+            alert('Error: No se pudo encontrar la información del libro');
+            return;
+        }
+        
+        const filaLibro = botonImprimir.closest('tr');
+        if (!filaLibro) {
+            console.error('No se encontró la fila del libro');
+            alert('Error: No se pudo encontrar la información del libro');
+            return;
+        }
+        
+        const celdas = filaLibro.querySelectorAll('td');
+        
+        // Validar que tenemos suficientes celdas
+        if (celdas.length < 7) {
+            console.error('Estructura de tabla inesperada');
+            alert('Error: Estructura de datos incorrecta');
+            return;
+        }
+        
+        // Extraer datos del libro
+        const libroData = {
+            id: libroId,
+            numInventario: celdas[0].textContent.trim(),
+            titulo: celdas[1].textContent.trim(),
+            autor: celdas[2].textContent.trim(),
+            editorial: celdas[3].textContent.trim(),
+            cdu: celdas[4].textContent.trim(),
+            siglas: celdas[5].textContent.trim(),
+            sede: celdas[6].textContent.trim()
+        };
+        
+        // Validar que tenemos los datos mínimos necesarios
+        if (!libroData.titulo) {
+            alert('Error: El libro no tiene título válido');
+            return;
+        }
+        
+        // Agregar oblea al sistema
+        sistemaObleas.agregarOblea(libroData);
+        
+        console.log('Oblea agregada correctamente:', libroData);
+        
+    } catch (error) {
+        console.error('Error al procesar la impresión del libro:', error);
+        alert('Error inesperado al procesar la oblea. Verifique la consola para más detalles.');
+    }
 }
+
+// ===== FUNCIONES AUXILIARES =====
+
+// Función para manejar errores de carga de imágenes
+function handleImageError(img) {
+    img.src = 'https://via.placeholder.com/50x70/95a5a6/ffffff?text=Sin+Imagen';
+    img.onerror = null; // Prevenir bucle infinito
+}
+
+// Función para formatear texto para obleas
+function formatearTextoOblea(texto, maxLength = 12) {
+    if (!texto) return 'N/A';
+    
+    texto = texto.toString().trim().toUpperCase();
+    
+    if (texto.length <= maxLength) {
+        return texto;
+    }
+    
+    // Intentar cortar por palabras
+    const palabras = texto.split(' ');
+    let resultado = '';
+    
+    for (const palabra of palabras) {
+        if ((resultado + ' ' + palabra).length <= maxLength) {
+            resultado += (resultado ? ' ' : '') + palabra;
+        } else {
+            break;
+        }
+    }
+    
+    return resultado || texto.substring(0, maxLength);
+}
+
+// Función para validar datos de libro antes de crear oblea
+function validarDatosLibro(libroData) {
+    const errores = [];
+    
+    if (!libroData.titulo || libroData.titulo.trim() === '') {
+        errores.push('Título requerido');
+    }
+    
+    if (!libroData.cdu || libroData.cdu.trim() === '') {
+        libroData.cdu = 'SIN CDU';
+    }
+    
+    if (!libroData.siglas || libroData.siglas.trim() === '') {
+        libroData.siglas = libroData.titulo ? 
+            formatearTextoOblea(libroData.titulo, 8) : 'ABC';
+    }
+    
+    return {
+        valido: errores.length === 0,
+        errores: errores,
+        datos: libroData
+    };
+}
+
+// ===== CONFIGURACIÓN GLOBAL =====
+
+// Configurar comportamiento global de modales
+document.addEventListener('shown.bs.modal', function (e) {
+    // Enfocar primer input al abrir modal
+    const firstInput = e.target.querySelector('input:not([type="hidden"]), textarea');
+    if (firstInput) {
+        firstInput.focus();
+    }
+});
+
+// Prevenir cierre accidental de modal con obleas
+document.addEventListener('hide.bs.modal', function (e) {
+    if (e.target.id === 'obleasModal' && sistemaObleas && sistemaObleas.obleas.length > 0) {
+        if (!confirm('Tiene obleas sin imprimir. ¿Está seguro de cerrar?')) {
+            e.preventDefault();
+        }
+    }
+});
+
+// Mostrar conteo de obleas en título de página cuando hay obleas
+function actualizarTituloConObleas() {
+    const tituloOriginal = 'Modificación de Materiales | Biblioteca Digital';
+    const cantidadObleas = sistemaObleas ? sistemaObleas.obleas.length : 0;
+    
+    if (cantidadObleas > 0) {
+        document.title = `(${cantidadObleas}) ${tituloOriginal}`;
+    } else {
+        document.title = tituloOriginal;
+    }
+}
+
+// Llamar la función periódicamente para mantener actualizado el título
+setInterval(actualizarTituloConObleas, 1000);
+
+// ===== ATAJOS DE TECLADO =====
+document.addEventListener('keydown', function(e) {
+    // Ctrl + P para abrir modal de obleas si hay obleas
+    if (e.ctrlKey && e.key === 'p' && sistemaObleas && sistemaObleas.obleas.length > 0) {
+        e.preventDefault();
+        sistemaObleas.mostrarModal();
+    }
+    
+    // Escape para cerrar cualquier modal abierto
+    if (e.key === 'Escape') {
+        const modalAbierto = document.querySelector('.modal.show');
+        if (modalAbierto) {
+            const modal = bootstrap.Modal.getInstance(modalAbierto);
+            if (modal) modal.hide();
+        }
+    }
+});
+
+console.log('✅ Sistema de obleas inicializado correctamente');
 </script>
 {% endblock %}
