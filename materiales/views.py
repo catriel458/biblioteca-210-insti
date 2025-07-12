@@ -170,7 +170,7 @@ def buscar_libros(request):
         Q(autor__icontains=query) | 
         Q(resumen__icontains=query),
         estado='Disponible'
-    ).values('num_inventario','titulo', 'autor', 'editorial', 'clasificacion_cdu', 'siglas_autor_titulo', 'descripcion', 'etiqueta_palabra_clave', 'sede', 'disponibilidad', 'observaciones', 'img')
+    ).values('titulo', 'autor', 'editorial', 'clasificacion_cdu', 'siglas_autor_titulo', 'descripcion', 'etiqueta_palabra_clave', 'sede', 'disponibilidad', 'observaciones', 'img')
 
     return JsonResponse(list(libros), safe=False)
 
@@ -1180,7 +1180,7 @@ def alta_libro(request):
                     'siglas_autor_titulo': form.cleaned_data.get('siglas_autor_titulo', ''),
                     'clasificacion_cdu': form.cleaned_data.get('clasificacion_cdu', ''),
                     'etiqueta_palabra_clave': form.cleaned_data.get('etiqueta_palabra_clave', ''),
-                    'num_inventario': form.cleaned_data.get('num_inventario', 1),
+                    #'num_inventario': form.cleaned_data.get('num_inventario', 1),
                     'sede': form.cleaned_data.get('sede', ''),
                     'disponibilidad': form.cleaned_data.get('disponibilidad', ''),
                     'observaciones': form.cleaned_data.get('observaciones', ''),
@@ -1258,7 +1258,7 @@ def guardar_libro_confirmado(request):
                 siglas_autor_titulo=libro_data.get('siglas_autor_titulo', ''),
                 clasificacion_cdu=libro_data.get('clasificacion_cdu', ''),
                 etiqueta_palabra_clave=libro_data.get('etiqueta_palabra_clave', ''),
-                num_inventario=libro_data.get('num_inventario', 1),
+                #num_inventario=libro_data.get('num_inventario', 1),
                 sede=libro_data.get('sede', ''),
                 disponibilidad=libro_data.get('disponibilidad', ''),
                 observaciones=libro_data.get('observaciones', ''),
@@ -1436,7 +1436,7 @@ def ver_detalles_material(request, libro_id):
             'titulo': libro.titulo,
             'autor': libro.autor,
             'editorial': libro.editorial,
-            'num_inventario': libro.num_inventario,
+            #'num_inventario': libro.num_inventario,
             'clasificacion_cdu': libro.clasificacion_cdu,
             'siglas_autor_titulo': libro.siglas_autor_titulo,
             'sede': libro.sede,

@@ -12,7 +12,7 @@ class LibroForm(forms.ModelForm):
         fields = [
             'titulo', 'autor', 'editorial', 'descripcion',
             'siglas_autor_titulo', 'clasificacion_cdu', 
-            'etiqueta_palabra_clave', 'num_inventario',
+            'etiqueta_palabra_clave', #'num_inventario',
             'sede', 'disponibilidad', 'observaciones', 
             'num_ejemplar', 'img'
         ]
@@ -25,7 +25,7 @@ class LibroForm(forms.ModelForm):
             'siglas_autor_titulo': forms.TextInput(attrs={'class': 'form-control'}),
             'clasificacion_cdu': forms.TextInput(attrs={'class': 'form-control'}),
             'etiqueta_palabra_clave': forms.Textarea(attrs={'class': 'form-control', 'rows': 2}),
-            'num_inventario': forms.NumberInput(attrs={'class': 'form-control', 'min': 1}),
+            #'num_inventario': forms.NumberInput(attrs={'class': 'form-control', 'min': 1}),
             'sede': forms.Select(attrs={'class': 'form-control'}, choices=[
                 ('', 'Seleccione una sede'),
                 ('La Plata', 'La Plata'),
@@ -73,17 +73,17 @@ class MapaForm(forms.ModelForm):
 class MultimediaForm(forms.ModelForm):
     class Meta:
         model = Multimedia
-        fields = ['id_multi', 'materia','contenido', 'descripcion', 'num_ejemplar']
+        fields = ['id_inventario', 'profesor', 'carrera', 'materia', 'ingresar_enlace', 'titulo_contenido']
 
 class NotebookForm(forms.ModelForm):
     class Meta:
         model = Notebook
-        fields = ['id_not', 'marca_not','modelo_not', 'descripcion', 'num_ejemplar']
+        fields = ['id_not','sede', 'num_registro', 'modelo_not']
 
 class ProyectorForm(forms.ModelForm):
     class Meta:
         model = Proyector
-        fields = ['id_proyector', 'marca_pro','modelo_pro', 'descripcion', 'num_ejemplar']
+        fields = ['id_proyector', 'sede', 'num_registro', 'modelo_pro']
 
 class VariosForm(forms.ModelForm):
     class Meta:

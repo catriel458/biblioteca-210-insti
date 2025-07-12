@@ -104,7 +104,7 @@ class Libro(Inventario):
     editorial = models.CharField(max_length=255)
     clasificacion_cdu = models.CharField(max_length=255, null=False, default='Sin clasificar')
     siglas_autor_titulo = models.CharField(max_length=255, null=False, default='ABC')
-    num_inventario = models.IntegerField(null=False, default=1)
+    #num_inventario = models.IntegerField(null=False, default=1) 
     etiqueta_palabra_clave = models.TextField(default='Roma,Historia,Clasica')
     sede = models.TextField(default='La Plata')
     disponibilidad = models.CharField(max_length=255, null=True, default="Disponible")
@@ -124,36 +124,43 @@ class Libro(Inventario):
 class Mapas(Inventario):
     id_mapa = models.AutoField(primary_key=True)
     tipo = models.CharField(max_length=255)
+    sede = models.TextField(default='La Plata')
+    num_registro = models.CharField(max_length=255, default='1')
+    denominacion = models.TextField(default='Completar')
     
     def __str__(self):
-        return f"id_mapa: {self.id_mapa}, tipo: {self.tipo}"
+        return f"id_mapa: {self.id_mapa}, tipo: {self.tipo}, num_registro: {self.num_registro}, denominacion: {self.denominacion}"
 
 
 class Multimedia(Inventario):
     id_multi = models.AutoField(primary_key=True)
+    profesor = models.TextField(default='Profesor/a')
+    carrera = models.TextField(default='Carrera')
     materia = models.CharField(max_length=255)
-    contenido = models.CharField(max_length=255)
+    ingresar_enlace = models.URLField(max_length=500, blank=True, null=True, help_text="Ingrese la URL del contenido multimedia")
+    titulo_contenido = models.CharField(max_length=255)
     
     def __str__(self):
-        return f"id_multi: {self.id_multi}, materia: {self.materia}, contenido: {self.contenido}"
-
+        return f"id_multi: {self.id_multi}, profesor: {self.profesor}, carrera: {self.carrera}, contenido: {self.titulo_contenido}, materia: {self.materia}"
 
 class Notebook(Inventario):
     id_not = models.AutoField(primary_key=True)
-    marca_not = models.CharField(max_length=255)
+    sede = models.TextField(default='La Plata')
+    num_registro = models.CharField(max_length=255, default='1')
     modelo_not = models.CharField(max_length=255)
     
     def __str__(self):
-        return f"id_not: {self.id_not}, marca_not: {self.marca_not}, modelo_not: {self.modelo_not}"
+        return f"id_not: {self.id_not}, sede: {self.sede}, num_registro: {self.num_registro}, modelo_not: {self.modelo_not}"
 
 
 class Proyector(Inventario):
     id_proyector = models.AutoField(primary_key=True)
-    marca_pro = models.CharField(max_length=255)
+    sede = models.TextField(default='La Plata')
+    num_registro = models.CharField(max_length=255, default='1')
     modelo_pro = models.CharField(max_length=255)
     
     def __str__(self):
-        return f"id_proyector: {self.id_proyector}, marca_pro: {self.marca_pro}, modelo_pro: {self.modelo_pro}"
+        return f"id_proyector: {self.id_proyector}, sede: {self.sede}, num_registro: {self.num_registro}, modelo_pro: {self.modelo_pro}"
 
 
 class Varios(Inventario):
