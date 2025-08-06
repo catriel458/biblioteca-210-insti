@@ -1626,6 +1626,8 @@ def finalizar_prestamo(request, prestamo_id):
 
 # AGREGAR ESTAS VISTAS COMPLETAS a tu views.py
 
+# AGREGAR ESTAS VISTAS COMPLETAS a tu views.py
+
 def formulario_programa(request):
     """
     Vista para mostrar el formulario de alta de programa (solo GET)
@@ -1672,19 +1674,13 @@ def alta_programa(request):
                 img_url = form.cleaned_data.get('img', '').strip()
                 print(f"📷 URL de imagen recibida: '{img_url}'")
                 
-                # NO guardar en base de datos, solo en sesión
+                # NO guardar en base de datos, solo en sesión - CAMPOS SIMPLIFICADOS
                 form_data = {
                     'profesor': form.cleaned_data.get('profesor', ''),
                     'carrera': form.cleaned_data.get('carrera', ''),
                     'materia': form.cleaned_data.get('materia', ''),
                     'ingresar_enlace': form.cleaned_data.get('ingresar_enlace', ''),
                     'ciclo_lectivo': form.cleaned_data.get('ciclo_lectivo', ''),
-                    'sede': form.cleaned_data.get('sede', ''),
-                    'disponibilidad': form.cleaned_data.get('disponibilidad', ''),
-                    'descripcion': form.cleaned_data.get('descripcion', ''),
-                    'observaciones': form.cleaned_data.get('observaciones', ''),
-                    'num_ejemplar': form.cleaned_data.get('num_ejemplar', 1),
-                    'img': img_url  # Guardar la URL directamente
                 }
                 
                 # Guardar en sesión
@@ -1743,7 +1739,7 @@ def guardar_programa_confirmado(request):
             programa_data = request.session['programa_data']
             print(f"📦 Datos a guardar: {programa_data}")  # Debug
             
-            # Crear el programa en base de datos
+            # Crear el programa en base de datos - CAMPOS SIMPLIFICADOS
             programa = Programa(
                 estado='Disponible',
                 profesor=programa_data.get('profesor', ''),
@@ -1751,12 +1747,13 @@ def guardar_programa_confirmado(request):
                 materia=programa_data.get('materia', ''),
                 ingresar_enlace=programa_data.get('ingresar_enlace', ''),
                 ciclo_lectivo=programa_data.get('ciclo_lectivo', ''),
-                sede=programa_data.get('sede', ''),
-                disponibilidad=programa_data.get('disponibilidad', ''),
-                descripcion=programa_data.get('descripcion', ''),
-                observaciones=programa_data.get('observaciones', ''),
-                num_ejemplar=programa_data.get('num_ejemplar', 1),
-                img=programa_data.get('img', '') or ''  # Asegurar que sea string vacío si es None
+                # Valores por defecto para campos no incluidos en el formulario
+                sede='La Plata',  # Valor por defecto
+                disponibilidad='Domicilio',  # Valor por defecto
+                descripcion='',  # Vacío
+                observaciones='',  # Vacío
+                num_ejemplar=1,  # Valor por defecto
+                img=''  # Vacío
             )
             
             # GUARDAR EN BASE DE DATOS

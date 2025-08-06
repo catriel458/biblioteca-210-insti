@@ -183,87 +183,49 @@
             <h6 class="tipo-material-title">TIPO DE MATERIAL: <span id="confirmTipoMaterial" class="text-primary">PROGRAMA</span></h6>
           </div>
 
-          <!-- Información Principal -->
+          <!-- Información Principal - SOLO CAMPOS NECESARIOS -->
           <div class="section-container mb-4">
-            <h6 class="section-title">Información Principal</h6>
+            <h6 class="section-title">Información del Programa</h6>
             <div class="row g-3">
-              <div class="col-md-4">
+              <div class="col-md-6">
                 <strong>Profesor/a:</strong>
                 <p id="confirmProfesor" class="info-text">{{ form_data.profesor|default:"Sin especificar" }}</p>
               </div>
-              <div class="col-md-4">
+              <div class="col-md-6">
                 <strong>Carrera:</strong>
                 <p id="confirmCarrera" class="info-text">{{ form_data.carrera|default:"Sin especificar" }}</p>
               </div>
+            </div>
+            <div class="row g-3 mt-2">
               <div class="col-md-4">
                 <strong>Materia:</strong>
                 <p id="confirmMateria" class="info-text">{{ form_data.materia|default:"Sin especificar" }}</p>
               </div>
-            </div>
-          </div>
-
-          <!-- Detalles Académicos -->
-          <div class="section-container mb-4">
-            <h6 class="section-title">Detalles Académicos</h6>
-            <div class="row g-3">
-              <div class="col-md-6">
+              <div class="col-md-4">
                 <strong>Ciclo Lectivo:</strong>
                 <p id="confirmCicloLectivo" class="info-text">{{ form_data.ciclo_lectivo|default:"Sin especificar" }}</p>
               </div>
-              <div class="col-md-6">
-                <strong>Enlace (URL):</strong>
-                <p id="confirmEnlace" class="info-text">{{ form_data.ingresar_enlace|default:"Sin especificar" }}</p>
-              </div>
-            </div>
-          </div>
-
-          <!-- Descripción -->
-          <div class="section-container mb-4">
-            <div class="row">
-              <div class="col-12">
-                <strong>Descripción:</strong>
-                <p id="confirmDescripcion" class="info-text">{{ form_data.descripcion|default:"Sin especificar" }}</p>
-              </div>
-            </div>
-          </div>
-
-          <!-- Ubicación y Disponibilidad -->
-          <div class="section-container mb-4">
-            <h6 class="section-title">Ubicación y Disponibilidad</h6>
-            <div class="row g-3">
               <div class="col-md-4">
-                <strong>Sede:</strong>
-                <p id="confirmSede" class="info-text">{{ form_data.sede|default:"Sin especificar" }}</p>
-              </div>
-              <div class="col-md-4">
-                <strong>Disponibilidad:</strong>
-                <p id="confirmDisponibilidad" class="info-text">{{ form_data.disponibilidad|default:"Sin especificar" }}</p>
-              </div>
-              <div class="col-md-4">
-                <strong>Ejemplar N°:</strong>
-                <p id="confirmEjemplarNum" class="info-text">{{ form_data.num_ejemplar|default:"Sin especificar" }}</p>
+                <strong>Enlace:</strong>
+                <p id="confirmEnlace" class="info-text">
+                  {% if form_data.ingresar_enlace %}
+                    <a href="{{ form_data.ingresar_enlace }}" target="_blank">{{ form_data.ingresar_enlace }}</a>
+                  {% else %}
+                    Sin enlace
+                  {% endif %}
+                </p>
               </div>
             </div>
           </div>
 
-          <!-- Observaciones -->
-          <div class="section-container mb-4">
-            <h6 class="section-title">Observaciones</h6>
-            <div class="row">
-              <div class="col-12">
-                <p id="confirmObservaciones" class="info-text">{{ form_data.observaciones|default:"Sin observaciones" }}</p>
-              </div>
-            </div>
-          </div>
-
-          <!-- Ejemplares -->
+          <!-- Ejemplares - INFORMACIÓN SIMPLIFICADA -->
           <div class="section-container">
-            <h6 class="section-title">Información de Ejemplares</h6>
+            <h6 class="section-title">Resumen</h6>
             <div id="ejemplaresContainer" class="mt-3">
               <div class="ejemplar-info">
-                <h6>Ejemplar Principal</h6>
-                <p><strong>Número de Ejemplar:</strong> {{ form_data.num_ejemplar|default:"Sin especificar" }}</p>
-                <p><strong>Estado:</strong> Disponible</p>
+                <p><strong>Estado:</strong> El programa será registrado como disponible</p>
+                <p><strong>Sede:</strong> La Plata (por defecto)</p>
+                <p><strong>Ejemplar:</strong> #1</p>
               </div>
             </div>
           </div>

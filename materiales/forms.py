@@ -170,34 +170,121 @@ class CambiarPasswordForm(forms.Form):
         return cleaned_data
     
 class ProgramaForm(forms.ModelForm):
+    # Carreras REALES del Instituto Superior de Formación Docente y Técnica Nº 210
+    CARRERA_CHOICES = [
+        ('', 'Seleccione una carrera'),
+        # PROFESORADOS
+        ('Profesorado de Educación Inicial', 'Profesorado de Educación Inicial'),
+        ('Profesorado de Educación Primaria', 'Profesorado de Educación Primaria'),  
+        ('Profesorado de Educación Secundaria en Geografía', 'Profesorado de Educación Secundaria en Geografía'),
+        ('Profesorado de Educación Secundaria en Ciencias Políticas', 'Profesorado de Educación Secundaria en Ciencias Políticas'),
+        # TECNICATURAS
+        ('Tecnicatura Superior en Análisis de Sistemas', 'Tecnicatura Superior en Análisis de Sistemas'),
+        ('Tecnicatura Superior en Enfermería', 'Tecnicatura Superior en Enfermería'),
+        ('Tecnicatura Superior en Acompañamiento Terapéutico', 'Tecnicatura Superior en Acompañamiento Terapéutico'),
+        ('Tecnicatura Superior en Higiene y Seguridad en el Trabajo', 'Tecnicatura Superior en Higiene y Seguridad en el Trabajo'),
+    ]
+
+    # Materias organizadas por carrera
+    MATERIAS_POR_CARRERA = {
+        'Profesorado de Educación Inicial': [
+            'Pedagogía', 'Psicología Educacional', 'Sociología de la Educación', 
+            'Historia y Política de la Educación Argentina', 'Filosofía de la Educación',
+            'Didáctica General', 'Curriculum y Didáctica del Nivel Inicial', 
+            'Juego y Desarrollo Infantil', 'Literatura Infantil', 'Matemática y su Didáctica',
+            'Ciencias Sociales y su Didáctica', 'Ciencias Naturales y su Didáctica',
+            'Lengua y su Didáctica', 'Educación Artística', 'Educación Física',
+            'Práctica Docente I', 'Práctica Docente II', 'Práctica Docente III', 'Práctica Docente IV'
+        ],
+        'Profesorado de Educación Primaria': [
+            'Pedagogía', 'Psicología Educacional', 'Sociología de la Educación',
+            'Historia y Política de la Educación Argentina', 'Filosofía de la Educación',
+            'Didáctica General', 'Curriculum y Didáctica del Nivel Primario',
+            'Matemática y su Didáctica I', 'Matemática y su Didáctica II',
+            'Lengua y su Didáctica I', 'Lengua y su Didáctica II',
+            'Ciencias Sociales y su Didáctica I', 'Ciencias Sociales y su Didáctica II',
+            'Ciencias Naturales y su Didáctica I', 'Ciencias Naturales y su Didáctica II',
+            'Educación Artística', 'Educación Física', 'Tecnologías de la Información',
+            'Práctica Docente I', 'Práctica Docente II', 'Práctica Docente III', 'Práctica Docente IV'
+        ],
+        'Profesorado de Educación Secundaria en Geografía': [
+            'Pedagogía', 'Psicología Educacional', 'Sociología de la Educación',
+            'Historia y Política de la Educación Argentina', 'Filosofía de la Educación',
+            'Didáctica General', 'Didáctica de la Geografía',
+            'Geografía Física I', 'Geografía Física II', 'Geografía Humana I', 'Geografía Humana II',
+            'Geografía de América', 'Geografía de Argentina', 'Geografía Mundial',
+            'Cartografía', 'Climatología', 'Geomorfología', 'Biogeografía',
+            'Geografía Económica', 'Geografía Urbana y Rural', 'Epistemología de la Geografía',
+            'Práctica Docente I', 'Práctica Docente II', 'Práctica Docente III', 'Práctica Docente IV'
+        ],
+        'Profesorado de Educación Secundaria en Ciencias Políticas': [
+            'Pedagogía', 'Psicología Educacional', 'Sociología de la Educación',
+            'Historia y Política de la Educación Argentina', 'Filosofía de la Educación',
+            'Didáctica General', 'Didáctica de las Ciencias Políticas',
+            'Teoría Política', 'Historia del Pensamiento Político', 'Sistemas Políticos Comparados',
+            'Política Argentina', 'Política Latinoamericana', 'Relaciones Internacionales',
+            'Derecho Constitucional', 'Sociología Política', 'Economía Política',
+            'Filosofía Política', 'Metodología de la Investigación Social',
+            'Práctica Docente I', 'Práctica Docente II', 'Práctica Docente III', 'Práctica Docente IV'
+        ],
+        'Tecnicatura Superior en Análisis de Sistemas': [
+            'Matemática', 'Inglés Técnico', 'Arquitectura de Computadoras',
+            'Sistemas Operativos', 'Algoritmos y Estructuras de Datos',
+            'Programación I', 'Programación II', 'Programación III',
+            'Base de Datos I', 'Base de Datos II', 'Análisis de Sistemas I', 'Análisis de Sistemas II',
+            'Ingeniería de Software', 'Redes y Comunicaciones', 'Seguridad Informática',
+            'Desarrollo Web', 'Programación Orientada a Objetos', 'Metodologías de Desarrollo',
+            'Gestión de Proyectos', 'Práctica Profesionalizante I', 'Práctica Profesionalizante II'
+        ],
+        'Tecnicatura Superior en Enfermería': [
+            'Anatomía y Fisiología I', 'Anatomía y Fisiología II', 'Microbiología y Parasitología',
+            'Farmacología', 'Patología', 'Nutrición y Dietoterapia',
+            'Enfermería Básica', 'Enfermería Médica', 'Enfermería Quirúrgica',
+            'Enfermería Materno Infantil', 'Enfermería Pediátrica', 'Enfermería Geriátrica',
+            'Enfermería en Salud Mental', 'Enfermería Comunitaria', 'Administración en Enfermería',
+            'Bioética', 'Epidemiología', 'Primeros Auxilios',
+            'Práctica Profesional I', 'Práctica Profesional II', 'Práctica Profesional III'
+        ],
+        'Tecnicatura Superior en Acompañamiento Terapéutico': [
+            'Psicología General', 'Psicopatología', 'Neurociencias', 'Desarrollo Humano',
+            'Teorías y Técnicas de Acompañamiento Terapéutico', 'Comunicación Terapéutica',
+            'Dinámicas Familiares', 'Integración Social', 'Recreación Terapéutica',
+            'Talleres de Expresión', 'Primeros Auxilios', 'Bioética',
+            'Legislación en Salud Mental', 'Trabajo Interdisciplinario',
+            'Práctica Profesional I', 'Práctica Profesional II', 'Práctica Profesional III'
+        ],
+        'Tecnicatura Superior en Higiene y Seguridad en el Trabajo': [
+            'Matemática', 'Física', 'Química', 'Legislación Laboral',
+            'Higiene Industrial I', 'Higiene Industrial II', 'Seguridad Industrial I', 'Seguridad Industrial II',
+            'Medicina del Trabajo', 'Toxicología Laboral', 'Ergonomía',
+            'Protección contra Incendios', 'Contaminación Ambiental', 'Gestión de Residuos',
+            'Capacitación en Seguridad', 'Investigación de Accidentes', 'Auditorías de Seguridad',
+            'Gestión de Riesgos', 'Práctica Profesional I', 'Práctica Profesional II'
+        ]
+    }
+
     class Meta:
         model = Programa
         fields = [
-            'profesor',         # ← Campo del modelo Programa
-            'carrera',          # ← Campo del modelo Programa
-            'materia',          # ← Campo del modelo Programa
-            'ingresar_enlace',  # ← Campo del modelo Programa
-            'ciclo_lectivo',    # ← Campo del modelo Programa
-            'sede',             # ← Campo del modelo Programa
-            'disponibilidad',   # ← Campo del modelo Programa
-            'observaciones',    # ← Campo del modelo Programa
-            'img',              # ← Campo del modelo Programa
-            'descripcion',      # ← Campo HEREDADO de Inventario
-            'num_ejemplar',     # ← Campo HEREDADO de Inventario
+            'profesor',         # ← Profesor/a
+            'carrera',          # ← Carrera (con opciones reales del ISDFyT)
+            'materia',          # ← Materia (dropdown dependiente de carrera)
+            'ingresar_enlace',  # ← Enlace
+            'ciclo_lectivo',    # ← Ciclo lectivo
         ]
         
         widgets = {
             'profesor': forms.TextInput(attrs={
                 'class': 'form-control form-control-sm',
-                'placeholder': 'Ingrese el nombre del profesor'
+                'placeholder': 'Ingrese el nombre del profesor/a'
             }),
-            'carrera': forms.TextInput(attrs={
+            'carrera': forms.Select(attrs={
                 'class': 'form-control form-control-sm',
-                'placeholder': 'Ingrese la carrera'
+                'id': 'id_carrera'
             }),
-            'materia': forms.TextInput(attrs={
+            'materia': forms.Select(attrs={
                 'class': 'form-control form-control-sm',
-                'placeholder': 'Ingrese la materia'
+                'id': 'id_materia'
             }),
             'ingresar_enlace': forms.URLInput(attrs={
                 'class': 'form-control form-control-sm',
@@ -205,60 +292,21 @@ class ProgramaForm(forms.ModelForm):
             }),
             'ciclo_lectivo': forms.TextInput(attrs={
                 'class': 'form-control form-control-sm',
-                'placeholder': '2024'
-            }),
-            'sede': forms.Select(attrs={
-                'class': 'form-control form-control-sm'
-            }),
-            'disponibilidad': forms.Select(attrs={
-                'class': 'form-control form-control-sm'
-            }),
-            'observaciones': forms.Textarea(attrs={
-                'class': 'form-control form-control-sm',
-                'rows': 2,
-                'placeholder': 'Observaciones adicionales'
-            }),
-            'img': forms.URLInput(attrs={
-                'class': 'form-control form-control-sm',
-                'placeholder': 'https://ejemplo.com/imagen.jpg'
-            }),
-            'descripcion': forms.Textarea(attrs={
-                'class': 'form-control form-control-sm',
-                'rows': 3,
-                'placeholder': 'Descripción opcional del programa'
-            }),
-            'num_ejemplar': forms.NumberInput(attrs={
-                'class': 'form-control form-control-sm',
-                'min': '1'
+                'placeholder': '2025'
             }),
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         
-        # Configurar opciones para selects
-        SEDE_CHOICES = [
-            ('', 'Seleccione una sede'),
-            ('La Plata', 'La Plata'),
-            ('Berisso', 'Berisso'),
-            ('Ensenada', 'Ensenada'),
-        ]
+        # Configurar las opciones de carrera
+        self.fields['carrera'].widget.choices = self.CARRERA_CHOICES
         
-        DISPONIBILIDAD_CHOICES = [
-            ('', 'Seleccione disponibilidad'),
-            ('Domicilio', 'Domicilio'),
-            ('Aula', 'Aula'),
-        ]
+        # Configurar materia como select vacío inicialmente
+        self.fields['materia'].widget.choices = [('', 'Primero seleccione una carrera')]
         
-        self.fields['sede'].widget.choices = SEDE_CHOICES
-        self.fields['disponibilidad'].widget.choices = DISPONIBILIDAD_CHOICES
-        
-        # Configurar campos como opcionales/requeridos
+        # Configurar campos opcionales/requeridos
         self.fields['ingresar_enlace'].required = False
-        self.fields['observaciones'].required = False
-        self.fields['img'].required = False
-        self.fields['descripcion'].required = False
         
         # Valores iniciales
-        self.fields['ciclo_lectivo'].initial = '2024'
-        self.fields['num_ejemplar'].initial = 1
+        self.fields['ciclo_lectivo'].initial = '2025'
