@@ -91,5 +91,16 @@ urlpatterns = [
     path('ver-detalles-material/<int:libro_id>/', views.ver_detalles_material, name='ver_detalles_material'),
     path('reactivar-libro-mejorado/<int:libro_id>/', views.reactivar_libro_mejorado, name='reactivar_libro_mejorado'),
 
+
+
+     # URLs para programas
+    # URLs para programas - AGREGAR ESTAS LÍNEAS
+    path('programas/', views.lista_programas, name='lista_programas'),
+    path('formulario/programa/', views.formulario_programa, name='formulario_programa'),
+    path('alta-programa/', views.alta_programa, name='alta_programa'),
+    path('confirmar-alta-programa/', views.confirmar_alta_programa, name='confirmar_alta_programa'),
+    path('guardar-programa-confirmado/', views.guardar_programa_confirmado, name='guardar_programa_confirmado'),
+    path('cancelar-alta-programa/', views.cancelar_alta_programa, name='cancelar_alta_programa'),
+
 ]
 

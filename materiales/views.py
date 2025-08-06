@@ -36,6 +36,9 @@ from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from .models import Libro, Mapas, Multimedia, Notebook, Proyector, Varios
 
+from .models import Programa  # Agregar esta importación al inicio
+from .forms import ProgramaForm  # Agregar esta importación al inicio
+
 def cargar_csv(request):
     if request.method == 'POST':
         csv_file = request.FILES['csv_file']
@@ -1620,3 +1623,181 @@ def finalizar_prestamo(request, prestamo_id):
     # ... código existente ...
     pass
 
+
+# AGREGAR ESTAS VISTAS COMPLETAS a tu views.py
+
+def formulario_programa(request):
+    """
+    Vista para mostrar el formulario de alta de programa (solo GET)
+    IMPORTANTE: Esta vista debe existir y funcionar
+    """
+    print("🎓 LLEGÓ A formulario_programa")  # DEBUG
+    form = ProgramaForm()
+    return render(request, 'materiales/formularios_altas/formulario_programa.html', {'form': form})
+
+def alta_programa(request):
+    """
+    Vista para procesar el envío del formulario de alta de programa
+    IMPORTANTE: Esta es la vista que recibe el POST del formulario
+    """
+    print(f"🔥🔥🔥 INICIO alta_programa")
+    print(f"🔥 Método: {request.method}")
+    print(f"🔥 URL: {request.path}")
+    print(f"🔥 POST data keys: {list(request.POST.keys()) if request.method == 'POST' else 'No POST'}")
+    
+    if request.method == 'POST':
+        print("🔥 POST recibido en alta_programa - procesando para modal")
+        
+        # Verificar si hay datos en POST
+        if not request.POST:
+            print("❌ POST está vacío!")
+            messages.error(request, 'No se recibieron datos del formulario.')
+            return redirect('formulario_programa')
+            
+        form = ProgramaForm(request.POST)
+        print(f"🔍 Formulario ProgramaForm creado. Es válido? {form.is_valid()}")
+        
+        if not form.is_valid():
+            print(f"❌ Errores del formulario: {form.errors}")
+            # Mostrar errores en la página
+            return render(request, 'materiales/formularios_altas/formulario_programa.html', {
+                'form': form,
+                'error': 'Por favor corrige los errores en el formulario.'
+            })
+        
+        if form.is_valid():
+            print("✅ Formulario válido - guardando en sesión")
+            try:
+                # Obtener la URL de imagen del formulario
+                img_url = form.cleaned_data.get('img', '').strip()
+                print(f"📷 URL de imagen recibida: '{img_url}'")
+                
+                # NO guardar en base de datos, solo en sesión
+                form_data = {
+                    'profesor': form.cleaned_data.get('profesor', ''),
+                    'carrera': form.cleaned_data.get('carrera', ''),
+                    'materia': form.cleaned_data.get('materia', ''),
+                    'ingresar_enlace': form.cleaned_data.get('ingresar_enlace', ''),
+                    'ciclo_lectivo': form.cleaned_data.get('ciclo_lectivo', ''),
+                    'sede': form.cleaned_data.get('sede', ''),
+                    'disponibilidad': form.cleaned_data.get('disponibilidad', ''),
+                    'descripcion': form.cleaned_data.get('descripcion', ''),
+                    'observaciones': form.cleaned_data.get('observaciones', ''),
+                    'num_ejemplar': form.cleaned_data.get('num_ejemplar', 1),
+                    'img': img_url  # Guardar la URL directamente
+                }
+                
+                # Guardar en sesión
+                request.session['programa_data'] = form_data
+                print(f"📦 Datos guardados en sesión: {form_data}")
+                
+                # Redirigir al modal de confirmación
+                print("🚀 Redirigiendo a confirmar_alta_programa")
+                return redirect('confirmar_alta_programa')
+                
+            except Exception as e:
+                print(f"❌ Error al procesar: {e}")
+                import traceback
+                traceback.print_exc()
+                messages.error(request, f'Error al procesar el programa: {str(e)}')
+                return render(request, 'materiales/formularios_altas/formulario_programa.html', {
+                    'form': form,
+                    'error': f'Error al procesar: {str(e)}'
+                })
+    else:
+        # Si es GET, mostrar formulario vacío
+        print("🔄 GET recibido en alta_programa, mostrando formulario")
+        form = ProgramaForm()
+        return render(request, 'materiales/formularios_altas/formulario_programa.html', {'form': form})
+
+def confirmar_alta_programa(request):
+    """
+    Vista para mostrar el modal de confirmación para programa
+    """
+    print("🎯 Llegó a confirmar_alta_programa")  # Debug
+    
+    # Verificar que existan datos en la sesión
+    if 'programa_data' not in request.session:
+        print("❌ No hay datos en sesión")  # Debug
+        messages.error(request, 'No hay datos para confirmar. Por favor, complete el formulario nuevamente.')
+        return redirect('formulario_programa')
+    
+    # Obtener datos de la sesión
+    form_data = request.session['programa_data']
+    print(f"📋 Datos de sesión: {form_data}")  # Debug
+    
+    # Renderizar página con modal automático
+    return render(request, 'materiales/formularios_altas/confirmacion_alta_programa.html', {
+        'form_data': form_data
+    })
+
+def guardar_programa_confirmado(request):
+    """
+    Vista para guardar definitivamente después de confirmar en el modal
+    """
+    print("💾 Llegó a guardar_programa_confirmado")  # Debug
+    
+    if request.method == 'POST' and 'programa_data' in request.session:
+        try:
+            # Obtener datos de la sesión
+            programa_data = request.session['programa_data']
+            print(f"📦 Datos a guardar: {programa_data}")  # Debug
+            
+            # Crear el programa en base de datos
+            programa = Programa(
+                estado='Disponible',
+                profesor=programa_data.get('profesor', ''),
+                carrera=programa_data.get('carrera', ''),
+                materia=programa_data.get('materia', ''),
+                ingresar_enlace=programa_data.get('ingresar_enlace', ''),
+                ciclo_lectivo=programa_data.get('ciclo_lectivo', ''),
+                sede=programa_data.get('sede', ''),
+                disponibilidad=programa_data.get('disponibilidad', ''),
+                descripcion=programa_data.get('descripcion', ''),
+                observaciones=programa_data.get('observaciones', ''),
+                num_ejemplar=programa_data.get('num_ejemplar', 1),
+                img=programa_data.get('img', '') or ''  # Asegurar que sea string vacío si es None
+            )
+            
+            # GUARDAR EN BASE DE DATOS
+            programa.save()
+            print(f"✅ Programa guardado en BD con ID: {programa.id_programa}")  # Debug
+            print(f"📷 URL de imagen guardada: '{programa.img}'")  # Debug
+            
+            # Limpiar sesión
+            del request.session['programa_data']
+            
+            messages.success(request, f'✅ Programa "{programa.materia}" registrado exitosamente.')
+            return redirect('alta_materiales')
+            
+        except Exception as e:
+            print(f"❌ Error al guardar: {e}")  # Debug
+            import traceback
+            traceback.print_exc()
+            messages.error(request, f'❌ Error al guardar el programa: {str(e)}')
+            return redirect('formulario_programa')
+    else:
+        print("❌ No hay datos o método incorrecto")  # Debug
+        messages.error(request, 'No hay datos para guardar.')
+        return redirect('formulario_programa')
+
+def cancelar_alta_programa(request):
+    """
+    Vista para cancelar la alta y limpiar datos de sesión
+    """
+    print("🔴 Cancelando alta de programa")  # Debug
+    
+    if 'programa_data' in request.session:
+        del request.session['programa_data']
+        print("🗑️ Datos de sesión eliminados")  # Debug
+    
+    messages.info(request, 'Operación cancelada.')
+    return redirect('formulario_programa')
+
+# OPCIONAL: Vista para listar programas
+def lista_programas(request):
+    """
+    Vista para listar todos los programas disponibles
+    """
+    programas = Programa.objects.filter(estado='Disponible')
+    return render(request, 'materiales/programas/lista_programas.html', {'programas': programas})

@@ -1,0 +1,342 @@
+{% extends 'components/baseb.html' %}
+{% load static %}
+{% block extra_styles %}
+    <link rel="stylesheet" href="{% static 'css/manual_modal.css' %}">
+    <link rel="stylesheet" href="{% static 'css/main.css' %}">
+    <link rel="stylesheet" href="{% static 'css/style_form.css' %}">
+    <link rel="stylesheet" href="{% static 'css/botones.css' %}">
+    <style>
+        .modal-lg {
+            max-width: 900px;
+        }
+
+        .modal-header {
+            background-color: #25898D;
+            color: white;
+            border-bottom: none;
+        }
+
+        .modal-header .btn-close {
+            background: none;
+            border: none;
+            color: white;
+            opacity: 0.8;
+        }
+
+        .modal-header .btn-close:hover {
+            opacity: 1;
+        }
+
+        .section-container {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #25898D;
+            margin-bottom: 15px;
+        }
+
+        .section-title {
+            color: #25898D;
+            font-weight: bold;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .tipo-material-title {
+            color: #25898D;
+            font-weight: bold;
+            text-align: center;
+            font-size: 1.2em;
+        }
+
+        .info-text {
+            background-color: white;
+            padding: 8px 12px;
+            border-radius: 4px;
+            min-height: 35px;
+            margin-bottom: 0;
+            border: 1px solid #e9ecef;
+            word-wrap: break-word;
+        }
+
+        .modal-footer .btn-primary {
+            background-color: #25898D;
+            border-color: #25898D;
+        }
+
+        .modal-footer .btn-primary:hover {
+            background-color: #1e7075;
+            border-color: #1e7075;
+        }
+
+        .modal-body {
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+
+       #id_sede {
+        padding:5px
+       }
+
+       #id_disponibilidad {
+        padding:5px
+       }
+    </style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    {% if success %}
+        <div class="alert alert-success">{{ success }}</div>
+    {% endif %}
+    {% if error %}
+        <div class="alert alert-danger">{{ error }}</div>
+    {% endif %}
+
+    <form id="form_alta_material" action="/alta-programa/" method="POST">
+        {% csrf_token %}
+
+        <!-- Campos principales -->
+        <div class="row">
+            <div class="col-12 col-sm-6 col-lg-6 form-group mb-3">
+                <label for="{{ form.profesor.id_for_label }}" class="text-input" style="color:#25898D;">Profesor/a:</label>
+                {{ form.profesor }}
+                {% if form.profesor.errors %}
+                    <div class="text-danger">{{ form.profesor.errors }}</div>
+                {% endif %}
+            </div>
+            <div class="col-12 col-sm-6 col-lg-6 form-group mb-3">
+                <label for="{{ form.carrera.id_for_label }}" class="text-input" style="color:#25898D;">Carrera:</label>
+                {{ form.carrera }}
+                {% if form.carrera.errors %}
+                    <div class="text-danger">{{ form.carrera.errors }}</div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12 col-sm-6 col-lg-6 form-group mb-3">
+                <label for="{{ form.materia.id_for_label }}" class="text-input" style="color:#25898D;">Materia:</label>
+                {{ form.materia }}
+                {% if form.materia.errors %}
+                    <div class="text-danger">{{ form.materia.errors }}</div>
+                {% endif %}
+            </div>
+            <div class="col-12 col-sm-6 col-lg-6 form-group mb-3">
+                <label for="{{ form.ciclo_lectivo.id_for_label }}" class="text-input" style="color:#25898D;">Ciclo Lectivo:</label>
+                {{ form.ciclo_lectivo }}
+                {% if form.ciclo_lectivo.errors %}
+                    <div class="text-danger">{{ form.ciclo_lectivo.errors }}</div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12 form-group mb-3">
+                <label for="{{ form.ingresar_enlace.id_for_label }}" class="text-input" style="color:#25898D;">Ingresar enlace (URL):</label>
+                {{ form.ingresar_enlace }}
+                {% if form.ingresar_enlace.errors %}
+                    <div class="text-danger">{{ form.ingresar_enlace.errors }}</div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12 col-sm-6 col-lg-4 form-group mb-3">
+                <label for="{{ form.sede.id_for_label }}" class="text-input" style="color:#25898D;">Sede:</label>
+                {{ form.sede }}
+                {% if form.sede.errors %}
+                    <div class="text-danger">{{ form.sede.errors }}</div>
+                {% endif %}
+            </div>
+            <div class="col-12 col-sm-6 col-lg-4 form-group mb-3">
+                <label for="{{ form.disponibilidad.id_for_label }}" class="text-input" style="color:#25898D;">Disponibilidad:</label>
+                {{ form.disponibilidad }}
+                {% if form.disponibilidad.errors %}
+                    <div class="text-danger">{{ form.disponibilidad.errors }}</div>
+                {% endif %}
+            </div>
+            <div class="col-12 col-sm-6 col-lg-4 form-group mb-3">
+                <label for="{{ form.num_ejemplar.id_for_label }}" class="text-input" style="color:#25898D;">Número de Ejemplar:</label>
+                {{ form.num_ejemplar }}
+                {% if form.num_ejemplar.errors %}
+                    <div class="text-danger">{{ form.num_ejemplar.errors }}</div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12 form-group mb-3">
+                <label for="{{ form.descripcion.id_for_label }}" class="text-input" style="color:#25898D;">Descripción:</label>
+                {{ form.descripcion }}
+                {% if form.descripcion.errors %}
+                    <div class="text-danger">{{ form.descripcion.errors }}</div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12 form-group mb-3">
+                <label for="{{ form.observaciones.id_for_label }}" class="text-input" style="color:#25898D;">Observaciones:</label>
+                {{ form.observaciones }}
+                {% if form.observaciones.errors %}
+                    <div class="text-danger">{{ form.observaciones.errors }}</div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- IMAGEN URL -->
+        <div class="row">
+            <div class="col-12 form-group mb-3">
+                <label for="{{ form.img.id_for_label }}" class="text-input" style="color:#25898D;">URL de Imagen:</label>
+                {{ form.img }}
+                {% if form.img.errors %}
+                    <div class="text-danger">{{ form.img.errors }}</div>
+                {% endif %}
+                <small class="form-text text-muted">{{ form.img.help_text }}</small>
+            </div>
+        </div>
+
+        <!-- Botones -->
+        <div class="row">
+            <div class="col-12 d-flex justify-content-end gap-3">
+                <button type="reset" class="btn btn-outline-danger btn-sm">Cancelar</button>
+                <button type="submit" class="btn btn-primary btn-sm">Guardar</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Modal de Confirmación de Alta de Material -->
+<div class="modal fade" id="modalConfirmacionAltaMaterial" tabindex="-1" aria-labelledby="modalConfirmacionLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalConfirmacionLabel">CONFIRME LOS DATOS</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body">
+        <div class="container-fluid">
+          <!-- Tipo de Material -->
+          <div class="section-container mb-4">
+            <h6 class="tipo-material-title">TIPO DE MATERIAL: <span id="confirmTipoMaterial" class="text-primary"></span></h6>
+          </div>
+
+          <!-- Información Principal -->
+          <div class="section-container mb-4">
+            <h6 class="section-title">Información Principal</h6>
+            <div class="row g-3">
+              <div class="col-md-4">
+                <strong>Profesor/a:</strong>
+                <p id="confirmProfesor" class="info-text"></p>
+              </div>
+              <div class="col-md-4">
+                <strong>Carrera:</strong>
+                <p id="confirmCarrera" class="info-text"></p>
+              </div>
+              <div class="col-md-4">
+                <strong>Materia:</strong>
+                <p id="confirmMateria" class="info-text"></p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Ciclo y Enlace -->
+          <div class="section-container mb-4">
+            <h6 class="section-title">Detalles Académicos</h6>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <strong>Ciclo Lectivo:</strong>
+                <p id="confirmCicloLectivo" class="info-text"></p>
+              </div>
+              <div class="col-md-6">
+                <strong>Enlace (URL):</strong>
+                <p id="confirmEnlace" class="info-text"></p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Descripción -->
+          <div class="section-container mb-4">
+            <div class="row">
+              <div class="col-12">
+                <strong>Descripción:</strong>
+                <p id="confirmDescripcion" class="info-text"></p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Ubicación y Disponibilidad -->
+          <div class="section-container mb-4">
+            <h6 class="section-title">Ubicación y Disponibilidad</h6>
+            <div class="row g-3">
+              <div class="col-md-4">
+                <strong>Sede:</strong>
+                <p id="confirmSede" class="info-text"></p>
+              </div>
+              <div class="col-md-4">
+                <strong>Disponibilidad:</strong>
+                <p id="confirmDisponibilidad" class="info-text"></p>
+              </div>
+              <div class="col-md-4">
+                <strong>Ejemplar N°:</strong>
+                <p id="confirmEjemplarNum" class="info-text"></p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Observaciones -->
+          <div class="section-container mb-4">
+            <h6 class="section-title">Observaciones</h6>
+            <div class="row">
+              <div class="col-12">
+                <p id="confirmObservaciones" class="info-text"></p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Imagen -->
+          <div class="section-container mb-4">
+            <h6 class="section-title">Imagen</h6>
+            <div class="row">
+              <div class="col-12">
+                <p id="confirmImagen" class="info-text"></p>
+              </div>
+            </div>
+          </div>
+        </div>  
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-primary" id="btnConfirmarAltaMaterial">Confirmar</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<!-- SCRIPT DE VERIFICACIÓN Y CORRECCIÓN -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('✅ Formulario programa cargado');
+    
+    const form = document.getElementById('form_alta_material');
+    if (form) {
+        // 🔥 FORZAR el action correcto
+        form.action = '/alta-programa/';
+        console.log('🔧 Action corregido a:', form.action);
+        console.log('🔧 Method:', form.method);
+        
+        // Verificar cuando se envía
+        form.addEventListener('submit', function(e) {
+            console.log('🚀 PROGRAMA enviándose a:', form.action);
+            console.log('🚀 Method:', form.method);
+            // NO PREVENIR - dejar que se envíe normalmente
+        });
+    } else {
+        console.error('❌ Formulario no encontrado');
+    }
+});
+</script>
+{% endblock %}

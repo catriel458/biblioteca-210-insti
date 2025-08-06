@@ -5,6 +5,7 @@ from .models import Libro, Mapas, Multimedia, Notebook, Proyector, Varios
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import authenticate
 from .models import Usuario
+from .models import Programa
 
 class LibroForm(forms.ModelForm):
     class Meta:
@@ -167,3 +168,97 @@ class CambiarPasswordForm(forms.Form):
                 raise forms.ValidationError('Las contraseñas no coinciden.')
         
         return cleaned_data
+    
+class ProgramaForm(forms.ModelForm):
+    class Meta:
+        model = Programa
+        fields = [
+            'profesor',         # ← Campo del modelo Programa
+            'carrera',          # ← Campo del modelo Programa
+            'materia',          # ← Campo del modelo Programa
+            'ingresar_enlace',  # ← Campo del modelo Programa
+            'ciclo_lectivo',    # ← Campo del modelo Programa
+            'sede',             # ← Campo del modelo Programa
+            'disponibilidad',   # ← Campo del modelo Programa
+            'observaciones',    # ← Campo del modelo Programa
+            'img',              # ← Campo del modelo Programa
+            'descripcion',      # ← Campo HEREDADO de Inventario
+            'num_ejemplar',     # ← Campo HEREDADO de Inventario
+        ]
+        
+        widgets = {
+            'profesor': forms.TextInput(attrs={
+                'class': 'form-control form-control-sm',
+                'placeholder': 'Ingrese el nombre del profesor'
+            }),
+            'carrera': forms.TextInput(attrs={
+                'class': 'form-control form-control-sm',
+                'placeholder': 'Ingrese la carrera'
+            }),
+            'materia': forms.TextInput(attrs={
+                'class': 'form-control form-control-sm',
+                'placeholder': 'Ingrese la materia'
+            }),
+            'ingresar_enlace': forms.URLInput(attrs={
+                'class': 'form-control form-control-sm',
+                'placeholder': 'https://ejemplo.com/programa.pdf'
+            }),
+            'ciclo_lectivo': forms.TextInput(attrs={
+                'class': 'form-control form-control-sm',
+                'placeholder': '2024'
+            }),
+            'sede': forms.Select(attrs={
+                'class': 'form-control form-control-sm'
+            }),
+            'disponibilidad': forms.Select(attrs={
+                'class': 'form-control form-control-sm'
+            }),
+            'observaciones': forms.Textarea(attrs={
+                'class': 'form-control form-control-sm',
+                'rows': 2,
+                'placeholder': 'Observaciones adicionales'
+            }),
+            'img': forms.URLInput(attrs={
+                'class': 'form-control form-control-sm',
+                'placeholder': 'https://ejemplo.com/imagen.jpg'
+            }),
+            'descripcion': forms.Textarea(attrs={
+                'class': 'form-control form-control-sm',
+                'rows': 3,
+                'placeholder': 'Descripción opcional del programa'
+            }),
+            'num_ejemplar': forms.NumberInput(attrs={
+                'class': 'form-control form-control-sm',
+                'min': '1'
+            }),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        
+        # Configurar opciones para selects
+        SEDE_CHOICES = [
+            ('', 'Seleccione una sede'),
+            ('La Plata', 'La Plata'),
+            ('Berisso', 'Berisso'),
+            ('Ensenada', 'Ensenada'),
+        ]
+        
+        DISPONIBILIDAD_CHOICES = [
+            ('', 'Seleccione disponibilidad'),
+            ('Domicilio', 'Domicilio'),
+            ('Aula', 'Aula'),
+        ]
+        
+        self.fields['sede'].widget.choices = SEDE_CHOICES
+        self.fields['disponibilidad'].widget.choices = DISPONIBILIDAD_CHOICES
+        
+        # Configurar campos como opcionales/requeridos
+        self.fields['ingresar_enlace'].required = False
+        self.fields['observaciones'].required = False
+        self.fields['img'].required = False
+        self.fields['descripcion'].required = False
+        
+        # Valores iniciales
+        self.fields['ciclo_lectivo'].initial = '2024'
+        self.fields['num_ejemplar'].initial = 1

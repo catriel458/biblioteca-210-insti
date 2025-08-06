@@ -20,10 +20,10 @@
                         <select class="form-control form-control-sm" id="tipo_material" name="tipo_material" required>
                             <option value="">Selecciona un tipo de material</option>
                             <option value="libro">LIBRO</option>
+                            <option value="programa">PROGRAMA</option>
                             <option value="mapa">MAPA</option>
                             <option value="multimedia">MULTIMEDIA</option>
                             <option value="notebook">NOTEBOOK</option>
-                            <option value="programa">PROGRAMA</option>
                             <option value="proyector">PROYECTOR</option>
                             <option value="varios">VARIOS</option>
                         </select>
@@ -92,10 +92,13 @@ document.addEventListener("DOMContentLoaded", function () {
     const uploadSimple = document.getElementById('upload_simple_container');
     const uploadBox = document.getElementById('upload_box_container');
 
-    // FUNCIONALIDAD ORIGINAL - NO TOCAR
+    // FUNCIONALIDAD PRINCIPAL - CON PROGRAMA INCLUIDO
     tipoMaterial.addEventListener('change', function () {
         const tipo = this.value;
+        console.log('🔥 Tipo seleccionado:', tipo); // DEBUG
+        
         if (tipo === 'libro') {
+            console.log('📚 Cargando formulario de libro...');
             fetch('/formulario/libro/')
                 .then(response => {
                     if (!response.ok) throw new Error('No se pudo cargar el formulario.');
@@ -105,7 +108,59 @@ document.addEventListener("DOMContentLoaded", function () {
                     formularioEspecifico.innerHTML = html;
                     buttonsContainer.style.display = 'flex';
                     
-                    // AGREGAR: Mostrar elementos de carga cuando se carga el formulario
+                    // Mostrar elementos de carga cuando se carga el formulario
+                    if (uploadSimple) uploadSimple.style.display = 'block';
+                    if (uploadBox) uploadBox.style.display = 'block';
+                    console.log('✅ Formulario de libro cargado');
+                })
+                .catch(error => {
+                    console.error('❌ Error cargando libro:', error);
+                    formularioEspecifico.innerHTML = `<p class="text-danger">Error al cargar el formulario: ${error.message}</p>`;
+                    buttonsContainer.style.display = 'none';
+                });
+        } 
+        // 🔥🔥🔥 CASO PROGRAMA - ESTE ES EL QUE FALTABA 🔥🔥🔥
+        else if (tipo === 'programa') {
+            console.log('🎓 Cargando formulario de programa...');
+            fetch('/formulario/programa/')
+                .then(response => {
+                    if (!response.ok) throw new Error('No se pudo cargar el formulario.');
+                    return response.text();
+                })
+                .then(html => {
+                    formularioEspecifico.innerHTML = html;
+                    buttonsContainer.style.display = 'flex';
+                    
+                    // 🔥 IMPORTANTE: Corregir el action después de cargar
+                    const form = document.getElementById('form_alta_material');
+                    if (form) {
+                        form.action = '/alta-programa/';
+                        console.log('🔧 Action del formulario programa corregido a:', form.action);
+                    }
+                    
+                    // Mostrar elementos de carga cuando se carga el formulario
+                    if (uploadSimple) uploadSimple.style.display = 'block';
+                    if (uploadBox) uploadBox.style.display = 'block';
+                    console.log('✅ Formulario de programa cargado');
+                })
+                .catch(error => {
+                    console.error('❌ Error cargando programa:', error);
+                    formularioEspecifico.innerHTML = `<p class="text-danger">Error al cargar el formulario: ${error.message}</p>`;
+                    buttonsContainer.style.display = 'none';
+                });
+        } 
+        // OTROS CASOS (si los tienes)
+        else if (tipo === 'mapa') {
+            console.log('🗺️ Cargando formulario de mapa...');
+            fetch('/formulario/mapa/')
+                .then(response => {
+                    if (!response.ok) throw new Error('No se pudo cargar el formulario.');
+                    return response.text();
+                })
+                .then(html => {
+                    formularioEspecifico.innerHTML = html;
+                    buttonsContainer.style.display = 'flex';
+                    
                     if (uploadSimple) uploadSimple.style.display = 'block';
                     if (uploadBox) uploadBox.style.display = 'block';
                 })
@@ -113,11 +168,89 @@ document.addEventListener("DOMContentLoaded", function () {
                     formularioEspecifico.innerHTML = `<p class="text-danger">Error al cargar el formulario: ${error.message}</p>`;
                     buttonsContainer.style.display = 'none';
                 });
-        } else {
+        } 
+        else if (tipo === 'multimedia') {
+            console.log('💿 Cargando formulario de multimedia...');
+            fetch('/formulario/multimedia/')
+                .then(response => {
+                    if (!response.ok) throw new Error('No se pudo cargar el formulario.');
+                    return response.text();
+                })
+                .then(html => {
+                    formularioEspecifico.innerHTML = html;
+                    buttonsContainer.style.display = 'flex';
+                    
+                    if (uploadSimple) uploadSimple.style.display = 'block';
+                    if (uploadBox) uploadBox.style.display = 'block';
+                })
+                .catch(error => {
+                    formularioEspecifico.innerHTML = `<p class="text-danger">Error al cargar el formulario: ${error.message}</p>`;
+                    buttonsContainer.style.display = 'none';
+                });
+        } 
+        else if (tipo === 'notebook') {
+            console.log('💻 Cargando formulario de notebook...');
+            fetch('/formulario/notebook/')
+                .then(response => {
+                    if (!response.ok) throw new Error('No se pudo cargar el formulario.');
+                    return response.text();
+                })
+                .then(html => {
+                    formularioEspecifico.innerHTML = html;
+                    buttonsContainer.style.display = 'flex';
+                    
+                    if (uploadSimple) uploadSimple.style.display = 'block';
+                    if (uploadBox) uploadBox.style.display = 'block';
+                })
+                .catch(error => {
+                    formularioEspecifico.innerHTML = `<p class="text-danger">Error al cargar el formulario: ${error.message}</p>`;
+                    buttonsContainer.style.display = 'none';
+                });
+        } 
+        else if (tipo === 'proyector') {
+            console.log('📽️ Cargando formulario de proyector...');
+            fetch('/formulario/proyector/')
+                .then(response => {
+                    if (!response.ok) throw new Error('No se pudo cargar el formulario.');
+                    return response.text();
+                })
+                .then(html => {
+                    formularioEspecifico.innerHTML = html;
+                    buttonsContainer.style.display = 'flex';
+                    
+                    if (uploadSimple) uploadSimple.style.display = 'block';
+                    if (uploadBox) uploadBox.style.display = 'block';
+                })
+                .catch(error => {
+                    formularioEspecifico.innerHTML = `<p class="text-danger">Error al cargar el formulario: ${error.message}</p>`;
+                    buttonsContainer.style.display = 'none';
+                });
+        } 
+        else if (tipo === 'varios') {
+            console.log('📦 Cargando formulario de varios...');
+            fetch('/formulario/varios/')
+                .then(response => {
+                    if (!response.ok) throw new Error('No se pudo cargar el formulario.');
+                    return response.text();
+                })
+                .then(html => {
+                    formularioEspecifico.innerHTML = html;
+                    buttonsContainer.style.display = 'flex';
+                    
+                    if (uploadSimple) uploadSimple.style.display = 'block';
+                    if (uploadBox) uploadBox.style.display = 'block';
+                })
+                .catch(error => {
+                    formularioEspecifico.innerHTML = `<p class="text-danger">Error al cargar el formulario: ${error.message}</p>`;
+                    buttonsContainer.style.display = 'none';
+                });
+        } 
+        else {
+            console.log('❌ Sin selección o tipo no reconocido');
             formularioEspecifico.innerHTML = '';
             buttonsContainer.style.display = 'none';
             
-            // AGREGAR: Ocultar elementos de carga cuando no hay formulario
+            // Ocultar elementos de carga cuando no hay formulario
             if (uploadSimple) uploadSimple.style.display = 'none';
             if (uploadBox) uploadBox.style.display = 'none';
         }

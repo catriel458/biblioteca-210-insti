@@ -225,3 +225,24 @@ class Prestamo(models.Model):
             return False
         
         return timezone.now() > self.fecha_devolucion_programada
+    
+class Programa(Inventario):
+    id_programa = models.AutoField(primary_key=True)
+    profesor = models.CharField(max_length=255)
+    carrera = models.CharField(max_length=255) 
+    materia = models.CharField(max_length=255)
+    ingresar_enlace = models.URLField(max_length=500, blank=True, null=True, help_text="Ingrese la URL del programa")
+    ciclo_lectivo = models.CharField(max_length=4, default='2024')  # Para año
+    sede = models.CharField(max_length=255, default='La Plata')
+    disponibilidad = models.CharField(max_length=255, default='Disponible')
+    observaciones = models.TextField(blank=True, null=True)
+    
+    # Campo para imagen URL (similar a Libro)
+    img = models.URLField(max_length=500, blank=True, null=True, default='')
+
+    def __str__(self):
+        return f"{self.materia} - {self.profesor} - {self.carrera}"
+    
+    def get_imagen_url(self):
+        """Método para obtener la URL de la imagen"""
+        return self.img if self.img else None
