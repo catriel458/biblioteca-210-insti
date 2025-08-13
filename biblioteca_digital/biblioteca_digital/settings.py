@@ -158,3 +158,12 @@ AUTH_USER_MODEL = 'libros.Usuario'
 LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/libros/'
 LOGOUT_REDIRECT_URL = '/login/'
+
+# Configuración de email
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'  # Cambiar según tu proveedor
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'tu-email@gmail.com'  # Tu email
+EMAIL_HOST_PASSWORD = 'tu-password-app'  # Password de aplicación
+DEFAULT_FROM_EMAIL = 'Biblioteca ISFD 210 <tu-email@gmail.com>'

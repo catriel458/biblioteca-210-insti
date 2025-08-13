@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestionar Sanciones - Biblioteca</title>
+    <style>
+        body {
+            font-family: 'Calibri', 'Arial', sans-serif;
+            background-color: #f4f4f8;
+            margin: 0;
+            padding: 0;
+        }
+        
+        header {
+            background-color: #004c8c;
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 20px auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .filters {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .filter-btn {
+            padding: 8px 16px;
+            background-color: #f1f1f1;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            text-decoration: none;
+            color: #333;
+        }
+        
+        .filter-btn.active {
+            background-color: #004c8c;
+            color: white;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        th {
+            background-color: #004c8c;
+            color: white;
+        }
+        
+        .sancion-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            color: white;
+        }
+        
+        .sancion-pendiente { background-color: #ff9800; }
+        .sancion-confirmada { background-color: #f44336; }
+        .sancion-cancelada { background-color: #9e9e9e; }
+        .sancion-cumplida { background-color: #4caf50; }
+        
+        .btn-action {
+            display: inline-block;
+            padding: 4px 8px;
+            margin: 0 2px;
+            border-radius: 4px;
+            text-decoration: none;
+            color: white;
+            font-weight: bold;
+            text-align: center;
+            font-size: 12px;
+        }
+        
+        .btn-confirmar { background-color: #f44336; }
+        .btn-cancelar { background-color: #9e9e9e; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Gestión de Sanciones - Biblioteca Digital</h1>
+    </header>
+    
+    <div class="container">
+        <a href="{% url 'pantalla_principal' %}" class="btn-volver">← Volver a Pantalla Principal</a>
+        
+        <h2>Gestión de Sanciones</h2>
+        
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-number">{{ total_pendientes }}</div>
+                <div>Sanciones Pendientes</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ total_confirmadas }}</div>
+                <div>Sanciones Activas</div>
+            </div>
+        </div>
+        
+        <div class="filters">
+            <a href="{% url 'gestionar_sanciones' %}?filtro=pendientes" 
+               class="filter-btn {% if filtro == 'pendientes' %}active{% endif %}">
+               Pendientes ({{ total_pendientes }})
+            </a>
+            <a href="{% url 'gestionar_sanciones' %}?filtro=confirmadas" 
+               class="filter-btn {% if filtro == 'confirmadas' %}active{% endif %}">
+               Confirmadas ({{ total_confirmadas }})
+            </a>
+            <a href="{% url 'gestionar_sanciones' %}?filtro=canceladas" 
+               class="filter-btn {% if filtro == 'canceladas' %}active{% endif %}">
+               Canceladas
+            </a>
+            <a href="{% url 'gestionar_sanciones' %}?filtro=cumplidas" 
+               class="filter-btn {% if filtro == 'cumplidas' %}active{% endif %}">
+               Cumplidas
+            </a>
+            <a href="{% url 'gestionar_sanciones' %}?filtro=todas" 
+               class="filter-btn {% if filtro == 'todas' %}active{% endif %}">
+               Todas
+            </a>
+        </div>
+        
+        {% if sanciones %}
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Usuario</th>
+                    <th>Libro</th>
+                    <th>Tipo Sanción</th>
+                    <th>Estado</th>
+                    <th>Fecha Creación</th>
+                    <th>Motivo</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for sancion in sanciones %}
+                <tr>
+                    <td>{{ sancion.id_sancion }}</td>
+                    <td>{{ sancion.usuario.get_full_name }}</td>
+                    <td>{{ sancion.prestamo.libro.titulo }}</td>
+                    <td>{{ sancion.get_tipo_sancion_display }}</td>
+                    <td>
+                        <span class="sancion-badge sancion-{{ sancion.estado }}">
+                            {{ sancion.get_estado_display }}
+                        </span>
+                    </td>
+                    <td>{{ sancion.fecha_creacion|date:"d/m/Y H:i" }}</td>
+                    <td>{{ sancion.motivo|truncatechars:50 }}</td>
+                    <td>
+                        {% if sancion.estado == 'pendiente' %}
+                            <a href="{% url 'confirmar_sancion' sancion.id_sancion %}" 
+                               class="btn-action btn-confirmar"
+                               onclick="return confirm('¿Confirmar la sanción para {{ sancion.usuario.get_full_name }}?')">
+                               ✓ Confirmar
+                            </a>
+                            <a href="{% url 'cancelar_sancion' sancion.id_sancion %}" 
+                               class="btn-action btn-cancelar">
+                               ✗ Cancelar
+                            </a>
+                        {% elif sancion.estado == 'confirmada' %}
+                            <a href="{% url 'cancelar_sancion' sancion.id_sancion %}" 
+                               class="btn-action btn-cancelar">
+                               ✗ Revocar
+                            </a>
+                        {% else %}
+                            <span style="color: #999; font-style: italic;">Sin acciones</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p style="text-align: center; color: #666; font-style: italic;">
+            No hay sanciones que coincidan con el filtro seleccionado.
+        </p>
+        {% endif %}
+    </div>
+</body>
+</html>

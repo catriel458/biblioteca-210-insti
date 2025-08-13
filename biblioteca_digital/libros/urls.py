@@ -83,4 +83,12 @@ urlpatterns = [
     path('editar-usuario/<int:usuario_id>/', views.editar_usuario, name='editar_usuario'),
     path('eliminar-usuario/', views.eliminar_usuario, name='eliminar_usuario'),
     path('exportar-usuarios-excel/', views.exportar_usuarios_excel, name='exportar_usuarios_excel'),
+    
+    # URLs para gestión de sanciones
+    path('gestionar-sanciones/', views.gestionar_sanciones, name='gestionar_sanciones'),
+    path('confirmar-sancion/<int:sancion_id>/', views.confirmar_sancion, name='confirmar_sancion'),
+    path('cancelar-sancion/<int:sancion_id>/', views.cancelar_sancion, name='cancelar_sancion'),
+    path('mis-sanciones/', views.mis_sanciones, name='mis_sanciones'),
+
+
 ]

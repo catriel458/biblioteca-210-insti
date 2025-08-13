@@ -2,8 +2,11 @@ import json
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse
 from collections import Counter
-from .models import Libro, Inventario, Mapas, Multimedia, Notebook, Proyector, Varios, Prestamo
+from .models import Libro, Inventario, Mapas, Multimedia, Notebook, Proyector, Varios, Prestamo, Sancion
 from .forms import LibroForm, MapaForm, MultimediaForm, NotebookForm, ProyectorForm, VariosForm
+from django.core.mail import send_mail
+from django.conf import settings
+
 import csv
 import io  # Agregar esta línea
 from django.contrib import messages #Para mensajes
@@ -938,16 +941,17 @@ def calcular_dias_habiles(fecha_inicio, dias_habiles):
     
     return fecha_actual
 
-# FUNCIÓN PARA VERIFICAR PRÉSTAMOS VENCIDOS
+# Modificar la función verificar_prestamos_vencidos
 def verificar_prestamos_vencidos():
     """
     Verifica y actualiza préstamos que han vencido su tiempo de reserva
+    Y crea sanciones automáticas
     """
     ahora = timezone.now()
     
     # Buscar préstamos aprobados para reserva que han vencido
     prestamos_vencidos = Prestamo.objects.filter(
-        estado='aprobado_reserva',  # Cambio aquí: solo los aprobados para reserva
+        estado='aprobado_reserva',
         fecha_limite_reserva__lt=ahora
     )
     
@@ -960,6 +964,20 @@ def verificar_prestamos_vencidos():
         libro = prestamo.libro
         libro.estado = 'Disponible'
         libro.save()
+    
+    # Buscar préstamos activos que han vencido (nueva funcionalidad)
+    prestamos_activos_vencidos = Prestamo.objects.filter(
+        estado='aprobado',
+        fecha_devolucion_programada__lt=ahora
+    )
+    
+    for prestamo in prestamos_activos_vencidos:
+        # Cambiar estado a vencido
+        prestamo.estado = 'vencido'
+        prestamo.save()
+        
+        # Crear sanción automática si no existe
+        prestamo.crear_sancion_por_vencimiento()
 
 # AGREGAR ESTAS FUNCIONES NUEVAS
 
@@ -1479,3 +1497,189 @@ def exportar_usuarios_excel(request):
     except Exception as e:
         messages.error(request, f'Error al exportar usuarios: {str(e)}')
         return redirect('gestion_usuarios')
+    
+# Nueva función para enviar avisos de vencimiento
+def enviar_avisos_vencimiento():
+    """
+    Envía emails de aviso un día antes del vencimiento
+    """
+    mañana = timezone.now() + datetime.timedelta(days=1)
+    inicio_mañana = mañana.replace(hour=0, minute=0, second=0, microsecond=0)
+    fin_mañana = mañana.replace(hour=23, minute=59, second=59, microsecond=999999)
+    
+    # Préstamos que vencen mañana
+    prestamos_por_vencer = Prestamo.objects.filter(
+        estado='aprobado',
+        fecha_devolucion_programada__range=(inicio_mañana, fin_mañana)
+    )
+    
+    for prestamo in prestamos_por_vencer:
+        try:
+            send_mail(
+                subject='Recordatorio: Devolución de libro mañana',
+                message=f'''
+Hola {prestamo.nombre_usuario},
+
+Te recordamos que mañana {prestamo.fecha_devolucion_programada.strftime('%d/%m/%Y')} 
+vence el plazo para devolver el libro:
+
+📚 "{prestamo.libro.titulo}"
+✍️ Autor: {prestamo.libro.autor}
+
+Por favor, acércate a la biblioteca para realizar la devolución y evitar sanciones.
+
+Saludos,
+Biblioteca ISFD 210
+                ''',
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[prestamo.email_usuario],
+                fail_silently=False,
+            )
+        except Exception as e:
+            print(f"Error enviando email a {prestamo.email_usuario}: {e}")
+
+# Nuevas vistas para gestión de sanciones
+@user_passes_test(es_bibliotecaria)
+def gestionar_sanciones(request):
+    """Vista principal para gestionar sanciones"""
+    # Verificar préstamos vencidos antes de mostrar
+    verificar_prestamos_vencidos()
+    
+    filtro = request.GET.get('filtro', 'pendientes')
+    
+    if filtro == 'pendientes':
+        sanciones = Sancion.objects.filter(estado='pendiente').order_by('-fecha_creacion')
+    elif filtro == 'confirmadas':
+        sanciones = Sancion.objects.filter(estado='confirmada').order_by('-fecha_confirmacion')
+    elif filtro == 'canceladas':
+        sanciones = Sancion.objects.filter(estado='cancelada').order_by('-fecha_creacion')
+    elif filtro == 'cumplidas':
+        sanciones = Sancion.objects.filter(estado='cumplida').order_by('-fecha_finalizacion')
+    else:
+        sanciones = Sancion.objects.all().order_by('-fecha_creacion')
+    
+    context = {
+        'sanciones': sanciones,
+        'filtro': filtro,
+        'total_pendientes': Sancion.objects.filter(estado='pendiente').count(),
+        'total_confirmadas': Sancion.objects.filter(estado='confirmada').count(),
+    }
+    return render(request, 'libros/gestionar_sanciones.html', context)
+
+@user_passes_test(es_bibliotecaria)
+def confirmar_sancion(request, sancion_id):
+    """Confirma una sanción pendiente"""
+    sancion = get_object_or_404(Sancion, id_sancion=sancion_id)
+    
+    if sancion.estado != 'pendiente':
+        messages.error(request, f"La sanción no puede ser confirmada porque su estado actual es {sancion.get_estado_display()}.")
+        return redirect('gestionar_sanciones')
+    
+    if request.method == 'POST':
+        observaciones = request.POST.get('observaciones', '')
+        
+        sancion.estado = 'confirmada'
+        sancion.fecha_confirmacion = timezone.now()
+        sancion.observaciones_bibliotecaria = observaciones
+        sancion.save()
+        
+        # Enviar email de notificación al usuario
+        try:
+            send_mail(
+                subject='Sanción aplicada - Biblioteca ISFD 210',
+                message=f'''
+Estimado/a {sancion.usuario.get_full_name()},
+
+Te informamos que se ha aplicado una sanción a tu cuenta por el siguiente motivo:
+
+📚 Libro: {sancion.prestamo.libro.titulo}
+📅 Motivo: {sancion.motivo}
+⚠️ Sanción: {sancion.get_tipo_sancion_display()}
+
+Esta sanción te inhabilitará para inscribirte a las próximas mesas de final hasta que devuelvas el material prestado.
+
+Para resolver esta situación, por favor acércate a la biblioteca con el material.
+
+Saludos,
+Biblioteca ISFD 210
+                ''',
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[sancion.usuario.email],
+                fail_silently=True,
+            )
+        except Exception as e:
+            print(f"Error enviando email de sanción: {e}")
+        
+        messages.success(request, f"Sanción confirmada para {sancion.usuario.get_full_name()}. Se ha enviado una notificación por email.")
+        return redirect('gestionar_sanciones')
+    
+    return render(request, 'libros/confirmar_sancion.html', {'sancion': sancion})
+
+@user_passes_test(es_bibliotecaria)
+def cancelar_sancion(request, sancion_id):
+    """Cancela una sanción pendiente"""
+    sancion = get_object_or_404(Sancion, id_sancion=sancion_id)
+    
+    if sancion.estado not in ['pendiente', 'confirmada']:
+        messages.error(request, f"La sanción no puede ser cancelada porque su estado actual es {sancion.get_estado_display()}.")
+        return redirect('gestionar_sanciones')
+    
+    if request.method == 'POST':
+        motivo_cancelacion = request.POST.get('motivo_cancelacion', '')
+        
+        sancion.estado = 'cancelada'
+        sancion.observaciones_bibliotecaria = f"CANCELADA: {motivo_cancelacion}"
+        sancion.fecha_finalizacion = timezone.now()
+        sancion.save()
+        
+        messages.success(request, f"Sanción cancelada para {sancion.usuario.get_full_name()}.")
+        return redirect('gestionar_sanciones')
+    
+    return render(request, 'libros/cancelar_sancion.html', {'sancion': sancion})
+
+# Modificar la función finalizar_prestamo para manejar sanciones
+@user_passes_test(es_bibliotecaria)
+def finalizar_prestamo(request, prestamo_id):
+    prestamo = get_object_or_404(Prestamo, id_prestamo=prestamo_id)
+    
+    if prestamo.estado not in ['aprobado', 'vencido']:
+        messages.error(request, f"El préstamo no puede ser finalizado porque su estado actual es {prestamo.get_estado_display()}.")
+        return redirect('gestionar_prestamos')
+    
+    prestamo.estado = 'finalizado'
+    prestamo.fecha_devolucion_real = timezone.now()
+    prestamo.save()
+    
+    # Devolver el libro al estado disponible
+    libro = prestamo.libro
+    libro.estado = 'Disponible'
+    libro.save()
+    
+    # Cancelar automáticamente las sanciones relacionadas con este préstamo
+    sanciones_activas = prestamo.sanciones.filter(estado__in=['pendiente', 'confirmada'])
+    for sancion in sanciones_activas:
+        sancion.estado = 'cumplida'
+        sancion.fecha_finalizacion = timezone.now()
+        sancion.observaciones_bibliotecaria = "Sanción finalizada automáticamente por devolución del material"
+        sancion.save()
+    
+    if sanciones_activas.exists():
+        messages.success(request, f"Préstamo finalizado y {sanciones_activas.count()} sanción(es) cancelada(s) automáticamente.")
+    else:
+        messages.success(request, f"El préstamo del libro '{prestamo.libro.titulo}' ha sido finalizado.")
+    
+    return redirect('gestionar_prestamos')
+
+# Vista para que los usuarios vean sus sanciones
+@login_required
+def mis_sanciones(request):
+    """Vista para que los usuarios vean sus sanciones"""
+    sanciones = Sancion.objects.filter(usuario=request.user).order_by('-fecha_creacion')
+    sanciones_activas = sanciones.filter(estado='confirmada')
+    
+    context = {
+        'sanciones': sanciones,
+        'sanciones_activas': sanciones_activas,
+        'tiene_sanciones_activas': sanciones_activas.exists(),
+    }
+    return render(request, 'libros/mis_sanciones.html', context)

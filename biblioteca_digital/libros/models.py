@@ -59,6 +59,14 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
     
     def es_bibliotecaria(self):
         return self.perfil == 'bibliotecaria'
+        
+    def tiene_sanciones_activas(self):
+        """Verifica si el usuario tiene sanciones activas"""
+        return self.sanciones.filter(estado='confirmada').exists()
+    
+    def get_sanciones_activas(self):
+        """Obtiene las sanciones activas del usuario"""
+        return self.sanciones.filter(estado='confirmada')
 
 
 # TERCERO: Resto de modelos (Inventario y sus subclases)
@@ -192,3 +200,50 @@ class Prestamo(models.Model):
             return False
         
         return timezone.now() > self.fecha_devolucion_programada
+    
+    def tiene_sancion_pendiente(self):
+        """Verifica si el préstamo tiene una sanción pendiente"""
+        return self.sanciones.filter(estado='pendiente').exists()
+    
+    def crear_sancion_por_vencimiento(self):
+        """Crea una sanción automática por vencimiento"""
+        if not self.tiene_sancion_pendiente() and self.estado == 'vencido':
+            Sancion.objects.create(
+                usuario=self.usuario,
+                prestamo=self,
+                tipo_sancion='inhabilitacion_mesas',
+                motivo=f'Préstamo vencido del libro "{self.libro.titulo}"'
+            )
+            
+class Sancion(models.Model):
+    TIPO_CHOICES = (
+        ('inhabilitacion_mesas', 'Inhabilitación para Mesas de Final'),
+        ('suspension_prestamos', 'Suspensión de Préstamos'),
+    )
+    
+    ESTADO_CHOICES = (
+        ('pendiente', 'Pendiente de Revisión'),
+        ('confirmada', 'Confirmada'),
+        ('cancelada', 'Cancelada'),
+        ('cumplida', 'Cumplida/Finalizada'),
+    )
+    
+    id_sancion = models.AutoField(primary_key=True)
+    usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='sanciones')
+    prestamo = models.ForeignKey(Prestamo, on_delete=models.CASCADE, related_name='sanciones')
+    tipo_sancion = models.CharField(max_length=30, choices=TIPO_CHOICES, default='inhabilitacion_mesas')
+    estado = models.CharField(max_length=15, choices=ESTADO_CHOICES, default='pendiente')
+    fecha_creacion = models.DateTimeField(auto_now_add=True)
+    fecha_confirmacion = models.DateTimeField(null=True, blank=True)
+    fecha_finalizacion = models.DateTimeField(null=True, blank=True)
+    motivo = models.TextField(default='Préstamo vencido')
+    observaciones_bibliotecaria = models.TextField(blank=True, null=True)
+    
+    class Meta:
+        ordering = ['-fecha_creacion']
+    
+    def __str__(self):
+        return f"Sanción {self.id_sancion} - {self.usuario.get_full_name()} - {self.get_estado_display()}"
+    
+    def esta_activa(self):
+        return self.estado == 'confirmada'
