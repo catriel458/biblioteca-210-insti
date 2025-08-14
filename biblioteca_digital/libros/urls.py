@@ -21,6 +21,7 @@ urlpatterns = [
     path('editar-libro/<int:libro_id>/', views.editar_libro, name='editar_libro'),
     path('buscar-libros/', views.buscar_libros, name='buscar_libros'),
     path('borrar-libros/', views.borrar_libros, name='borrar_libros'),
+    path('marcar-libro-devuelto/<int:sancion_id>/', views.marcar_libro_devuelto, name='marcar_libro_devuelto'),
     
     # URLs de mapas
     path('mapas/', views.mapas_view, name='mapas'),

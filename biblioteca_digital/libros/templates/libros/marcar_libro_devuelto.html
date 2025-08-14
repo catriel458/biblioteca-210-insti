@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirmar Devolución de Libro</title>
+    <style>
+        body {
+            font-family: 'Calibri', 'Arial', sans-serif;
+            background-color: #f4f4f8;
+            margin: 0;
+            padding: 0;
+        }
+        
+        header {
+            background-color: #004c8c;
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 700px;
+            margin: 30px auto;
+            background-color: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .titulo {
+            color: #004c8c;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2em;
+        }
+        
+        .info-card {
+            background: linear-gradient(135deg, #e8f5e8, #f1f8e9);
+            border-left: 5px solid #4caf50;
+            padding: 25px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 10px rgba(76, 175, 80, 0.1);
+        }
+        
+        .info-section {
+            margin-bottom: 20px;
+        }
+        
+        .info-label {
+            font-weight: bold;
+            color: #2e7d32;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 5px;
+            display: block;
+        }
+        
+        .info-value {
+            font-size: 1.1em;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .estado-actual {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+        
+        .estado-actual .icono {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #004c8c;
+            font-size: 1.1em;
+        }
+        
+        .form-textarea {
+            width: 100%;
+            min-height: 100px;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 1em;
+            resize: vertical;
+            transition: border-color 0.3s;
+            box-sizing: border-box;
+        }
+        
+        .form-textarea:focus {
+            outline: none;
+            border-color: #4caf50;
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+        }
+        
+        .form-help {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 5px;
+            font-style: italic;
+        }
+        
+        .acciones {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 1.1em;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s;
+            min-width: 150px;
+            text-align: center;
+            display: inline-block;
+        }
+        
+        .btn-confirmar {
+            background: linear-gradient(135deg, #4caf50, #45a049);
+            color: white;
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+        }
+        
+        .btn-confirmar:hover {
+            background: linear-gradient(135deg, #45a049, #3e8e41);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+            text-decoration: none;
+            color: white;
+        }
+        
+        .btn-cancelar {
+            background: #f1f1f1;
+            color: #333;
+            border: 2px solid #ddd;
+        }
+        
+        .btn-cancelar:hover {
+            background: #e0e0e0;
+            border-color: #bbb;
+            text-decoration: none;
+            color: #333;
+        }
+        
+        .consecuencias {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 20px;
+            border-radius: 6px;
+            margin-bottom: 25px;
+        }
+        
+        .consecuencias h4 {
+            color: #1976d2;
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+        
+        .consecuencias ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+        
+        .consecuencias li {
+            margin-bottom: 8px;
+            color: #333;
+        }
+        
+        .btn-volver {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #004c8c;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+        
+        .btn-volver:hover {
+            background-color: #003b6f;
+            text-decoration: none;
+            color: white;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                margin: 15px;
+                padding: 25px;
+            }
+            
+            .acciones {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .btn {
+                min-width: 200px;
+            }
+            
+            .titulo {
+                font-size: 1.6em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>📚 Confirmar Devolución de Libro</h1>
+    </header>
+    
+    <div class="container">
+        <a href="{% url 'gestionar_sanciones' %}" class="btn-volver">← Volver a Gestión de Sanciones</a>
+        
+        <h2 class="titulo">Confirmar Devolución de Material</h2>
+        
+        <div class="info-card">
+            <div class="info-section">
+                <span class="info-label">👤 Usuario Sancionado</span>
+                <div class="info-value">{{ usuario.get_full_name }}</div>
+                <div style="color: #666; font-size: 0.9em;">{{ usuario.email }}</div>
+            </div>
+            
+            <div class="info-section">
+                <span class="info-label">📚 Libro</span>
+                <div class="info-value">{{ libro.titulo }}</div>
+                <div style="color: #666; font-size: 0.9em;">Autor: {{ libro.autor }}</div>
+            </div>
+            
+            <div class="info-section">
+                <span class="info-label">⚠️ Tipo de Sanción</span>
+                <div class="info-value">{{ sancion.get_tipo_sancion_display }}</div>
+            </div>
+            
+            <div class="info-section">
+                <span class="info-label">📅 Fecha de Sanción</span>
+                <div class="info-value">{{ sancion.fecha_confirmacion|date:"d/m/Y H:i" }}</div>
+            </div>
+        </div>
+        
+        <div class="estado-actual">
+            <div class="icono">⚠️</div>
+            <strong>Estado Actual:</strong> Sanción Confirmada<br>
+            <small>El usuario está inhabilitado para inscribirse a mesas de final</small>
+        </div>
+        
+        <div class="consecuencias">
+            <h4>🎯 Al confirmar la devolución se realizarán las siguientes acciones:</h4>
+            <ul>
+                <li>✅ La sanción se marcará como <strong>CUMPLIDA</strong></li>
+                <li>📚 El libro "{{ libro.titulo }}" volverá a estar <strong>DISPONIBLE</strong> para préstamo</li>
+                <li>🎓 {{ usuario.get_full_name }} podrá <strong>inscribirse nuevamente</strong> a mesas de final</li>
+                <li>📧 Se enviará un <strong>email de notificación</strong> al usuario</li>
+                <li>📋 El préstamo se marcará como <strong>FINALIZADO</strong></li>
+            </ul>
+        </div>
+        
+        <form method="post">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="observaciones" class="form-label">📝 Observaciones (opcional)</label>
+                <textarea 
+                    name="observaciones" 
+                    id="observaciones"
+                    class="form-textarea"
+                    placeholder="Ej: Libro devuelto en buen estado. Usuario se disculpó por la demora..."
+                ></textarea>
+                <div class="form-help">
+                    Puedes agregar cualquier observación sobre el estado del libro o comentarios adicionales.
+                </div>
+            </div>
+            
+            <div class="acciones">
+                <button 
+                    type="submit" 
+                    class="btn btn-confirmar"
+                    onclick="return confirm('¿Estás segura de confirmar que {{ usuario.get_full_name }} devolvió el libro &quot;{{ libro.titulo }}&quot;? Esta acción finalizará la sanción y habilitará al usuario para mesas de final.')"
+                >
+                    ✅ Confirmar Devolución
+                </button>
+                
+                <a href="{% url 'gestionar_sanciones' %}" class="btn btn-cancelar">
+                    ❌ Cancelar
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        // Auto-focus en el textarea
+        document.addEventListener('DOMContentLoaded', function() {
+            const textarea = document.getElementById('observaciones');
+            if (textarea) {
+                textarea.focus();
+            }
+        });
+
+        // Validación adicional antes del envío
+        document.querySelector('form').addEventListener('submit', function(e) {
+            const confirmacion = confirm(
+                '🔄 CONFIRMACIÓN FINAL\n\n' +
+                'Usuario: {{ usuario.get_full_name }}\n' +
+                'Libro: {{ libro.titulo }}\n' +
+                'Acción: Finalizar sanción por devolución\n\n' +
+                '¿Proceder con la confirmación?'
+            );
+            
+            if (!confirmacion) {
+                e.preventDefault();
+            }
+        });
+    </script>
+</body>
+</html>

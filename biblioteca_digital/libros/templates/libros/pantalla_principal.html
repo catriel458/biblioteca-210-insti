@@ -405,15 +405,16 @@
             
             <!-- Tarjeta de Gestión de Sanciones (solo bibliotecarias) -->
             <div class="menu-card sancion-bibliotecaria">
-                <!-- Aquí podrías agregar un badge con el número de sanciones pendientes -->
-                {% comment %}
                 {% if sanciones_pendientes_count > 0 %}
                     <div class="notification-badge">{{ sanciones_pendientes_count }}</div>
                 {% endif %}
-                {% endcomment %}
                 <div class="icon">⚠️</div>
                 <h3>Gestión de Sanciones</h3>
-                <p>Administra las sanciones por préstamos vencidos. Confirma o cancela sanciones según corresponda.</p>
+                <p>Administra las sanciones por préstamos vencidos. Confirma o cancela sanciones según corresponda.
+                {% if sanciones_pendientes_count > 0 %}
+                    <br><strong style="color: #f44336;">{{ sanciones_pendientes_count }} sanción{% if sanciones_pendientes_count != 1 %}es{% endif %} pendiente{% if sanciones_pendientes_count != 1 %}s{% endif %}</strong>
+                {% endif %}
+                </p>
                 <a href="{% url 'gestionar_sanciones' %}" class="btn btn-primary">Gestionar Sanciones</a>
             </div>
             

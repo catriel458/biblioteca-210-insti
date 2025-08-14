@@ -1044,6 +1044,124 @@ def marcar_no_retiro(request, prestamo_id):
     
     return render(request, 'libros/marcar_no_retiro.html', {'prestamo': prestamo})
 
+# AGREGAR al archivo libros/views.py
+
+@user_passes_test(es_bibliotecaria)
+def marcar_libro_devuelto(request, sancion_id):
+    """
+    Marca que el usuario devolvió el libro y finaliza la sanción
+    """
+    sancion = get_object_or_404(Sancion, id_sancion=sancion_id)
+    
+    if sancion.estado != 'confirmada':
+        messages.error(request, f"No se puede marcar como devuelto porque el estado actual es {sancion.get_estado_display()}.")
+        return redirect('gestionar_sanciones')
+    
+    if request.method == 'POST':
+        observaciones = request.POST.get('observaciones', '')
+        
+        # Marcar sanción como cumplida
+        sancion.estado = 'cumplida'
+        sancion.fecha_finalizacion = timezone.now()
+        sancion.observaciones_bibliotecaria = f"Libro devuelto. {observaciones}".strip()
+        sancion.save()
+        
+        # Finalizar el préstamo relacionado
+        prestamo = sancion.prestamo
+        if prestamo.estado in ['vencido', 'aprobado']:
+            prestamo.estado = 'finalizado'
+            prestamo.fecha_devolucion_real = timezone.now()
+            prestamo.save()
+        
+        # Marcar libro como disponible
+        libro = prestamo.libro
+        libro.estado = 'Disponible'
+        libro.save()
+        
+        # Enviar email de notificación al usuario (opcional)
+        try:
+            send_mail(
+                subject='Sanción finalizada - Biblioteca ISFD 210',
+                message=f'''
+Estimado/a {sancion.usuario.get_full_name()},
+
+Te informamos que tu sanción ha sido finalizada exitosamente.
+
+📚 Libro: {sancion.prestamo.libro.titulo}
+✅ Estado: Sanción cumplida
+📅 Fecha de resolución: {timezone.now().strftime('%d/%m/%Y %H:%M')}
+
+Ya puedes inscribirte normalmente a las mesas de final.
+
+¡Gracias por resolver tu situación!
+
+Saludos,
+Biblioteca ISFD 210
+                ''',
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[sancion.usuario.email],
+                fail_silently=True,
+            )
+        except Exception as e:
+            print(f"Error enviando email de finalización: {e}")
+        
+        messages.success(request, f"✅ Libro devuelto confirmado. Sanción finalizada para {sancion.usuario.get_full_name()}. El libro '{libro.titulo}' está nuevamente disponible.")
+        return redirect('gestionar_sanciones')
+    
+    # Si es GET, mostrar página de confirmación
+    context = {
+        'sancion': sancion,
+        'libro': sancion.prestamo.libro,
+        'usuario': sancion.usuario,
+    }
+    return render(request, 'libros/marcar_libro_devuelto.html', context)
+
+# MODIFICAR la vista gestionar_sanciones para incluir contadores adicionales
+@user_passes_test(es_bibliotecaria)
+def gestionar_sanciones(request):
+    """Vista principal para gestionar sanciones"""
+    # Verificar préstamos vencidos antes de mostrar
+    verificar_prestamos_vencidos()
+    
+    filtro = request.GET.get('filtro', 'pendientes')
+    
+    if filtro == 'pendientes':
+        sanciones = Sancion.objects.filter(estado='pendiente').order_by('-fecha_creacion')
+    elif filtro == 'confirmadas':
+        sanciones = Sancion.objects.filter(estado='confirmada').order_by('-fecha_confirmacion')
+    elif filtro == 'canceladas':
+        sanciones = Sancion.objects.filter(estado='cancelada').order_by('-fecha_creacion')
+    elif filtro == 'cumplidas':
+        sanciones = Sancion.objects.filter(estado='cumplida').order_by('-fecha_finalizacion')
+    else:
+        sanciones = Sancion.objects.all().order_by('-fecha_creacion')
+    
+    # Obtener estadísticas
+    total_pendientes = Sancion.objects.filter(estado='pendiente').count()
+    total_confirmadas = Sancion.objects.filter(estado='confirmada').count()
+    total_canceladas = Sancion.objects.filter(estado='cancelada').count()
+    total_cumplidas = Sancion.objects.filter(estado='cumplida').count()
+    
+    context = {
+        'sanciones': sanciones,
+        'filtro': filtro,
+        'total_pendientes': total_pendientes,
+        'total_confirmadas': total_confirmadas,
+        'total_canceladas': total_canceladas,
+        'total_cumplidas': total_cumplidas,
+    }
+    return render(request, 'libros/gestionar_sanciones.html', context)
+
+# AGREGAR al archivo libros/urls.py
+# En la sección de URLs de sanciones:
+
+    # URLs de sanciones
+    path('gestionar-sanciones/', views.gestionar_sanciones, name='gestionar_sanciones'),
+    path('confirmar-sancion/<int:sancion_id>/', views.confirmar_sancion, name='confirmar_sancion'),
+    path('cancelar-sancion/<int:sancion_id>/', views.cancelar_sancion, name='cancelar_sancion'),
+    path('marcar-libro-devuelto/<int:sancion_id>/', views.marcar_libro_devuelto, name='marcar_libro_devuelto'),  # NUEVA URL
+    path('mis-sanciones/', views.mis_sanciones, name='mis_sanciones'),
+
 # Agregar estos imports al inicio de tu archivo views.py
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -1683,3 +1801,21 @@ def mis_sanciones(request):
         'tiene_sanciones_activas': sanciones_activas.exists(),
     }
     return render(request, 'libros/mis_sanciones.html', context)
+
+# MODIFICAR en libros/views.py
+
+@login_required
+def pantalla_principal(request):
+    """Vista de la pantalla principal con información contextual"""
+    context = {}
+    
+    # Si es bibliotecaria, agregar estadísticas de sanciones
+    if request.user.es_bibliotecaria():
+        from .models import Sancion
+        context['sanciones_pendientes_count'] = Sancion.objects.filter(estado='pendiente').count()
+        context['sanciones_confirmadas_count'] = Sancion.objects.filter(estado='confirmada').count()
+        
+        # Verificar préstamos vencidos para actualizar sanciones
+        verificar_prestamos_vencidos()
+    
+    return render(request, 'libros/pantalla_principal.html', context)
