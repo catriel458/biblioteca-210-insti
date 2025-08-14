@@ -206,14 +206,49 @@ class Prestamo(models.Model):
         return self.sanciones.filter(estado='pendiente').exists()
     
     def crear_sancion_por_vencimiento(self):
-        """Crea una sanción automática por vencimiento"""
-        if not self.tiene_sancion_pendiente() and self.estado == 'vencido':
-            Sancion.objects.create(
-                usuario=self.usuario,
-                prestamo=self,
-                tipo_sancion='inhabilitacion_mesas',
-                motivo=f'Préstamo vencido del libro "{self.libro.titulo}"'
-            )
+        """Crea una sanción automática por vencimiento (método mejorado)"""
+        if self.estado == 'vencido' and self.usuario:
+            from .models import Sancion  # Import aquí para evitar circular import
+            
+            # Verificar que no exista ya una sanción para este préstamo
+            sancion_existente = Sancion.objects.filter(prestamo=self).first()
+            
+            if not sancion_existente:
+                fecha_vencimiento = self.fecha_devolucion_programada
+                ahora = timezone.now()
+                
+                # Calcular tiempo de retraso
+                if fecha_vencimiento:
+                    retraso = ahora - fecha_vencimiento
+                    dias_retraso = retraso.days
+                    horas_retraso = retraso.seconds // 3600
+                    minutos_retraso = (retraso.seconds % 3600) // 60
+                    
+                    if dias_retraso > 0:
+                        tiempo_retraso = f"{dias_retraso} días y {horas_retraso} horas"
+                    elif horas_retraso > 0:
+                        tiempo_retraso = f"{horas_retraso} horas y {minutos_retraso} minutos"
+                    else:
+                        tiempo_retraso = f"{minutos_retraso} minutos"
+                    
+                    motivo_detallado = f'Préstamo vencido del libro "{self.libro.titulo}". Venció el {fecha_vencimiento.strftime("%d/%m/%Y a las %H:%M:%S")}. Retraso: {tiempo_retraso}.'
+                else:
+                    motivo_detallado = f'Préstamo vencido del libro "{self.libro.titulo}"'
+                
+                sancion = Sancion.objects.create(
+                    usuario=self.usuario,
+                    prestamo=self,
+                    tipo_sancion='inhabilitacion_mesas',
+                    motivo=motivo_detallado
+                )
+                
+                print(f"[DEBUG] Sanción automática creada: ID {sancion.id_sancion} para préstamo {self.id_prestamo}")
+                return sancion
+            else:
+                print(f"[DEBUG] Ya existe sanción para préstamo {self.id_prestamo}")
+                return sancion_existente
+        
+        return None
             
 class Sancion(models.Model):
     TIPO_CHOICES = (

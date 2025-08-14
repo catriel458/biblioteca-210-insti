@@ -39,6 +39,23 @@ from .models import Libro, Mapas, Multimedia, Notebook, Proyector, Varios
 from django.contrib.auth.models import User
 from django.contrib.auth import get_user_model
 
+def calcular_fecha_devolucion_exacta(fecha_inicio, dias=15):
+    """
+    Calcula fecha de devolución exacta preservando hora, minutos y segundos
+    """
+    fecha_devolucion = fecha_inicio + datetime.timedelta(
+        days=dias,
+        hours=0,
+        minutes=0,
+        seconds=0
+    )
+    
+    print(f"[DEBUG TIEMPO] Fecha inicio: {fecha_inicio.strftime('%d/%m/%Y %H:%M:%S')}")
+    print(f"[DEBUG TIEMPO] Fecha devolución: {fecha_devolucion.strftime('%d/%m/%Y %H:%M:%S')}")
+    print(f"[DEBUG TIEMPO] Diferencia exacta: {(fecha_devolucion - fecha_inicio).total_seconds()} segundos")
+    
+    return fecha_devolucion
+
 def es_bibliotecaria(user):
     """Verifica si el usuario es bibliotecaria"""
     return user.is_authenticated and user.perfil == 'bibliotecaria'
@@ -841,18 +858,19 @@ def aprobar_prestamo(request, prestamo_id):
         messages.error(request, f"El préstamo no puede ser aprobado porque su estado actual es {prestamo.get_estado_display()}.")
         return redirect('gestionar_prestamos')
     
+    ahora = timezone.now()
     prestamo.estado = 'aprobado'
-    prestamo.fecha_aprobacion = timezone.now()
+    prestamo.fecha_aprobacion = ahora
     
-    # Calcular fecha de devolución (15 días)
-    prestamo.fecha_devolucion_programada = timezone.now() + datetime.timedelta(days=15)
+    # ✅ LÍNEA CORREGIDA
+    prestamo.fecha_devolucion_programada = calcular_fecha_devolucion_exacta(ahora, 15)
     
-    # Limpiar fecha límite de reserva ya que fue retirado
     prestamo.fecha_limite_reserva = None
-    
     prestamo.save()
     
-    messages.success(request, f"El préstamo del libro '{prestamo.libro.titulo}' ha sido aprobado. Fecha de devolución: {prestamo.fecha_devolucion_programada.strftime('%d/%m/%Y')}.")
+    # Mensaje con hora exacta
+    fecha_format = prestamo.fecha_devolucion_programada.strftime('%d/%m/%Y a las %H:%M:%S')
+    messages.success(request, f"El préstamo del libro '{prestamo.libro.titulo}' ha sido aprobado. Fecha de devolución: {fecha_format}.")
     
     return redirect('gestionar_prestamos')
 
@@ -903,28 +921,6 @@ def finalizar_prestamo(request, prestamo_id):
     return redirect('gestionar_prestamos')
 
 
-def gestionar_prestamos(request):
-    # Verificar préstamos vencidos antes de mostrar
-    verificar_prestamos_vencidos()
-    
-    # Obtener préstamos según filtro (sin verificación de permisos)
-    filtro = request.GET.get('filtro', 'todos')
-    
-    if filtro == 'solicitados':
-        prestamos = Prestamo.objects.filter(estado='solicitado').order_by('-fecha_solicitud')
-    elif filtro == 'activos':
-        prestamos = Prestamo.objects.filter(estado='aprobado').order_by('-fecha_aprobacion')
-    elif filtro == 'finalizados':
-        prestamos = Prestamo.objects.filter(estado__in=['finalizado', 'rechazado', 'vencido']).order_by('-fecha_solicitud')
-    else:
-        prestamos = Prestamo.objects.all().order_by('-fecha_solicitud')
-    
-    return render(request, 'libros/gestionar_prestamos.html', {
-        'prestamos': prestamos,
-        'filtro': filtro
-    })
-
-
 # FUNCIÓN PARA CALCULAR DÍAS HÁBILES (Lunes a Viernes)
 def calcular_dias_habiles(fecha_inicio, dias_habiles):
     """
@@ -942,42 +938,103 @@ def calcular_dias_habiles(fecha_inicio, dias_habiles):
     return fecha_actual
 
 # Modificar la función verificar_prestamos_vencidos
+
 def verificar_prestamos_vencidos():
     """
-    Verifica y actualiza préstamos que han vencido su tiempo de reserva
-    Y crea sanciones automáticas
+    Verifica y actualiza préstamos que han vencido
     """
     ahora = timezone.now()
     
-    # Buscar préstamos aprobados para reserva que han vencido
-    prestamos_vencidos = Prestamo.objects.filter(
-        estado='aprobado_reserva',
-        fecha_limite_reserva__lt=ahora
-    )
+    print(f"[DEBUG VENCIMIENTOS] Verificando a las: {ahora.strftime('%d/%m/%Y %H:%M:%S')}")
     
-    for prestamo in prestamos_vencidos:
-        # Cambiar estado del préstamo a vencido
-        prestamo.estado = 'vencido'
-        prestamo.save()
-        
-        # Devolver el libro al estado disponible
-        libro = prestamo.libro
-        libro.estado = 'Disponible'
-        libro.save()
-    
-    # Buscar préstamos activos que han vencido (nueva funcionalidad)
+    # Buscar préstamos activos que han vencido
     prestamos_activos_vencidos = Prestamo.objects.filter(
         estado='aprobado',
-        fecha_devolucion_programada__lt=ahora
+        fecha_devolucion_programada__lt=ahora  # Comparación exacta
     )
     
+    print(f"[DEBUG VENCIMIENTOS] Préstamos vencidos encontrados: {prestamos_activos_vencidos.count()}")
+    
     for prestamo in prestamos_activos_vencidos:
+        print(f"[DEBUG VENCIMIENTOS] Procesando préstamo {prestamo.id_prestamo}:")
+        print(f"  - Usuario: {prestamo.nombre_usuario}")
+        print(f"  - Libro: {prestamo.libro.titulo}")
+        print(f"  - Fecha programada: {prestamo.fecha_devolucion_programada.strftime('%d/%m/%Y %H:%M:%S')}")
+        print(f"  - Ahora: {ahora.strftime('%d/%m/%Y %H:%M:%S')}")
+        
+        diferencia = ahora - prestamo.fecha_devolucion_programada
+        print(f"  - Vencido por: {diferencia.total_seconds()} segundos")
+        
         # Cambiar estado a vencido
         prestamo.estado = 'vencido'
         prestamo.save()
         
-        # Crear sanción automática si no existe
-        prestamo.crear_sancion_por_vencimiento()
+        # Crear sanción si tiene usuario
+        if prestamo.usuario:
+            prestamo.crear_sancion_por_vencimiento()
+            print(f"  - Sanción creada para {prestamo.usuario.get_full_name()}")
+        else:
+            print(f"  - No se puede crear sanción: sin usuario asignado")
+    
+    # También verificar préstamos de reserva vencidos
+    prestamos_reserva_vencidos = Prestamo.objects.filter(
+        estado='aprobado_reserva',
+        fecha_limite_reserva__lt=ahora
+    )
+    
+    for prestamo in prestamos_reserva_vencidos:
+        prestamo.estado = 'vencido'
+        prestamo.save()
+        
+        # Devolver libro a disponible
+        prestamo.libro.estado = 'Disponible'
+        prestamo.libro.save()
+        
+        print(f"[DEBUG VENCIMIENTOS] Reserva vencida: {prestamo.id_prestamo}")
+
+# Nueva función para verificar vencimientos en tiempo real
+def verificar_vencimientos_tiempo_real():
+    """
+    Función optimizada que solo verifica préstamos que pueden estar vencidos
+    """
+    ahora = timezone.now()
+    
+    # Solo verificar préstamos que tienen fechas de vencimiento próximas (últimas 2 horas)
+    hace_2_horas = ahora - datetime.timedelta(hours=2)
+    
+    # Préstamos activos que pueden haber vencido recientemente
+    prestamos_candidatos = Prestamo.objects.filter(
+        estado='aprobado',
+        fecha_devolucion_programada__gte=hace_2_horas,
+        fecha_devolucion_programada__lt=ahora
+    )
+    
+    if prestamos_candidatos.exists():
+        print(f"[TIEMPO_REAL] Verificando {prestamos_candidatos.count()} préstamos candidatos a vencimiento")
+        verificar_prestamos_vencidos()
+    else:
+        print(f"[TIEMPO_REAL] No hay préstamos candidatos a vencimiento en las últimas 2 horas")
+
+# Mejorar la función que establece la fecha de devolución para mayor precisión
+def establecer_fecha_devolucion_precisa(prestamo, dias=15):
+    """
+    Establece fecha de devolución con hora específica (ej: 18:00)
+    """
+    fecha_base = timezone.now()
+    
+    # Opción 1: Exactamente X días desde ahora (preserva hora exacta)
+    fecha_devolucion = fecha_base + datetime.timedelta(days=dias)
+    
+    # Opción 2: X días a las 18:00 (hora fija) - descomenta si prefieres esto
+    # fecha_devolucion = fecha_base + datetime.timedelta(days=dias)
+    # fecha_devolucion = fecha_devolucion.replace(hour=18, minute=0, second=0, microsecond=0)
+    
+    prestamo.fecha_devolucion_programada = fecha_devolucion
+    prestamo.save()
+    
+    print(f"[DEBUG] Fecha de devolución establecida para préstamo {prestamo.id_prestamo}: {fecha_devolucion}")
+    return fecha_devolucion
+
 
 # AGREGAR ESTAS FUNCIONES NUEVAS
 
@@ -987,29 +1044,29 @@ def confirmar_retiro_libro(request, prestamo_id):
     """
     prestamo = get_object_or_404(Prestamo, id_prestamo=prestamo_id)
     
-    if prestamo.estado not in ['aprobado_reserva']:  # Cambio aquí
+    if prestamo.estado not in ['aprobado_reserva']:
         messages.error(request, f"No se puede confirmar el retiro porque el estado actual es {prestamo.get_estado_display()}.")
         return redirect('gestionar_prestamos')
     
-    # Verificar si aún está dentro del tiempo de reserva
     if prestamo.fecha_limite_reserva and timezone.now() > prestamo.fecha_limite_reserva:
         messages.error(request, "El tiempo de reserva ha vencido. No se puede confirmar el retiro.")
         return redirect('gestionar_prestamos')
     
     if request.method == 'POST':
-        # Cambiar estado a aprobado (libro retirado y préstamo activo)
+        ahora_retiro = timezone.now()
+        
         prestamo.estado = 'aprobado'
-        prestamo.fecha_retiro_real = timezone.now()  # Nueva fecha de retiro
+        prestamo.fecha_retiro_real = ahora_retiro
         
-        # Calcular fecha de devolución (15 días desde el retiro)
-        prestamo.fecha_devolucion_programada = timezone.now() + datetime.timedelta(days=15)
+        # ✅ LÍNEA CORREGIDA
+        prestamo.fecha_devolucion_programada = calcular_fecha_devolucion_exacta(ahora_retiro, 15)
         
-        # Limpiar fecha límite de reserva ya que fue retirado
         prestamo.fecha_limite_reserva = None
-        
         prestamo.save()
         
-        messages.success(request, f"Se confirmó el retiro del libro '{prestamo.libro.titulo}'. Fecha de devolución: {prestamo.fecha_devolucion_programada.strftime('%d/%m/%Y')}.")
+        # Mensaje con hora exacta
+        fecha_format = prestamo.fecha_devolucion_programada.strftime('%d/%m/%Y a las %H:%M:%S')
+        messages.success(request, f"Se confirmó el retiro del libro '{prestamo.libro.titulo}'. Fecha de devolución: {fecha_format}.")
         
         return redirect('gestionar_prestamos')
     
@@ -1120,8 +1177,8 @@ Biblioteca ISFD 210
 @user_passes_test(es_bibliotecaria)
 def gestionar_sanciones(request):
     """Vista principal para gestionar sanciones"""
-    # Verificar préstamos vencidos antes de mostrar
-    verificar_prestamos_vencidos()
+    # Verificar préstamos vencidos antes de mostrar (con precisión)
+    verificar_vencimientos_tiempo_real()
     
     filtro = request.GET.get('filtro', 'pendientes')
     
@@ -1351,9 +1408,10 @@ def solicitar_prestamo(request, libro_id):
 # Gestión de préstamos solo para bibliotecarias
 @user_passes_test(es_bibliotecaria)
 def gestionar_prestamos(request):
-    # ... mantener el código existente ...
-    verificar_prestamos_vencidos()
+    # Verificar préstamos vencidos antes de mostrar (ahora con precisión)
+    verificar_vencimientos_tiempo_real()
     
+    # Obtener préstamos según filtro
     filtro = request.GET.get('filtro', 'todos')
     
     if filtro == 'solicitados':
