@@ -1791,27 +1791,13 @@ Biblioteca ISFD 210
     
     return render(request, 'libros/confirmar_sancion.html', {'sancion': sancion})
 
+# MODIFICAR la función cancelar_sancion existente para usar la nueva
 @user_passes_test(es_bibliotecaria)
 def cancelar_sancion(request, sancion_id):
-    """Cancela una sanción pendiente"""
-    sancion = get_object_or_404(Sancion, id_sancion=sancion_id)
-    
-    if sancion.estado not in ['pendiente', 'confirmada']:
-        messages.error(request, f"La sanción no puede ser cancelada porque su estado actual es {sancion.get_estado_display()}.")
-        return redirect('gestionar_sanciones')
-    
-    if request.method == 'POST':
-        motivo_cancelacion = request.POST.get('motivo_cancelacion', '')
-        
-        sancion.estado = 'cancelada'
-        sancion.observaciones_bibliotecaria = f"CANCELADA: {motivo_cancelacion}"
-        sancion.fecha_finalizacion = timezone.now()
-        sancion.save()
-        
-        messages.success(request, f"Sanción cancelada para {sancion.usuario.get_full_name()}.")
-        return redirect('gestionar_sanciones')
-    
-    return render(request, 'libros/cancelar_sancion.html', {'sancion': sancion})
+    """
+    Redirige a la nueva función con modal
+    """
+    return cancelar_sancion_con_modal(request, sancion_id)
 
 # Modificar la función finalizar_prestamo para manejar sanciones
 @user_passes_test(es_bibliotecaria)
@@ -1877,3 +1863,106 @@ def pantalla_principal(request):
         verificar_prestamos_vencidos()
     
     return render(request, 'libros/pantalla_principal.html', context)
+
+@user_passes_test(es_bibliotecaria)
+def cancelar_sancion_con_modal(request, sancion_id):
+    """
+    Cancela una sanción con opción de devolver libro al catálogo
+    """
+    sancion = get_object_or_404(Sancion, id_sancion=sancion_id)
+    
+    if sancion.estado not in ['pendiente', 'confirmada']:
+        messages.error(request, f"La sanción no puede ser cancelada porque su estado actual es {sancion.get_estado_display()}.")
+        return redirect('gestionar_sanciones')
+    
+    if request.method == 'POST':
+        motivo_cancelacion = request.POST.get('motivo_cancelacion', '')
+        devolver_libro = request.POST.get('devolver_libro') == 'on'
+        
+        # Cancelar la sanción
+        sancion.estado = 'cancelada'
+        sancion.observaciones_bibliotecaria = f"CANCELADA: {motivo_cancelacion}"
+        sancion.fecha_finalizacion = timezone.now()
+        
+        if devolver_libro:
+            # Devolver libro al catálogo
+            sancion.libro_devuelto_catalogo = True
+            sancion.fecha_devolucion_catalogo = timezone.now()
+            
+            # Cambiar estado del libro a disponible
+            libro = sancion.prestamo.libro
+            libro.estado = 'Disponible'
+            libro.save()
+            
+            # También finalizar el préstamo si no está finalizado
+            prestamo = sancion.prestamo
+            if prestamo.estado in ['vencido', 'aprobado']:
+                prestamo.estado = 'finalizado'
+                prestamo.fecha_devolucion_real = timezone.now()
+                prestamo.save()
+            
+            messages.success(request, f"Sanción cancelada y libro '{libro.titulo}' devuelto al catálogo.")
+        else:
+            sancion.libro_devuelto_catalogo = False
+            messages.success(request, f"Sanción cancelada. El libro permanece fuera del catálogo.")
+        
+        sancion.save()
+        return redirect('gestionar_sanciones')
+    
+    context = {
+        'sancion': sancion,
+        'libro': sancion.prestamo.libro,
+        'usuario': sancion.usuario,
+    }
+    return render(request, 'libros/cancelar_sancion_con_modal.html', context)
+
+@user_passes_test(es_bibliotecaria)
+def devolver_libro_catalogo(request, sancion_id):
+    """
+    Devuelve un libro al catálogo desde una sanción cancelada
+    """
+    sancion = get_object_or_404(Sancion, id_sancion=sancion_id)
+    
+    if sancion.estado != 'cancelada':
+        messages.error(request, "Solo se pueden devolver libros de sanciones canceladas.")
+        return redirect('gestionar_sanciones')
+    
+    if sancion.libro_devuelto_catalogo:
+        messages.warning(request, "Este libro ya fue devuelto al catálogo.")
+        return redirect('gestionar_sanciones')
+    
+    if request.method == 'POST':
+        observaciones = request.POST.get('observaciones', '')
+        
+        # Marcar libro como devuelto al catálogo
+        sancion.libro_devuelto_catalogo = True
+        sancion.fecha_devolucion_catalogo = timezone.now()
+        
+        # Agregar observaciones
+        if observaciones:
+            obs_anterior = sancion.observaciones_bibliotecaria or ""
+            sancion.observaciones_bibliotecaria = f"{obs_anterior}\nLibro devuelto al catálogo: {observaciones}".strip()
+        
+        sancion.save()
+        
+        # Cambiar estado del libro a disponible
+        libro = sancion.prestamo.libro
+        libro.estado = 'Disponible'
+        libro.save()
+        
+        # Finalizar el préstamo si no está finalizado
+        prestamo = sancion.prestamo
+        if prestamo.estado in ['vencido', 'aprobado']:
+            prestamo.estado = 'finalizado'
+            prestamo.fecha_devolucion_real = timezone.now()
+            prestamo.save()
+        
+        messages.success(request, f"El libro '{libro.titulo}' ha sido devuelto al catálogo exitosamente.")
+        return redirect('gestionar_sanciones')
+    
+    context = {
+        'sancion': sancion,
+        'libro': sancion.prestamo.libro,
+        'usuario': sancion.usuario,
+    }
+    return render(request, 'libros/devolver_libro_catalogo.html', context)

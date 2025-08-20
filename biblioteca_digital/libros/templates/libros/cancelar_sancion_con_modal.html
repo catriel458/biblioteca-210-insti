@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cancelar Sanción - Biblioteca</title>
+    <style>
+        body {
+            font-family: 'Calibri', 'Arial', sans-serif;
+            background-color: #f4f4f8;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header {
+            background-color: #f44336;
+            color: white;
+            padding: 20px;
+            border-radius: 8px 8px 0 0;
+            margin: -30px -30px 30px -30px;
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .info-card {
+            background-color: #f8f9fa;
+            border-left: 4px solid #004c8c;
+            padding: 20px;
+            margin-bottom: 25px;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .info-item {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .info-label {
+            font-weight: bold;
+            color: #004c8c;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+        
+        .info-value {
+            color: #333;
+            font-size: 16px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            display: block;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+        
+        .form-textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 100px;
+            box-sizing: border-box;
+        }
+        
+        .form-textarea:focus {
+            border-color: #004c8c;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(0, 76, 140, 0.1);
+        }
+        
+        .checkbox-container {
+            background-color: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 25px 0;
+        }
+        
+        .checkbox-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+            font-weight: bold;
+            color: #856404;
+            font-size: 18px;
+        }
+        
+        .checkbox-wrapper {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .checkbox-input {
+            width: 20px;
+            height: 20px;
+            accent-color: #004c8c;
+            margin-top: 2px;
+        }
+        
+        .checkbox-label {
+            font-size: 16px;
+            color: #333;
+            line-height: 1.4;
+        }
+        
+        .checkbox-description {
+            font-size: 14px;
+            color: #666;
+            margin-top: 8px;
+            padding-left: 35px;
+            line-height: 1.4;
+        }
+        
+        .warning-box {
+            background-color: #ffebee;
+            border-left: 4px solid #f44336;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 0 6px 6px 0;
+        }
+        
+        .warning-text {
+            color: #c62828;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        
+        .warning-detail {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 15px;
+            justify-content: flex-end;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+        
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+        }
+        
+        .btn-cancelar {
+            background-color: #f44336;
+            color: white;
+        }
+        
+        .btn-cancelar:hover {
+            background-color: #d32f2f;
+            transform: translateY(-1px);
+        }
+        
+        .btn-volver {
+            background-color: #6c757d;
+            color: white;
+        }
+        
+        .btn-volver:hover {
+            background-color: #5a6268;
+            text-decoration: none;
+            color: white;
+        }
+        
+        .libro-info {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .libro-titulo {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .libro-detalle {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                padding: 20px;
+            }
+            
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .button-group {
+                flex-direction: column;
+            }
+            
+            .btn {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>
+                ❌ Cancelar Sanción
+            </h1>
+        </div>
+        
+        <div class="info-card">
+            <div class="info-grid">
+                <div class="info-item">
+                    <span class="info-label">📋 ID Sanción</span>
+                    <span class="info-value">#{{ sancion.id_sancion }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">👤 Usuario</span>
+                    <span class="info-value">{{ usuario.get_full_name }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">📧 Email</span>
+                    <span class="info-value">{{ usuario.email }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">⚠️ Estado Actual</span>
+                    <span class="info-value">{{ sancion.get_estado_display }}</span>
+                </div>
+            </div>
+            
+            <div class="libro-info">
+                <div class="libro-titulo">📚 {{ libro.titulo }}</div>
+                <div class="libro-detalle">Por: {{ libro.autor }} | Estado actual: {{ libro.estado }}</div>
+            </div>
+        </div>
+        
+        <form method="post">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="motivo_cancelacion" class="form-label">
+                    📝 Motivo de cancelación *
+                </label>
+                <textarea 
+                    name="motivo_cancelacion" 
+                    id="motivo_cancelacion" 
+                    class="form-textarea" 
+                    placeholder="Describe por qué se cancela esta sanción..."
+                    required></textarea>
+            </div>
+            
+            <div class="checkbox-container">
+                <div class="checkbox-header">
+                    🔄 ¿Devolver libro al catálogo?
+                </div>
+                <div class="checkbox-wrapper">
+                    <input type="checkbox" id="devolver_libro" name="devolver_libro" class="checkbox-input">
+                    <label for="devolver_libro" class="checkbox-label">
+                        Sí, devolver el libro "{{ libro.titulo }}" al catálogo de libros disponibles
+                    </label>
+                </div>
+                <div class="checkbox-description">
+                    Si marcas esta opción, el libro volverá a estar disponible para préstamos inmediatamente.
+                    Si no la marcas, el libro permanecerá fuera del catálogo hasta que decidas devolverlo manualmente.
+                </div>
+            </div>
+            
+            <div class="warning-box">
+                <div class="warning-text">⚠️ Importante:</div>
+                <div class="warning-detail">
+                    Al cancelar esta sanción, se eliminará la inhabilitación del usuario para las mesas de final. 
+                    Esta acción no se puede deshacer. Si decides no devolver el libro al catálogo ahora, 
+                    podrás hacerlo más tarde desde el historial de sanciones.
+                </div>
+            </div>
+            
+            <div class="button-group">
+                <a href="{% url 'gestionar_sanciones' %}" class="btn btn-volver">
+                    ← Volver
+                </a>
+                <button type="submit" class="btn btn-cancelar" onclick="return confirm('¿Estás seguro/a de que quieres cancelar esta sanción?')">
+                    ✓ Cancelar Sanción
+                </button>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

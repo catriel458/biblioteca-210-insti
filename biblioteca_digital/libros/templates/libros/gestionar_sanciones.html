@@ -231,6 +231,17 @@
             color: white;
         }
         
+        .btn-catalogo {
+            background-color: #2196f3;
+            font-size: 10px;
+            padding: 3px 6px;
+        }
+        .btn-catalogo:hover {
+            background-color: #1976d2;
+            text-decoration: none;
+            color: white;
+        }
+        
         .btn-revocar { 
             background-color: #ff5722; 
         }
@@ -256,6 +267,25 @@
         .libro-no-disponible {
             background-color: #ffebee;
             color: #c62828;
+        }
+        
+        .estado-catalogo {
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-weight: bold;
+            margin-top: 2px;
+            display: inline-block;
+        }
+        
+        .catalogo-disponible {
+            background-color: #e8f5e8;
+            color: #2e7d32;
+        }
+        
+        .catalogo-no-disponible {
+            background-color: #fff3cd;
+            color: #856404;
         }
         
         .info-adicional {
@@ -345,6 +375,10 @@
                 <div class="stat-label">Sanciones Activas</div>
             </div>
             <div class="stat-card">
+                <div class="stat-number">{{ libros_fuera_catalogo }}</div>
+                <div class="stat-label">Libros Fuera del Catálogo</div>
+            </div>
+            <div class="stat-card">
                 <div class="stat-number">{{ sanciones|length }}</div>
                 <div class="stat-label">Total Mostradas</div>
             </div>
@@ -381,6 +415,7 @@
                         <th>ID</th>
                         <th>Usuario</th>
                         <th>Libro / Estado</th>
+                        <th>Estado Libro</th>
                         <th>Tipo Sanción</th>
                         <th>Estado</th>
                         <th>Fechas</th>
@@ -393,14 +428,52 @@
                     <tr>
                         <td><strong>#{{ sancion.id_sancion }}</strong></td>
                         <td>
-                            <strong>{{ sancion.usuario.get_full_name }}</strong><br>
-                            <small style="color: #666;">{{ sancion.usuario.email }}</small>
+                            {% if sancion.usuario %}
+                                <strong>{{ sancion.usuario.get_full_name }}</strong><br>
+                                <small style="color: #666;">{{ sancion.usuario.email }}</small>
+                            {% else %}
+                                <strong style="color: #999;">Usuario eliminado</strong><br>
+                                <small style="color: #999;">Sistema</small>
+                            {% endif %}
                         </td>
                         <td>
                             <strong>{{ sancion.prestamo.libro.titulo|truncatechars:30 }}</strong><br>
                             <div class="estado-libro {% if sancion.prestamo.libro.estado == 'Disponible' %}libro-disponible{% else %}libro-no-disponible{% endif %}">
                                 📚 {{ sancion.prestamo.libro.estado }}
                             </div>
+                        </td>
+                        <td>
+                            {% if sancion.estado == 'cancelada' %}
+                                {% if sancion.libro_devuelto_catalogo %}
+                                    <span style="background-color: #e8f5e8; color: #2e7d32; padding: 4px 8px; border-radius: 12px; font-size: 11px; font-weight: bold;">
+                                        ✅ En Catálogo
+                                    </span>
+                                    <br>
+                                    <small style="color: #666; font-size: 10px;">
+                                        Devuelto: {{ sancion.fecha_devolucion_catalogo|date:"d/m H:i" }}
+                                    </small>
+                                {% else %}
+                                    <span style="background-color: #fff3cd; color: #856404; padding: 4px 8px; border-radius: 12px; font-size: 11px; font-weight: bold;">
+                                        ⚠️ Fuera del Catálogo
+                                    </span>
+                                    <br>
+                                    <small style="color: #dc3545; font-size: 10px;">
+                                        No disponible para préstamos
+                                    </small>
+                                {% endif %}
+                            {% elif sancion.estado == 'cumplida' %}
+                                <span style="background-color: #e8f5e8; color: #2e7d32; padding: 4px 8px; border-radius: 12px; font-size: 11px; font-weight: bold;">
+                                    ✅ En Catálogo
+                                </span>
+                            {% elif sancion.prestamo.libro.estado == 'Disponible' %}
+                                <span style="background-color: #e8f5e8; color: #2e7d32; padding: 4px 8px; border-radius: 12px; font-size: 11px; font-weight: bold;">
+                                    ✅ Disponible
+                                </span>
+                            {% else %}
+                                <span style="background-color: #ffebee; color: #c62828; padding: 4px 8px; border-radius: 12px; font-size: 11px; font-weight: bold;">
+                                    ❌ No Disponible
+                                </span>
+                            {% endif %}
                         </td>
                         <td>{{ sancion.get_tipo_sancion_display }}</td>
                         <td>
@@ -464,15 +537,31 @@
                                        title="Revocar sanción">
                                        🔄 Revocar
                                     </a>
+                                {% elif sancion.estado == 'cancelada' %}
+                                    {% if not sancion.libro_devuelto_catalogo %}
+                                        <a href="{% url 'devolver_libro_catalogo' sancion.id_sancion %}" 
+                                           class="btn-action btn-devolver"
+                                           title="Devolver libro al catálogo">
+                                           📚 Devolver al Catálogo
+                                        </a>
+                                        <span style="color: #ff9800; font-style: italic; font-size: 10px; display: block; margin-top: 4px;">
+                                            Libro fuera del catálogo
+                                        </span>
+                                    {% else %}
+                                        <span style="color: #4caf50; font-style: italic; font-size: 11px;">
+                                            ✅ Libro en catálogo
+                                        </span>
+                                        <span style="color: #999; font-size: 10px; display: block; margin-top: 2px;">
+                                            Devuelto: {{ sancion.fecha_devolucion_catalogo|date:"d/m/y H:i" }}
+                                        </span>
+                                    {% endif %}
+                                {% elif sancion.estado == 'cumplida' %}
+                                    <span style="color: #4caf50; font-style: italic; font-size: 11px;">
+                                        ✅ Finalizada
+                                    </span>
                                 {% else %}
                                     <span style="color: #999; font-style: italic; font-size: 11px;">
-                                        {% if sancion.estado == 'cumplida' %}
-                                            ✅ Finalizada
-                                        {% elif sancion.estado == 'cancelada' %}
-                                            ❌ Cancelada
-                                        {% else %}
-                                            Sin acciones
-                                        {% endif %}
+                                        Sin acciones
                                     </span>
                                 {% endif %}
                             </div>

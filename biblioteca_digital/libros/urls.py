@@ -88,7 +88,9 @@ urlpatterns = [
     # URLs para gestión de sanciones
     path('gestionar-sanciones/', views.gestionar_sanciones, name='gestionar_sanciones'),
     path('confirmar-sancion/<int:sancion_id>/', views.confirmar_sancion, name='confirmar_sancion'),
-    path('cancelar-sancion/<int:sancion_id>/', views.cancelar_sancion, name='cancelar_sancion'),
+    path('cancelar-sancion/<int:sancion_id>/', views.cancelar_sancion_con_modal, name='cancelar_sancion'),
+    path('devolver-libro-catalogo/<int:sancion_id>/', views.devolver_libro_catalogo, name='devolver_libro_catalogo'),  # NUEVA
+    path('marcar-libro-devuelto/<int:sancion_id>/', views.marcar_libro_devuelto, name='marcar_libro_devuelto'),
     path('mis-sanciones/', views.mis_sanciones, name='mis_sanciones'),
 
 

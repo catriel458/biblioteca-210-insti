@@ -273,6 +273,8 @@ class Sancion(models.Model):
     fecha_finalizacion = models.DateTimeField(null=True, blank=True)
     motivo = models.TextField(default='Préstamo vencido')
     observaciones_bibliotecaria = models.TextField(blank=True, null=True)
+    libro_devuelto_catalogo = models.BooleanField(default=False, help_text="Indica si el libro fue devuelto al catálogo tras cancelar la sanción")
+    fecha_devolucion_catalogo = models.DateTimeField(null=True, blank=True, help_text="Fecha cuando el libro fue devuelto al catálogo")
     
     class Meta:
         ordering = ['-fecha_creacion']
