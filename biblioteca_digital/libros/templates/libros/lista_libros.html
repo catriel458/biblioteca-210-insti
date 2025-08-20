@@ -363,6 +363,11 @@
             <a href="{% url 'cargar_csv' %}" class="btn-carga-masiva">Carga Masiva</a>
         </div>
         {% endif %}
+
+        <!-- Mostrar solo para usuarios normales -->
+        <div style="margin-bottom: 20px;">
+            <a href="{% url 'pantalla_principal' %}" class="btn-carga-manual" style="background-color: #004c8c;">🏠 Volver al Home</a>
+        </div>
         
         <!-- Barra de búsqueda -->
         <form id="search-form">

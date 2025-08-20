@@ -737,41 +737,41 @@ def reactivar_libro(request, libro_id):
 
 # PRESTAMOS
 
-def solicitar_prestamo(request, libro_id):
-    libro = get_object_or_404(Libro, id_libro=libro_id)
+# def solicitar_prestamo(request, libro_id):
+#     libro = get_object_or_404(Libro, id_libro=libro_id)
     
-    # Verificar si el libro está disponible
-    if libro.estado != 'Disponible':
-        messages.error(request, "Este libro no está disponible para préstamo.")
-        return redirect('lista_libros')
+#     # Verificar si el libro está disponible
+#     if libro.estado != 'Disponible':
+#         messages.error(request, "Este libro no está disponible para préstamo.")
+#         return redirect('lista_libros')
     
-    # Crear el préstamo
-    if request.method == 'POST':
-        nombre_usuario = request.POST.get('nombre_usuario', '')
-        email_usuario = request.POST.get('email_usuario', '')
-        tipo_usuario = request.POST.get('tipo_usuario', 'alumno')
-        tipo_prestamo = request.POST.get('tipo_prestamo', 'domicilio')
+#     # Crear el préstamo
+#     if request.method == 'POST':
+#         nombre_usuario = request.POST.get('nombre_usuario', '')
+#         email_usuario = request.POST.get('email_usuario', '')
+#         tipo_usuario = request.POST.get('tipo_usuario', 'alumno')
+#         tipo_prestamo = request.POST.get('tipo_prestamo', 'domicilio')
         
-        # NO calcular fecha límite aquí - se calculará cuando se apruebe
-        prestamo = Prestamo(
-            nombre_usuario=nombre_usuario,
-            email_usuario=email_usuario,
-            libro=libro,
-            tipo_prestamo=tipo_prestamo,
-            tipo_usuario=tipo_usuario,
-            estado='solicitado',
-            fecha_limite_reserva=None  # Se establecerá cuando se apruebe la solicitud
-        )
-        prestamo.save()
+#         # NO calcular fecha límite aquí - se calculará cuando se apruebe
+#         prestamo = Prestamo(
+#             nombre_usuario=nombre_usuario,
+#             email_usuario=email_usuario,
+#             libro=libro,
+#             tipo_prestamo=tipo_prestamo,
+#             tipo_usuario=tipo_usuario,
+#             estado='solicitado',
+#             fecha_limite_reserva=None  # Se establecerá cuando se apruebe la solicitud
+#         )
+#         prestamo.save()
         
-        # Cambiar estado del libro a reservado
-        libro.estado = 'Reservado'
-        libro.save()
+#         # Cambiar estado del libro a reservado
+#         libro.estado = 'Reservado'
+#         libro.save()
         
-        messages.success(request, f"Has solicitado el préstamo del libro '{libro.titulo}'. La bibliotecaria revisará tu solicitud y tendrás 3 días hábiles para retirarlo una vez aprobada.")
-        return redirect('prestamos_solicitados')
+#         messages.success(request, f"Has solicitado el préstamo del libro '{libro.titulo}'. La bibliotecaria revisará tu solicitud y tendrás 3 días hábiles para retirarlo una vez aprobada.")
+#         return redirect('prestamos_solicitados')
     
-    return render(request, 'libros/solicitar_prestamo.html', {'libro': libro})
+#     return render(request, 'libros/solicitar_prestamo.html', {'libro': libro})
 
 
 def aprobar_solicitud_prestamo(request, prestamo_id):
@@ -1055,6 +1055,9 @@ def confirmar_retiro_libro(request, prestamo_id):
     if request.method == 'POST':
         ahora_retiro = timezone.now()
         
+        libro = prestamo.libro
+        libro.estado = 'No disponible'
+        libro.save()
         prestamo.estado = 'aprobado'
         prestamo.fecha_retiro_real = ahora_retiro
         
@@ -1397,8 +1400,8 @@ def solicitar_prestamo(request, libro_id):
         prestamo.save()
         
         # Cambiar estado del libro a reservado
-        libro.estado = 'Reservado'
-        libro.save()
+        # libro.estado = 'Reservado'
+        # libro.save()
         
         messages.success(request, f"Has solicitado el préstamo del libro '{libro.titulo}'. La biblioteca revisará tu solicitud.")
         return redirect('prestamos_solicitados')
