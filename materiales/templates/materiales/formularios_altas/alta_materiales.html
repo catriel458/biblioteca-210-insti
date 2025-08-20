@@ -117,6 +117,13 @@ document.addEventListener("DOMContentLoaded", function () {
                     formularioEspecifico.innerHTML = html;
                     buttonsContainer.style.display = 'flex';
                     
+                    // 🔥 IMPORTANTE: Establecer el action correcto para libro
+                    const form = document.getElementById('form_alta_material');
+                    if (form) {
+                        form.action = '/alta-libro/';
+                        console.log('🔧 Action del formulario libro establecido a:', form.action);
+                    }
+                    
                     // Solo mostrar carga masiva y URL para libros
                     if (uploadSimple) uploadSimple.style.display = 'block';
                     if (uploadBox) uploadBox.style.display = 'block';

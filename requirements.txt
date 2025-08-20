@@ -20,7 +20,7 @@ more-itertools==8.10.0
 oauthlib==3.2.0
 olefile==0.46
 pexpect==4.8.0
-Pillow==9.0.1
+#Pillow==9.0.1
 ptyprocess==0.7.0
 #pycairo==1.20.1
 #pycups==2.0.1
@@ -35,7 +35,7 @@ PyQt5==5.15.6
 #python-debian==0.1.43+ubuntu1.1
 #pyxattr==0.7.2
 #PyYAML==5.4.1
-reportlab==3.6.8
+#reportlab==3.6.8
 SecretStorage==3.3.1
 six==1.16.0
 sqlparse==0.4.4
