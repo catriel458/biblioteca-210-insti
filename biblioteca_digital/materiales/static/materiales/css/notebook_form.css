@@ -1,0 +1,154 @@
+/* Estilos para el formulario de alta de notebook */
+
+/* Estilos generales del formulario */
+#form_alta_notebook {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    font-family: 'Calibri', 'Arial', sans-serif;
+}
+
+/* Título del formulario */
+.form-title {
+    text-align: center;
+    color: #25898D;
+    margin-bottom: 20px;
+    font-weight: bold;
+    font-size: 24px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+}
+
+/* Estilos para las etiquetas */
+.text-input, .form-label {
+    font-weight: bold;
+    color: #25898D;
+    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+}
+
+/* Estilos para los campos de entrada */
+.form-control, .form-select {
+    border: none;
+    border-bottom: 1px solid #ccc;
+    border-radius: 0;
+    padding: 8px 0;
+    background-color: transparent;
+    box-shadow: none;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #25898D;
+    box-shadow: none;
+    outline: none;
+}
+
+.form-control::placeholder {
+    color: #aaa;
+    font-style: italic;
+}
+
+/* Estilos para el tipo de material */
+.tipo-material {
+    background-color: #e8f4f5;
+    border-radius: 4px;
+    padding: 8px;
+    font-weight: bold;
+    color: #25898D;
+    display: inline-block;
+    margin-bottom: 15px;
+}
+
+/* Estilos para el contenedor de ejemplares */
+.ejemplar-container {
+    background-color: #f8f9fa;
+    border: 1px dashed #ccc !important;
+    margin-top: 15px;
+}
+
+/* Línea punteada separadora */
+.separador-punteado {
+    border-bottom: 2px dashed #ccc;
+    margin: 20px 0;
+}
+
+/* Estilos para los botones */
+.btn-danger {
+    background-color: white;
+    border: 1px solid #ff6b6b;
+    color: #ff6b6b;
+    padding: 8px 20px;
+    font-weight: bold;
+}
+
+.btn-primary {
+    background-color: #3b5ef8 !important;
+    border: none;
+    padding: 8px 20px;
+    font-weight: bold;
+    color: white;
+}
+
+/* Estilos para el modal de confirmación */
+.modal-content {
+    border-radius: 8px;
+}
+
+.modal-header {
+    background-color: #4e73df;
+    color: white;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+}
+
+.modal-title {
+    font-weight: bold;
+}
+
+/* Estilos para la tabla en el modal */
+.table {
+    width: 100%;
+    margin-bottom: 1rem;
+    color: #212529;
+    border-collapse: collapse;
+}
+
+.table th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+    text-align: left;
+    padding: 12px;
+    border: 1px solid #dee2e6;
+}
+
+.table td {
+    padding: 12px;
+    border: 1px solid #dee2e6;
+}
+
+/* Estilos específicos para los campos de registro y modelo */
+#contenedor-ejemplares-notebook label[for^="registro_"] {
+    font-weight: bold;
+}
+
+#contenedor-ejemplares-notebook label[for^="modelo_"] {
+    font-weight: bold;
+}
+
+/* Estilos para dispositivos móviles */
+@media (max-width: 768px) {
+    .ejemplar-container {
+        padding: 10px !important;
+    }
+    
+    .row {
+        margin-right: -5px;
+        margin-left: -5px;
+    }
+    
+    .col-6 {
+        padding-right: 5px;
+        padding-left: 5px;
+    }
+}
