@@ -1,0 +1,440 @@
+/* CSS para el formulario de Alta Material - Notebook */
+/* Reemplazar completamente el contenido de notebook_form.css */
+
+/* Reset y estilos base */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Contenedor principal del formulario */
+#form_alta_notebook {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+    padding: 40px;
+    width: 100%;
+    max-width: 650px;
+    margin: 0 auto;
+    position: relative;
+    overflow: hidden;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Línea superior azul */
+#form_alta_notebook::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 5px;
+    background: linear-gradient(90deg, #64b5f6, #42a5f5, #2196f3);
+}
+
+/* Título ALTA MATERIAL */
+#form_alta_notebook::after {
+    content: 'ALTA MATERIAL';
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 32px;
+    color: #4dd0e1;
+    font-weight: 300;
+    letter-spacing: 2px;
+    text-align: center;
+}
+
+/* Subtítulo *Requerido */
+[data-form-type="notebook"]::before {
+    content: '*Requerido';
+    position: absolute;
+    top: 70px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: #e74c3c;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+/* Icono de libro en esquina superior derecha */
+[data-form-type="notebook"]::after {
+    content: '📚';
+    position: absolute;
+    right: 30px;
+    top: 20px;
+    font-size: 40px;
+    opacity: 0.8;
+}
+
+/* Espaciado superior para el contenido */
+[data-block="content"] {
+    margin-top: 80px;
+}
+
+/* Estilos para labels */
+.text-input, .form-label {
+    display: block;
+    margin-bottom: 8px;
+    color: #333;
+    font-weight: 500;
+    font-size: 14px;
+}
+
+/* Inputs y selects generales */
+.form-control, .form-select {
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    background: #fafafa;
+}
+
+.form-control:focus, .form-select:focus {
+    outline: none;
+    border-color: #4dd0e1;
+    background: white;
+    box-shadow: 0 0 0 3px rgba(77, 208, 225, 0.1);
+}
+
+/* Estilo específico para el campo Marca (tipo NOTEBOOK) */
+#marca_not {
+    background-color: #4dd0e1;
+    color: white;
+    font-weight: 600;
+    border: 2px solid #4dd0e1;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 14px;
+}
+
+#marca_not::placeholder {
+    color: rgba(255,255,255,0.8);
+    text-transform: none;
+    letter-spacing: normal;
+}
+
+/* Estilo para el select de Sede */
+#sede {
+    background-color: #e3f2fd;
+    border-color: #2196f3;
+    color: #1565c0;
+    font-weight: 500;
+}
+
+#sede option {
+    background-color: white;
+    color: #1565c0;
+}
+
+/* Badge MANUAL en la esquina */
+.manual-badge {
+    position: absolute;
+    top: 100px;
+    right: 30px;
+    background: linear-gradient(45deg, #8e24aa, #d81b60);
+    color: white;
+    padding: 10px 25px;
+    border-radius: 25px;
+    font-size: 12px;
+    font-weight: 700;
+    text-align: center;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    box-shadow: 0 4px 15px rgba(142, 36, 170, 0.3);
+}
+
+.manual-badge {
+    background-color: #f8f9fa;
+    padding: 5px 10px;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+    display: inline-block;
+    font-size: 0.875rem;
+    color: #6c757d;
+}
+
+/* Contenedor de cantidad de ejemplares */
+#cant_ejemplares_container {
+    margin-top: 20px;
+}
+
+#cant_ejemplares {
+    text-align: center;
+    font-weight: 600;
+    font-size: 16px;
+}
+
+/* Línea punteada separadora */
+.separador-punteado {
+    border-top: 2px dotted #e0e0e0;
+    margin: 25px 0;
+    position: relative;
+}
+
+.separador-punteado {
+    border-top: 2px dashed #dee2e6;
+    margin: 1.5rem 0;
+}
+
+/* Contenedor de ejemplares */
+#contenedor-ejemplares-notebook {
+    margin-top: 30px;
+}
+
+.ejemplar-container {
+    background-color: #f8f9fa;
+    border: 2px dashed #e0e0e0 !important;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+    position: relative;
+}
+
+.ejemplar-container {
+    background-color: #f8f9fa;
+    padding: 1rem;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+}
+
+.ejemplar-container h5 {
+    color: #333;
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.ejemplar-container h6 {
+    color: #495057;
+    margin-bottom: 1rem;
+}
+
+/* Campos de Registro y Modelo */
+input[name="registro[]"], 
+input[name="modelo[]"] {
+    background: white;
+    border: 2px solid #e0e0e0;
+    border-radius: 6px;
+}
+
+input[name="registro[]"]:focus, 
+input[name="modelo[]"]:focus {
+    border-color: #4dd0e1;
+    box-shadow: 0 0 0 2px rgba(77, 208, 225, 0.1);
+}
+
+/* Estilos para filas y columnas */
+.row {
+    display: flex;
+    flex-wrap: wrap;
+    margin: 0 -10px;
+}
+
+.col-4, .col-2, .col-6 {
+    padding: 0 10px;
+}
+
+.col-4 {
+    flex: 0 0 33.333333%;
+    max-width: 33.333333%;
+}
+
+.col-2 {
+    flex: 0 0 16.666667%;
+    max-width: 16.666667%;
+}
+
+.col-6 {
+    flex: 0 0 50%;
+    max-width: 50%;
+}
+
+/* Estilos para botones del modal */
+.modal-content {
+    border-radius: 15px;
+    border: none;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+}
+
+.modal-header {
+    background: linear-gradient(45deg, #2196f3, #21cbf3);
+    color: white;
+    border-radius: 15px 15px 0 0;
+    padding: 20px;
+}
+
+.modal-title {
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.modal-body {
+    padding: 25px;
+}
+
+.modal-footer {
+    padding: 20px 25px;
+    border-top: 1px solid #f0f0f0;
+}
+
+/* Botones */
+.btn {
+    padding: 12px 30px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.btn-secondary {
+    background: transparent;
+    color: #666;
+    border: 2px solid #e0e0e0;
+}
+
+.btn-secondary:hover {
+    background: #f5f5f5;
+    border-color: #ccc;
+    transform: translateY(-1px);
+}
+
+.btn-primary {
+    background: linear-gradient(45deg, #2196f3, #21cbf3);
+    color: white;
+    box-shadow: 0 4px 15px rgba(33, 150, 243, 0.3);
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 25px rgba(33, 150, 243, 0.4);
+    background: linear-gradient(45deg, #1976d2, #0288d1);
+}
+
+/* Tabla en el modal */
+.table {
+    width: 100%;
+    margin-bottom: 1rem;
+    color: #212529;
+    border-collapse: collapse;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.table th {
+    background: linear-gradient(45deg, #f8f9fa, #e9ecef);
+    font-weight: 600;
+    text-align: left;
+    padding: 15px 12px;
+    border: 1px solid #dee2e6;
+    color: #495057;
+}
+
+.table td {
+    padding: 12px;
+    border: 1px solid #dee2e6;
+    background: white;
+}
+
+.table tbody tr:hover {
+    background-color: rgba(77, 208, 225, 0.05);
+}
+
+/* Placeholders */
+.form-control::placeholder {
+    color: #999;
+    font-style: italic;
+}
+
+/* Animaciones */
+#form_alta_notebook {
+    animation: slideUp 0.6s ease-out;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.ejemplar-container {
+    animation: fadeIn 0.4s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(15px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    #form_alta_notebook {
+        margin: 20px;
+        padding: 30px 20px;
+    }
+    
+    #form_alta_notebook::after {
+        font-size: 24px;
+        top: 15px;
+    }
+    
+    [data-form-type="notebook"]::before {
+        top: 55px;
+    }
+    
+    [data-block="content"] {
+        margin-top: 70px;
+    }
+    
+    .row {
+        flex-direction: column;
+        margin: 0;
+    }
+    
+    .col-4, .col-2, .col-6 {
+        flex: 1;
+        max-width: 100%;
+        margin-bottom: 15px;
+        padding: 0;
+    }
+    
+    .manual-badge {
+        position: relative;
+        top: auto;
+        right: auto;
+        margin: 20px auto;
+        display: block;
+        width: fit-content;
+    }
+}
+
+/* Estados focus mejorados */
+input:focus, select:focus {
+    transform: translateY(-1px);
+}
+
+.btn:focus {
+    outline: 3px solid rgba(33, 150, 243, 0.3);
+    outline-offset: 2px;
+}

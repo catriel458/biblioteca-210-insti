@@ -341,8 +341,8 @@ function plantillaEjemplarMaterial(idx, tipo) {
         return `
         <div class="row mb-2">
             <div class="col-md-3">
-                <label for="serie_${idx}">N° de serie:</label>
-                <input type="text" class="form-control" id="serie_${idx}" name="serie_${idx}" required placeholder="N° de serie...">
+                <label for="registro_${idx}">N° de registro:</label>
+                <input type="text" class="form-control" id="registro_${idx}" name="registro_${idx}" required placeholder="N° de registro...">
             </div>
             <div class="col-md-3">
                 <label for="modelo_${idx}">Modelo:</label>
