@@ -12,6 +12,7 @@
 <link rel="stylesheet" href="{% static 'css/manual_modal.css' %}">
 <link rel="stylesheet" href="{% static 'css/main.css' %}">
 <link rel="stylesheet" href="{% static 'css/botones.css' %}">
+
 <style>
     .page-header {
         background: linear-gradient(135deg, #4ECDC4, #44A08D);
@@ -44,86 +45,304 @@
 
     .buscar input[type="text"] {
         width: 100%;
-        padding: 8px 40px 8px 12px;
-        border: 1px solid #ddd;
-        border-radius: 20px;
-        font-size: 14px;
-        outline: none;
-        transition: border-color 0.3s ease;
-    }
+    /* Layout general - Alineación exacta como en la imagen */
+    .container-fluid {
+        /* Layout principal */
+        .container-fluid {
+            padding: 15px 20px;
+        }
 
-    .buscar input[type="text"]:focus {
-        border-color: #4ECDC4;
-        box-shadow: 0 0 0 2px rgba(78, 205, 196, 0.2);
-    }
+        /* Primera fila - Distribución horizontal */
+        .primera-fila {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            width: 100%;
+        }
 
-    .buscar button {
-        position: absolute;
-        right: 5px;
-        top: 50%;
-        transform: translateY(-50%);
-        background: none;
-        border: none;
-        padding: 5px 10px;
-        cursor: pointer;
-        border-radius: 15px;
-        transition: background-color 0.3s ease;
-    }
+        .buscar-container {
+            flex-shrink: 0;
+        }
 
-    .buscar button:hover {
-        background-color: #f0f0f0;
-    }
+        .controles-derecha {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex-shrink: 0;
+        }
 
-    .icono-buscar {
-        font-size: 16px;
-    }
+        /* Segunda fila - Distribución horizontal */
+        .segunda-fila {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-bottom: 20px;
+            width: 100%;
+        }
 
-    .mostrar-no-disponibles {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        font-size: 14px;
-        color: #555;
-    }
+        /* Estilos del buscador */
+        .buscar {
+            display: flex;
+            align-items: center;
+            width: 240px;
+        }
 
-    .mostrar-no-disponibles input[type="checkbox"] {
-        width: 18px;
-        height: 18px;
-        accent-color: #4ECDC4;
-    }
+        .buscar input {
+            width: 200px;
+            padding: 8px 12px;
+            border: 1px solid #ccc;
+            border-radius: 20px 0 0 20px;
+            font-size: 13px;
+            outline: none;
+            font-family: Arial, sans-serif;
+        }
 
-    .manual-button {
-        background: linear-gradient(135deg, #667eea, #764ba2);
-        color: white;
-        border: none;
-        padding: 8px 20px;
-        border-radius: 20px;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        transition: all 0.3s ease;
-    }
+        .buscar button {
+            background: #f8f9fa;
+            border: 1px solid #ccc;
+            border-left: none;
+            border-radius: 0 20px 20px 0;
+            padding: 8px 12px;
+            cursor: pointer;
+            width: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
 
-    .manual-button:hover {
-        background: linear-gradient(135deg, #764ba2, #667eea);
-        transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-    }
+        /* Checkbox "Mostrar no disponibles" */
+        .mostrar-no-disponibles {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: Arial, sans-serif;
+            font-size: 13px;
+            color: #333;
+            white-space: nowrap;
+        }
 
-    .tipo-material-container label {
-        font-weight: 600;
-        margin-bottom: 5px;
-        display: block;
-        color: #25898D;
-    }
+        .mostrar-no-disponibles input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+        }
 
-    .tipo-material-container select {
-        width: 100%;
-        padding: 8px 12px;
-        border: 1px solid #ddd;
-        border-radius: 5px;
-        font-size: 14px;
-        background: white;
+        .mostrar-no-disponibles label {
+            margin: 0;
+            cursor: pointer;
+        }
+
+        /* Botón MANUAL */
+        .manual-button {
+            background-color: #8B4B9C !important;
+            color: white !important;
+            border: none !important;
+            border-radius: 0px !important;
+            padding: 10px 20px !important;
+            font-family: Arial, sans-serif !important;
+            font-size: 14px !important;
+            font-weight: bold !important;
+            cursor: pointer !important;
+            text-transform: uppercase !important;
+            height: 35px !important;
+            min-width: 100px !important;
+        }
+
+        .manual-button:hover {
+            background-color: #7A3F8A !important;
+        }
+
+        /* Contenedores de selectores */
+        .tipo-material-container,
+        .ordenar-por {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        /* Labels de los selectores */
+        .tipo-material-container label,
+        .ordenar-por label {
+            font-family: Arial, sans-serif !important;
+            font-size: 14px !important;
+            font-weight: 500 !important;
+            color: #5cb3a3 !important;
+            margin: 0;
+        }
+
+        /* Estilos base para ambos selectores */
+        .tipo-material-container select,
+        .ordenar-por select {
+            width: 200px !important;
+            height: 32px !important;
+            font-family: Arial, sans-serif !important;
+            font-size: 13px !important;
+            font-weight: normal !important;
+            color: #333 !important;
+            border: 1px solid #5cb3a3 !important;
+            border-radius: 0px !important;
+            padding: 6px 25px 6px 8px !important;
+    
+            /* Eliminar estilos nativos */
+            -webkit-appearance: none !important;
+            -moz-appearance: none !important;
+            appearance: none !important;
+    
+            /* Flecha personalizada */
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23333' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e") !important;
+            background-repeat: no-repeat !important;
+            background-position: right 8px center !important;
+            background-size: 12px !important;
+        }
+
+        /* Selector de tipo de material - Color turquesa */
+        #tipo_material {
+            background-color: #7dd3c0 !important;
+        }
+
+        #tipo_material option {
+            background-color: #7dd3c0 !important;
+            color: #333 !important;
+        }
+
+        /* Selector de ordenar por - Color gris */
+        #ordenar_por {
+            background-color: #e9ecef !important;
+        }
+
+        #ordenar_por option {
+            background-color: #e9ecef !important;
+            color: #333 !important;
+        }
+
+        /* Estados hover y focus */
+        #tipo_material:hover,
+        #tipo_material:focus {
+            background-color: #6bc7b3 !important;
+            outline: none !important;
+        }
+
+        #ordenar_por:hover,
+        #ordenar_por:focus {
+            background-color: #dee2e6 !important;
+            outline: none !important;
+        }
+
+        /* Responsividad */
+        @media (max-width: 768px) {
+            .primera-fila,
+            .segunda-fila {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 15px;
+            }
+    
+            .controles-derecha {
+                justify-content: space-between;
+                width: 100%;
+            }
+    
+            .buscar {
+                width: 100%;
+            }
+    
+            .buscar input {
+                flex: 1;
+            }
+    
+            .tipo-material-container select,
+            .ordenar-por select {
+                width: 100% !important;
+            }
+    
+            .manual-button {
+                min-width: 120px !important;
+            }
+        }
+    width: 200px !important;
+}
+
+/* Estilo específico para el selector de ordenar por */
+#ordenar_por {
+    background: #e9ecef !important;
+    background-color: #e9ecef !important;
+    min-width: 200px !important;
+    width: 200px !important;
+}
+
+/* Opciones del dropdown - también con color turquesa */
+#tipo_material option {
+    background-color: #7dd3c0 !important;
+    color: #333 !important;
+    padding: 8px !important;
+    font-size: 13px !important;
+    font-family: Arial, sans-serif !important;
+}
+
+#ordenar_por option {
+    background-color: #e9ecef !important;
+    color: #333 !important;
+    padding: 8px !important;
+    font-size: 13px !important;
+    font-family: Arial, sans-serif !important;
+}
+
+/* Labels */
+.tipo-material-container label,
+.ordenar-por label {
+    display: block;
+    font-family: Arial, sans-serif !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    color: #5cb3a3 !important;
+    margin-bottom: 8px !important;
+}
+
+/* Contenedores */
+.tipo-material-container,
+.ordenar-por {
+    display: block;
+    margin-bottom: 15px;
+}
+
+/* Estados hover y focus */
+.tipo-material-container select:hover,
+.tipo-material-container select:focus {
+    background: #6bc7b3 !important;
+    background-color: #6bc7b3 !important;
+    border-color: #5cb3a3 !important;
+    outline: none !important;
+}
+
+.ordenar-por select:hover,
+.ordenar-por select:focus {
+    background: #dee2e6 !important;
+    background-color: #dee2e6 !important;
+    border-color: #adb5bd !important;
+    outline: none !important;
+}
+
+/* Forzar el estilo en todos los navegadores */
+select {
+    background: #7dd3c0 !important;
+}
+
+select#tipo_material {
+    background: #7dd3c0 !important;
+}
+
+select#ordenar_por {
+    background: #e9ecef !important;
+}
+
+/* Responsividad */
+@media (max-width: 768px) {
+    .tipo-material-container select,
+    .ordenar-por select {
+        width: 100% !important;
+        min-width: 100% !important;
+    }
+}
     }
 
     /* Tabla de materiales */
@@ -560,23 +779,23 @@
                             {% endif %}
                         </td>
                         <td class="acciones-cell">
-                            <button class="btn-icon btn-detalle" title="Ver detalles" onclick="verDetalles({{ libro.id_libro }})">
+                            <button class="btn-icon btn-detalle" title="Ver detalles" onclick="verDetalles('{{ libro.id_libro }}')">
                                 📋
                             </button>
                             <a href="{% url 'editar_libro' libro.id_libro %}" class="btn-icon btn-editar" title="Editar">
                                 ✏️
                             </a>
-                            <button class="btn-icon btn-imprimir" title="Imprimir" onclick="imprimirLibro({{ libro.id_libro }})">
+                            <button class="btn-icon btn-imprimir" title="Imprimir" onclick="imprimirLibro('{{ libro.id_libro }}')">
                                 🖨️
                             </button>
                             {% if libro.estado == 'Disponible' %}
-                                <button class="btn-icon btn-eliminar" title="Dar de baja" 
-                                        onclick="darDeBaja({{ libro.id_libro }}, '{{ libro.titulo|escapejs }}')">
+                <button class="btn-icon btn-eliminar" title="Dar de baja" 
+                    onclick="darDeBaja('{{ libro.id_libro }}', '{{ libro.titulo|escapejs }}')">
                                     🗑️
                                 </button>
                             {% elif libro.estado == 'No disponible' %}
-                                <button class="btn-icon btn-ver-informe" title="Ver informe de baja" 
-                                        onclick="verInformeBaja({{ libro.id_libro }})">
+                <button class="btn-icon btn-ver-informe" title="Ver informe de baja" 
+                    onclick="verInformeBaja('{{ libro.id_libro }}')">
                                     📄
                                 </button>
                                 
@@ -1708,11 +1927,13 @@ document.addEventListener("DOMContentLoaded", function() {
     const searchInput = document.getElementById('searchInput');
     const mostrarNoDisponibles = document.getElementById('mostrar_no_disponibles');
     const ordenarPor = document.getElementById('ordenar_por');
+    const tipoMaterial = document.getElementById('tipo_material');
     const rows = document.querySelectorAll('.libro-row');
 
     function filtrarLibros() {
         const searchTerm = searchInput.value.toLowerCase();
         const showUnavailable = mostrarNoDisponibles.checked;
+        const tipoSeleccionado = tipoMaterial.value;
         let visibleCount = 0;
 
         rows.forEach(row => {
@@ -1720,14 +1941,20 @@ document.addEventListener("DOMContentLoaded", function() {
             const autor = row.dataset.autor;
             const editorial = row.dataset.editorial;
             const estado = row.dataset.estado;
-            
+            const tipo = row.dataset.tipo ? row.dataset.tipo : '';
+
+            // Filtrar por tipo de material si está seleccionado
+            const matchesTipo = !tipoSeleccionado || tipo === tipoSeleccionado;
+
+            // Filtrar por búsqueda
             const matchesSearch = titulo.includes(searchTerm) || 
                                  autor.includes(searchTerm) || 
                                  editorial.includes(searchTerm);
-            
+
+            // Filtrar por estado
             const isAvailable = estado === 'disponible' || estado === 'reservado';
-            const showRow = matchesSearch && (showUnavailable || isAvailable);
-            
+            const showRow = matchesTipo && matchesSearch && (showUnavailable || isAvailable);
+
             row.style.display = showRow ? '' : 'none';
             if (showRow) visibleCount++;
         });
@@ -1756,6 +1983,7 @@ document.addEventListener("DOMContentLoaded", function() {
     // Event listeners para filtros
     searchInput.addEventListener('input', filtrarLibros);
     mostrarNoDisponibles.addEventListener('change', filtrarLibros);
+    tipoMaterial.addEventListener('change', filtrarLibros);
 
     // ===== APLICAR FILTRO INICIAL AL CARGAR LA PÁGINA =====
     filtrarLibros(); // <- AGREGAR ESTA LÍNEA
