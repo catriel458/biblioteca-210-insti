@@ -1,3 +1,4 @@
+{% extends 'components/baseb.html' %}
 {% load static %}
 <form id="form_alta_notebook" method="post" action="{% url 'alta_notebook' %}" enctype="multipart/form-data">
     {% csrf_token %}

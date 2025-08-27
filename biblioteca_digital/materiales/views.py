@@ -570,17 +570,36 @@ def baja_notebook(request):
 
 
 def alta_notebook(request):
-    form = NotebookForm(request.POST or None)
-    if request.method == 'POST' and form.is_valid():
-        notebook = form.save(commit=False)
-        notebook.save()
-        context = {'form': form,
-                   'success': 'Notebook registrado exitosamente.'}
+    if request.method == 'POST':
+        form = NotebookForm(request.POST)
+        if form.is_valid():
+            # Guardar el notebook principal
+            notebook = form.save()
+            
+            # Procesar los ejemplares
+            registros = request.POST.getlist('registro[]')
+            modelos = request.POST.getlist('modelo[]')
+            
+            # Validar que tenemos la misma cantidad de registros y modelos
+            if len(registros) == len(modelos):
+                # Crear cada ejemplar
+                for i in range(len(registros)):
+                    EjemplarNotebook.objects.create(
+                        notebook=notebook,
+                        registro=registros[i],
+                        modelo=modelos[i]
+                    )
+                
+                messages.success(request, 'Notebook y ejemplares registrados exitosamente.')
+                return redirect('notebook')  # Redirigir a la lista de notebooks
+            else:
+                messages.error(request, 'Error en los datos de los ejemplares.')
+        else:
+            messages.error(request, 'Por favor complete todos los campos obligatorios.')
     else:
-        context = {'form': form, 'error': 'Por favor complete todos los campos obligatorios.'} if request.method == 'POST' else {
-            'form': form}
+        form = NotebookForm()
 
-    return render(request, 'materiales/formularios_altas/alta_notebook.html', context)
+    return render(request, 'materiales/formularios_altas/alta_notebook.html', {'form': form})
 
 # Vista para editar un mapa:
 
