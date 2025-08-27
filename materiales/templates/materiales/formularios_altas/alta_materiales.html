@@ -1,0 +1,442 @@
+{% extends 'components/baseb.html' %}
+{% load static %}
+{% block extra_styles %}
+    <link rel="stylesheet" href="{% static 'css/header.css' %}">
+    <link rel="stylesheet" href="{% static 'css/manual_modal.css' %}">
+    <link rel="stylesheet" href="{% static 'css/main.css' %}">
+    <link rel="stylesheet" href="{% static 'css/style_form.css' %}">
+    <link rel="stylesheet" href="{% static 'css/botones.css' %}">
+    <link rel="stylesheet" href="{% static 'css/confirmacion_carga_exitosa.css' %}">
+{% endblock %}
+
+{% block content %}
+<header class="header-pantalla">
+    <div class="header-pantalla">
+        <h1 class="header-title" style="padding-top: 15px;">ALTA MATERIAL</h1>
+        <a href="{% url 'home' %}" class="logo-link">
+            <img src="{% static 'imagenes/Logo_inicio.png' %}" alt="Logo" class="cover-pic">
+        </a>
+    </div>
+</header>
+<div class="container-fluid">
+    <form id="form_alta_material" action="{% url 'alta_libro' %}" method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="row align-items-start">
+            <div class="col-12 col-lg-10">
+                <div class="row">
+                    <div class="col-12 col-sm-6 col-lg-2 form-group mb-2">
+                        <label for="tipo_material" class="text-input" style="color:#25898D;">Tipo de Material:</label>
+                        <select class="form-control form-control-sm" id="tipo_material" name="tipo_material" required>
+                            <option value="">Selecciona un tipo de material</option>
+                            <option value="libro">LIBRO</option>
+                            <option value="programa">PROGRAMA</option>
+                            <option value="mapa">MAPA</option>
+                            <option value="multimedia">MULTIMEDIA</option>
+                            <option value="notebook">NOTEBOOK</option>
+                            <option value="proyector">PROYECTOR</option>
+                            <option value="varios">VARIOS</option>
+                        </select>
+                    </div>
+                    <div class="col-12 col-lg-8 mb-2"></div>
+                </div>
+                <!-- Aquí se cargará dinámicamente el formulario -->
+                <div id="formulario-especifico" class="mt-2 row"></div>
+            </div>
+            
+            <!-- Columna derecha con manual y carga masiva -->
+            <div class="col-12 col-lg-2 d-flex flex-column align-items-end mt-3 mt-lg-0">
+                <div class="w-100 mb-2">
+                    <button type="button" class="btn btn-dark btn-sm manual-button w-100" onclick="document.getElementById('manualModal').style.display='flex'">MANUAL</button>
+                </div>
+                
+                <!-- Sección de carga masiva (solo visible al seleccionar material) -->
+                <div id="upload_simple_container" class="w-100 mb-4" style="display: none;">
+                    <div class="upload-box w-100">
+                        <small class="text-muted">Para carga masiva, suba un archivo CSV o Excel (.csv, .xls, .xlsx):</small>
+                        <label for="cargar_archivo" class="d-block my-3">
+                            <div class="boton-redondeado">
+                                <span>↑</span>
+                            </div>
+                            <input type="file" id="cargar_archivo" name="cargar_archivo" accept=".csv, .xls, .xlsx" style="display: none;">
+                        </label>
+                        <div id="nombre_archivo_carga_simple" style="text-align:center;font-size:0.92em;color:#444;margin-top:6px;margin-bottom:2px;word-break:break-all;"></div>
+                    </div>
+                </div>
+                
+                <!-- Fila 4/5: Carga de Imagen -->
+                <div id="upload_box_container" class="custom-upload-box-container" style="display: none; width: 100%;">
+                    <div class="custom-upload-box w-100">
+                        <button class="btn btn-sm custom-upload-btn w-100" type="button" onclick="document.getElementById('file_upload_input').click();">↑</button>
+                        <input type="file" id="file_upload_input" name="imagen" accept="image/*" style="display: none;">
+                        <input type="text" id="url_upload_input" class="form-control custom-upload-input mb-2" placeholder="O pegue un enlace de imagen aquí...">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Botones -->
+        <div id="buttons-container" class="row bg-white px-0 mx-0" style="border:none; box-shadow:none; display: none;">
+            <div class="col-12 d-flex justify-content-end gap-5">
+              <!-- Estan repetidos los botones -->
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block modals %}
+  {% include 'modals/manual_modal.html' %}
+  {% include 'modals/confirmacion_alta_material.html' %}
+  {% comment %} {% include 'modals/confirmacion_carga_exitosa.html' %} {% endcomment %}
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+// Script para el template principal (paste-2.txt - segundo template)
+document.addEventListener("DOMContentLoaded", function () {
+    const tipoMaterial = document.getElementById('tipo_material');
+    const formularioEspecifico = document.getElementById('formulario-especifico');
+    const buttonsContainer = document.getElementById('buttons-container');
+    
+    // Elementos de carga masiva e imagen
+    const uploadSimple = document.getElementById('upload_simple_container');
+    const uploadBox = document.getElementById('upload_box_container');
+
+    // FUNCIONALIDAD PRINCIPAL
+    tipoMaterial.addEventListener('change', function () {
+        const tipo = this.value;
+        console.log('🔥 Tipo seleccionado:', tipo);
+        
+        if (tipo === '') {
+            formularioEspecifico.innerHTML = '';
+            buttonsContainer.style.display = 'none';
+            if (uploadSimple) uploadSimple.style.display = 'none';
+            if (uploadBox) uploadBox.style.display = 'none';
+            return;
+        }
+        
+        if (tipo === 'libro') {
+            console.log('📚 Cargando formulario de libro...');
+            fetch('/formulario/libro/')
+                .then(response => {
+                    if (!response.ok) throw new Error('No se pudo cargar el formulario.');
+                    return response.text();
+                })
+                .then(html => {
+                    formularioEspecifico.innerHTML = html;
+                    buttonsContainer.style.display = 'flex';
+                    
+                    // 🔥 IMPORTANTE: Establecer el action correcto para libro
+                    const form = document.getElementById('form_alta_material');
+                    if (form) {
+                        form.action = '/alta-libro/';
+                        console.log('🔧 Action del formulario libro establecido a:', form.action);
+                    }
+                    
+                    // Solo mostrar carga masiva y URL para libros
+                    if (uploadSimple) uploadSimple.style.display = 'block';
+                    if (uploadBox) uploadBox.style.display = 'block';
+                    console.log('✅ Formulario de libro cargado');
+                })
+                .catch(error => {
+                    console.error('❌ Error cargando libro:', error);
+                    formularioEspecifico.innerHTML = `<p class="text-danger">Error al cargar el formulario: ${error.message}</p>`;
+                    buttonsContainer.style.display = 'none';
+                });
+        } 
+        else if (tipo === 'programa') {
+            console.log('🎓 Cargando formulario de programa...');
+            fetch('/formulario/programa/')
+                .then(response => {
+                    if (!response.ok) throw new Error('No se pudo cargar el formulario.');
+                    return response.text();
+                })
+                .then(html => {
+                    formularioEspecifico.innerHTML = html;
+                    buttonsContainer.style.display = 'flex';
+                    
+                    // 🔥 IMPORTANTE: Corregir el action después de cargar
+                    const form = document.getElementById('form_alta_material');
+                    if (form) {
+                        form.action = '/alta-programa/';
+                        console.log('🔧 Action del formulario programa corregido a:', form.action);
+                    }
+                    
+                    // 🎯 CRÍTICO: Inicializar funcionalidad carrera-materia DESPUÉS de cargar HTML
+                    setTimeout(() => {
+                        initCarreraMateriaFunctionality();
+                    }, 100); // Pequeño delay para asegurar que el DOM esté listo
+                    
+                    // No mostrar carga masiva ni URL para programas
+                    if (uploadSimple) uploadSimple.style.display = 'none';
+                    if (uploadBox) uploadBox.style.display = 'none';
+                    console.log('✅ Formulario de programa cargado');
+                })
+                .catch(error => {
+                    console.error('❌ Error cargando programa:', error);
+                    formularioEspecifico.innerHTML = `<p class="text-danger">Error al cargar el formulario: ${error.message}</p>`;
+                    buttonsContainer.style.display = 'none';
+                });
+        } 
+        // ... resto de casos (mapa, multimedia, etc.)
+        else if (tipo === 'mapa') {
+            console.log('🗺️ Cargando formulario de mapa...');
+            fetch('/formulario/mapa/')
+                .then(response => {
+                    if (!response.ok) throw new Error('No se pudo cargar el formulario.');
+                    return response.text();
+                })
+                .then(html => {
+                    formularioEspecifico.innerHTML = html;
+                    buttonsContainer.style.display = 'flex';
+                    // No mostrar carga masiva ni URL para mapas
+                    if (uploadSimple) uploadSimple.style.display = 'none';
+                    if (uploadBox) uploadBox.style.display = 'none';
+                })
+                .catch(error => {
+                    formularioEspecifico.innerHTML = `<p class="text-danger">Error al cargar el formulario: ${error.message}</p>`;
+                    buttonsContainer.style.display = 'none';
+                });
+        } 
+        else if (tipo === 'multimedia') {
+            console.log('💿 Cargando formulario de multimedia...');
+            fetch('/formulario/multimedia/')
+                .then(response => {
+                    if (!response.ok) throw new Error('No se pudo cargar el formulario.');
+                    return response.text();
+                })
+                .then(html => {
+                    formularioEspecifico.innerHTML = html;
+                    buttonsContainer.style.display = 'flex';
+                    // No mostrar carga masiva ni URL para multimedia
+                    if (uploadSimple) uploadSimple.style.display = 'none';
+                    if (uploadBox) uploadBox.style.display = 'none';
+                })
+                .catch(error => {
+                    formularioEspecifico.innerHTML = `<p class="text-danger">Error al cargar el formulario: ${error.message}</p>`;
+                    buttonsContainer.style.display = 'none';
+                });
+        } 
+        else if (tipo === 'notebook') {
+            console.log('💻 Cargando formulario de notebook...');
+            fetch('/formulario/notebook/')
+                .then(response => {
+                    if (!response.ok) throw new Error('No se pudo cargar el formulario.');
+                    return response.text();
+                })
+                .then(html => {
+                    formularioEspecifico.innerHTML = html;
+                    buttonsContainer.style.display = 'flex';
+                    // No mostrar carga masiva ni URL para notebook
+                    if (uploadSimple) uploadSimple.style.display = 'none';
+                    if (uploadBox) uploadBox.style.display = 'none';
+                })
+                .catch(error => {
+                    formularioEspecifico.innerHTML = `<p class="text-danger">Error al cargar el formulario: ${error.message}</p>`;
+                    buttonsContainer.style.display = 'none';
+                });
+        } 
+        else if (tipo === 'proyector') {
+            console.log('📽️ Cargando formulario de proyector...');
+            fetch('/formulario/proyector/')
+                .then(response => {
+                    if (!response.ok) throw new Error('No se pudo cargar el formulario.');
+                    return response.text();
+                })
+                .then(html => {
+                    formularioEspecifico.innerHTML = html;
+                    buttonsContainer.style.display = 'flex';
+                    // No mostrar carga masiva ni URL para proyector
+                    if (uploadSimple) uploadSimple.style.display = 'none';
+                    if (uploadBox) uploadBox.style.display = 'none';
+                })
+                .catch(error => {
+                    formularioEspecifico.innerHTML = `<p class="text-danger">Error al cargar el formulario: ${error.message}</p>`;
+                    buttonsContainer.style.display = 'none';
+                });
+        } 
+        else if (tipo === 'varios') {
+            console.log('📦 Cargando formulario de varios...');
+            fetch('/formulario/varios/')
+                .then(response => {
+                    if (!response.ok) throw new Error('No se pudo cargar el formulario.');
+                    return response.text();
+                })
+                .then(html => {
+                    formularioEspecifico.innerHTML = html;
+                    buttonsContainer.style.display = 'flex';
+                    // No mostrar carga masiva ni URL para varios
+                    if (uploadSimple) uploadSimple.style.display = 'none';
+                    if (uploadBox) uploadBox.style.display = 'none';
+                })
+                .catch(error => {
+                    formularioEspecifico.innerHTML = `<p class="text-danger">Error al cargar el formulario: ${error.message}</p>`;
+                    buttonsContainer.style.display = 'none';
+                });
+        } 
+        else {
+            console.log('❌ Sin selección o tipo no reconocido');
+            formularioEspecifico.innerHTML = '';
+            buttonsContainer.style.display = 'none';
+            if (uploadSimple) uploadSimple.style.display = 'none';
+            if (uploadBox) uploadBox.style.display = 'none';
+        }
+    });
+
+    // FUNCIONALIDAD AGREGADA: Mostrar nombre del archivo seleccionado
+    const cargarArchivo = document.getElementById('cargar_archivo');
+    const nombreArchivo = document.getElementById('nombre_archivo_carga_simple');
+    
+    if (cargarArchivo && nombreArchivo) {
+        cargarArchivo.addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                nombreArchivo.textContent = this.files[0].name;
+            } else {
+                nombreArchivo.textContent = '';
+            }
+        });
+    }
+
+    // 🎯 FUNCIÓN PARA INICIALIZAR CARRERA-MATERIA (solo cuando se carga programa)
+    function initCarreraMateriaFunctionality() {
+        const carreraSelect = document.getElementById('id_carrera');
+        const materiaSelect = document.getElementById('id_materia');
+        
+        console.log('🎯 Inicializando carrera-materia...', !!carreraSelect, !!materiaSelect);
+        
+        if (!carreraSelect || !materiaSelect) {
+            console.log('⚠️ Elementos carrera-materia no encontrados');
+            return;
+        }
+
+        // Materias por carrera - IDÉNTICO al primer archivo
+        const materiasPorCarrera = {
+            'Profesorado de Educación Inicial': [
+                'Pedagogía', 'Psicología Educacional', 'Sociología de la Educación', 
+                'Historia y Política de la Educación Argentina', 'Filosofía de la Educación',
+                'Didáctica General', 'Curriculum y Didáctica del Nivel Inicial', 
+                'Juego y Desarrollo Infantil', 'Literatura Infantil', 'Matemática y su Didáctica',
+                'Ciencias Sociales y su Didáctica', 'Ciencias Naturales y su Didáctica',
+                'Lengua y su Didáctica', 'Educación Artística', 'Educación Física',
+                'Práctica Docente I', 'Práctica Docente II', 'Práctica Docente III', 'Práctica Docente IV'
+            ],
+            'Profesorado de Educación Primaria': [
+                'Pedagogía', 'Psicología Educacional', 'Sociología de la Educación',
+                'Historia y Política de la Educación Argentina', 'Filosofía de la Educación',
+                'Didáctica General', 'Curriculum y Didáctica del Nivel Primario',
+                'Matemática y su Didáctica I', 'Matemática y su Didáctica II',
+                'Lengua y su Didáctica I', 'Lengua y su Didáctica II',
+                'Ciencias Sociales y su Didáctica I', 'Ciencias Sociales y su Didáctica II',
+                'Ciencias Naturales y su Didáctica I', 'Ciencias Naturales y su Didáctica II',
+                'Educación Artística', 'Educación Física', 'Tecnologías de la Información',
+                'Práctica Docente I', 'Práctica Docente II', 'Práctica Docente III', 'Práctica Docente IV'
+            ],
+            'Profesorado de Educación Secundaria en Geografía': [
+                'Pedagogía', 'Psicología Educacional', 'Sociología de la Educación',
+                'Historia y Política de la Educación Argentina', 'Filosofía de la Educación',
+                'Didáctica General', 'Didáctica de la Geografía',
+                'Geografía Física I', 'Geografía Física II', 'Geografía Humana I', 'Geografía Humana II',
+                'Geografía de América', 'Geografía de Argentina', 'Geografía Mundial',
+                'Cartografía', 'Climatología', 'Geomorfología', 'Biogeografía',
+                'Geografía Económica', 'Geografía Urbana y Rural', 'Epistemología de la Geografía',
+                'Práctica Docente I', 'Práctica Docente II', 'Práctica Docente III', 'Práctica Docente IV'
+            ],
+            'Profesorado de Educación Secundaria en Ciencias Políticas': [
+                'Pedagogía', 'Psicología Educacional', 'Sociología de la Educación',
+                'Historia y Política de la Educación Argentina', 'Filosofía de la Educación',
+                'Didáctica General', 'Didáctica de las Ciencias Políticas',
+                'Teoría Política', 'Historia del Pensamiento Político', 'Sistemas Políticos Comparados',
+                'Política Argentina', 'Política Latinoamericana', 'Relaciones Internacionales',
+                'Derecho Constitucional', 'Sociología Política', 'Economía Política',
+                'Filosofía Política', 'Metodología de la Investigación Social',
+                'Práctica Docente I', 'Práctica Docente II', 'Práctica Docente III', 'Práctica Docente IV'
+            ],
+            'Tecnicatura Superior en Análisis de Sistemas': [
+                'Matemática', 'Inglés Técnico', 'Arquitectura de Computadoras',
+                'Sistemas Operativos', 'Algoritmos y Estructuras de Datos',
+                'Programación I', 'Programación II', 'Programación III',
+                'Base de Datos I', 'Base de Datos II', 'Análisis de Sistemas I', 'Análisis de Sistemas II',
+                'Ingeniería de Software', 'Redes y Comunicaciones', 'Seguridad Informática',
+                'Desarrollo Web', 'Programación Orientada a Objetos', 'Metodologías de Desarrollo',
+                'Gestión de Proyectos', 'Práctica Profesionalizante I', 'Práctica Profesionalizante II'
+            ],
+            'Tecnicatura Superior en Enfermería': [
+                'Anatomía y Fisiología I', 'Anatomía y Fisiología II', 'Microbiología y Parasitología',
+                'Farmacología', 'Patología', 'Nutrición y Dietoterapia',
+                'Enfermería Básica', 'Enfermería Médica', 'Enfermería Quirúrgica',
+                'Enfermería Materno Infantil', 'Enfermería Pediátrica', 'Enfermería Geriátrica',
+                'Enfermería en Salud Mental', 'Enfermería Comunitaria', 'Administración en Enfermería',
+                'Bioética', 'Epidemiología', 'Primeros Auxilios',
+                'Práctica Profesional I', 'Práctica Profesional II', 'Práctica Profesional III'
+            ],
+            'Tecnicatura Superior en Acompañamiento Terapéutico': [
+                'Psicología General', 'Psicopatología', 'Neurociencias', 'Desarrollo Humano',
+                'Teorías y Técnicas de Acompañamiento Terapéutico', 'Comunicación Terapéutica',
+                'Dinámicas Familiares', 'Integración Social', 'Recreación Terapéutica',
+                'Talleres de Expresión', 'Primeros Auxilios', 'Bioética',
+                'Legislación en Salud Mental', 'Trabajo Interdisciplinario',
+                'Práctica Profesional I', 'Práctica Profesional II', 'Práctica Profesional III'
+            ],
+            'Tecnicatura Superior en Higiene y Seguridad en el Trabajo': [
+                'Matemática', 'Física', 'Química', 'Legislación Laboral',
+                'Higiene Industrial I', 'Higiene Industrial II', 'Seguridad Industrial I', 'Seguridad Industrial II',
+                'Medicina del Trabajo', 'Toxicología Laboral', 'Ergonomía',
+                'Protección contra Incendios', 'Contaminación Ambiental', 'Gestión de Residuos',
+                'Capacitación en Seguridad', 'Investigación de Accidentes', 'Auditorías de Seguridad',
+                'Gestión de Riesgos', 'Práctica Profesional I', 'Práctica Profesional II'
+            ]
+        };
+
+        // FUNCIÓN para cargar materias
+        function cargarMaterias(carreraSeleccionada) {
+            console.log('📚 Carrera seleccionada:', carreraSeleccionada);
+            
+            // Limpiar opciones de materia
+            materiaSelect.innerHTML = '';
+            
+            if (carreraSeleccionada && materiasPorCarrera[carreraSeleccionada]) {
+                // Agregar opción vacía
+                const opcionVacia = document.createElement('option');
+                opcionVacia.value = '';
+                opcionVacia.textContent = 'Seleccione una materia';
+                materiaSelect.appendChild(opcionVacia);
+                
+                // Agregar materias de la carrera seleccionada
+                materiasPorCarrera[carreraSeleccionada].forEach(function(materia) {
+                    const option = document.createElement('option');
+                    option.value = materia;
+                    option.textContent = materia;
+                    materiaSelect.appendChild(option);
+                });
+                
+                materiaSelect.disabled = false;
+                console.log('✅ Materias cargadas:', materiasPorCarrera[carreraSeleccionada].length);
+            } else {
+                // No hay carrera seleccionada o no tiene materias
+                const opcionVacia = document.createElement('option');
+                opcionVacia.value = '';
+                opcionVacia.textContent = 'Primero seleccione una carrera';
+                materiaSelect.appendChild(opcionVacia);
+                materiaSelect.disabled = true;
+                console.log('⚠️ No hay materias para:', carreraSeleccionada);
+            }
+        }
+        
+        // Event listener para cambio de carrera
+        carreraSelect.addEventListener('change', function() {
+            cargarMaterias(this.value);
+        });
+        
+        // Inicializar estado de materia
+        materiaSelect.disabled = true;
+        
+        // Si ya hay una carrera seleccionada al cargar
+        if (carreraSelect.value) {
+            cargarMaterias(carreraSelect.value);
+        }
+        
+        console.log('✅ Funcionalidad carrera-materia inicializada correctamente');
+    }
+});
+</script>
+{% endblock %}
