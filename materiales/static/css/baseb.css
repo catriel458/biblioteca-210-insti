@@ -6,14 +6,14 @@
 .layout-container {
     display: grid;
     height: 100vh; /* Altura total de la ventana */
-    grid-template-rows: var(--navbar-height) auto 1fr var(--footer-height);
+    grid-template-rows: auto auto 1fr auto;
     grid-template-columns: 1fr; /* Asegura que todos los elementos ocupen todo el ancho */
     grid-template-areas: 
         "navbar"
         "header"
         "content"
         "footer";
-    gap: 10px; /* Espacio entre áreas del grid */
+    gap: 0px; /* Espacio entre áreas del grid */
     padding: 0; /* Elimina el padding para asegurar que ocupe todo el ancho */
 }
 .content {

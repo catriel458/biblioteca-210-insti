@@ -1,6 +1,7 @@
 {% extends 'components/baseb.html' %}
 {% load static %}
 {% block extra_styles %}
+    <link rel="stylesheet" href="{% static 'css/header.css' %}">
     <link rel="stylesheet" href="{% static 'css/manual_modal.css' %}">
     <link rel="stylesheet" href="{% static 'css/main.css' %}">
     <link rel="stylesheet" href="{% static 'css/style_form.css' %}">
@@ -9,6 +10,14 @@
 {% endblock %}
 
 {% block content %}
+<header class="header-pantalla">
+    <div class="header-pantalla">
+        <h1 class="header-title" style="padding-top: 15px;">ALTA MATERIAL</h1>
+        <a href="{% url 'home' %}" class="logo-link">
+            <img src="{% static 'imagenes/Logo_inicio.png' %}" alt="Logo" class="cover-pic">
+        </a>
+    </div>
+</header>
 <div class="container-fluid">
     <form id="form_alta_material" action="{% url 'alta_libro' %}" method="POST" enctype="multipart/form-data">
         {% csrf_token %}
