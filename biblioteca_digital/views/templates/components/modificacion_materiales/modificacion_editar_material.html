@@ -1,0 +1,210 @@
+{% extends "components/baseb.html" %}
+{% load static %}
+{% block extra_styles %}
+    <link rel="stylesheet" href="{% static 'css/form_modificacion_editar.css' %}">
+{% endblock %}  
+
+{% block content %}
+<div class="container-fluid">
+    <div class="form-container">
+        <div class="row align-items-center mb-4 fondo-girado">
+            <div class="col-10 d-flex justify-content-center align-items-center" style="height: 100%;">
+                <h2 class="text-primary mb-3" style="padding-left:10%;">EDITAR</h2>
+            </div>
+            <div class="col-2">
+                <button type="button" class="btn btn-dark btn-sm manual-boton w-100" onclick="document.getElementById('manualModal').style.display='flex'">MANUAL</button>
+            </div>
+        </div>        
+        <div class="success-message" id="successMessage">
+            ✓ Los cambios se han guardado correctamente
+        </div>
+        
+        <form id="editForm" method="post">
+            <div class="row mb-1">
+                <label for="titulo" class="col-sm-3 col-form-label required">Título</label>
+                <div class="col-sm-9">
+                    <input type="text" class="form-control" id="titulo" name="titulo" value="{{ libro.titulo }}" required>
+                </div>
+            </div>
+            
+            <div class="row mb-1">
+                <label for="autor" class="col-sm-3 col-form-label">Autor</label>
+                <div class="col-sm-9">
+                    <input type="text" class="form-control" id="autor" name="autor" value="{{ libro.autor }}">
+                </div>
+            </div>
+            
+            <div class="row mb-1">
+                <label for="editorial" class="col-sm-3 col-form-label">Editorial</label>
+                <div class="col-sm-9">
+                    <input type="text" class="form-control" id="editorial" name="editorial" value="{{ libro.editorial }}">
+                </div>
+            </div>
+            
+            <div class="row mb-1">
+                <label for="cdu" class="col-sm-3 col-form-label required">Clasificación / CDU</label>
+                <div class="col-sm-9">
+                    <input type="text" class="form-control" id="cdu" name="cdu" value="{{ libro.clasificacion_cdu }}" required>
+                </div>
+            </div>
+            
+            <div class="row mb-1">
+                <label for="siglas" class="col-sm-3 col-form-label required">Siglas de autor / título</label>
+                <div class="col-sm-9">
+                    <input type="text" class="form-control" id="siglas" name="siglas" value="{{ libro.siglas_autor_titulo }}" required>
+                </div>
+            </div>
+            
+            <div class="row mb-1">
+                <label for="etiquetas" class="col-sm-3 col-form-label">Etiquetas / palabras clave</label>
+                <div class="col-sm-9">
+                    <input type="text" class="form-control" id="etiquetas" name="etiquetas" value="{{ libro.palabras_clave }}">
+                    <div class="hint-text">Las etiquetas deben estar separadas por comas. Ejemplo: etiqueta, etiqueta, ...</div>
+                </div>
+            </div>
+            
+            <div class="row mb-1">
+                <label for="sede" class="col-sm-3 col-form-label required">Sede</label>
+                <div class="col-sm-9">
+                    <select class="form-select" id="sede" name="sede" required>
+                        <option value="LA PLATA" {% if libro.sede == "LA PLATA" %}selected{% endif %}>LA PLATA</option>
+                        <option value="ABASTO" {% if libro.sede == "ABASTO" %}selected{% endif %}>ABASTO</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="row mb-1">
+                <label for="disponibilidad" class="col-sm-3 col-form-label required">Disponibilidad</label>
+                <div class="col-sm-9">
+                    <select class="form-select" id="disponibilidad" name="disponibilidad" required>
+                        <option value="DISPONIBLE" {% if libro.disponibilidad == "DISPONIBLE" %}selected{% endif %}>Disponible para préstamo</option>
+                        <option value="NO_DISPONIBLE" {% if libro.disponibilidad == "NO_DISPONIBLE" %}selected{% endif %}>No disponible</option>
+                        <option value="PRESTADO" {% if libro.disponibilidad == "PRESTADO" %}selected{% endif %}>Prestado</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="row mb-1">
+                <label for="descripcion" class="col-sm-3 col-form-label">Descripción</label>
+                <div class="col-sm-9">
+                    <textarea class="form-control" id="descripcion" name="descripcion" rows="3">{{ libro.descripcion }}</textarea>
+                </div>
+            </div>
+            
+            <div class="row mb-1">
+                <label for="observaciones" class="col-sm-3 col-form-label">Observaciones</label>
+                <div class="col-sm-9">
+                    <textarea class="form-control" id="observaciones" name="observaciones" rows="2">{{ libro.observaciones }}</textarea>
+                </div>
+            </div>
+            
+            <div class="row mb-2">
+                <label for="imagen" class="col-sm-3 col-form-label">Imagen</label>
+                <div class="col-sm-9">
+                    <div class="input-group">
+                        <button class="btn upload-btn" type="button" id="uploadBtn">
+                            1
+                        </button>
+                        <input type="text" class="form-control" id="imageUrl" placeholder="O pegue un enlace aquí...">
+                        <button class="btn btn-outline-secondary" type="button" id="linkBtn">→</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="buttons-container" class="row">
+                <div class="col-sm-3"></div>
+                <div class="col-sm-9 d-flex justify-content-end gap-3">
+                    <button type="button" class="btn boton-cancelar" id="cancelBtn">CANCELAR</button>
+                    <button type="submit" class="btn boton-guardar">GUARDAR</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>  
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('editForm');
+    const buttonsContainer = document.getElementById('buttons-container');
+    const successMessage = document.getElementById('successMessage');
+    const formInputs = form.querySelectorAll('input, select, textarea');
+    let originalValues = {};
+    
+    // Guardar valores originales
+    formInputs.forEach(input => {
+        originalValues[input.id] = input.value;
+    });
+    
+    // Los botones siempre estarán visibles, así que no ocultamos ni mostramos
+    function checkForChanges() {
+        let hasChanges = false;
+        formInputs.forEach(input => {
+            if (originalValues[input.id] !== input.value) {
+                hasChanges = true;
+            }
+        });
+        // Solo marcamos la clase para feedback visual, pero no ocultamos los botones
+        if (hasChanges) {
+            form.classList.add('form-modified');
+        } else {
+            form.classList.remove('form-modified');
+        }
+    }
+    
+    // Agregar event listeners a todos los inputs
+    formInputs.forEach(input => {
+        input.addEventListener('input', checkForChanges);
+        input.addEventListener('change', checkForChanges);
+    });
+    
+    // Permitir el envío clásico del formulario para que Django procese y guarde los cambios
+    form.addEventListener('submit', function(e) {
+        // No prevenir el submit, así Django recibe los datos
+        // Si quieres feedback visual antes del submit, puedes agregarlo aquí
+    });
+    
+    // Manejar el botón de cancelar
+    document.getElementById('cancelBtn').addEventListener('click', function() {
+        if (confirm('¿Estás seguro de que deseas cancelar? Los cambios no se guardarán.')) {
+            // Restaurar valores originales
+            formInputs.forEach(input => {
+                input.value = originalValues[input.id];
+            });
+            buttonsContainer.style.display = 'none';
+            form.classList.remove('form-modified');
+        }
+    });
+    
+    // Manejar el botón de subir imagen
+    document.getElementById('uploadBtn').addEventListener('click', function() {
+        const fileInput = document.createElement('input');
+        fileInput.type = 'file';
+        fileInput.accept = 'image/*';
+        fileInput.click();
+        
+        fileInput.addEventListener('change', function() {
+            if (fileInput.files && fileInput.files[0]) {
+                const fileName = fileInput.files[0].name;
+                document.getElementById('imageUrl').value = fileName;
+                checkForChanges();
+            }
+        });
+    });
+    
+    // Manejar el botón de enlace
+    document.getElementById('linkBtn').addEventListener('click', function() {
+        const url = document.getElementById('imageUrl').value;
+        if (url) {
+            // Aquí podrías validar la URL o hacer algo con ella
+            console.log('URL de imagen:', url);
+        }
+    });
+});
+</script>
+{% endblock %}
+
+{% block modals %}
+  {% include 'modals/detalles_material.html' %}
+{% endblock %}
