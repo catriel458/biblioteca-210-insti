@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Compensación Requerida - Biblioteca</title>
+    <style>
+        body {
+            font-family: 'Calibri', 'Arial', sans-serif;
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .alert-critical {
+            background: linear-gradient(135deg, #dc3545, #c82333);
+            color: white;
+            padding: 25px;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .alert-critical h2 {
+            margin: 0 0 15px 0;
+            font-size: 24px;
+        }
+        
+        .requirements {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .requirements h3 {
+            color: #856404;
+            margin-top: 0;
+        }
+        
+        .requirements ul {
+            color: #856404;
+            margin: 10px 0;
+        }
+        
+        .sanciones-historial {
+            margin-top: 30px;
+        }
+        
+        .sancion-item {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-left: 4px solid #dc3545;
+            margin-bottom: 15px;
+            border-radius: 0 4px 4px 0;
+        }
+        
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            margin-right: 10px;
+        }
+        
+        .btn-primary {
+            background-color: #007bff;
+            color: white;
+        }
+        
+        .btn-danger {
+            background-color: #dc3545;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="alert-critical">
+            <h2>🚫 COMPENSACIÓN REQUERIDA</h2>
+            <p><strong>{{ usuario.get_full_name }}</strong>, has acumulado <strong>{{ total_sanciones }} sanciones como DOCENTE</strong>.</p>
+            <p>Para continuar utilizando el servicio de biblioteca, debes cumplir con los siguientes requisitos:</p>
+        </div>
+        
+        <div class="requirements">
+            <h3>📋 Requisitos para Continuar:</h3>
+            <ul>
+                <li><strong>Devolver todos los materiales pendientes</strong></li>
+                <li><strong>Comprar un material extra a elección como compensación</strong></li>
+                <li><strong>Contactar a la biblioteca para confirmar el cumplimiento</strong></li>
+            </ul>
+            
+            <p><strong>Una vez cumplidos estos requisitos:</strong></p>
+            <ul>
+                <li>Tu acumulado de sanciones se reseteará a 0</li>
+                <li>Podrás volver a solicitar préstamos normalmente</li>
+                <li>El historial de sanciones se mantendrá para registro</li>
+            </ul>
+        </div>
+        
+        <div class="sanciones-historial">
+            <h3>📖 Historial de Sanciones:</h3>
+            {% for sancion in sanciones_docente %}
+            <div class="sancion-item">
+                <p><strong>Sanción #{{ sancion.id_sancion }}</strong></p>
+                <p><strong>Libro:</strong> {{ sancion.prestamo.libro.titulo }}</p>
+                <p><strong>Fecha:</strong> {{ sancion.fecha_confirmacion|date:"d/m/Y H:i" }}</p>
+                <p><strong>Motivo:</strong> {{ sancion.motivo }}</p>
+                {% if sancion.fecha_suspension_hasta %}
+                <p><strong>Suspendido hasta:</strong> {{ sancion.fecha_suspension_hasta|date:"d/m/Y" }}</p>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div style="text-align: center; margin-top: 30px;">
+            <a href="{% url 'pantalla_principal' %}" class="btn btn-primary">Volver al Inicio</a>
+            <a href="{% url 'mis_sanciones' %}" class="btn btn-danger">Ver Mis Sanciones</a>
+        </div>
+    </div>
+</body>
+</html>

@@ -1179,36 +1179,58 @@ Biblioteca ISFD 210
 # MODIFICAR la vista gestionar_sanciones para incluir contadores adicionales
 @user_passes_test(es_bibliotecaria)
 def gestionar_sanciones(request):
-    """Vista principal para gestionar sanciones"""
-    # Verificar préstamos vencidos antes de mostrar (con precisión)
+    """Vista principal para gestionar sanciones con filtros mejorados"""
     verificar_vencimientos_tiempo_real()
     
     filtro = request.GET.get('filtro', 'pendientes')
+    filtro_tipo = request.GET.get('filtro_tipo', 'todos')  # NUEVO FILTRO
     
+    # Filtro base por estado
     if filtro == 'pendientes':
-        sanciones = Sancion.objects.filter(estado='pendiente').order_by('-fecha_creacion')
+        sanciones = Sancion.objects.filter(estado='pendiente')
     elif filtro == 'confirmadas':
-        sanciones = Sancion.objects.filter(estado='confirmada').order_by('-fecha_confirmacion')
+        sanciones = Sancion.objects.filter(estado='confirmada')
     elif filtro == 'canceladas':
-        sanciones = Sancion.objects.filter(estado='cancelada').order_by('-fecha_creacion')
+        sanciones = Sancion.objects.filter(estado='cancelada')
     elif filtro == 'cumplidas':
-        sanciones = Sancion.objects.filter(estado='cumplida').order_by('-fecha_finalizacion')
+        sanciones = Sancion.objects.filter(estado='cumplida')
     else:
-        sanciones = Sancion.objects.all().order_by('-fecha_creacion')
+        sanciones = Sancion.objects.all()
     
-    # Obtener estadísticas
+    # Filtro adicional por tipo de usuario de sanción
+    if filtro_tipo == 'alumno':
+        sanciones = sanciones.filter(tipo_usuario_sancion='alumno')
+    elif filtro_tipo == 'docente':
+        sanciones = sanciones.filter(tipo_usuario_sancion='docente')
+    
+    sanciones = sanciones.order_by('-fecha_creacion')
+    
+    # Estadísticas
     total_pendientes = Sancion.objects.filter(estado='pendiente').count()
     total_confirmadas = Sancion.objects.filter(estado='confirmada').count()
     total_canceladas = Sancion.objects.filter(estado='cancelada').count()
     total_cumplidas = Sancion.objects.filter(estado='cumplida').count()
     
+    # Nuevas estadísticas por tipo
+    total_alumnos = Sancion.objects.filter(tipo_usuario_sancion='alumno').count()
+    total_docentes = Sancion.objects.filter(tipo_usuario_sancion='docente').count()
+    docentes_suspendidos = Sancion.objects.filter(
+        tipo_usuario_sancion='docente',
+        estado='confirmada',
+        fecha_suspension_hasta__gt=timezone.now()
+    ).count()
+    
     context = {
         'sanciones': sanciones,
         'filtro': filtro,
+        'filtro_tipo': filtro_tipo,  # NUEVO CONTEXTO
         'total_pendientes': total_pendientes,
         'total_confirmadas': total_confirmadas,
         'total_canceladas': total_canceladas,
         'total_cumplidas': total_cumplidas,
+        'total_alumnos': total_alumnos,
+        'total_docentes': total_docentes,
+        'docentes_suspendidos': docentes_suspendidos,
     }
     return render(request, 'libros/gestionar_sanciones.html', context)
 
@@ -1381,6 +1403,16 @@ def solicitar_prestamo(request, libro_id):
     if libro.estado != 'Disponible':
         messages.error(request, "Este libro no está disponible para préstamo.")
         return redirect('lista_libros')
+    
+     # NUEVA VERIFICACIÓN: Si el usuario puede solicitar préstamos
+    if not request.user.puede_solicitar_prestamo():
+        messages.error(request, "No puedes solicitar préstamos debido a sanciones activas.")
+        return redirect('mis_sanciones')
+    
+    # NUEVA VERIFICACIÓN: Si tiene sanciones críticas
+    if request.user.tiene_sanciones_criticas():
+        messages.warning(request, "Tienes sanciones pendientes de compensación.")
+        return redirect('verificar_sanciones_criticas')
     
     # Crear el préstamo
     if request.method == 'POST':
@@ -1719,35 +1751,67 @@ Biblioteca ISFD 210
 
 # Nuevas vistas para gestión de sanciones
 @user_passes_test(es_bibliotecaria)
+@user_passes_test(es_bibliotecaria)
 def gestionar_sanciones(request):
-    """Vista principal para gestionar sanciones"""
-    # Verificar préstamos vencidos antes de mostrar
-    verificar_prestamos_vencidos()
+    """Vista principal para gestionar sanciones con filtros mejorados"""
+    verificar_vencimientos_tiempo_real()
     
     filtro = request.GET.get('filtro', 'pendientes')
+    filtro_tipo = request.GET.get('filtro_tipo', 'todos')  # ASEGURAR VALOR POR DEFECTO
     
+    # Filtro base por estado
     if filtro == 'pendientes':
-        sanciones = Sancion.objects.filter(estado='pendiente').order_by('-fecha_creacion')
+        sanciones = Sancion.objects.filter(estado='pendiente')
     elif filtro == 'confirmadas':
-        sanciones = Sancion.objects.filter(estado='confirmada').order_by('-fecha_confirmacion')
+        sanciones = Sancion.objects.filter(estado='confirmada')
     elif filtro == 'canceladas':
-        sanciones = Sancion.objects.filter(estado='cancelada').order_by('-fecha_creacion')
+        sanciones = Sancion.objects.filter(estado='cancelada')
     elif filtro == 'cumplidas':
-        sanciones = Sancion.objects.filter(estado='cumplida').order_by('-fecha_finalizacion')
+        sanciones = Sancion.objects.filter(estado='cumplida')
     else:
-        sanciones = Sancion.objects.all().order_by('-fecha_creacion')
+        sanciones = Sancion.objects.all()
+    
+    # Filtro adicional por tipo de usuario de sanción
+    if filtro_tipo == 'alumno':
+        sanciones = sanciones.filter(tipo_usuario_sancion='alumno')
+    elif filtro_tipo == 'docente':
+        sanciones = sanciones.filter(tipo_usuario_sancion='docente')
+    # Si es 'todos', no filtrar por tipo
+    
+    sanciones = sanciones.order_by('-fecha_creacion')
+    
+    # Estadísticas
+    total_pendientes = Sancion.objects.filter(estado='pendiente').count()
+    total_confirmadas = Sancion.objects.filter(estado='confirmada').count()
+    total_canceladas = Sancion.objects.filter(estado='cancelada').count()
+    total_cumplidas = Sancion.objects.filter(estado='cumplida').count()
+    
+    # Nuevas estadísticas por tipo
+    total_alumnos = Sancion.objects.filter(tipo_usuario_sancion='alumno').count()
+    total_docentes = Sancion.objects.filter(tipo_usuario_sancion='docente').count()
+    docentes_suspendidos = Sancion.objects.filter(
+        tipo_usuario_sancion='docente',
+        estado='confirmada',
+        fecha_suspension_hasta__gt=timezone.now()
+    ).count()
     
     context = {
         'sanciones': sanciones,
         'filtro': filtro,
-        'total_pendientes': Sancion.objects.filter(estado='pendiente').count(),
-        'total_confirmadas': Sancion.objects.filter(estado='confirmada').count(),
+        'filtro_tipo': filtro_tipo,  # ASEGURAR QUE SE PASE AL TEMPLATE
+        'total_pendientes': total_pendientes,
+        'total_confirmadas': total_confirmadas,
+        'total_canceladas': total_canceladas,
+        'total_cumplidas': total_cumplidas,
+        'total_alumnos': total_alumnos,
+        'total_docentes': total_docentes,
+        'docentes_suspendidos': docentes_suspendidos,
     }
     return render(request, 'libros/gestionar_sanciones.html', context)
 
 @user_passes_test(es_bibliotecaria)
 def confirmar_sancion(request, sancion_id):
-    """Confirma una sanción pendiente"""
+    """Confirma una sanción pendiente con tipo de usuario"""
     sancion = get_object_or_404(Sancion, id_sancion=sancion_id)
     
     if sancion.estado != 'pendiente':
@@ -1756,20 +1820,65 @@ def confirmar_sancion(request, sancion_id):
     
     if request.method == 'POST':
         observaciones = request.POST.get('observaciones', '')
+        tipo_usuario_sancion = request.POST.get('tipo_usuario_sancion', 'alumno')
         
         sancion.estado = 'confirmada'
         sancion.fecha_confirmacion = timezone.now()
         sancion.observaciones_bibliotecaria = observaciones
+        sancion.tipo_usuario_sancion = tipo_usuario_sancion
+        
+        # Lógica específica para docentes
+        if tipo_usuario_sancion == 'docente':
+            # Calcular fecha de suspensión (3 meses)
+            sancion.fecha_suspension_hasta = sancion.calcular_fecha_suspension_docente()
+            
+            # Actualizar acumulado de sanciones para este usuario
+            sanciones_docente = Sancion.objects.filter(
+                usuario=sancion.usuario,
+                tipo_usuario_sancion='docente',
+                estado='confirmada'
+            ).count() + 1  # +1 porque esta se está confirmando ahora
+            
+            sancion.acumulado_sanciones = sanciones_docente
+            
+            # Verificar si llegó a 3 sanciones
+            if sanciones_docente >= 3:
+                messages.warning(
+                    request, 
+                    f"⚠️ ALERTA: {sancion.usuario.get_full_name()} ha alcanzado {sanciones_docente} sanciones. "
+                    f"Debe devolver el material y comprar un material extra como compensación."
+                )
+        
         sancion.save()
         
-        # Enviar email de notificación al usuario
+        # Enviar email de notificación
         try:
-            send_mail(
-                subject='Sanción aplicada - Biblioteca ISFD 210',
-                message=f'''
+            if tipo_usuario_sancion == 'docente':
+                fecha_suspension = sancion.fecha_suspension_hasta.strftime('%d/%m/%Y') if sancion.fecha_suspension_hasta else 'N/A'
+                mensaje_email = f'''
 Estimado/a {sancion.usuario.get_full_name()},
 
-Te informamos que se ha aplicado una sanción a tu cuenta por el siguiente motivo:
+Se ha aplicado una SANCIÓN DOCENTE a tu cuenta:
+
+📚 Libro: {sancion.prestamo.libro.titulo}
+📅 Motivo: {sancion.motivo}
+⚠️ Sanción: Suspensión de préstamos por 3 meses
+📆 Suspendido hasta: {fecha_suspension}
+📊 Sanciones acumuladas: {sancion.acumulado_sanciones}
+
+Esta sanción te inhabilitará para solicitar préstamos hasta la fecha indicada.
+{"¡IMPORTANTE! Has alcanzado 3 sanciones. Debes devolver el material y comprar un material extra como compensación." if sancion.acumulado_sanciones >= 3 else ""}
+
+Para resolver esta situación, acércate a la biblioteca.
+
+Saludos,
+Biblioteca ISFD 210
+                '''
+            else:
+                mensaje_email = f'''
+Estimado/a {sancion.usuario.get_full_name()},
+
+Se ha aplicado una sanción a tu cuenta:
 
 📚 Libro: {sancion.prestamo.libro.titulo}
 📅 Motivo: {sancion.motivo}
@@ -1777,11 +1886,13 @@ Te informamos que se ha aplicado una sanción a tu cuenta por el siguiente motiv
 
 Esta sanción te inhabilitará para inscribirte a las próximas mesas de final hasta que devuelvas el material prestado.
 
-Para resolver esta situación, por favor acércate a la biblioteca con el material.
-
 Saludos,
 Biblioteca ISFD 210
-                ''',
+                '''
+            
+            send_mail(
+                subject='Sanción aplicada - Biblioteca ISFD 210',
+                message=mensaje_email,
                 from_email=settings.DEFAULT_FROM_EMAIL,
                 recipient_list=[sancion.usuario.email],
                 fail_silently=True,
@@ -1789,7 +1900,12 @@ Biblioteca ISFD 210
         except Exception as e:
             print(f"Error enviando email de sanción: {e}")
         
-        messages.success(request, f"Sanción confirmada para {sancion.usuario.get_full_name()}. Se ha enviado una notificación por email.")
+        tipo_texto = "DOCENTE" if tipo_usuario_sancion == 'docente' else "ALUMNO"
+        messages.success(
+            request, 
+            f"Sanción {tipo_texto} confirmada para {sancion.usuario.get_full_name()}. "
+            f"Se ha enviado una notificación por email."
+        )
         return redirect('gestionar_sanciones')
     
     return render(request, 'libros/confirmar_sancion.html', {'sancion': sancion})
@@ -1969,3 +2085,57 @@ def devolver_libro_catalogo(request, sancion_id):
         'usuario': sancion.usuario,
     }
     return render(request, 'libros/devolver_libro_catalogo.html', context)
+
+
+@login_required
+def verificar_sanciones_criticas(request):
+    """Vista para mostrar cuando un docente tiene 3+ sanciones"""
+    if not request.user.tiene_sanciones_criticas():
+        return redirect('pantalla_principal')
+    
+    sanciones_docente = request.user.sanciones.filter(
+        tipo_usuario_sancion='docente',
+        estado='confirmada'
+    ).order_by('-fecha_confirmacion')
+    
+    context = {
+        'usuario': request.user,
+        'sanciones_docente': sanciones_docente,
+        'total_sanciones': sanciones_docente.count(),
+    }
+    return render(request, 'libros/sanciones_criticas.html', context)
+
+@bibliotecaria_required
+def resetear_acumulado_docente(request, usuario_id):
+    """Resetea el acumulado de sanciones de un docente tras cumplir compensación"""
+    usuario = get_object_or_404(Usuario, id=usuario_id)
+    
+    if request.method == 'POST':
+        observaciones = request.POST.get('observaciones', '')
+        
+        # Marcar las sanciones como cumplidas pero mantener historial
+        sanciones_docente = usuario.sanciones.filter(
+            tipo_usuario_sancion='docente',
+            estado='confirmada'
+        )
+        
+        for sancion in sanciones_docente:
+            sancion.acumulado_sanciones = 0  # Resetear contador
+            sancion.observaciones_bibliotecaria += f"\n[COMPENSACIÓN CUMPLIDA] {observaciones}"
+            sancion.save()
+        
+        messages.success(
+            request, 
+            f"Acumulado de sanciones reseteado para {usuario.get_full_name()}. "
+            f"Puede volver a solicitar préstamos normalmente."
+        )
+        return redirect('gestionar_sanciones')
+    
+    context = {
+        'usuario': usuario,
+        'sanciones_count': usuario.sanciones.filter(
+            tipo_usuario_sancion='docente', 
+            estado='confirmada'
+        ).count()
+    }
+    return render(request, 'libros/resetear_acumulado.html', context)

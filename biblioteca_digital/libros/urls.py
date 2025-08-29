@@ -93,5 +93,9 @@ urlpatterns = [
     path('marcar-libro-devuelto/<int:sancion_id>/', views.marcar_libro_devuelto, name='marcar_libro_devuelto'),
     path('mis-sanciones/', views.mis_sanciones, name='mis_sanciones'),
 
+    # URLs para sanciones críticas y reseteo
+    path('sanciones-criticas/', views.verificar_sanciones_criticas, name='verificar_sanciones_criticas'),
+    path('resetear-acumulado/<int:usuario_id>/', views.resetear_acumulado_docente, name='resetear_acumulado_docente'),
+
 
 ]

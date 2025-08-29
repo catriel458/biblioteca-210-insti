@@ -296,6 +296,12 @@
                 font-size: 2em;
             }
         }
+
+            .sancion-alert.critica {
+            background: linear-gradient(135deg, #d32f2f, #b71c1c);
+            animation: alertPulse 1.5s infinite;
+        }
+
     </style>
 </head>
 <body>
@@ -329,13 +335,23 @@
         {% endif %}
         
         <!-- Alerta de sanciones activas para usuarios -->
-        {% if user.tiene_sanciones_activas %}
-            <div class="sancion-alert">
-                <h3>⚠️ Tienes Sanciones Activas</h3>
-                <p>Estás inhabilitado/a para inscribirte a mesas de final. Ve a "Mis Sanciones" para más información y resuelve tu situación en biblioteca.</p>
-            </div>
-        {% endif %}
-        
+            {% if user.tiene_sanciones_activas %}
+                <div class="sancion-alert {% if user.perfil == 'docente' and user.tiene_sanciones_criticas %}critica{% endif %}">
+                    {% if user.perfil == 'docente' %}
+                        {% if user.tiene_sanciones_criticas %}
+                            <h3>🚫 COMPENSACIÓN REQUERIDA</h3>
+                            <p>Tienes 3 sanciones activas, debes devolver el material y traer un extra a tu elección para compensar. Ve a "Mis Sanciones" para más información.</p>
+                        {% else %}
+                            <h3>⚠️ Suspensión Activa</h3>
+                            <p>Tienes una sanción activa, no puedes solicitar préstamos durante 3 meses. Ve a "Mis Sanciones" para más información.</p>
+                        {% endif %}
+                    {% else %}
+                        <h3>⚠️ Tienes Sanciones Activas</h3>
+                        <p>Estás inhabilitado/a para inscribirte a mesas de final. Ve a "Mis Sanciones" para más información y resuelve tu situación en biblioteca.</p>
+                    {% endif %}
+                </div>
+            {% endif %}
+                    
         <div class="welcome-section">
             <h2>¡Bienvenido/a!</h2>
             <p>Sistema de Gestión Bibliotecaria - ISFDyT 210</p>

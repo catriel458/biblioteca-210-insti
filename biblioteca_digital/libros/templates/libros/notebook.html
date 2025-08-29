@@ -267,8 +267,22 @@ header {
 
 <body>
     <header>
-        <h1>Biblioteca Digital</h1>
-    </header>
+    <h1>Biblioteca Digital</h1>
+    {% if user.is_authenticated %}
+        <span>Bienvenido/a {{ user.get_full_name }} 
+            {% if user.perfil == 'bibliotecaria' %}
+                (Bibliotecaria)
+            {% elif user.perfil == 'docente' %}
+                (Docente)
+            {% else %}
+                (Alumno)
+            {% endif %}
+        </span>
+        <a href="{% url 'logout' %}" style="color: white; margin-left: 20px;">Cerrar Sesión</a>
+    {% else %}
+        <a href="{% url 'login' %}" style="color: white;">Iniciar Sesión</a>
+    {% endif %}
+</header>
     <main>
         <h2>Lista de Notebooks</h2>
         {% if user.es_bibliotecaria %}

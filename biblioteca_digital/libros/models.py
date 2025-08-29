@@ -30,6 +30,7 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
     PERFIL_CHOICES = (
         ('alumno', 'Alumno'),
         ('bibliotecaria', 'Bibliotecaria'),
+        ('docente', 'Docente'),
     )
     
     dni_validator = RegexValidator(
@@ -67,6 +68,33 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
     def get_sanciones_activas(self):
         """Obtiene las sanciones activas del usuario"""
         return self.sanciones.filter(estado='confirmada')
+    
+    def puede_solicitar_prestamo(self):
+        """Verifica si el usuario puede solicitar préstamos"""
+        # Verificar sanciones activas
+        sanciones_activas = self.sanciones.filter(estado='confirmada')
+    
+        for sancion in sanciones_activas:
+            # Para alumnos: si tiene sanción confirmada, no puede (lógica existente)
+            if sancion.tipo_usuario_sancion == 'alumno':
+                return False
+        
+        # Para docentes: verificar si la suspensión está vigente
+            elif sancion.tipo_usuario_sancion == 'docente':
+                if sancion.fecha_suspension_hasta and timezone.now() < sancion.fecha_suspension_hasta:
+                    return False
+    
+        return True
+
+    def tiene_sanciones_criticas(self):
+        """Verifica si el docente tiene 3 o más sanciones"""
+        if self.perfil != 'bibliotecaria':  # Solo verificar para usuarios normales
+            sanciones_docente = self.sanciones.filter(
+                tipo_usuario_sancion='docente',
+                estado='confirmada'
+            ).count()
+            return sanciones_docente >= 3
+        return False
 
 
 # TERCERO: Resto de modelos (Inventario y sus subclases)
@@ -263,18 +291,46 @@ class Sancion(models.Model):
         ('cumplida', 'Cumplida/Finalizada'),
     )
     
+    # AGREGAR ESTOS NUEVOS CAMPOS
+    TIPO_USUARIO_SANCION_CHOICES = (
+        ('alumno', 'Alumno'),
+        ('docente', 'Docente'),
+    )
+    
     id_sancion = models.AutoField(primary_key=True)
     usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='sanciones')
     prestamo = models.ForeignKey(Prestamo, on_delete=models.CASCADE, related_name='sanciones')
     tipo_sancion = models.CharField(max_length=30, choices=TIPO_CHOICES, default='inhabilitacion_mesas')
     estado = models.CharField(max_length=15, choices=ESTADO_CHOICES, default='pendiente')
+    
+    # NUEVO CAMPO PARA TIPO DE USUARIO
+    tipo_usuario_sancion = models.CharField(
+        max_length=10, 
+        choices=TIPO_USUARIO_SANCION_CHOICES, 
+        default='alumno',
+        help_text="Tipo de usuario al que se aplica la sanción"
+    )
+    
+    # NUEVOS CAMPOS PARA DOCENTES
+    fecha_suspension_hasta = models.DateTimeField(
+        null=True, 
+        blank=True,
+        help_text="Fecha hasta la que está suspendido el docente (3 meses)"
+    )
+    
+    acumulado_sanciones = models.IntegerField(
+        default=0,
+        help_text="Número de sanciones acumuladas del docente"
+    )
+    
+    # Campos existentes
     fecha_creacion = models.DateTimeField(auto_now_add=True)
     fecha_confirmacion = models.DateTimeField(null=True, blank=True)
     fecha_finalizacion = models.DateTimeField(null=True, blank=True)
     motivo = models.TextField(default='Préstamo vencido')
     observaciones_bibliotecaria = models.TextField(blank=True, null=True)
-    libro_devuelto_catalogo = models.BooleanField(default=False, help_text="Indica si el libro fue devuelto al catálogo tras cancelar la sanción")
-    fecha_devolucion_catalogo = models.DateTimeField(null=True, blank=True, help_text="Fecha cuando el libro fue devuelto al catálogo")
+    libro_devuelto_catalogo = models.BooleanField(default=False)
+    fecha_devolucion_catalogo = models.DateTimeField(null=True, blank=True)
     
     class Meta:
         ordering = ['-fecha_creacion']
@@ -283,4 +339,31 @@ class Sancion(models.Model):
         return f"Sanción {self.id_sancion} - {self.usuario.get_full_name()} - {self.get_estado_display()}"
     
     def esta_activa(self):
-        return self.estado == 'confirmada'
+        if self.estado != 'confirmada':
+            return False
+        
+        # Para docentes, verificar si la suspensión ha expirado
+        if self.tipo_usuario_sancion == 'docente' and self.fecha_suspension_hasta:
+            from django.utils import timezone
+            return timezone.now() < self.fecha_suspension_hasta
+        
+        return True
+    
+    # NUEVOS MÉTODOS
+    def calcular_fecha_suspension_docente(self):
+        """Calcula la fecha de suspensión (3 meses desde confirmación)"""
+        if self.fecha_confirmacion:
+            import datetime
+            return self.fecha_confirmacion + datetime.timedelta(days=90)  # 3 meses
+        return None
+    
+    def verificar_acumulado_critico(self):
+        """Verifica si el docente tiene 3 o más sanciones confirmadas"""
+        if self.tipo_usuario_sancion == 'docente' and self.usuario:
+            sanciones_confirmadas = Sancion.objects.filter(
+                usuario=self.usuario,
+                tipo_usuario_sancion='docente',
+                estado='confirmada'
+            ).count()
+            return sanciones_confirmadas >= 3
+        return False

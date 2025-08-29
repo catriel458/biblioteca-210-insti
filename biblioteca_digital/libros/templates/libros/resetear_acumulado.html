@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resetear Acumulado - Biblioteca</title>
+    <style>
+        body {
+            font-family: 'Calibri', 'Arial', sans-serif;
+            background-color: #f4f4f8;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            box-sizing: border-box;
+            resize: vertical;
+        }
+        
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            margin-right: 10px;
+        }
+        
+        .btn-success {
+            background-color: #28a745;
+            color: white;
+        }
+        
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+        
+        .info-usuario {
+            background-color: #e9ecef;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Resetear Acumulado de Sanciones</h2>
+        
+        <div class="alert-success">
+            Esta acción reseteará el acumulado de sanciones del docente a 0, permitiéndole volver a solicitar préstamos.
+        </div>
+        
+        <div class="info-usuario">
+            <h4>Información del Docente</h4>
+            <p><strong>Nombre:</strong> {{ usuario.get_full_name }}</p>
+            <p><strong>Email:</strong> {{ usuario.email }}</p>
+            <p><strong>Sanciones confirmadas:</strong> {{ sanciones_count }}</p>
+        </div>
+        
+        <form method="POST">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="observaciones">Observaciones sobre la compensación cumplida:</label>
+                <textarea name="observaciones" id="observaciones" rows="4" required 
+                          placeholder="Describe qué compensación cumplió el docente (ej: devolvió libro X y compró material Y)..."></textarea>
+            </div>
+            
+            <div style="text-align: center;">
+                <button type="submit" class="btn btn-success" 
+                        onclick="return confirm('¿Confirmar que {{ usuario.get_full_name }} cumplió con la compensación y resetear su acumulado?')">
+                    Resetear Acumulado
+                </button>
+                <a href="{% url 'gestionar_sanciones' %}" class="btn btn-secondary">Cancelar</a>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

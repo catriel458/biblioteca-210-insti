@@ -382,31 +382,55 @@
                 <div class="stat-number">{{ sanciones|length }}</div>
                 <div class="stat-label">Total Mostradas</div>
             </div>
+
+            <div class="stat-card">
+                <div class="stat-number">{{ docentes_suspendidos }}</div>
+                <div class="stat-label">Docentes Suspendidos</div>
+            </div>
+
         </div>
         
-        <div class="filters">
-            <a href="{% url 'gestionar_sanciones' %}?filtro=pendientes" 
-               class="filter-btn {% if filtro == 'pendientes' %}active{% endif %}">
-               🔄 Pendientes ({{ total_pendientes }})
+      <div class="filters">
+    <a href="{% url 'gestionar_sanciones' %}?filtro=pendientes&filtro_tipo={{ filtro_tipo }}" 
+       class="filter-btn {% if filtro == 'pendientes' %}active{% endif %}">
+       🔄 Pendientes ({{ total_pendientes }})
+    </a>
+    <a href="{% url 'gestionar_sanciones' %}?filtro=confirmadas&filtro_tipo={{ filtro_tipo }}" 
+       class="filter-btn {% if filtro == 'confirmadas' %}active{% endif %}">
+       ⚠️ Confirmadas ({{ total_confirmadas }})
+    </a>
+    <a href="{% url 'gestionar_sanciones' %}?filtro=canceladas&filtro_tipo={{ filtro_tipo }}" 
+       class="filter-btn {% if filtro == 'canceladas' %}active{% endif %}">
+       ❌ Canceladas
+    </a>
+    <a href="{% url 'gestionar_sanciones' %}?filtro=cumplidas&filtro_tipo={{ filtro_tipo }}" 
+       class="filter-btn {% if filtro == 'cumplidas' %}active{% endif %}">
+       ✅ Cumplidas
+    </a>
+    <a href="{% url 'gestionar_sanciones' %}?filtro=todas&filtro_tipo={{ filtro_tipo }}" 
+       class="filter-btn {% if filtro == 'todas' %}active{% endif %}">
+       📋 Todas
+    </a>
+</div>
+                <!-- NUEVOS FILTROS POR TIPO DE USUARIO -->
+        <div class="filters" style="border-top: 1px solid #eee; padding-top: 15px; margin-top: 15px;">
+            <h4 style="margin: 0 0 10px 0; color: #666;">Filtrar por Tipo:</h4>
+            <a href="{% url 'gestionar_sanciones' %}?filtro={{ filtro }}&filtro_tipo=todos" 
+            class="filter-btn {% if filtro_tipo == 'todos' %}active{% endif %}">
+            Todos los Tipos
             </a>
-            <a href="{% url 'gestionar_sanciones' %}?filtro=confirmadas" 
-               class="filter-btn {% if filtro == 'confirmadas' %}active{% endif %}">
-               ⚠️ Confirmadas ({{ total_confirmadas }})
+            <a href="{% url 'gestionar_sanciones' %}?filtro={{ filtro }}&filtro_tipo=alumno" 
+            class="filter-btn {% if filtro_tipo == 'alumno' %}active{% endif %}">
+            Sanciones Alumno ({{ total_alumnos }})
             </a>
-            <a href="{% url 'gestionar_sanciones' %}?filtro=canceladas" 
-               class="filter-btn {% if filtro == 'canceladas' %}active{% endif %}">
-               ❌ Canceladas
-            </a>
-            <a href="{% url 'gestionar_sanciones' %}?filtro=cumplidas" 
-               class="filter-btn {% if filtro == 'cumplidas' %}active{% endif %}">
-               ✅ Cumplidas
-            </a>
-            <a href="{% url 'gestionar_sanciones' %}?filtro=todas" 
-               class="filter-btn {% if filtro == 'todas' %}active{% endif %}">
-               📋 Todas
+            <a href="{% url 'gestionar_sanciones' %}?filtro={{ filtro }}&filtro_tipo=docente" 
+            class="filter-btn {% if filtro_tipo == 'docente' %}active{% endif %}">
+            Sanciones Docente ({{ total_docentes }})
             </a>
         </div>
-        
+
+
+
         {% if sanciones %}
         <div class="table-container">
             <table>
@@ -416,6 +440,7 @@
                         <th>Usuario</th>
                         <th>Libro / Estado</th>
                         <th>Estado Libro</th>
+                        <th>Tipo Usuario</th>
                         <th>Tipo Sanción</th>
                         <th>Estado</th>
                         <th>Fechas</th>
@@ -426,7 +451,10 @@
                 <tbody>
                     {% for sancion in sanciones %}
                     <tr>
+                        <!-- Columna ID -->
                         <td><strong>#{{ sancion.id_sancion }}</strong></td>
+                        
+                        <!-- Columna Usuario -->
                         <td>
                             {% if sancion.usuario %}
                                 <strong>{{ sancion.usuario.get_full_name }}</strong><br>
@@ -436,12 +464,16 @@
                                 <small style="color: #999;">Sistema</small>
                             {% endif %}
                         </td>
+                        
+                        <!-- Columna Libro / Estado -->
                         <td>
                             <strong>{{ sancion.prestamo.libro.titulo|truncatechars:30 }}</strong><br>
                             <div class="estado-libro {% if sancion.prestamo.libro.estado == 'Disponible' %}libro-disponible{% else %}libro-no-disponible{% endif %}">
                                 📚 {{ sancion.prestamo.libro.estado }}
                             </div>
                         </td>
+                        
+                        <!-- Columna Estado Libro -->
                         <td>
                             {% if sancion.estado == 'cancelada' %}
                                 {% if sancion.libro_devuelto_catalogo %}
@@ -475,7 +507,53 @@
                                 </span>
                             {% endif %}
                         </td>
+
+                        <!-- Columna Tipo Usuario -->
+                        <td>
+                            {% if sancion.usuario %}
+                                {% if sancion.usuario.perfil == 'bibliotecaria' %}
+                                    <span style="background-color: #6f42c1; color: white; padding: 4px 8px; border-radius: 12px; font-size: 11px; font-weight: bold;">
+                                        BIBLIOTECARIA
+                                    </span>
+                                {% elif sancion.usuario.perfil == 'docente' %}
+                                    <span style="background-color: #17a2b8; color: white; padding: 4px 8px; border-radius: 12px; font-size: 11px; font-weight: bold;">
+                                        DOCENTE
+                                    </span>
+                                {% else %}
+                                    <span style="background-color: #28a745; color: white; padding: 4px 8px; border-radius: 12px; font-size: 11px; font-weight: bold;">
+                                        ALUMNO
+                                    </span>
+                                {% endif %}
+                                
+                                <!-- Mostrar información adicional solo si es sanción de docente -->
+                                {% if sancion.tipo_usuario_sancion == 'docente' %}
+                                    <br>
+                                    <small style="color: #666; font-size: 10px;">
+                                        Suspensión 3 meses
+                                    </small>
+                                    {% if sancion.acumulado_sanciones >= 3 %}
+                                    <br>
+                                    <span style="background-color: #dc3545; color: white; padding: 2px 6px; border-radius: 10px; font-size: 9px;">
+                                        {{ sancion.acumulado_sanciones }} ACUMULADAS
+                                    </span>
+                                    {% elif sancion.acumulado_sanciones > 0 %}
+                                    <br>
+                                    <small style="color: #17a2b8; font-size: 10px;">
+                                        {{ sancion.acumulado_sanciones }} acumulada(s)
+                                    </small>
+                                    {% endif %}
+                                {% endif %}
+                            {% else %}
+                                <span style="background-color: #6c757d; color: white; padding: 4px 8px; border-radius: 12px; font-size: 11px; font-weight: bold;">
+                                    USUARIO ELIMINADO
+                                </span>
+                            {% endif %}
+                        </td>
+
+                        <!-- Columna Tipo Sanción -->
                         <td>{{ sancion.get_tipo_sancion_display }}</td>
+                        
+                        <!-- Columna Estado -->
                         <td>
                             <span class="sancion-badge sancion-{{ sancion.estado }}">
                                 {% if sancion.estado == 'pendiente' %}
@@ -491,6 +569,8 @@
                                 {% endif %}
                             </span>
                         </td>
+                        
+                        <!-- Columna Fechas -->
                         <td>
                             <strong>Creación:</strong><br>
                             <small>{{ sancion.fecha_creacion|date:"d/m/Y H:i" }}</small><br>
@@ -503,6 +583,8 @@
                                 <small>{{ sancion.fecha_finalizacion|date:"d/m/Y H:i" }}</small>
                             {% endif %}
                         </td>
+                        
+                        <!-- Columna Motivo -->
                         <td>
                             <span title="{{ sancion.motivo }}">{{ sancion.motivo|truncatechars:40 }}</span>
                             {% if sancion.observaciones_bibliotecaria %}
@@ -511,38 +593,52 @@
                                 </div>
                             {% endif %}
                         </td>
+                        
+                        <!-- Columna Acciones -->
                         <td>
                             <div class="acciones-container">
                                 {% if sancion.estado == 'pendiente' %}
                                     <a href="{% url 'confirmar_sancion' sancion.id_sancion %}" 
-                                       class="btn-action btn-confirmar"
-                                       onclick="return confirm('¿Confirmar la sanción para {{ sancion.usuario.get_full_name }}?')"
-                                       title="Confirmar sanción">
-                                       ✓ Confirmar
+                                    class="btn-action btn-confirmar"
+                                    onclick="return confirm('¿Confirmar la sanción para {{ sancion.usuario.get_full_name }}?')"
+                                    title="Confirmar sanción">
+                                    ✓ Confirmar
                                     </a>
                                     <a href="{% url 'cancelar_sancion' sancion.id_sancion %}" 
-                                       class="btn-action btn-cancelar"
-                                       title="Cancelar sanción">
-                                       ✗ Cancelar
+                                    class="btn-action btn-cancelar"
+                                    title="Cancelar sanción">
+                                    ✗ Cancelar
                                     </a>
                                 {% elif sancion.estado == 'confirmada' %}
                                     <a href="{% url 'marcar_libro_devuelto' sancion.id_sancion %}" 
-                                       class="btn-action btn-devolver"
-                                       onclick="return confirm('¿Confirmar que {{ sancion.usuario.get_full_name }} devolvió el libro &quot;{{ sancion.prestamo.libro.titulo }}&quot;?')"
-                                       title="Marcar libro como devuelto">
-                                       📚 Libro Devuelto
+                                    class="btn-action btn-devolver"
+                                    onclick="return confirm('¿Confirmar que {{ sancion.usuario.get_full_name }} devolvió el libro &quot;{{ sancion.prestamo.libro.titulo }}&quot;?')"
+                                    title="Marcar libro como devuelto">
+                                    📚 Libro Devuelto
                                     </a>
                                     <a href="{% url 'cancelar_sancion' sancion.id_sancion %}" 
-                                       class="btn-action btn-revocar"
-                                       title="Revocar sanción">
-                                       🔄 Revocar
+                                    class="btn-action btn-revocar"
+                                    title="Revocar sanción">
+                                    🔄 Revocar
                                     </a>
+
+                                    <!-- Botón de reseteo para docentes con 3+ sanciones -->
+                                    {% if sancion.tipo_usuario_sancion == 'docente' and sancion.acumulado_sanciones >= 3 %}
+                                        <a href="{% url 'resetear_acumulado_docente' sancion.usuario.id %}" 
+                                        class="btn-action btn-devolver"
+                                        style="background-color: #17a2b8;"
+                                        onclick="return confirm('¿Confirmar que {{ sancion.usuario.get_full_name }} cumplió con la compensación y resetear su acumulado?')"
+                                        title="Resetear acumulado tras compensación">
+                                        🔄 Resetear Acumulado
+                                        </a>
+                                    {% endif %}
+
                                 {% elif sancion.estado == 'cancelada' %}
                                     {% if not sancion.libro_devuelto_catalogo %}
                                         <a href="{% url 'devolver_libro_catalogo' sancion.id_sancion %}" 
-                                           class="btn-action btn-devolver"
-                                           title="Devolver libro al catálogo">
-                                           📚 Devolver al Catálogo
+                                        class="btn-action btn-devolver"
+                                        title="Devolver libro al catálogo">
+                                        📚 Devolver al Catálogo
                                         </a>
                                         <span style="color: #ff9800; font-style: italic; font-size: 10px; display: block; margin-top: 4px;">
                                             Libro fuera del catálogo

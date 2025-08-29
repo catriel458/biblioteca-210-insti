@@ -27,6 +27,23 @@
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
         
+        .btn-volver {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #004c8c;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+        
+        .btn-volver:hover {
+            background-color: #003b6f;
+            text-decoration: none;
+            color: white;
+        }
+        
         .alert-warning {
             background-color: #fcf8e3;
             border: 1px solid #faebcc;
@@ -34,6 +51,25 @@
             padding: 15px;
             border-radius: 4px;
             margin-bottom: 20px;
+        }
+        
+        .alert-danger {
+            background-color: #f2dede;
+            border: 1px solid #ebccd1;
+            color: #a94442;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+        
+        .alert-critical {
+            background-color: #d32f2f;
+            border: 1px solid #b71c1c;
+            color: white;
+            padding: 20px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            font-weight: bold;
         }
         
         .alert-success {
@@ -75,6 +111,19 @@
         .sancion-confirmada { background-color: #f44336; }
         .sancion-cancelada { background-color: #9e9e9e; }
         .sancion-cumplida { background-color: #4caf50; }
+        
+        .tipo-sancion-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+            color: white;
+            margin-left: 5px;
+        }
+        
+        .docente-badge { background-color: #17a2b8; }
+        .alumno-badge { background-color: #28a745; }
     </style>
 </head>
 <body>
@@ -88,14 +137,30 @@
         <h2>Estado de mis Sanciones</h2>
         
         {% if tiene_sanciones_activas %}
-        <div class="alert-warning">
-            <strong>⚠️ Atención:</strong> Tienes sanciones activas que te impiden inscribirte a mesas de final. 
-            Para resolver esta situación, acércate a la biblioteca para devolver el material prestado.
-        </div>
+            {% if user.perfil == 'docente' %}
+                {% if user.tiene_sanciones_criticas %}
+                    <div class="alert-critical">
+                        <strong>🚫 COMPENSACIÓN REQUERIDA:</strong> Tienes 3 sanciones activas, debes devolver el material y traer un extra a su elección para compensar!
+                    </div>
+                {% else %}
+                    <div class="alert-danger">
+                        <strong>⚠️ Suspensión Activa:</strong> Tienes una sanción activa, no puedes solicitar préstamos durante 3 meses.
+                    </div>
+                {% endif %}
+            {% else %}
+                <div class="alert-warning">
+                    <strong>⚠️ Atención:</strong> Tienes sanciones activas que te impiden inscribirte a mesas de final. 
+                    Para resolver esta situación, acércate a la biblioteca para devolver el material prestado.
+                </div>
+            {% endif %}
         {% else %}
-        <div class="alert-success">
-            <strong>✅ Estado OK:</strong> No tienes sanciones activas. Puedes inscribirte normalmente a las mesas de final.
-        </div>
+            <div class="alert-success">
+                {% if user.perfil == 'docente' %}
+                    <strong>✅ Estado OK:</strong> No tienes sanciones activas. Puedes solicitar préstamos normalmente.
+                {% else %}
+                    <strong>✅ Estado OK:</strong> No tienes sanciones activas. Puedes inscribirte normalmente a las mesas de final.
+                {% endif %}
+            </div>
         {% endif %}
         
         {% if sanciones %}
@@ -104,9 +169,11 @@
                 <tr>
                     <th>Libro</th>
                     <th>Tipo Sanción</th>
+                    <th>Tipo Usuario</th>
                     <th>Estado</th>
                     <th>Fecha</th>
                     <th>Motivo</th>
+                    <th>Información Adicional</th>
                 </tr>
             </thead>
             <tbody>
@@ -114,6 +181,13 @@
                 <tr>
                     <td>{{ sancion.prestamo.libro.titulo }}</td>
                     <td>{{ sancion.get_tipo_sancion_display }}</td>
+                    <td>
+                        {% if sancion.tipo_usuario_sancion == 'docente' %}
+                            <span class="tipo-sancion-badge docente-badge">DOCENTE</span>
+                        {% else %}
+                            <span class="tipo-sancion-badge alumno-badge">ALUMNO</span>
+                        {% endif %}
+                    </td>
                     <td>
                         <span class="sancion-badge sancion-{{ sancion.estado }}">
                             {{ sancion.get_estado_display }}
@@ -127,6 +201,24 @@
                         {% endif %}
                     </td>
                     <td>{{ sancion.motivo }}</td>
+                    <td>
+                        {% if sancion.tipo_usuario_sancion == 'docente' and sancion.estado == 'confirmada' %}
+                            {% if sancion.fecha_suspension_hasta %}
+                                <strong>Suspendido hasta:</strong><br>
+                                {{ sancion.fecha_suspension_hasta|date:"d/m/Y" }}
+                            {% endif %}
+                            {% if sancion.acumulado_sanciones > 0 %}
+                                <br><strong>Sanciones acumuladas:</strong> {{ sancion.acumulado_sanciones }}
+                                {% if sancion.acumulado_sanciones >= 3 %}
+                                    <br><span style="color: #d32f2f; font-weight: bold;">¡COMPENSACIÓN REQUERIDA!</span>
+                                {% endif %}
+                            {% endif %}
+                        {% elif sancion.tipo_usuario_sancion == 'alumno' and sancion.estado == 'confirmada' %}
+                            <span style="color: #f44336;">Inhabilitado para mesas de final</span>
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>
