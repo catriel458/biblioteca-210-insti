@@ -1395,6 +1395,7 @@ def prestamos_solicitados(request):
     })
 
 # Actualizar la vista de solicitar préstamo para usar el usuario logueado
+
 @login_required
 def solicitar_prestamo(request, libro_id):
     libro = get_object_or_404(Libro, id_libro=libro_id)
@@ -1404,7 +1405,14 @@ def solicitar_prestamo(request, libro_id):
         messages.error(request, "Este libro no está disponible para préstamo.")
         return redirect('lista_libros')
     
-     # NUEVA VERIFICACIÓN: Si el usuario puede solicitar préstamos
+    # NUEVA VERIFICACIÓN: Límite de préstamos simultáneos
+    if not request.user.puede_solicitar_mas_prestamos():
+        messages.error(request, 
+            "Has alcanzado el límite máximo de 3 préstamos simultáneos. "
+            "Debes devolver un libro antes de solicitar otro.")
+        return redirect('mis_prestamos_activos')
+    
+    # NUEVA VERIFICACIÓN: Si el usuario puede solicitar préstamos
     if not request.user.puede_solicitar_prestamo():
         messages.error(request, "No puedes solicitar préstamos debido a sanciones activas.")
         return redirect('mis_sanciones')
@@ -1420,9 +1428,9 @@ def solicitar_prestamo(request, libro_id):
         tipo_prestamo = request.POST.get('tipo_prestamo', 'domicilio')
         
         prestamo = Prestamo(
-            usuario=request.user,  # Asignar el usuario logueado
-            nombre_usuario=request.user.get_full_name(),  # Llenar automáticamente
-            email_usuario=request.user.email,  # Llenar automáticamente
+            usuario=request.user,
+            nombre_usuario=request.user.get_full_name(),
+            email_usuario=request.user.email,
             libro=libro,
             tipo_prestamo=tipo_prestamo,
             tipo_usuario=tipo_usuario,
@@ -1431,14 +1439,28 @@ def solicitar_prestamo(request, libro_id):
         )
         prestamo.save()
         
-        # Cambiar estado del libro a reservado
-        # libro.estado = 'Reservado'
-        # libro.save()
+        prestamos_restantes = request.user.get_prestamos_disponibles() - 1  # -1 porque acabamos de solicitar uno
         
-        messages.success(request, f"Has solicitado el préstamo del libro '{libro.titulo}'. La biblioteca revisará tu solicitud.")
+        mensaje_base = f"Has solicitado el préstamo del libro '{libro.titulo}'. La biblioteca revisará tu solicitud."
+        if prestamos_restantes > 0:
+            mensaje_base += f" Puedes solicitar {prestamos_restantes} préstamos más."
+        else:
+            mensaje_base += " Has alcanzado el límite de 3 préstamos simultáneos."
+        
+        messages.success(request, mensaje_base)
         return redirect('prestamos_solicitados')
     
-    return render(request, 'libros/solicitar_prestamo.html', {'libro': libro})
+    # Pasar información adicional al template
+    prestamos_activos = request.user.get_prestamos_activos().count()
+    prestamos_disponibles = request.user.get_prestamos_disponibles()
+    
+    context = {
+        'libro': libro,
+        'prestamos_activos': prestamos_activos,
+        'prestamos_disponibles': prestamos_disponibles
+    }
+    
+    return render(request, 'libros/solicitar_prestamo.html', context)
 
 # Gestión de préstamos solo para bibliotecarias
 @user_passes_test(es_bibliotecaria)
@@ -2139,3 +2161,17 @@ def resetear_acumulado_docente(request, usuario_id):
         ).count()
     }
     return render(request, 'libros/resetear_acumulado.html', context)
+
+@login_required
+def mis_prestamos_activos(request):
+    """Vista para mostrar los préstamos activos del usuario"""
+    prestamos_activos = request.user.get_prestamos_activos().order_by('-fecha_solicitud')
+    
+    context = {
+        'prestamos_activos': prestamos_activos,
+        'total_prestamos': prestamos_activos.count(),
+        'prestamos_disponibles': request.user.get_prestamos_disponibles()
+    }
+    
+    return render(request, 'libros/mis_prestamos_activos.html', context)
+

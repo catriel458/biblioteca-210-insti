@@ -180,6 +180,22 @@
             background: #003b6f;
         }
         
+        .btn-success {
+            background: #28a745;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: background-color 0.3s;
+            border: none;
+            flex: 1;
+        }
+        
+        .btn-success:hover {
+            background: #218838;
+        }
+        
         /* Estilos especiales para las tarjetas de sanciones */
         .menu-card.sancion-usuario {
             border-left: 5px solid #ff9800;
@@ -248,6 +264,11 @@
             opacity: 0.9;
         }
         
+        .sancion-alert.critica {
+            background: linear-gradient(135deg, #d32f2f, #b71c1c);
+            animation: alertPulse 1.5s infinite;
+        }
+        
         .messages {
             margin-bottom: 20px;
         }
@@ -262,6 +283,21 @@
             background: #d4edda;
             color: #155724;
             border: 1px solid #c3e6cb;
+        }
+        
+        /* Estilo para información de límite de préstamos */
+        .prestamo-info {
+            background: #e3f2fd;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 0.9em;
+        }
+        
+        .prestamo-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
         }
         
         footer {
@@ -295,15 +331,14 @@
             .welcome-section h2 {
                 font-size: 2em;
             }
+            
+            .prestamo-buttons {
+                flex-direction: column;
+            }
         }
-
-            .sancion-alert.critica {
-            background: linear-gradient(135deg, #d32f2f, #b71c1c);
-            animation: alertPulse 1.5s infinite;
-        }
-
     </style>
 </head>
+
 <body>
     <header>
         <div class="header-content">
@@ -335,22 +370,22 @@
         {% endif %}
         
         <!-- Alerta de sanciones activas para usuarios -->
-            {% if user.tiene_sanciones_activas %}
-                <div class="sancion-alert {% if user.perfil == 'docente' and user.tiene_sanciones_criticas %}critica{% endif %}">
-                    {% if user.perfil == 'docente' %}
-                        {% if user.tiene_sanciones_criticas %}
-                            <h3>🚫 COMPENSACIÓN REQUERIDA</h3>
-                            <p>Tienes 3 sanciones activas, debes devolver el material y traer un extra a tu elección para compensar. Ve a "Mis Sanciones" para más información.</p>
-                        {% else %}
-                            <h3>⚠️ Suspensión Activa</h3>
-                            <p>Tienes una sanción activa, no puedes solicitar préstamos durante 3 meses. Ve a "Mis Sanciones" para más información.</p>
-                        {% endif %}
+        {% if user.tiene_sanciones_activas %}
+            <div class="sancion-alert {% if user.perfil == 'docente' and user.tiene_sanciones_criticas %}critica{% endif %}">
+                {% if user.perfil == 'docente' %}
+                    {% if user.tiene_sanciones_criticas %}
+                        <h3>🚫 COMPENSACIÓN REQUERIDA</h3>
+                        <p>Tienes 3 sanciones activas, debes devolver el material y traer un extra a tu elección para compensar. Ve a "Mis Sanciones" para más información.</p>
                     {% else %}
-                        <h3>⚠️ Tienes Sanciones Activas</h3>
-                        <p>Estás inhabilitado/a para inscribirte a mesas de final. Ve a "Mis Sanciones" para más información y resuelve tu situación en biblioteca.</p>
+                        <h3>⚠️ Suspensión Activa</h3>
+                        <p>Tienes una sanción activa, no puedes solicitar préstamos durante 3 meses. Ve a "Mis Sanciones" para más información.</p>
                     {% endif %}
-                </div>
-            {% endif %}
+                {% else %}
+                    <h3>⚠️ Tienes Sanciones Activas</h3>
+                    <p>Estás inhabilitado/a para inscribirte a mesas de final. Ve a "Mis Sanciones" para más información y resuelve tu situación en biblioteca.</p>
+                {% endif %}
+            </div>
+        {% endif %}
                     
         <div class="welcome-section">
             <h2>¡Bienvenido/a!</h2>
@@ -396,8 +431,37 @@
             <div class="menu-card">
                 <div class="icon">📋</div>
                 <h3>Mis Préstamos</h3>
+                
+                <!-- Información del límite de préstamos -->
+                {% if not user.es_bibliotecaria %}
+                    <div class="prestamo-info">
+                        <strong>Estado de Préstamos:</strong><br>
+                        <span style="font-size: 1.1em; font-weight: bold; color: #004c8c;">
+                            {{ user.get_prestamos_activos.count }}/3 préstamos activos
+                        </span>
+                        {% if user.get_prestamos_disponibles > 0 %}
+                            <br><span style="color: #4caf50;">
+                                Puedes solicitar {{ user.get_prestamos_disponibles }} más
+                            </span>
+                        {% else %}
+                            <br><span style="color: #f44336; font-weight: bold;">
+                                Límite alcanzado
+                            </span>
+                        {% endif %}
+                    </div>
+                {% endif %}
+
                 <p>Revisa el estado de tus préstamos actuales y el historial de solicitudes.</p>
-                <a href="{% url 'prestamos_solicitados' %}" class="btn btn-primary">Ver Préstamos</a>
+
+                <!-- Botones de acción -->
+                <div class="prestamo-buttons">
+                    <a href="{% url 'prestamos_solicitados' %}" class="btn btn-primary" style="flex: 1;">Ver Todos</a>
+                    {% if not user.es_bibliotecaria %}
+                        <a href="{% url 'mis_prestamos_activos' %}" class="btn btn-success">
+                            Activos ({{ user.get_prestamos_activos.count }})
+                        </a>
+                    {% endif %}
+                </div>
             </div>
             
             <!-- Tarjeta de Mis Sanciones (para todos los usuarios) -->
@@ -448,6 +512,13 @@
                 <a href="{% url 'gestion_usuarios' %}" class="btn btn-primary">Ver Registro</a>
             </div>
             {% endif %}
+            
+            <div class="menu-card">
+                <div class="icon">📋</div>
+                <h3>Varios</h3>
+                <p>Consulta otros materiales disponibles en nuestra biblioteca.</p>
+                <a href="{% url 'varios' %}" class="btn btn-primary">Ver Todos</a>
+            </div>
         </div>
     </div>
     

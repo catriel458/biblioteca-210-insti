@@ -96,6 +96,20 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
             return sanciones_docente >= 3
         return False
 
+    # En la clase Usuario, agrega estos métodos
+    def get_prestamos_activos(self):
+        """Obtiene los préstamos activos del usuario"""
+        return self.prestamos_usuario.filter(estado__in=['aprobado', 'aprobado_reserva'])
+
+    def puede_solicitar_mas_prestamos(self):
+        """Verifica si el usuario puede solicitar más préstamos (máximo 3)"""
+        prestamos_activos = self.get_prestamos_activos().count()
+        return prestamos_activos < 3
+
+    def get_prestamos_disponibles(self):
+        """Retorna cuántos préstamos más puede solicitar"""
+        prestamos_activos = self.get_prestamos_activos().count()
+        return max(0, 3 - prestamos_activos)
 
 # TERCERO: Resto de modelos (Inventario y sus subclases)
 class Inventario(models.Model):

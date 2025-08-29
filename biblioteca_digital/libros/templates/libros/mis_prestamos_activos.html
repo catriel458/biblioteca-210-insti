@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mis Préstamos Activos - Biblioteca</title>
+    {% load static %}
+    <style>
+        body {
+            font-family: 'Calibri', 'Arial', sans-serif;
+            background-color: #f4f4f8;
+            margin: 0;
+            padding: 0;
+        }
+        
+        header {
+            background-color: #004c8c;
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 20px auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .limit-info {
+            background: linear-gradient(135deg, #004c8c, #0056a3);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .limit-counter {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        
+        .warning-box {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            color: #856404;
+        }
+        
+        .error-box {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            color: #721c24;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        th {
+            background-color: #004c8c;
+            color: white;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+            color: white;
+        }
+        
+        .status-aprobado {
+            background-color: #4caf50;
+        }
+        
+        .status-aprobado_reserva {
+            background-color: #8E24AA;
+        }
+        
+        .btn-volver {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #004c8c;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Mis Préstamos Activos</h1>
+    </header>
+    
+    <div class="container">
+        <a href="{% url 'lista_libros' %}" class="btn-volver">← Volver a Lista de Libros</a>
+        
+        <div class="limit-info">
+            <h3>Estado de tus Préstamos</h3>
+            <div class="limit-counter">{{ total_prestamos }}/3 Préstamos Activos</div>
+            {% if prestamos_disponibles > 0 %}
+                <p>Puedes solicitar {{ prestamos_disponibles }} préstamo{{ prestamos_disponibles|pluralize:"s" }} más</p>
+            {% else %}
+                <p><strong>Has alcanzado el límite máximo de préstamos simultáneos</strong></p>
+            {% endif %}
+        </div>
+        
+        {% if total_prestamos >= 3 %}
+            <div class="error-box">
+                <strong>⚠️ Límite Alcanzado</strong><br>
+                Has alcanzado el límite máximo de 3 préstamos simultáneos. 
+                Debes devolver al menos un libro antes de poder solicitar otro préstamo.
+            </div>
+        {% elif total_prestamos >= 2 %}
+            <div class="warning-box">
+                <strong>⚠️ Atención</strong><br>
+                Estás cerca del límite de préstamos simultáneos ({{ total_prestamos }}/3).
+            </div>
+        {% endif %}
+        
+        {% if prestamos_activos %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Libro</th>
+                        <th>Fecha Solicitud</th>
+                        <th>Estado</th>
+                        <th>Fecha Devolución</th>
+                        <th>Tiempo Restante</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for prestamo in prestamos_activos %}
+                    <tr>
+                        <td>{{ prestamo.libro.titulo }}</td>
+                        <td>{{ prestamo.fecha_solicitud|date:"d/m/Y H:i" }}</td>
+                        <td>
+                            <span class="status-badge status-{{ prestamo.estado }}">
+                                {{ prestamo.get_estado_display }}
+                            </span>
+                        </td>
+                        <td>
+                            {% if prestamo.fecha_devolucion_programada %}
+                                {{ prestamo.fecha_devolucion_programada|date:"d/m/Y" }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if prestamo.estado == 'aprobado' and prestamo.fecha_devolucion_programada %}
+                                <span id="timer-{{ prestamo.id_prestamo }}" 
+                                      data-end="{{ prestamo.fecha_devolucion_programada|date:'Y-m-d H:i:s' }}">
+                                    Calculando...
+                                </span>
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p style="text-align: center; color: #666; font-style: italic; margin-top: 40px;">
+                No tienes préstamos activos actualmente.
+            </p>
+        {% endif %}
+    </div>
+    
+    <script>
+        // Actualizar cronómetros cada segundo
+        function actualizarCronometros() {
+            const timers = document.querySelectorAll('[id^="timer-"]');
+            
+            timers.forEach(timer => {
+                const endDate = new Date(timer.dataset.end);
+                const now = new Date();
+                const diff = endDate - now;
+                
+                if (diff <= 0) {
+                    timer.innerHTML = "¡VENCIDO!";
+                    timer.style.color = "#f44336";
+                } else {
+                    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                    
+                    timer.innerHTML = `${days}d ${hours}h ${minutes}m`;
+                    
+                    if (days < 2) {
+                        timer.style.color = "#f44336";
+                    } else if (days < 5) {
+                        timer.style.color = "#ff9800";
+                    } else {
+                        timer.style.color = "#4caf50";
+                    }
+                }
+            });
+        }
+        
+        setInterval(actualizarCronometros, 1000);
+        document.addEventListener('DOMContentLoaded', actualizarCronometros);
+    </script>
+</body>
+</html>
