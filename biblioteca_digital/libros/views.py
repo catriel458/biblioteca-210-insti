@@ -39,6 +39,41 @@ from .models import Libro, Mapas, Multimedia, Notebook, Proyector, Varios
 from django.contrib.auth.models import User
 from django.contrib.auth import get_user_model
 
+
+import threading
+import time
+import datetime
+from django.conf import settings
+
+# Variables globales para control de thread
+ultima_verificacion = None
+thread_verificacion = None
+
+def verificacion_automatica():
+    """Ejecuta verificación cada 2 minutos en background"""
+    global ultima_verificacion
+    
+    print("[VERIFICACION] Iniciando sistema automático cada 2 minutos")
+    
+    while True:
+        ahora = datetime.datetime.now()
+
+        
+        # Verificar si han pasado 2 minutos (120 segundos)
+        if (ultima_verificacion is None or 
+            (ahora - ultima_verificacion).total_seconds() >= 120):
+            
+            try:
+                print(f"[{ahora.strftime('%H:%M:%S')}] Ejecutando verificación automática...")
+                verificar_y_notificar_vencimientos()
+                ultima_verificacion = ahora
+                print(f"[{ahora.strftime('%H:%M:%S')}] Verificación completada")
+            except Exception as e:
+                print(f"[{ahora.strftime('%H:%M:%S')}] ERROR en verificación: {e}")
+        
+        # Dormir 30 segundos antes de verificar nuevamente
+        time.sleep(30)
+
 def calcular_fecha_devolucion_exacta(fecha_inicio, dias=15):
     """
     Calcula fecha de devolución exacta preservando hora, minutos y segundos
@@ -337,8 +372,29 @@ def modificar_prestamo(request):
 # Vista para la pantalla principal:
 
 
+@login_required
 def pantalla_principal(request):
-    return render(request, 'libros/pantalla_principal.html')
+    """Vista de la pantalla principal con información contextual"""
+    global thread_verificacion
+    
+    # Iniciar thread de verificación si no está corriendo
+    if thread_verificacion is None or not thread_verificacion.is_alive():
+        thread_verificacion = threading.Thread(target=verificacion_automatica, daemon=True)
+        thread_verificacion.start()
+        print("[SISTEMA] Thread de verificación automática iniciado")
+    
+    context = {}
+    
+    # Si es bibliotecaria, agregar estadísticas de sanciones
+    if request.user.es_bibliotecaria():
+        from .models import Sancion
+        context['sanciones_pendientes_count'] = Sancion.objects.filter(estado='pendiente').count()
+        context['sanciones_confirmadas_count'] = Sancion.objects.filter(estado='confirmada').count()
+        
+        # Verificar préstamos vencidos para actualizar sanciones
+        verificar_prestamos_vencidos()
+    
+    return render(request, 'libros/pantalla_principal.html', context)
 
 # Libros
 
@@ -1314,9 +1370,6 @@ def cambiar_password(request):
 
 # Actualizar estas vistas existentes para agregar autenticación
 
-@login_required  # Agregar este decorador
-def pantalla_principal(request):
-    return render(request, 'libros/pantalla_principal.html')
 
 @login_required  # Agregar este decorador
 def lista_libros(request):
@@ -1987,23 +2040,6 @@ def mis_sanciones(request):
     }
     return render(request, 'libros/mis_sanciones.html', context)
 
-# MODIFICAR en libros/views.py
-
-@login_required
-def pantalla_principal(request):
-    """Vista de la pantalla principal con información contextual"""
-    context = {}
-    
-    # Si es bibliotecaria, agregar estadísticas de sanciones
-    if request.user.es_bibliotecaria():
-        from .models import Sancion
-        context['sanciones_pendientes_count'] = Sancion.objects.filter(estado='pendiente').count()
-        context['sanciones_confirmadas_count'] = Sancion.objects.filter(estado='confirmada').count()
-        
-        # Verificar préstamos vencidos para actualizar sanciones
-        verificar_prestamos_vencidos()
-    
-    return render(request, 'libros/pantalla_principal.html', context)
 
 @user_passes_test(es_bibliotecaria)
 def cancelar_sancion_con_modal(request, sancion_id):
@@ -2175,3 +2211,136 @@ def mis_prestamos_activos(request):
     
     return render(request, 'libros/mis_prestamos_activos.html', context)
 
+@login_required
+def extender_prestamo(request, prestamo_id):
+    """Vista para que los docentes extiendan sus préstamos"""
+    prestamo = get_object_or_404(Prestamo, id_prestamo=prestamo_id, usuario=request.user)
+    
+    # Verificar que sea docente y pueda extender
+    if request.user.perfil != 'docente':
+        messages.error(request, "Solo los docentes pueden extender préstamos.")
+        return redirect('prestamos_solicitados')
+    
+    if not prestamo.puede_extender_prestamo():
+        messages.error(request, "Este préstamo no puede ser extendido.")
+        return redirect('prestamos_solicitados')
+    
+    if request.method == 'POST':
+        motivo = request.POST.get('motivo', 'Extensión solicitada por el docente')
+        
+        if prestamo.extender_prestamo(motivo):
+            # Enviar email de confirmación
+            try:
+                send_mail(
+                    subject='Préstamo Extendido - Biblioteca ISFD 210',
+                    message=f'''
+Estimado/a {request.user.get_full_name()},
+
+Tu préstamo ha sido extendido exitosamente:
+
+📚 Libro: {prestamo.libro.titulo}
+📅 Nueva fecha de devolución: {prestamo.fecha_devolucion_programada.strftime('%d/%m/%Y a las %H:%M')}
+📝 Motivo: {motivo}
+
+La extensión es de 15 días adicionales. Recuerda devolver el material en la nueva fecha límite.
+
+Saludos,
+Biblioteca ISFD 210
+                    ''',
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    recipient_list=[request.user.email],
+                    fail_silently=True,
+                )
+            except Exception as e:
+                print(f"Error enviando email de extensión: {e}")
+            
+            messages.success(request, f"Préstamo extendido hasta el {prestamo.fecha_devolucion_programada.strftime('%d/%m/%Y a las %H:%M')}.")
+        else:
+            messages.error(request, "No se pudo extender el préstamo.")
+        
+        return redirect('prestamos_solicitados')
+    
+    context = {
+        'prestamo': prestamo,
+        'nueva_fecha': prestamo.fecha_devolucion_programada + datetime.timedelta(days=15)
+    }
+    
+    return render(request, 'libros/extender_prestamo.html', context)
+
+# Función para enviar avisos de vencimiento (mejorada)
+def enviar_avisos_vencimiento():
+    """
+    Envía emails de aviso 24 horas antes del vencimiento
+    """
+    ahora = timezone.now()
+    en_24_horas = ahora + datetime.timedelta(hours=24)
+    
+    # Préstamos que vencen en las próximas 24 horas
+    prestamos_por_vencer = Prestamo.objects.filter(
+        estado='aprobado',
+        fecha_devolucion_programada__range=(ahora, en_24_horas)
+    )
+    
+    for prestamo in prestamos_por_vencer:
+        try:
+            # Mensaje diferente para docentes (que pueden extender)
+            if prestamo.usuario and prestamo.usuario.perfil == 'docente' and prestamo.puede_extender_prestamo():
+                mensaje = f'''
+Estimado/a {prestamo.nombre_usuario},
+
+Tu préstamo vence en menos de 24 horas:
+
+📚 "{prestamo.libro.titulo}"
+✍️ Autor: {prestamo.libro.autor}
+⏰ Vence: {prestamo.fecha_devolucion_programada.strftime('%d/%m/%Y a las %H:%M')}
+
+Como eres docente, puedes EXTENDER este préstamo por 15 días más desde tu panel de préstamos en el sistema.
+
+🔗 Accede al sistema: http://127.0.0.1:8000/libros/prestamos-solicitados/
+
+Si no necesitas extenderlo, por favor acércate a la biblioteca para realizar la devolución.
+
+Saludos,
+Biblioteca ISFD 210
+                '''
+            else:
+                mensaje = f'''
+Estimado/a {prestamo.nombre_usuario},
+
+Te recordamos que en menos de 24 horas vence el plazo para devolver el libro:
+
+📚 "{prestamo.libro.titulo}"
+✍️ Autor: {prestamo.libro.autor}
+⏰ Vence: {prestamo.fecha_devolucion_programada.strftime('%d/%m/%Y a las %H:%M')}
+
+Por favor, acércate a la biblioteca para realizar la devolución y evitar sanciones.
+
+Saludos,
+Biblioteca ISFD 210
+                '''
+            
+            send_mail(
+                subject='⚠️ Préstamo por Vencer - Biblioteca ISFD 210',
+                message=mensaje,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[prestamo.email_usuario],
+                fail_silently=False,
+            )
+            
+            print(f"[EMAIL] Aviso de vencimiento enviado a {prestamo.email_usuario}")
+            
+        except Exception as e:
+            print(f"Error enviando email a {prestamo.email_usuario}: {e}")
+
+# Tarea programada para verificar vencimientos (agregar al final del archivo)
+def verificar_y_notificar_vencimientos():
+    """
+    Función para ejecutar diariamente - verifica vencimientos y envía emails
+    """
+    print(f"[CRON] Verificando vencimientos a las {timezone.now()}")
+    
+    # Enviar avisos de vencimiento
+    enviar_avisos_vencimiento()
+    
+    # Verificar préstamos vencidos
+    verificar_prestamos_vencidos()

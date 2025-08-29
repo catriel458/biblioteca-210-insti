@@ -225,6 +225,11 @@ class Prestamo(models.Model):
     motivo_rechazo = models.TextField(blank=True, null=True)
     observaciones = models.TextField(blank=True, null=True)
     fecha_retiro_real = models.DateTimeField(null=True, blank=True)
+
+     # NUEVOS CAMPOS
+    extension_solicitada = models.BooleanField(default=False)
+    fecha_extension = models.DateTimeField(null=True, blank=True)
+    motivo_extension = models.TextField(blank=True, null=True)
     
     def __str__(self):
         return f"Préstamo {self.id_prestamo} - {self.libro.titulo} - {self.nombre_usuario} - {self.estado}"
@@ -291,6 +296,34 @@ class Prestamo(models.Model):
                 return sancion_existente
         
         return None
+
+    def puede_extender_prestamo(self):
+        """Verifica si el préstamo puede ser extendido (solo docentes)"""
+        if self.usuario and self.usuario.perfil == 'docente':
+            if self.estado == 'aprobado' and not self.extension_solicitada:
+                if self.fecha_devolucion_programada:
+                    # Verificar si está próximo a vencer (dentro de 3 días)
+                    dias_restantes = (self.fecha_devolucion_programada - timezone.now()).days
+                    return dias_restantes <= 3
+        return False
+    
+    def esta_proximo_a_vencer(self):
+        """Verifica si el préstamo vence en menos de 24 horas"""
+        if self.estado == 'aprobado' and self.fecha_devolucion_programada:
+            horas_restantes = (self.fecha_devolucion_programada - timezone.now()).total_seconds() / 3600
+            return 0 < horas_restantes <= 24
+        return False
+    
+    def extender_prestamo(self, motivo=""):
+        """Extiende el préstamo por 15 días adicionales"""
+        if self.puede_extender_prestamo():
+            self.fecha_devolucion_programada += datetime.timedelta(days=15)
+            self.extension_solicitada = True
+            self.fecha_extension = timezone.now()
+            self.motivo_extension = motivo
+            self.save()
+            return True
+        return False
             
 class Sancion(models.Model):
     TIPO_CHOICES = (

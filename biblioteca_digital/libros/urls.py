@@ -97,6 +97,8 @@ urlpatterns = [
     path('sanciones-criticas/', views.verificar_sanciones_criticas, name='verificar_sanciones_criticas'),
     path('resetear-acumulado/<int:usuario_id>/', views.resetear_acumulado_docente, name='resetear_acumulado_docente'),
     path('mis-prestamos-activos/', views.mis_prestamos_activos, name='mis_prestamos_activos'),
+    path('extender-prestamo/<int:prestamo_id>/', views.extender_prestamo, name='extender_prestamo'),
+
 
 
 

@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Extender Préstamo - Biblioteca</title>
+    {% load static %}
+    <style>
+        body {
+            font-family: 'Calibri', 'Arial', sans-serif;
+            background-color: #f4f4f8;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #004c8c;
+        }
+        
+        .libro-info {
+            background: #e3f2fd;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: inherit;
+            resize: vertical;
+        }
+        
+        .buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: space-between;
+        }
+        
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+        
+        .btn-success {
+            background-color: #28a745;
+            color: white;
+        }
+        
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+        
+        .extension-info {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            color: #155724;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>📚 Extender Préstamo</h2>
+            <p>Extensión exclusiva para docentes</p>
+        </div>
+        
+        <div class="libro-info">
+            <h4>Información del Préstamo</h4>
+            <p><strong>Libro:</strong> {{ prestamo.libro.titulo }}</p>
+            <p><strong>Autor:</strong> {{ prestamo.libro.autor }}</p>
+            <p><strong>Fecha actual de vencimiento:</strong> {{ prestamo.fecha_devolucion_programada|date:"d/m/Y H:i" }}</p>
+        </div>
+        
+        <div class="extension-info">
+            <h4>🎯 Nueva fecha de devolución:</h4>
+            <p><strong>{{ nueva_fecha|date:"d/m/Y H:i" }}</strong> (15 días adicionales)</p>
+            <p><small>⚠️ Solo puedes extender una vez por préstamo.</small></p>
+        </div>
+        
+        <form method="POST">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="motivo">Motivo de la extensión (opcional):</label>
+                <textarea name="motivo" id="motivo" rows="3" placeholder="Ej: Necesito más tiempo para completar la investigación..."></textarea>
+            </div>
+            
+            <div class="buttons">
+                <a href="{% url 'prestamos_solicitados' %}" class="btn btn-secondary">Cancelar</a>
+                <button type="submit" class="btn btn-success" onclick="return confirm('¿Confirmas que deseas extender este préstamo por 15 días más?')">
+                    ✅ Extender Préstamo
+                </button>
+            </div>
+        </form>
+    </div>
+</body>
+</html>
