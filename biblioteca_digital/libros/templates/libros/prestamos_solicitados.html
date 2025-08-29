@@ -399,15 +399,17 @@
                             -
                         {% endif %}
                     </td>
+                    <!-- Sección de la tabla que necesitas reemplazar -->
                     <td>
                         <div class="acciones-container">
                             {% if prestamo.usuario == user %}
-                                <!-- Botón de Extensión para Docentes -->
-                                {% if prestamo.puede_extender_prestamo %}
+                                <!-- LÓGICA CORREGIDA DEL BOTÓN DE EXTENSIÓN -->
+                                {% if prestamo.usuario.perfil == 'docente' and prestamo.estado == 'aprobado' and not prestamo.extension_solicitada %}
                                     <a href="{% url 'extender_prestamo' prestamo.id_prestamo %}" 
-                                       class="btn-warning btn-sm"
-                                       title="Extender 15 días (solo docentes)"
-                                       onclick="return confirm('¿Deseas extender este préstamo por 15 días más?')">
+                                    class="btn-warning btn-sm"
+                                    title="Extender 15 días (solo docentes)"
+                                    onclick="return confirm('¿Deseas extender este préstamo por 15 días más?')"
+                                    id="btn-extender-{{ prestamo.id_prestamo }}">
                                         📅 Extender
                                     </a>
                                 {% endif %}
@@ -415,18 +417,22 @@
                                 <!-- Botón de Cancelar Reserva -->
                                 {% if prestamo.estado == 'aprobado_reserva' %}
                                     <a href="{% url 'cancelar_reserva_usuario' prestamo.id_prestamo %}" 
-                                       class="btn-danger btn-sm"
-                                       onclick="return confirm('¿Estás seguro de cancelar esta reserva?')">
+                                    class="btn-danger btn-sm"
+                                    onclick="return confirm('¿Estás seguro de cancelar esta reserva?')">
                                         ❌ Cancelar Reserva
                                     </a>
                                 {% endif %}
                                 
                                 <!-- Mostrar estado si no hay acciones -->
-                                {% if not prestamo.puede_extender_prestamo and prestamo.estado != 'aprobado_reserva' %}
+                                {% if prestamo.usuario.perfil != 'docente' or prestamo.estado != 'aprobado' or prestamo.extension_solicitada %}
                                     {% if prestamo.estado == 'solicitado' %}
                                         <small style="color: #FF6F00;">Pendiente aprobación</small>
                                     {% elif prestamo.estado == 'aprobado' %}
-                                        <small style="color: #2E7D32;">Préstamo activo</small>
+                                        {% if prestamo.extension_solicitada %}
+                                            <small style="color: #17a2b8;">Préstamo extendido</small>
+                                        {% else %}
+                                            <small style="color: #2E7D32;">Préstamo activo</small>
+                                        {% endif %}
                                     {% elif prestamo.estado == 'finalizado' %}
                                         <small style="color: #37474F;">Finalizado</small>
                                     {% elif prestamo.estado == 'rechazado' %}
@@ -498,50 +504,75 @@
             });
         }
         
-        // Función para actualizar los cronómetros de préstamo
-        function actualizarCronometrosPrestamo() {
-            const timersPrestamo = document.querySelectorAll('[id^="timer-prestamo-"]');
-            
-            timersPrestamo.forEach(timer => {
-                const endDate = new Date(timer.dataset.end);
-                const now = new Date();
+        // AGREGAR ESTA FUNCIÓN AL JAVASCRIPT EXISTENTE:
+
+            // Función mejorada para actualizar los cronómetros de préstamo
+            function actualizarCronometrosPrestamo() {
+                const timersPrestamo = document.querySelectorAll('[id^="timer-prestamo-"]');
                 
-                // Calcular diferencia en milisegundos
-                const diff = endDate - now;
-                
-                if (diff <= 0) {
-                    // Ya venció el préstamo
-                    timer.innerHTML = "¡PRÉSTAMO VENCIDO!";
-                    timer.style.color = "#f44336";
-                } else {
-                    // Calcular días, horas, minutos y segundos
-                    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-                    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-                    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+                timersPrestamo.forEach(timer => {
+                    const endDate = new Date(timer.dataset.end);
+                    const now = new Date();
                     
-                    // Mostrar tiempo restante
-                    timer.innerHTML = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+                    // Calcular diferencia en milisegundos
+                    const diff = endDate - now;
                     
-                    // Cambiar color según el tiempo restante
-                    if (days <= 3) {
-                        timer.style.color = "#f44336"; // Rojo para 3 días o menos
-                        
-                        // Mostrar botón de extensión si es docente y puede extender
-                        const row = timer.closest('tr');
-                        const extenderBtn = row.querySelector('.btn-warning');
-                        if (extenderBtn) {
-                            extenderBtn.style.animation = 'pulse 2s infinite';
-                            extenderBtn.style.backgroundColor = '#ff6b35';
-                        }
-                    } else if (days < 7) {
-                        timer.style.color = "#ff9800"; // Naranja para menos de 7 días
+                    if (diff <= 0) {
+                        // Ya venció el préstamo
+                        timer.innerHTML = "¡PRÉSTAMO VENCIDO!";
+                        timer.className = "timer vencido";
                     } else {
-                        timer.style.color = "#4caf50"; // Verde para más tiempo
+                        // Calcular días, horas, minutos y segundos
+                        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                        const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+                        
+                        // Mostrar tiempo restante
+                        timer.innerHTML = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+                        
+                        // NUEVO: Obtener ID del préstamo desde el ID del timer
+                        const prestamoId = timer.id.replace('timer-prestamo-', '');
+                        const extenderBtn = document.getElementById(`btn-extender-${prestamoId}`);
+                        
+                        // Cambiar color según el tiempo restante y animar botón de extensión
+                        if (days <= 3) {
+                            timer.className = "timer timer-rojo";
+                            
+                            // ANIMAR BOTÓN DE EXTENSIÓN si existe y es para docentes
+                            if (extenderBtn) {
+                                extenderBtn.style.animation = 'pulse 2s infinite';
+                                extenderBtn.style.backgroundColor = '#ff6b35';
+                                extenderBtn.style.transform = 'scale(1.05)';
+                                extenderBtn.title = `¡URGENTE! Quedan ${days} días. Haz clic para extender 15 días más`;
+                            }
+                        } else if (days <= 7) {
+                            timer.className = "timer timer-amarillo";
+                            
+                            // RESALTAR BOTÓN DE EXTENSIÓN si existe
+                            if (extenderBtn) {
+                                extenderBtn.style.backgroundColor = '#ffc107';
+                                extenderBtn.style.fontWeight = 'bold';
+                                extenderBtn.title = `Quedan ${days} días. Puedes extender 15 días más`;
+                            }
+                        } else {
+                            timer.className = "timer timer-verde";
+                            
+                            // RESETEAR ESTILOS DEL BOTÓN si existe
+                            if (extenderBtn) {
+                                extenderBtn.style.animation = 'none';
+                                extenderBtn.style.backgroundColor = '#ffc107';
+                                extenderBtn.style.transform = 'scale(1)';
+                                extenderBtn.style.fontWeight = 'normal';
+                                extenderBtn.title = 'Extender 15 días (solo docentes)';
+                            }
+                        }
                     }
-                }
-            });
-        }
+                });
+            }
+
+
+
         
         // Función principal que actualiza todos los cronómetros
         function actualizarTodosLosCronometros() {

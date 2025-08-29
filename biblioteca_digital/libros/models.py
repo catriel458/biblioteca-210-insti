@@ -297,15 +297,57 @@ class Prestamo(models.Model):
         
         return None
 
+    # En el modelo Prestamo, corregir el método puede_extender_prestamo:
+
     def puede_extender_prestamo(self):
         """Verifica si el préstamo puede ser extendido (solo docentes)"""
-        if self.usuario and self.usuario.perfil == 'docente':
-            if self.estado == 'aprobado' and not self.extension_solicitada:
-                if self.fecha_devolucion_programada:
-                    # Verificar si está próximo a vencer (dentro de 3 días)
-                    dias_restantes = (self.fecha_devolucion_programada - timezone.now()).days
-                    return dias_restantes <= 3
-        return False
+        # Verificar que el usuario existe y es docente
+        if not self.usuario:
+            return False
+        
+        # CORRECCIÓN 1: Verificar tanto 'docente' como 'profesor'
+        if self.usuario.perfil not in ['docente', 'profesor']:
+            return False
+        
+        # CORRECCIÓN 2: Solo préstamos activos pueden extenderse
+        if self.estado != 'aprobado':
+            return False
+        
+        # CORRECCIÓN 3: Solo se puede extender una vez
+        if self.extension_solicitada:
+            return False
+        
+        # CORRECCIÓN 4: Debe tener fecha de devolución programada
+        if not self.fecha_devolucion_programada:
+            return False
+        
+        # CORRECCIÓN 5: Permitir extensión cuando quedan 7 días o menos (más flexible)
+        from django.utils import timezone
+        tiempo_restante = self.fecha_devolucion_programada - timezone.now()
+        dias_restantes = tiempo_restante.days
+        
+        # Permitir extensión si quedan 7 días o menos, o si ya está vencido
+        return dias_restantes <= 7 or tiempo_restante.total_seconds() <= 0
+
+    # TAMBIÉN AGREGAR ESTE MÉTODO AUXILIAR:
+    def get_tiempo_restante_texto(self):
+        """Retorna el tiempo restante en formato texto"""
+        if self.estado != 'aprobado' or not self.fecha_devolucion_programada:
+            return "N/A"
+        
+        from django.utils import timezone
+        tiempo_restante = self.fecha_devolucion_programada - timezone.now()
+        
+        if tiempo_restante.total_seconds() <= 0:
+            return "VENCIDO"
+        
+        dias = tiempo_restante.days
+        horas = tiempo_restante.seconds // 3600
+        
+        if dias > 0:
+            return f"{dias} días, {horas} horas"
+        else:
+            return f"{horas} horas"
     
     def esta_proximo_a_vencer(self):
         """Verifica si el préstamo vence en menos de 24 horas"""

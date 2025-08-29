@@ -884,51 +884,59 @@ def cancelar_reserva_usuario(request, prestamo_id):
     
     return render(request, 'libros/cancelar_reserva_usuario.html', {'prestamo': prestamo})
 
+@login_required
 def prestamos_solicitados(request):
     # Verificar préstamos vencidos antes de mostrar
     verificar_prestamos_vencidos()
     
-    # Obtener todos los préstamos (simplificado sin filtrado por usuario)
-    prestamos = Prestamo.objects.all().order_by('-fecha_solicitud')
+    # Filtrar préstamos según el tipo de usuario
+    if request.user.es_bibliotecaria():
+        # La bibliotecaria ve todos los préstamos
+        prestamos = Prestamo.objects.all().order_by('-fecha_solicitud')
+    else:
+        # Los usuarios normales solo ven sus propios préstamos
+        prestamos = Prestamo.objects.filter(
+            Q(email_usuario=request.user.email) | Q(usuario=request.user)
+        ).order_by('-fecha_solicitud')
+    
+    # AGREGAR INFORMACIÓN DE DEBUG para cada préstamo
+    for prestamo in prestamos:
+        if prestamo.usuario and prestamo.usuario.perfil == 'docente':
+            print(f"[DEBUG] Préstamo {prestamo.id_prestamo}:")
+            print(f"  - Usuario: {prestamo.usuario.get_full_name()} (perfil: {prestamo.usuario.perfil})")
+            print(f"  - Estado: {prestamo.estado}")
+            print(f"  - Extensión ya solicitada: {prestamo.extension_solicitada}")
+            print(f"  - Puede extender: {prestamo.puede_extender_prestamo()}")
+            
+            if prestamo.fecha_devolucion_programada:
+                from django.utils import timezone
+                tiempo_restante = prestamo.fecha_devolucion_programada - timezone.now()
+                dias_restantes = tiempo_restante.days
+                print(f"  - Días restantes: {dias_restantes}")
     
     # Verificar si hay alertas de tiempo (menos de 1 día hábil restante)
     alertas = []
     ahora = timezone.now()
     
     for prestamo in prestamos:
-        if prestamo.estado == 'solicitado' and prestamo.fecha_limite_reserva:
+        # Alerta para reservas próximas a vencer
+        if prestamo.estado == 'aprobado_reserva' and prestamo.fecha_limite_reserva:
             tiempo_restante = prestamo.fecha_limite_reserva - ahora
-            # Si queda menos de 24 horas
-            if tiempo_restante.total_seconds() > 0 and tiempo_restante.total_seconds() < 86400:  # 24 horas en segundos
-                alertas.append(f"¡ATENCIÓN! El préstamo del libro '{prestamo.libro.titulo}' vence pronto.")
+            if tiempo_restante.total_seconds() > 0 and tiempo_restante.total_seconds() < 86400:
+                alertas.append(f"¡ATENCIÓN! La reserva del libro '{prestamo.libro.titulo}' vence pronto.")
+        
+        # NUEVA ALERTA: Préstamos de docentes que pueden extender
+        if (prestamo.usuario == request.user and 
+            prestamo.usuario.perfil == 'docente' and 
+            prestamo.estado == 'aprobado' and 
+            prestamo.puede_extender_prestamo()):
+            alertas.append(f"💡 Puedes EXTENDER tu préstamo del libro '{prestamo.libro.titulo}' por 15 días más.")
     
     return render(request, 'libros/prestamos_solicitados.html', {
         'prestamos': prestamos,
-        'alertas': alertas
+        'alertas': alertas,
+        'user': request.user  # Asegurar que el usuario esté disponible en el template
     })
-
-def aprobar_prestamo(request, prestamo_id):
-    prestamo = get_object_or_404(Prestamo, id_prestamo=prestamo_id)
-    
-    if prestamo.estado != 'solicitado':
-        messages.error(request, f"El préstamo no puede ser aprobado porque su estado actual es {prestamo.get_estado_display()}.")
-        return redirect('gestionar_prestamos')
-    
-    ahora = timezone.now()
-    prestamo.estado = 'aprobado'
-    prestamo.fecha_aprobacion = ahora
-    
-    # ✅ LÍNEA CORREGIDA
-    prestamo.fecha_devolucion_programada = calcular_fecha_devolucion_exacta(ahora, 15)
-    
-    prestamo.fecha_limite_reserva = None
-    prestamo.save()
-    
-    # Mensaje con hora exacta
-    fecha_format = prestamo.fecha_devolucion_programada.strftime('%d/%m/%Y a las %H:%M:%S')
-    messages.success(request, f"El préstamo del libro '{prestamo.libro.titulo}' ha sido aprobado. Fecha de devolución: {fecha_format}.")
-    
-    return redirect('gestionar_prestamos')
 
 # MODIFICAR ESTA FUNCIÓN EXISTENTE
 def rechazar_prestamo(request, prestamo_id):
