@@ -1,0 +1,289 @@
+/* alta_material.css */
+
+/* Header con gradiente exacto */
+.header-gradient {
+    background: linear-gradient(135deg, #e8f4f8 0%, #f0e6f7 50%, #e8f4f8 100%);
+    padding: 25px 0;
+    position: relative;
+    overflow: hidden;
+    border-bottom: 3px solid #ddd;
+}
+
+.header-gradient::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="rgba(255,255,255,0.1)"><polygon points="0,0 100,20 100,40 0,80"/><polygon points="20,60 100,0 100,10 40,70"/></svg>');
+    background-size: 200px 200px;
+    opacity: 0.3;
+}
+
+.main-title {
+    font-size: 2.8rem;
+    font-weight: 300;
+    color: #00bcd4;
+    letter-spacing: 4px;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+    margin: 0;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+}
+
+.logo-container {
+    position: absolute;
+    right: 30px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 70px;
+    height: 70px;
+    background: linear-gradient(135deg, #e91e63, #9c27b0, #673ab7);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    z-index: 2;
+}
+
+.logo-inner {
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(45deg, transparent 30%, white 30%, white 70%, transparent 70%),
+                linear-gradient(-45deg, transparent 30%, white 30%, white 70%, transparent 70%);
+    border-radius: 8px;
+    position: relative;
+}
+
+.logo-inner::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 20px;
+    height: 20px;
+    background: linear-gradient(135deg, #00bcd4, #2196f3);
+    border-radius: 3px;
+}
+
+/* Contenedor del formulario */
+.form-container {
+    background: white;
+    border-radius: 12px;
+    padding: 35px 40px;
+    margin-top: -15px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+    position: relative;
+    z-index: 3;
+}
+
+.required-note {
+    color: #dc3545;
+    font-size: 0.9rem;
+    text-align: right;
+    margin-bottom: 25px;
+    font-style: italic;
+    font-weight: 400;
+}
+
+.required-asterisk {
+    color: #dc3545;
+    margin-left: 2px;
+}
+
+/* Labels */
+.form-label {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 8px;
+    font-size: 0.95rem;
+}
+
+/* Tipo de material */
+.tipo-material-wrapper {
+    width: 200px;
+}
+
+.tipo-material-select {
+    background-color: #4db6ac;
+    color: white;
+    border: 2px solid #4db6ac;
+    border-radius: 8px;
+    padding: 10px 15px;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.tipo-material-select:focus {
+    background-color: #26a69a;
+    border-color: #26a69a;
+    color: white;
+    box-shadow: 0 0 0 0.2rem rgba(77, 182, 172, 0.25);
+}
+
+.tipo-material-select option {
+    background-color: white;
+    color: #333;
+}
+
+/* Campos normales */
+.ejemplares-select,
+.sede-select,
+.registro-input,
+.modelo-input {
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 10px 15px;
+    font-size: 0.9rem;
+    background-color: #f8f9fa;
+    transition: all 0.3s ease;
+}
+
+.ejemplares-select:focus,
+.sede-select:focus,
+.registro-input:focus,
+.modelo-input:focus {
+    border-color: #00bcd4;
+    box-shadow: 0 0 0 0.2rem rgba(0, 188, 212, 0.15);
+    background-color: white;
+}
+
+/* Placeholder específico para sede */
+.sede-select option[value=""] {
+    color: #6c757d;
+}
+
+/* Botón Manual */
+.btn-manual {
+    background: linear-gradient(135deg, #8e24aa, #7b1fa2);
+    color: white;
+    border: none;
+    padding: 10px 25px;
+    border-radius: 25px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    transition: all 0.3s ease;
+    box-shadow: 0 3px 10px rgba(142, 36, 170, 0.3);
+}
+
+.btn-manual:hover {
+    background: linear-gradient(135deg, #7b1fa2, #6a1b9a);
+    transform: translateY(-2px);
+    color: white;
+    box-shadow: 0 5px 15px rgba(142, 36, 170, 0.4);
+}
+
+/* Línea divisoria */
+.divider-line {
+    border-top: 2px dashed #ccc;
+    margin: 35px 0;
+    position: relative;
+}
+
+.divider-line::after {
+    content: '';
+    position: absolute;
+    top: -1px;
+    left: 0;
+    right: 0;
+    border-top: 1px dashed rgba(0,0,0,0.1);
+}
+
+/* Botones de acción */
+.btn-cancelar {
+    background: transparent;
+    color: #dc3545;
+    border: 2px solid #dc3545;
+    padding: 12px 35px;
+    border-radius: 30px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    letter-spacing: 0.5px;
+}
+
+.btn-cancelar:hover {
+    background: #dc3545;
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+}
+
+.btn-guardar {
+    background: linear-gradient(135deg, #2196f3, #1976d2);
+    color: white;
+    border: none;
+    padding: 12px 35px;
+    border-radius: 30px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
+    box-shadow: 0 3px 10px rgba(33, 150, 243, 0.3);
+}
+
+.btn-guardar:hover {
+    background: linear-gradient(135deg, #1976d2, #1565c0);
+    transform: translateY(-1px);
+    color: white;
+    box-shadow: 0 5px 15px rgba(33, 150, 243, 0.4);
+}
+
+/* Responsividad */
+@media (max-width: 768px) {
+    .main-title {
+        font-size: 2rem;
+        letter-spacing: 2px;
+    }
+    
+    .logo-container {
+        width: 50px;
+        height: 50px;
+        right: 15px;
+    }
+    
+    .logo-inner {
+        width: 35px;
+        height: 35px;
+    }
+    
+    .form-container {
+        padding: 20px;
+        margin-top: -10px;
+    }
+    
+    .tipo-material-wrapper {
+        width: 100%;
+        margin-bottom: 15px;
+    }
+    
+    .btn-manual {
+        width: 100%;
+        margin-top: 10px;
+    }
+}
+
+/* Estados hover y focus mejorados */
+.form-select:hover,
+.form-control:hover {
+    border-color: #00bcd4;
+    background-color: white;
+}
+
+/* Validación visual */
+.form-control.is-invalid,
+.form-select.is-invalid {
+    border-color: #dc3545;
+    background-color: #fff5f5;
+}
+
+.form-control.is-valid,
+.form-select.is-valid {
+    border-color: #28a745;
+    background-color: #f0fff4;
+}

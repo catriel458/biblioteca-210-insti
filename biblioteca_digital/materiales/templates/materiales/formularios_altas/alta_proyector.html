@@ -1,27 +1,79 @@
 {% load static %}
-<div data-block="content" data-form-type="proyector">
-    <div class="row mb-3">
-        <div class="col-2">
-            <label for="sede">Sede:</label>
-            <select class="form-select" id="sede" name="sede" required>
-                <option value="">Seleccione una sede</option>
-                <option value="sede1">La Plata</option>
-                <option value="sede2">Abasto</option>
-            </select>
+<div class="header-gradient">
+    <div class="container position-relative">
+        <h1 class="main-title">ALTA MATERIAL</h1>
+        <div class="logo-container">
+            <div class="logo-inner"></div>
         </div>
-    </div>
-    <div class="row mb-3">
-        <div class="col-2 d-flex align-items-end" id="cant_ejemplares_container">
-            <div class="w-100">
-                <label for="cant_ejemplares" class="form-label small">Cant. de ejemplares</label>
-                <input type="number" class="form-control form-control-sm" id="cant_ejemplares" name="cant_ejemplares" min="1" value="1" required > <!-- Eliminado oninput, ahora solo addEventListener -->
-            </div>
-        </div>
-    </div>
-    <!-- Contenedor para los ejemplares -->
-    <div id="contenedor-ejemplares-proyector" class="mb-4">
-        <!-- Los ejemplares se generarán aquí dinámicamente -->
     </div>
 </div>
-<!-- Importación del JS dinámico de ejemplares -->
-<script src="{% static 'js/form_altas.js' %}"></script>
+
+<div class="container">
+    <div class="form-container">
+        <div class="required-note">*Requerido</div>
+        
+        <div data-block="content" data-form-type="proyector">
+            <form>
+                <!-- Primera fila: Tipo de material y botón Manual -->
+                <div class="row mb-4">
+                    <div class="col-12 d-flex justify-content-between align-items-end">
+                       
+                    </div>
+                </div>
+                
+                <!-- Segunda fila: Cantidad y Sede -->
+                <div class="row mb-4">
+                    <div class="col-3">
+                        <label for="cant_ejemplares" class="form-label">Cant. de ejemplares</label>
+                        <select class="form-select ejemplares-select" id="cant_ejemplares" name="cant_ejemplares" required>
+                            <option value="1" selected>1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                        </select>
+                    </div>
+                    <div class="col-4">
+                        <label for="sede" class="form-label">Sede<span class="required-asterisk">*</span></label>
+                        <select class="form-select sede-select" id="sede" name="sede" required>
+                            <option value="" selected>Aún sin seleccionar</option>
+                            <option value="la-plata">La Plata</option>
+                            <option value="abasto">Abasto</option>
+                            <option value="quilmes">Quilmes</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- Línea divisoria punteada -->
+                <div class="divider-line"></div>
+                
+                <!-- Tercera fila: Campos de registro -->
+                <div class="row mb-4">
+                    <div class="col-3">
+                        <label for="n_registro" class="form-label">N° Registro<span class="required-asterisk">*</span></label>
+                        <input type="text" class="form-control registro-input" id="n_registro" name="n_registro" placeholder="Escriba aquí..." required>
+                    </div>
+                    <div class="col-3">
+                        <label for="modelo" class="form-label">Modelo</label>
+                        <input type="text" class="form-control modelo-input" id="modelo" name="modelo" placeholder="Escriba aquí...">
+                    </div>
+                </div>
+                
+                <!-- Contenedor dinámico para ejemplares adicionales -->
+                
+                    <!-- Los ejemplares adicionales se generarán aquí dinámicamente -->
+                </div>
+                
+                <!-- Botones de acción -->
+                <div class="row">
+                    <div class="col-12 d-flex justify-content-end gap-3">
+
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Importación del JS -->
+<script src="{% static 'js/alta_material.js' %}"></script>
