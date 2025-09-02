@@ -1,7 +1,7 @@
 {% load static %}
 <div data-block="content" data-form-type="proyector">
     <div class="row mb-3">
-        <div class="col-2">
+        <div class="col-md-3">
             <label for="sede">Sede:</label>
             <select class="form-select" id="sede" name="sede" required>
                 <option value="">Seleccione una sede</option>
@@ -9,18 +9,36 @@
                 <option value="sede2">Abasto</option>
             </select>
         </div>
+        
+        <div class="col-md-3">
+            <label for="modelo_proy" class="form-label small">Modelo <span class="text-danger">*</span></label>
+            <input type="text" class="form-control form-control-sm" id="modelo_proy" name="modelo_proy" required>
+        </div>
+        
+        <div class="col-md-3">
+            <label for="num_registro" class="form-label small">N° de Registro <span class="text-danger">*</span></label>
+            <input type="text" class="form-control form-control-sm" id="num_registro" name="num_registro" required>
+        </div>
     </div>
     <div class="row mb-3">
-        <div class="col-2 d-flex align-items-end" id="cant_ejemplares_container">
+        <div class="col-md-3 d-flex align-items-end" id="cant_ejemplares_container">
             <div class="w-100">
-                <label for="cant_ejemplares" class="form-label small">Cant. de ejemplares</label>
-                <input type="number" class="form-control form-control-sm" id="cant_ejemplares" name="cant_ejemplares" min="1" value="1" required > <!-- Eliminado oninput, ahora solo addEventListener -->
+                <label for="cant_ejemplares" class="form-label small">Cant. de ejemplares <span class="text-danger">*</span></label>
+                <input type="number" class="form-control form-control-sm" id="cant_ejemplares" name="cant_ejemplares" min="1" value="1" required>
             </div>
         </div>
     </div>
     <!-- Contenedor para los ejemplares -->
     <div id="contenedor-ejemplares-proyector" class="mb-4">
         <!-- Los ejemplares se generarán aquí dinámicamente -->
+    </div>
+    
+    <!-- Botones -->
+    <div class="row">
+        <div class="col-12 d-flex justify-content-end gap-3">
+            <button type="reset" class="btn btn-outline-danger btn-sm">Cancelar</button>
+            <button type="submit" class="btn btn-primary btn-sm">Guardar</button>
+        </div>
     </div>
 </div>
 <!-- Importación del JS dinámico de ejemplares -->

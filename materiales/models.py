@@ -148,9 +148,10 @@ class Notebook(Inventario):
     sede = models.TextField(default='La Plata')
     num_registro = models.CharField(max_length=255, default='1')
     modelo_not = models.CharField(max_length=255)
+    marca = models.CharField(max_length=255, default='Sin especificar')
     
     def __str__(self):
-        return f"id_not: {self.id_not}, sede: {self.sede}, num_registro: {self.num_registro}, modelo_not: {self.modelo_not}"
+        return f"id_not: {self.id_not}, sede: {self.sede}, num_registro: {self.num_registro}, modelo_not: {self.modelo_not}, marca: {self.marca}"
 
 
 class Proyector(Inventario):

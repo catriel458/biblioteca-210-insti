@@ -2,7 +2,7 @@
 
 <div data-block="content" data-form="varios">
     <div class="row mb-3">
-        <div class="col-2">
+        <div class="col-md-3">
             <label for="sede">Sede:</label>
             <select class="form-select select-sede" id="sede-varios" name="sede_varios" required>
                 <option value="">Seleccione una sede</option>
@@ -10,24 +10,39 @@
                 <option value="sede2">Abasto</option>
             </select>
         </div>
+        
+        <div class="col-md-3">
+            <label for="cant_ejemplares" class="form-label small">Cant. de ejemplares <span class="text-danger">*</span></label>
+            <input type="number" class="form-control form-control-sm" id="cant_ejemplares" name="cant_ejemplares" min="1" value="1" required>
+        </div>
     </div>
+    
     <div class="row mb-3">
-    <div class="col-2">
-        <label for="tipo-varios">Tipo <span class="text-danger">*</span></label>
+        <div class="col-md-3">
+            <label for="tipo-varios">Tipo a registrar <span class="text-danger">*</span></label>
+            <input type="text" class="form-control form-control-sm" id="tipo-varios" name="tipo_varios" required>
+        </div>
     </div>
+    
     <!-- Contenedor dinámico para tipo y cantidad -->
     <div class="row mb-3">
-        <div class="col-4 ">
+        <div class="col-4">
             <div id="bloque-tipo-cantidad"></div>
         </div>
     </div>
 
+    <!-- Contenedor para los ejemplares -->
+    <div id="contenedor-ejemplares-varios" class="mb-4">
+        <!-- Los ejemplares se generarán aquí dinámicamente -->
     </div>
-</div>
-
-<div id="contenedor-ejemplares-varios">
-    <!-- Los ejemplares se generarán aquí dinámicamente -->
-</div>
+    
+    <!-- Botones -->
+    <div class="row">
+        <div class="col-12 d-flex justify-content-end gap-3">
+            <button type="reset" class="btn btn-outline-danger btn-sm">Cancelar</button>
+            <button type="submit" class="btn btn-primary btn-sm">Guardar</button>
+        </div>
+    </div>
 </div>
 
 <!-- Importación del JS dinámico de ejemplares -->

@@ -589,7 +589,7 @@ def alta_notebook(request):
         context = {'form': form, 'error': 'Por favor complete todos los campos obligatorios.'} if request.method == 'POST' else {
             'form': form}
 
-    return render(request, 'libros/alta_notebook.html', context)
+    return render(request, 'materiales/formularios_altas/alta_notebook.html', context)
 
 # Vista para editar un mapa:
 
@@ -1550,10 +1550,13 @@ def alta_multimedia(request):
     # ... código existente ...
     pass
 
+# Comentando esta función duplicada para evitar conflictos
+'''
 #@user_passes_test(es_bibliotecaria)
 def alta_notebook(request):
     # ... código existente ...
     pass
+'''
 
 #@user_passes_test(es_bibliotecaria)
 def alta_proyector(request):

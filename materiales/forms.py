@@ -79,7 +79,19 @@ class MultimediaForm(forms.ModelForm):
 class NotebookForm(forms.ModelForm):
     class Meta:
         model = Notebook
-        fields = ['id_not','sede', 'num_registro', 'modelo_not']
+        fields = ['sede', 'num_registro', 'modelo_not', 'marca', 'num_ejemplar']
+        
+        widgets = {
+            'sede': forms.Select(attrs={'class': 'form-control'}, choices=[
+                ('', 'Seleccione una sede'),
+                ('La Plata', 'La Plata'),
+                ('Abasto', 'Abasto'),
+            ]),
+            'num_registro': forms.TextInput(attrs={'class': 'form-control'}),
+            'modelo_not': forms.TextInput(attrs={'class': 'form-control'}),
+            'marca': forms.TextInput(attrs={'class': 'form-control'}),
+            'num_ejemplar': forms.NumberInput(attrs={'class': 'form-control', 'min': 1}),
+        }
 
 class ProyectorForm(forms.ModelForm):
     class Meta:

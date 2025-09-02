@@ -2,7 +2,7 @@
 
 <div data-block="content" data-form="mapa">
     <div class="row mb-3">
-        <div class="col-2">
+        <div class="col-md-3">
             <label for="sede">Sede:</label>
             <select class="form-select select-sede" id="sede-mapa" name="sede_mapa" required>
                 <option value="">Seleccione una sede</option>
@@ -10,20 +10,52 @@
                 <option value="sede2">Abasto</option>
             </select>
         </div>
+        
+        <div class="col-md-3">
+            <label for="cant_ejemplares" class="form-label small">Cant. de ejemplares <span class="text-danger">*</span></label>
+            <input type="number" class="form-control form-control-sm" id="cant_ejemplares" name="cant_ejemplares" min="1" value="1" required>
+        </div>
+        
+        <div class="col-md-3">
+            <label for="num_registro" class="form-label small">N° de Registro <span class="text-danger">*</span></label>
+            <input type="text" class="form-control form-control-sm" id="num_registro" name="num_registro" required>
+        </div>
     </div>
+    
     <div class="row mb-3">
-    <div class="col-2">
-        <label for="tipo-mapa" class="text-input">Tipo <span class="text-danger">*</span></label>
+        <div class="col-md-3">
+            <label for="tipo-mapa" class="form-label small">Tipo a registrar <span class="text-danger">*</span></label>
+            <input type="text" class="form-control form-control-sm" id="tipo-mapa" name="tipo_mapa" required>
+        </div>
+        
+        <div class="col-md-3">
+            <label for="denominacion" class="form-label small">Denominación <span class="text-danger">*</span></label>
+            <input type="text" class="form-control form-control-sm" id="denominacion" name="denominacion" required>
+        </div>
+        
+        <div class="col-md-6">
+            <label for="descripcion" class="form-label small">Descripción <span class="text-danger">*</span></label>
+            <textarea class="form-control form-control-sm" id="descripcion" name="descripcion" rows="2" required></textarea>
+        </div>
     </div>
+    
     <!-- Contenedor dinámico para tipo y cantidad -->
-    <div id="row mb-3 pt-4">
+    <div class="row mb-3">
         <div class="col-4" id="bloque-tipo-cantidad"></div>
     </div>
-</div>
 
-<div id="contenedor-ejemplares-mapa">
-    <!-- Los ejemplares se generarán aquí dinámicamente -->
-</div>
+    <!-- Contenedor para los ejemplares -->
+    <div id="contenedor-ejemplares-mapa" class="mb-4">
+        <!-- Los ejemplares se generarán aquí dinámicamente -->
+    </div>
+    
+    <!-- Botones -->
+    <div class="row">
+        <div class="col-12 d-flex justify-content-end gap-3">
+            <button type="reset" class="btn btn-outline-danger btn-sm">Cancelar</button>
+            <button type="submit" class="btn btn-primary btn-sm">Guardar</button>
+        </div>
+    </div>
 </div>
 
 <!-- Importación del JS dinámico de ejemplares -->

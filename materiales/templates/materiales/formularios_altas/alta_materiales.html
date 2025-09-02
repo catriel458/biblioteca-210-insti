@@ -86,7 +86,10 @@
 
 {% block modals %}
   {% include 'modals/manual_modal.html' %}
-  {% include 'modals/confirmacion_alta_material.html' %}
+  <!-- Solo incluir el modal de confirmación para materiales que no tienen su propio modal -->
+  <div id="contenedor-modal-confirmacion">
+    {% include 'modals/confirmacion_alta_material.html' %}
+  </div>
   {% comment %} {% include 'modals/confirmacion_carga_exitosa.html' %} {% endcomment %}
 {% endblock %}
 
@@ -131,6 +134,13 @@ document.addEventListener("DOMContentLoaded", function () {
                     if (form) {
                         form.action = '/alta-libro/';
                         console.log('🔧 Action del formulario libro establecido a:', form.action);
+                    }
+                    
+                    // Mostrar el modal de confirmación genérico para libro
+                    const contenedorModal = document.getElementById('contenedor-modal-confirmacion');
+                    if (contenedorModal) {
+                        contenedorModal.style.display = 'block';
+                        console.log('🔧 Modal de confirmación genérico mostrado para libro');
                     }
                     
                     // Solo mostrar carga masiva y URL para libros
@@ -227,6 +237,21 @@ document.addEventListener("DOMContentLoaded", function () {
                 .then(html => {
                     formularioEspecifico.innerHTML = html;
                     buttonsContainer.style.display = 'flex';
+                    
+                    // 🔥 IMPORTANTE: Establecer el action correcto para notebook
+                    const form = document.getElementById('form_alta_material');
+                    if (form) {
+                        form.action = '/alta-notebook/';
+                        console.log('🔧 Action del formulario notebook establecido a:', form.action);
+                    }
+                    
+                    // Ocultar el modal de confirmación genérico ya que notebook tiene su propio modal
+                    const contenedorModal = document.getElementById('contenedor-modal-confirmacion');
+                    if (contenedorModal) {
+                        contenedorModal.style.display = 'none';
+                        console.log('🔧 Modal de confirmación genérico ocultado para notebook');
+                    }
+                    
                     // No mostrar carga masiva ni URL para notebook
                     if (uploadSimple) uploadSimple.style.display = 'none';
                     if (uploadBox) uploadBox.style.display = 'none';
