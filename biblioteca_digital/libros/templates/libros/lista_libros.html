@@ -73,31 +73,28 @@
                                 // En el archivo lista_libros.html, modificar la parte donde se construyen las acciones:
 
                         // Todos los usuarios autenticados pueden solicitar préstamos (MODIFICAR ESTA PARTE)
+                        // Todos los usuarios autenticados pueden solicitar préstamos (MODIFICAR ESTA PARTE)
                         if (userIsAuthenticated) {
                             // Verificar si el usuario puede solicitar préstamos
                             var puedePrestar = {{ user.puede_solicitar_prestamo|yesno:"true,false" }};
                             var tieneSancionesCriticas = {{ user.tiene_sanciones_criticas|yesno:"true,false" }};
-                            var puedePrestarMas = {{ user.puede_solicitar_mas_prestamos|yesno:"true,false" }};  // NUEVA LÍNEA
-                            var prestamosDisponibles = {{ user.get_prestamos_disponibles }};  // NUEVA LÍNEA
+                            var puedePrestarMas = {{ user.puede_solicitar_mas_prestamos|yesno:"true,false" }};
+                            var prestamosDisponibles = {{ user.get_prestamos_disponibles }};
                             
                             if (!puedePrestar) {
                                 // Usuario no puede pedir préstamos (sancionado)
                                 acciones += '<img src="{% static 'libros/img/bloqueado.png' %}" alt="Usuario Sancionado" style="width: 20px; height: 20px; margin-left: 5px; opacity: 0.5;" title="No puedes solicitar préstamos - Usuario sancionado">';
                                 acciones += '<span style="font-size: 10px; color: #dc3545; display: block;">Sancionado</span>';
-
-                            else if (!puedePrestarMas) {  // NUEVA CONDICIÓN
-                            // Usuario ha alcanzado el límite de préstamos
-                            acciones += '<img src="{% static 'libros/img/limite.png' %}" alt="Límite Alcanzado" style="width: 20px; height: 20px; margin-left: 5px; opacity: 0.5;" title="Límite de 3 préstamos alcanzado">';
-                            acciones += '<span style="font-size: 10px; color: #dc3545; display: block;"></span>';
-
+                            } else if (!puedePrestarMas) {  // CORREGIDO: agregado }
+                                // Usuario ha alcanzado el límite de préstamos
+                                acciones += '<img src="{% static 'libros/img/limite.png' %}" alt="Límite Alcanzado" style="width: 20px; height: 20px; margin-left: 5px; opacity: 0.5;" title="Límite de 3 préstamos alcanzado">';
+                                acciones += '<span style="font-size: 10px; color: #dc3545; display: block;"></span>';
                             } else if (tieneSancionesCriticas) {
                                 // Usuario con 3+ sanciones debe cumplir compensación
                                 acciones += '<a href="{% url 'verificar_sanciones_criticas' %}" style="color: #dc3545; text-decoration: none;">';
                                 acciones += '<img src="{% static 'libros/img/alerta.png' %}" alt="Compensación Requerida" style="width: 20px; height: 20px; margin-left: 5px;" title="Debes cumplir compensación">';
                                 acciones += '<span style="font-size: 10px; color: #dc3545; display: block;">Compensación</span>';
                                 acciones += '</a>';
-                                // acciones += '<span style="font-size: 9px; color: #28a745; display: block;">(' + prestamosDisponibles + '/3)</span>';
-
                             } else {
                                 // Usuario puede pedir préstamos normalmente
                                 var prestamoUrl = "{% url 'solicitar_prestamo' 12345 %}".replace('12345', libro.id_libro);
@@ -108,7 +105,6 @@
                         } else {
                             acciones += '<span style="font-size: 12px; color: #666;">Inicia sesión para solicitar préstamos</span>';
                         }
-
                                 var fila = '<tr>';
                                 fila += '<td>' + (libro.num_inventario || '') + '</td>';
                                 fila += '<td>' + (libro.titulo || '') + '</td>';
