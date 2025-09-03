@@ -3,8 +3,8 @@
 }
 
 .icon {
-    width: 50px;
-    height: 50px;
+    width: 60px;
+    height: 60px;
     background-image: url('/static/imagenes/Logo_i210_fondo_trans.png');
     background-size: contain;
     background-position: center;
@@ -13,11 +13,10 @@
 .text-navbar {
     color: white !important;
     font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
-    font-size: 18px;
+    font-size: 20px;
     font-weight: 700;
-    line-height: 20.9px;
+    line-height: 22px;
     text-align: left;
-
 }
 .icon-usuario {
     background-image: url('/static/imagenes/icon-usuario.png'); /* Asegúrate de que la URL sea correcta */
@@ -32,6 +31,8 @@
 .navbar {
     background-color: #3A4481; /* Color del navbar */
     color: white; /* Color del texto del navbar */
+    height: 60px; /* Altura fija del navbar */
+    min-height: 60px; /* Altura mínima para asegurar consistencia */
 }
 .dropdown-menu {
     background-color: #3A4481; /* Mismo color que el navbar */

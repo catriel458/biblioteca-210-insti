@@ -1352,7 +1352,7 @@ def cancelar_alta_libro(request):
         print("🗑️ Datos de sesión eliminados")  # Debug
     
     messages.info(request, 'Operación cancelada.')
-    return redirect('formulario_libro')
+    return redirect('alta_materiales')
 
 def modificacion_materiales(request):
     """

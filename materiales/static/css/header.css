@@ -1,12 +1,13 @@
 .header-home,
 .header-pantalla {
-    height: 80px;
+    height: 120px;
     position: relative;
     border-bottom: 2px solid #8B1D69;
     background-image: url('/static/imagenes/cover_alta.png');
     background-position: center top;
     background-repeat: no-repeat;
     background-size: 100% auto;
+    margin-bottom: 20px; /* Añadir espacio después del header */
 }
 
 .header-content {
@@ -19,7 +20,7 @@
 
 .header-title {
     color: #1fb5ad;
-    font-size: 1.25rem;
+    font-size: 1.5rem;
     margin: 0;
     font-weight: 500;
     letter-spacing: 2px;
@@ -37,13 +38,13 @@
 }
 
 .cover-pic {
-    height: 60px;
+    height: 90px;
     width: auto;
     display: block;
 }
 
 .cover-alta {
-    height: 60px;
+    height: 90px;
     width: auto;
     object-fit: contain;
 }

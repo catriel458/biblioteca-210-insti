@@ -24,15 +24,19 @@
 </head>
 <body>
     <div class="container-fluid layout-container">
+        {% block navbar %}
             {% include 'components/navbar.html' %}
-        
-        <!-- Encabezado -->
-        <header class="{{ header_class }}" style="grid-area: header;">
-            {% include 'components/header.html' %}
-        </header>
+        {% endblock %}
         
         <!-- Contenido principal -->
         <main class="content" style="grid-area: content;">
+            <!-- Encabezado (ahora dentro del main) -->
+            {% block header %}
+            <header class="{{ header_class }}">
+                {% include 'components/header.html' %}
+            </header>
+            {% endblock %}
+            
             {% block content %}{% endblock %}
         </main>
         
