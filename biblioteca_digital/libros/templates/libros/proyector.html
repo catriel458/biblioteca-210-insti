@@ -1,16 +1,26 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lista de Proyectores - Biblioteca</title>
     {% load static %}
     <link rel="stylesheet" href="{% static 'libros/css/styles.css' %}">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
     <script>
+        // Variables globales para permisos del usuario
+        var userIsBibliotecaria = {% if user.es_bibliotecaria %}true{% else %}false{% endif %};
+        var userIsAuthenticated = {% if user.is_authenticated %}true{% else %}false{% endif %};
+        
+        // URLs base usando Django template tags
+        var editarProyectorUrlBase = "{% url 'editar_proyector' 12345 %}".replace('12345', '');
+        var lapizImg = "{% static 'libros/img/lapiz.png' %}";
+        var trashImg = "{% static 'libros/img/trash.png' %}";
+
+        // Funciones para abrir y cerrar el modal de baja
         function abrirModal(proyectorId) {
+            console.log("Abriendo modal para proyector ID:", proyectorId);
             document.getElementById('proyectorIdInput').value = proyectorId;
             document.getElementById('modal').style.display = 'block';
         }
@@ -19,154 +29,226 @@
             document.getElementById('modal').style.display = 'none';
         }
 
-        $(document).ready(function () {
-            $('#search-input').on('input', function () {
-                var searchValue = $(this).val();
-
+        // Búsqueda en tiempo real usando AJAX
+        $(document).ready(function() {
+            var searchTimeout;
+            
+            $('#search-query').on('input', function() {
+                var query = $(this).val().trim();
+                
+                // Limpiar timeout anterior
+                clearTimeout(searchTimeout);
+                
+                // Si el campo está vacío, recargar la página para mostrar todos los proyectores
+                if (query === '') {
+                    searchTimeout = setTimeout(function() {
+                        location.reload();
+                    }, 300);
+                    return;
+                }
+                
+                // Ejecutar búsqueda después de 300ms de inactividad
+                searchTimeout = setTimeout(function() {
+                    realizarBusqueda(query);
+                }, 300);
+            });
+            
+            function realizarBusqueda(query) {
+                $('#search-status').text('Buscando...').show();
+                
                 $.ajax({
-                    url: '{% url "buscar_proyectores" %}',  // La URL correcta para la búsqueda
-                    data: {
-                        'q': searchValue
-                    },
+                    url: '{% url "buscar_proyectores" %}',
+                    data: { 'q': query },
                     dataType: 'json',
-                    success: function (data) {
+                    success: function(data) {
                         $('#proyector-table').empty();
+                        $('#search-status').hide();
 
                         if (data.length > 0) {
-                            data.forEach(function (proyector) {
-                                $('#proyector-table').append(
-                                    `<tr>
-                                        <td>${proyector.id_proyector}</td>
-                                        <td>${proyector.marca_pro}</td>
-                                        <td>${proyector.modelo_pro}</td>
-                                        <td>${proyector.num_ejemplar}</td>
-                                        <td>
-                                            <a href="/editar/${proyector.id_proyector}">
-                                                <img src="{% static 'libros/img/lapiz.png' %}" alt="Editar" style="cursor: pointer; width: 20px; height: 20px;">
-                                            </a>
-                                            <img src="{% static 'libros/img/trash.png' %}" alt="Eliminar" onclick="abrirModal(${proyector.id_proyector})" style="cursor: pointer; width: 20px; height: 20px;">
-                                        </td>
-                                    </tr>`
-                                );
+                            data.forEach(function(proyector) {
+                                if (!proyector.id_proyector) {
+                                    console.error("Proyector sin id_proyector:", proyector);
+                                    return;
+                                }
+                                
+                                var acciones = construirAcciones(proyector);
+                                var fila = construirFilaProyector(proyector, acciones);
+                                $('#proyector-table').append(fila);
                             });
+                            
+                            $('#search-results-count').text(data.length + ' proyectores encontrados').show();
                         } else {
-                            $('#proyector-table').append(
-                                `<tr>
-                                    <td colspan="5">No se encontraron proyectores.</td>
-                                </tr>`
-                            );
+                            $('#proyector-table').append('<tr><td colspan="5">No se encontraron proyectores que coincidan con tu búsqueda.</td></tr>');
+                            $('#search-results-count').text('0 proyectores encontrados').show();
                         }
                     },
-                    error: function () {
-                        console.error('Error en la búsqueda.');
+                    error: function(xhr, status, error) {
+                        console.error('Error en AJAX:', error);
+                        $('#proyector-table').html('<tr><td colspan="5">Error al realizar la búsqueda. Intenta de nuevo.</td></tr>');
+                        $('#search-status').hide();
                     }
                 });
-            });
+            }
+            
+            function construirAcciones(proyector) {
+                var acciones = '';
+                
+                if (userIsBibliotecaria) {
+                    var editUrl = "{% url 'editar_proyector' 12345 %}".replace('12345', proyector.id_proyector);
+                    acciones += '<a href="' + editUrl + '" class="edit-link">';
+                    acciones += '<img src="' + lapizImg + '" alt="Editar" style="cursor: pointer; width: 20px; height: 20px;">';
+                    acciones += '</a> ';
+                    acciones += '<img src="' + trashImg + '" alt="Eliminar" onclick="abrirModal(' + proyector.id_proyector + ')" style="cursor: pointer; width: 20px; height: 20px; margin-left: 5px;">';
+                } else {
+                    acciones = '<span style="font-size: 12px; color: #666;">Solo lectura</span>';
+                }
+                
+                return acciones;
+            }
+            
+            function construirFilaProyector(proyector, acciones) {
+                var fila = '<tr>';
+                fila += '<td>' + (proyector.id_proyector || '') + '</td>';
+                fila += '<td>' + (proyector.marca_pro || '') + '</td>';
+                fila += '<td>' + (proyector.modelo_pro || '') + '</td>';
+                fila += '<td>' + (proyector.num_ejemplar || '') + '</td>';
+                fila += '<td>' + acciones + '</td>';
+                fila += '</tr>';
+                return fila;
+            }
         });
     </script>
 
     <style>
+        body {
+            font-family: 'Calibri', 'Arial', sans-serif;
+        }
 
-body{
-        font-family: 'Calibri', 'Arial', sans-serif;
-    }
+        /* Estilos para el modal */
+        #modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 60px 0;
+        }
 
+        #modalContent {
+            background-color: #ffffff;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            width: 60%;
+            max-width: 600px;
+            text-align: center;
+        }
 
-                    /* Estilos para el modal */
-#modal {
-    display: none;
-    position: fixed;
-    z-index: 1;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    overflow: auto;
-    background-color: rgba(0, 0, 0, 0.5);  /* Fondo semitransparente */
-    padding: 60px 0; /* Añadir espacio en los bordes */
-}
+        #modalContent h3 {
+            font-size: 1.8em;
+            color: #333;
+            margin-bottom: 20px;
+            font-family: 'Arial', sans-serif;
+        }
 
-#modalContent {
-    background-color: #ffffff;
-    margin: 5% auto;
-    padding: 30px;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    width: 60%; /* Mejor control del ancho */
-    max-width: 600px; /* Asegura que el modal no sea demasiado ancho */
-    text-align: center; /* Centrar el contenido */
-}
+        #modalContent label {
+            font-size: 1.1em;
+            color: #555;
+            margin-bottom: 10px;
+            display: block;
+        }
 
-/* Título del modal */
-#modalContent h3 {
-    font-size: 1.8em;
-    color: #333;
-    margin-bottom: 20px;
-    font-family: 'Arial', sans-serif;
-}
+        #modalContent input[type="text"], #modalContent input[type="file"] {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 1em;
+            color: #555;
+        }
 
-/* Estilo de los formularios */
-#modalContent label {
-    font-size: 1.1em;
-    color: #555;
-    margin-bottom: 10px;
-    display: block;
-}
+        #modalContent button {
+            padding: 12px 25px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 1.1em;
+            cursor: pointer;
+            margin: 5px;
+            transition: background-color 0.3s ease;
+        }
 
-#modalContent input[type="text"], #modalContent input[type="file"] {
-    width: 100%;
-    padding: 12px;
-    margin-bottom: 15px;
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    box-sizing: border-box;
-    font-size: 1em;
-    color: #555;
-}
+        #modalContent button:hover {
+            background-color: #45a049;
+        }
 
-/* Estilo de los botones */
-#modalContent button {
-    padding: 12px 25px;
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    font-size: 1.1em;
-    cursor: pointer;
-    margin: 5px;
-    transition: background-color 0.3s ease;
-}
+        #modalContent button[type="button"] {
+            background-color: #f44336;
+        }
 
-#modalContent button:hover {
-    background-color: #45a049;
-}
+        #modalContent button[type="button"]:hover {
+            background-color: #e53935;
+        }
 
-#modalContent button[type="button"] {
-    background-color: #f44336; /* Botón de cancelar */
-}
+        /* Estilos para el formulario de búsqueda */
+        #search-form {
+            margin-bottom: 20px;
+            position: relative;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        #search-query {
+            width: 100%;
+            padding: 10px 40px 10px 20px;
+            border: 1px solid #ccc;
+            border-radius: 20px;
+            font-size: 16px;
+        }
+        
+        #search-query::placeholder {
+            color: #aaa;
+        }
+        
+        #search-form::after {
+            content: '🔍';
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+        }
+        
+        #search-query:hover {
+            border-color: #888;
+        }
+        
+        #search-query:focus {
+            border-color: #666;
+            outline: none;
+        }
 
-#modalContent button[type="button"]:hover {
-    background-color: #e53935;
-}
+        #search-status, #search-results-count {
+            display: none;
+            font-size: 14px;
+            color: #6c757d;
+            margin: 10px 0;
+            font-style: italic;
+            text-align: center;
+        }
 
-/* Estilo de los íconos de cerrar y cancelar */
-#modalContent .close-btn {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    font-size: 2em;
-    color: #aaa;
-    cursor: pointer;
-    transition: color 0.3s;
-}
-
-#modalContent .close-btn:hover {
-    color: #333;
-}
-
-/* Estilos para el header */
-header {
-            background-color: #004c8c; /* Azul oscuro */
+        /* Estilos para el header */
+        header {
+            background-color: #004c8c;
             color: white;
             text-align: center;
             padding: 20px;
@@ -177,19 +259,13 @@ header {
             font-size: 2em;
         }
 
-        header span {
-            font-size: 1.2em;
-            display: inline-block;
-            margin-left: 10px;
-        }
-
         header h1::before {
-            content: '📽️  ';
+            content: '📽️';
             font-size: 1.5em;
         }
 
-         /* Estilos para la tabla de libros */
-         table {
+        /* Estilos para la tabla */
+        table {
             width: 100%;
             border-collapse: collapse;
             margin-bottom: 20px;
@@ -197,8 +273,8 @@ header {
 
         th, td {
             padding: 10px;
-            text-align: left;
             border-bottom: 1px solid #ddd;
+            text-align: left;
         }
 
         th {
@@ -210,10 +286,14 @@ header {
             background-color: #f5f5f5;
         }
 
+        /* Estilos para las acciones */
+        td img {
+            margin-right: 5px;
+        }
 
-         /* Footer */
-         footer {
-            background-color: #004c8c; /* Azul oscuro */
+        /* Footer */
+        footer {
+            background-color: #004c8c;
             color: white;
             text-align: center;
             padding: 10px 0;
@@ -221,75 +301,102 @@ header {
             margin-top: 30px;
         }
 
-        /* Estilos para el formulario de búsqueda */
-        #search-form {
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-        }
-
-        #search-form input {
-            padding: 10px;
+        .btn-carga-manual, .btn-home {
+            display: inline-block;
+            padding: 10px 20px;
+            color: white;
+            text-align: center;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
             margin-right: 10px;
-            width: 400px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            font-size: 16px;
-        }
-
-        .search-icon {
-            font-size: 20px;
-            cursor: pointer;
-            margin-left: -50px;
         }
 
         .btn-carga-manual {
-    display: inline-block;
-    padding: 10px 20px;
-    background-color: #4CAF50;
-    color: white;
-    text-align: center;
-    border-radius: 8px;
-    text-decoration: none;
-    font-weight: bold;
-    transition: background-color 0.3s ease;
-    margin:10px 0;
-}
-.btn-carga-manual:hover {
-    background-color: #45a049;
-}
+            background-color: #4CAF50;
+        }
 
+        .btn-carga-manual:hover {
+            background-color: #45a049;
+        }
+
+        .btn-home {
+            background-color: #004c8c;
+        }
+
+        .btn-home:hover {
+            background-color: #003d6b;
+        }
+
+        /* Responsive Design */
+        @media screen and (max-width: 768px) {
+            #modalContent {
+                width: 90%;
+                padding: 20px;
+            }
+
+            #search-form {
+                max-width: 90%;
+            }
+
+            table {
+                font-size: 12px;
+            }
+
+            th, td {
+                padding: 6px;
+            }
+
+            .btn-carga-manual, .btn-home {
+                display: block;
+                width: 100%;
+                text-align: center;
+                margin-bottom: 10px;
+                margin-right: 0;
+            }
+        }
     </style>
 </head>
 
 <body>
     <header>
-    <h1>Biblioteca Digital</h1>
-    {% if user.is_authenticated %}
-        <span>Bienvenido/a {{ user.get_full_name }} 
-            {% if user.perfil == 'bibliotecaria' %}
-                (Bibliotecaria)
-            {% elif user.perfil == 'docente' %}
-                (Docente)
-            {% else %}
-                (Alumno)
-            {% endif %}
-        </span>
-        <a href="{% url 'logout' %}" style="color: white; margin-left: 20px;">Cerrar Sesión</a>
-    {% else %}
-        <a href="{% url 'login' %}" style="color: white;">Iniciar Sesión</a>
-    {% endif %}
-</header>
+        <h1>Biblioteca Digital</h1>
+        {% if user.is_authenticated %}
+            <span>Bienvenido/a {{ user.get_full_name }} 
+                {% if user.perfil == 'bibliotecaria' %}
+                    (Bibliotecaria)
+                {% elif user.perfil == 'docente' %}
+                    (Docente)
+                {% else %}
+                    (Alumno)
+                {% endif %}
+            </span>
+            <a href="{% url 'logout' %}" style="color: white; margin-left: 20px;">Cerrar Sesión</a>
+        {% else %}
+            <a href="{% url 'login' %}" style="color: white;">Iniciar Sesión</a>
+        {% endif %}
+    </header>
+    
     <main>
         <h2>Lista de Proyectores</h2>
-        {% if user.es_bibliotecaria %}
-        <a href="{% url 'alta_proyector' %}" class="btn-carga-manual">Carga Manual</a>
-        {% endif %}
-        <!-- Barra de búsqueda -->
-        <div id="search-form">
-            <input type="text" id="search-input" placeholder="Buscar por marca...">
-            <span class="search-icon" onclick="$('#search-input').trigger('input');">🔍</span>
+        
+        <!-- Botones de navegación y administración -->
+        <div style="margin-bottom: 20px;">
+            <a href="{% url 'pantalla_principal' %}" class="btn-home">🏠 Volver al Home</a>
+            {% if user.es_bibliotecaria %}
+                <a href="{% url 'alta_proyector' %}" class="btn-carga-manual">Carga Manual</a>
+            {% endif %}
         </div>
+        
+        <!-- Barra de búsqueda -->
+        <form id="search-form">
+            <input type="text" id="search-query" placeholder="Buscar por marca o modelo... (deja vacío para ver todos)">
+        </form>
+
+        <!-- Estado de búsqueda -->
+        <div id="search-status"></div>
+        <div id="search-results-count"></div>
 
         <!-- Tabla para mostrar los proyectores -->
         <table>
@@ -310,10 +417,14 @@ header {
                     <td>{{ pro.modelo_pro }}</td>
                     <td>{{ pro.num_ejemplar }}</td>
                     <td>
-                        <a href="{% url 'editar_proyector' pro.id_proyector %}">
-                            <img src="{% static 'libros/img/lapiz.png' %}" alt="Editar" style="cursor: pointer; width: 20px; height: 20px;">
-                        </a>
-                        <img src="{% static 'libros/img/trash.png' %}" alt="Eliminar" onclick="abrirModal({{ pro.id_proyector }})" style="cursor: pointer; width: 20px; height: 20px;">
+                        {% if user.es_bibliotecaria %}
+                            <a href="{% url 'editar_proyector' pro.id_proyector %}">
+                                <img src="{% static 'libros/img/lapiz.png' %}" alt="Editar" style="cursor: pointer; width: 20px; height: 20px;">
+                            </a>
+                            <img src="{% static 'libros/img/trash.png' %}" alt="Eliminar" onclick="abrirModal({{ pro.id_proyector }})" style="cursor: pointer; width: 20px; height: 20px; margin-left: 5px;">
+                        {% else %}
+                            <span style="font-size: 12px; color: #666;">Solo lectura</span>
+                        {% endif %}
                     </td>
                 </tr>
                 {% empty %}
@@ -324,7 +435,8 @@ header {
             </tbody>
         </table>
 
-        <!-- Modal para confirmación de baja -->
+        <!-- Modal para confirmación de baja (solo visible para bibliotecarias) -->
+        {% if user.es_bibliotecaria %}
         <div id="modal">
             <div id="modalContent">
                 <h3>Confirmar Baja</h3>
@@ -340,11 +452,12 @@ header {
                 </form>
             </div>
         </div>
+        {% endif %}
 
     </main>
+    
     <footer>
-        <p>© 2025 ISFD 210. Todos los derechos reservados</p>
+        <p>© 2025 ISFDyT 210. Todos los derechos reservados</p>
     </footer>
 </body>
-
 </html>

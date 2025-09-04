@@ -6,6 +6,7 @@ from .models import Libro, Inventario, Mapas, Multimedia, Notebook, Proyector, V
 from .forms import LibroForm, MapaForm, MultimediaForm, NotebookForm, ProyectorForm, VariosForm
 from django.core.mail import send_mail
 from django.conf import settings
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 import csv
 import io  # Agregar esta línea
@@ -398,13 +399,6 @@ def pantalla_principal(request):
 
 # Libros
 
-# Vista para listar libros (todos los disponibles):
-
-
-def lista_libros(request):
-    # Filtra los libros disponibles
-    libros = Libro.objects.filter(estado='Disponible')
-    return render(request, 'libros/lista_libros.html', {'libros': libros})
 
 # Vista para dar de alta un libro:
 
@@ -1381,8 +1375,32 @@ def cambiar_password(request):
 
 @login_required  # Agregar este decorador
 def lista_libros(request):
-    libros = Libro.objects.filter(estado='Disponible')
-    return render(request, 'libros/lista_libros.html', {'libros': libros})
+    # Obtener todos los libros disponibles
+    todos_los_libros = Libro.objects.filter(estado='Disponible').order_by('titulo')
+    
+    # Configurar paginación con 30 libros por página
+    paginator = Paginator(todos_los_libros, 30)
+    
+    # Obtener el número de página desde GET
+    page = request.GET.get('page')
+    
+    try:
+        libros = paginator.page(page)
+    except PageNotAnInteger:
+        # Si la página no es un entero, muestra la primera página
+        libros = paginator.page(1)
+    except EmptyPage:
+        # Si la página está fuera de rango, muestra la última página
+        libros = paginator.page(paginator.num_pages)
+    
+    context = {
+        'libros': libros,
+        'paginator': paginator,
+        'page_obj': libros,  # Para compatibilidad con templates
+    }
+    
+    return render(request, 'libros/lista_libros.html', context)
+
 
 @user_passes_test(es_bibliotecaria)  # Solo bibliotecarias pueden dar de alta libros
 def alta_libro(request):
@@ -1397,31 +1415,6 @@ def alta_libro(request):
             'form': form}
     return render(request, 'libros/alta_libro.html', context)
 
-# Agregar decoradores similares a todas las vistas de alta de material
-@user_passes_test(es_bibliotecaria)
-def alta_mapa(request):
-    # ... código existente ...
-    pass
-
-@user_passes_test(es_bibliotecaria)
-def alta_multimedia(request):
-    # ... código existente ...
-    pass
-
-@user_passes_test(es_bibliotecaria)
-def alta_notebook(request):
-    # ... código existente ...
-    pass
-
-@user_passes_test(es_bibliotecaria)
-def alta_proyector(request):
-    # ... código existente ...
-    pass
-
-@user_passes_test(es_bibliotecaria)
-def alta_varios(request):
-    # ... código existente ...
-    pass
 
 # Actualizar la vista de préstamos solicitados para mostrar solo los del usuario actual
 @login_required
@@ -2352,3 +2345,80 @@ def verificar_y_notificar_vencimientos():
     
     # Verificar préstamos vencidos
     verificar_prestamos_vencidos()
+
+
+    # Agregar esta vista en views.py
+
+@user_passes_test(es_bibliotecaria)
+def exportar_bajas_excel(request):
+    """Vista para exportar libros dados de baja a Excel"""
+    try:
+        # Crear workbook y worksheet
+        wb = openpyxl.Workbook()
+        ws = wb.active
+        ws.title = "Registro de Bajas"
+        
+        # Estilos
+        header_font = Font(bold=True, color="FFFFFF")
+        header_fill = PatternFill(start_color="D32F2F", end_color="D32F2F", fill_type="solid")
+        header_alignment = Alignment(horizontal="center", vertical="center")
+        
+        # Headers
+        headers = [
+            'ID Libro', 'Título', 'Autor', 'Editorial', 'Clasificación CDU', 
+            'Número Inventario', 'Sede', 'Motivo de Baja', 'Descripción', 
+            'Número Ejemplar', 'Fecha de Baja'
+        ]
+        
+        for col, header in enumerate(headers, 1):
+            cell = ws.cell(row=1, column=col, value=header)
+            cell.font = header_font
+            cell.fill = header_fill
+            cell.alignment = header_alignment
+        
+        # Datos de libros dados de baja
+        libros_baja = Libro.objects.filter(estado='No disponible').order_by('-id_libro')
+        
+        for row, libro in enumerate(libros_baja, 2):
+            ws.cell(row=row, column=1, value=libro.id_libro)
+            ws.cell(row=row, column=2, value=libro.titulo)
+            ws.cell(row=row, column=3, value=libro.autor)
+            ws.cell(row=row, column=4, value=libro.editorial)
+            ws.cell(row=row, column=5, value=libro.clasificacion_cdu)
+            ws.cell(row=row, column=6, value=libro.num_inventario)
+            ws.cell(row=row, column=7, value=libro.sede)
+            ws.cell(row=row, column=8, value=libro.motivo_baja or 'No especificado')
+            ws.cell(row=row, column=9, value=libro.descripcion or 'Sin descripción')
+            ws.cell(row=row, column=10, value=libro.num_ejemplar)
+            # Nota: Si no tienes fecha de baja, puedes agregar un campo al modelo o usar una fecha por defecto
+            ws.cell(row=row, column=11, value=timezone.now().strftime('%d/%m/%Y'))
+        
+        # Ajustar ancho de columnas
+        for column in ws.columns:
+            max_length = 0
+            column_letter = column[0].column_letter
+            for cell in column:
+                try:
+                    if len(str(cell.value)) > max_length:
+                        max_length = len(str(cell.value))
+                except:
+                    pass
+            adjusted_width = min(max_length + 2, 50)
+            ws.column_dimensions[column_letter].width = adjusted_width
+        
+        # Preparar respuesta
+        output = io.BytesIO()
+        wb.save(output)
+        output.seek(0)
+        
+        response = HttpResponse(
+            output.getvalue(),
+            content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        )
+        response['Content-Disposition'] = f'attachment; filename=registro_bajas_{timezone.now().strftime("%Y%m%d_%H%M%S")}.xlsx'
+        
+        return response
+        
+    except Exception as e:
+        messages.error(request, f'Error al exportar registro de bajas: {str(e)}')
+        return redirect('registro_de_bajas')

@@ -17,69 +17,276 @@
             margin-bottom: 20px;
         }
         .container {
-            max-width: 800px;
+            max-width: 900px;
             margin: 0 auto;
             background: white;
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
+        
+        /* Estilos para botones de acción */
+        .action-buttons {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .btn-home {
+            background-color: #004c8c;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-home:hover {
+            background-color: #003d6b;
+        }
+        
+        .btn-export {
+            background-color: #28a745;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-export:hover {
+            background-color: #218838;
+        }
+        
+        .btn-export:active {
+            transform: translateY(1px);
+        }
+        
+        /* Contador de resultados */
+        .results-summary {
+            background-color: #e9ecef;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #d32f2f;
+        }
+        
+        .results-summary h3 {
+            margin: 0;
+            color: #d32f2f;
+            font-size: 1.2em;
+        }
+        
+        .results-summary p {
+            margin: 5px 0 0 0;
+            color: #666;
+        }
+        
         ul {
             list-style: none;
             padding: 0;
         }
         li {
             background: #fff;
-            margin: 10px 0;
-            padding: 15px;
+            margin: 15px 0;
+            padding: 20px;
             border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
             text-align: left;
-            position: relative; /* Para posicionar el botón */
+            position: relative;
+            border-left: 4px solid #d32f2f;
         }
+        
+        li:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            transform: translateY(-2px);
+            transition: all 0.3s ease;
+        }
+        
         h2 {
-            margin: 0;
+            margin: 0 0 15px 0;
             color: #d32f2f;
+            font-size: 1.4em;
         }
+        
         p {
-            margin: 5px 0;
+            margin: 8px 0;
             color: #555;
+            line-height: 1.4;
         }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 10px;
+            margin: 15px 0;
+        }
+        
+        .info-item {
+            background-color: #f8f9fa;
+            padding: 8px 12px;
+            border-radius: 4px;
+            border: 1px solid #e9ecef;
+        }
+        
+        .info-item strong {
+            color: #495057;
+        }
+        
         .no-disponibles {
             color: #888;
             font-style: italic;
+            font-size: 1.2em;
+            padding: 40px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            border: 2px dashed #dee2e6;
         }
+        
         .btn-reactivar {
             background-color: #4CAF50;
             color: white;
-            padding: 8px 12px;
+            padding: 10px 16px;
             border: none;
-            border-radius: 4px;
+            border-radius: 6px;
             cursor: pointer;
-            margin-top: 10px;
+            margin-top: 15px;
+            font-weight: bold;
+            transition: all 0.3s ease;
         }
+        
         .btn-reactivar:hover {
             background-color: #45a049;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
         }
+        
         .messages {
             list-style: none;
             padding: 0;
             margin: 0 0 20px 0;
         }
+        
         .messages li {
-            padding: 10px;
+            padding: 12px 16px;
             margin-bottom: 10px;
-            border-radius: 4px;
+            border-radius: 6px;
+            border-left: none;
+            box-shadow: none;
+            transform: none;
+            text-align: center;
         }
+        
         .messages .success {
-            background-color: #dff0d8;
-            color: #3c763d;
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .messages .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .messages .warning {
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        
+        .messages .info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        
+        /* Loading state para el botón de exportar */
+        .btn-export.loading {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+        
+        .btn-export.loading::after {
+            content: " ⏳";
+        }
+        
+        /* Responsive design */
+        @media screen and (max-width: 768px) {
+            .container {
+                margin: 10px;
+                padding: 15px;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .btn-home, .btn-export {
+                width: 100%;
+                text-align: center;
+                justify-content: center;
+            }
+            
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 1.5em;
+            }
+            
+            h2 {
+                font-size: 1.2em;
+            }
+        }
+        
+        @media screen and (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+            
+            li {
+                padding: 15px;
+            }
+            
+            .btn-home, .btn-export {
+                padding: 10px 15px;
+                font-size: 14px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Libros No Disponibles</h1>
+        <h1>📋 Registro de Bajas de Materiales</h1>
+        
+        <!-- Botones de acción -->
+        <div class="action-buttons">
+            <a href="{% url 'pantalla_principal' %}" class="btn-home">
+                🏠 Volver al Home
+            </a>
+            
+            {% if libros_no_disponibles %}
+                <a href="{% url 'exportar_bajas_excel' %}" class="btn-export" id="btn-exportar">
+                    📊 Exportar a Excel
+                </a>
+            {% endif %}
+        </div>
         
         {% if messages %}
         <ul class="messages">
@@ -89,28 +296,111 @@
         </ul>
         {% endif %}
         
+        <!-- Resumen de resultados -->
+        {% if libros_no_disponibles %}
+        <div class="results-summary">
+            <h3>📊 Resumen del Registro</h3>
+            <p>Total de materiales dados de baja: <strong>{{ libros_no_disponibles|length }}</strong></p>
+        </div>
+        {% endif %}
+        
         <div>
             {% if libros_no_disponibles %}
                 <ul>
                     {% for libro in libros_no_disponibles %}
                         <li>
-                            <h2>{{ libro.titulo }}</h2>
-                            <p><strong>Autor:</strong> {{ libro.autor }}</p>
-                            <p><strong>Editorial:</strong> {{ libro.editorial }}</p>
-                            <p><strong>Edición:</strong> {{ libro.edicion }}</p>
-                            <p><strong>Estado:</strong> {{ libro.estado }}</p>
-                            <p><strong>Motivo de baja:</strong> {{ libro.motivo_baja|default:"No especificado" }}</p>
-                            <form method="post" action="{% url 'reactivar_libro' libro.id_libro %}">
+                            <h2>📚 {{ libro.titulo }}</h2>
+                            
+                            <div class="info-grid">
+                                <div class="info-item">
+                                    <strong>Autor:</strong> {{ libro.autor|default:"No especificado" }}
+                                </div>
+                                <div class="info-item">
+                                    <strong>Editorial:</strong> {{ libro.editorial|default:"No especificada" }}
+                                </div>
+                                <div class="info-item">
+                                    <strong>Clasificación CDU:</strong> {{ libro.clasificacion_cdu|default:"Sin clasificar" }}
+                                </div>
+                                <div class="info-item">
+                                    <strong>Núm. Inventario:</strong> {{ libro.num_inventario|default:"N/A" }}
+                                </div>
+                                <div class="info-item">
+                                    <strong>Sede:</strong> {{ libro.sede|default:"No especificada" }}
+                                </div>
+                                <div class="info-item">
+                                    <strong>Estado:</strong> <span style="color: #d32f2f; font-weight: bold;">{{ libro.estado }}</span>
+                                </div>
+                            </div>
+                            
+                            <div style="margin-top: 15px;">
+                                <p><strong>🔻 Motivo de baja:</strong> 
+                                    <span style="background-color: #fff3cd; padding: 4px 8px; border-radius: 4px; color: #856404;">
+                                        {{ libro.motivo_baja|default:"No especificado" }}
+                                    </span>
+                                </p>
+                                
+                                {% if libro.descripcion %}
+                                <p><strong>📝 Descripción:</strong> {{ libro.descripcion }}</p>
+                                {% endif %}
+                                
+                                {% if libro.num_ejemplar %}
+                                <p><strong>📖 Número de ejemplar:</strong> {{ libro.num_ejemplar }}</p>
+                                {% endif %}
+                            </div>
+                            
+                            {% if user.es_bibliotecaria %}
+                            <form method="post" action="{% url 'reactivar_libro' libro.id_libro %}" style="margin-top: 15px;">
                                 {% csrf_token %}
-                                <button type="submit" class="btn-reactivar">Reactivar Libro</button>
+                                <button type="submit" class="btn-reactivar" 
+                                        onclick="return confirm('¿Estás seguro de que quieres reactivar este libro? Volverá a estar disponible en el catálogo.')">
+                                    ♻️ Reactivar Libro
+                                </button>
                             </form>
+                            {% endif %}
                         </li>
                     {% endfor %}
                 </ul>
             {% else %}
-                <p class="no-disponibles">No hay libros no disponibles actualmente.</p>
+                <div class="no-disponibles">
+                    ✅ No hay libros dados de baja actualmente.
+                    <br><br>
+                    <small>Todos los materiales están disponibles en el catálogo.</small>
+                </div>
             {% endif %}
         </div>
     </div>
+
+    <script>
+        // Mejorar experiencia del botón de exportar
+        document.addEventListener('DOMContentLoaded', function() {
+            const btnExportar = document.getElementById('btn-exportar');
+            
+            if (btnExportar) {
+                btnExportar.addEventListener('click', function(e) {
+                    // Agregar estado de carga
+                    this.classList.add('loading');
+                    this.innerHTML = '📊 Generando Excel...';
+                    
+                    // Restaurar estado después de 3 segundos
+                    setTimeout(() => {
+                        this.classList.remove('loading');
+                        this.innerHTML = '📊 Exportar a Excel';
+                    }, 3000);
+                });
+            }
+            
+            // Auto-ocultar mensajes después de 5 segundos
+            const messages = document.querySelectorAll('.messages li');
+            messages.forEach(message => {
+                setTimeout(() => {
+                    message.style.transition = 'opacity 0.5s ease';
+                    message.style.opacity = '0';
+                    setTimeout(() => {
+                        message.remove();
+                    }, 500);
+                }, 5000);
+            });
+        });
+    </script>
 </body>
 </html>

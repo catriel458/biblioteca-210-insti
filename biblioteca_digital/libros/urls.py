@@ -99,6 +99,9 @@ urlpatterns = [
     path('mis-prestamos-activos/', views.mis_prestamos_activos, name='mis_prestamos_activos'),
     path('extender-prestamo/<int:prestamo_id>/', views.extender_prestamo, name='extender_prestamo'),
 
+    # Exportar excel
+    path('exportar-bajas-excel/', views.exportar_bajas_excel, name='exportar_bajas_excel'),
+
 
 
 

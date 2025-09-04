@@ -13,7 +13,7 @@
         var userIsBibliotecaria = {% if user.es_bibliotecaria %}true{% else %}false{% endif %};
         var userIsAuthenticated = {% if user.is_authenticated %}true{% else %}false{% endif %};
         
-        // URLs base usando Django template tags (MÉTODO CORRECTO)
+        // URLs base usando Django template tags
         var editarLibroUrlBase = "{% url 'editar_libro' 12345 %}".replace('12345', '');
         var solicitarPrestamoUrlBase = "{% url 'solicitar_prestamo' 12345 %}".replace('12345', '');
         var lapizImg = "{% static 'libros/img/lapiz.png' %}";
@@ -31,116 +31,250 @@
             document.getElementById('modal').style.display = 'none';
         }
 
-        // Búsqueda en tiempo real usando AJAX
+        // Búsqueda en tiempo real usando AJAX (modificada para paginación)
         $(document).ready(function() {
+            var searchTimeout;
+            var isSearching = false;
+            
             $('#search-query').on('input', function() {
-                var query = $(this).val();
-                console.log("Buscando:", query);
-
+                var query = $(this).val().trim();
+                
+                // Limpiar timeout anterior
+                clearTimeout(searchTimeout);
+                
+                // Si el campo está vacío, recargar la página para mostrar todos los libros paginados
+                if (query === '') {
+                    searchTimeout = setTimeout(function() {
+                        location.reload();
+                    }, 300);
+                    return;
+                }
+                
+                // Ejecutar búsqueda después de 300ms de inactividad
+                searchTimeout = setTimeout(function() {
+                    realizarBusqueda(query);
+                }, 300);
+            });
+            
+            function realizarBusqueda(query) {
+                isSearching = true;
+                
+                // Ocultar paginación durante búsqueda
+                $('.pagination-container').hide();
+                $('#search-status').text('Buscando...').show();
+                
                 $.ajax({
                     url: '{% url "buscar_libros" %}',
-                    data: {
-                        'q': query
-                    },
+                    data: { 'q': query },
                     dataType: 'json',
                     success: function(data) {
-                        console.log("Datos recibidos:", data);
                         $('#libros-table').empty();
+                        $('#search-status').hide();
 
                         if (data.length > 0) {
                             data.forEach(function(libro) {
-                                console.log("Procesando libro:", libro);
-                                
-                                // Verificar que el libro tenga id_libro
                                 if (!libro.id_libro) {
                                     console.error("Libro sin id_libro:", libro);
-                                    return; // Saltar este libro
+                                    return;
                                 }
                                 
-                                var acciones = '';
-                                
-                                // Solo bibliotecarias pueden editar/eliminar
-                                if (userIsBibliotecaria) {
-                                    // Usar Django template tags para generar URLs correctas
-                                    var editUrl = "{% url 'editar_libro' 12345 %}".replace('12345', libro.id_libro);
-                                    acciones += '<a href="' + editUrl + '" class="edit-link">';
-                                    acciones += '<img src="' + lapizImg + '" alt="Editar" style="cursor: pointer; width: 20px; height: 20px;">';
-                                    acciones += '</a> ';
-                                    acciones += '<img src="' + trashImg + '" alt="Eliminar" onclick="abrirModal(' + libro.id_libro + ')" style="cursor: pointer; width: 20px; height: 20px; margin-left: 5px;"> ';
-                                }
-                                
-                                // Todos los usuarios autenticados pueden solicitar préstamos
-                                // En el archivo lista_libros.html, modificar la parte donde se construyen las acciones:
-
-                        // Todos los usuarios autenticados pueden solicitar préstamos (MODIFICAR ESTA PARTE)
-                        // Todos los usuarios autenticados pueden solicitar préstamos (MODIFICAR ESTA PARTE)
-                        if (userIsAuthenticated) {
-                            // Verificar si el usuario puede solicitar préstamos
-                            var puedePrestar = {{ user.puede_solicitar_prestamo|yesno:"true,false" }};
-                            var tieneSancionesCriticas = {{ user.tiene_sanciones_criticas|yesno:"true,false" }};
-                            var puedePrestarMas = {{ user.puede_solicitar_mas_prestamos|yesno:"true,false" }};
-                            var prestamosDisponibles = {{ user.get_prestamos_disponibles }};
-                            
-                            if (!puedePrestar) {
-                                // Usuario no puede pedir préstamos (sancionado)
-                                acciones += '<img src="{% static 'libros/img/bloqueado.png' %}" alt="Usuario Sancionado" style="width: 20px; height: 20px; margin-left: 5px; opacity: 0.5;" title="No puedes solicitar préstamos - Usuario sancionado">';
-                                acciones += '<span style="font-size: 10px; color: #dc3545; display: block;">Sancionado</span>';
-                            } else if (!puedePrestarMas) {  // CORREGIDO: agregado }
-                                // Usuario ha alcanzado el límite de préstamos
-                                acciones += '<img src="{% static 'libros/img/limite.png' %}" alt="Límite Alcanzado" style="width: 20px; height: 20px; margin-left: 5px; opacity: 0.5;" title="Límite de 3 préstamos alcanzado">';
-                                acciones += '<span style="font-size: 10px; color: #dc3545; display: block;"></span>';
-                            } else if (tieneSancionesCriticas) {
-                                // Usuario con 3+ sanciones debe cumplir compensación
-                                acciones += '<a href="{% url 'verificar_sanciones_criticas' %}" style="color: #dc3545; text-decoration: none;">';
-                                acciones += '<img src="{% static 'libros/img/alerta.png' %}" alt="Compensación Requerida" style="width: 20px; height: 20px; margin-left: 5px;" title="Debes cumplir compensación">';
-                                acciones += '<span style="font-size: 10px; color: #dc3545; display: block;">Compensación</span>';
-                                acciones += '</a>';
-                            } else {
-                                // Usuario puede pedir préstamos normalmente
-                                var prestamoUrl = "{% url 'solicitar_prestamo' 12345 %}".replace('12345', libro.id_libro);
-                                acciones += '<a href="' + prestamoUrl + '">';
-                                acciones += '<img src="' + libroAbiertoImg + '" alt="Solicitar Préstamo" style="cursor: pointer; width: 20px; height: 20px; margin-left: 5px;" title="Solicitar Préstamo">';
-                                acciones += '</a>';
-                            }
-                        } else {
-                            acciones += '<span style="font-size: 12px; color: #666;">Inicia sesión para solicitar préstamos</span>';
-                        }
-                                var fila = '<tr>';
-                                fila += '<td>' + (libro.num_inventario || '') + '</td>';
-                                fila += '<td>' + (libro.titulo || '') + '</td>';
-                                fila += '<td>' + (libro.autor || '') + '</td>';
-                                fila += '<td>' + (libro.editorial || '') + '</td>';
-                                fila += '<td>' + (libro.clasificacion_cdu || '') + '</td>';
-                                fila += '<td>' + (libro.siglas_autor_titulo || '') + '</td>';
-                                fila += '<td>' + (libro.sede || '') + '</td>';
-                                fila += '<td>' + (libro.disponibilidad || '') + '</td>';
-                                fila += '<td><img src="' + (libro.img || '') + '" alt="' + (libro.titulo || '') + '" width="100" onerror="this.src=\'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDEwMCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjEwMCIgaGVpZ2h0PSIxMDAiIGZpbGw9IiNmMGYwZjAiLz48dGV4dCB4PSI1MCIgeT0iNTAiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxMiIgZmlsbD0iIzk5OTk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPk5vIEltYWdlbjwvdGV4dD48L3N2Zz4=\'"></td>';
-                                fila += '<td>' + acciones + '</td>';
-                                fila += '</tr>';
-
+                                var acciones = construirAcciones(libro);
+                                var fila = construirFilaLibro(libro, acciones);
                                 $('#libros-table').append(fila);
                             });
+                            
+                            // Mostrar contador de resultados
+                            $('#search-results-count').text(data.length + ' libros encontrados').show();
                         } else {
-                            $('#libros-table').append('<tr><td colspan="10">No se encontraron libros disponibles.</td></tr>');
+                            $('#libros-table').append('<tr><td colspan="10">No se encontraron libros que coincidan con tu búsqueda.</td></tr>');
+                            $('#search-results-count').text('0 libros encontrados').show();
                         }
                     },
                     error: function(xhr, status, error) {
                         console.error('Error en AJAX:', error);
-                        console.error('Status:', status);
-                        console.error('Response:', xhr.responseText);
-                        $('#libros-table').append('<tr><td colspan="10">Hubo un error al intentar realizar la búsqueda.</td></tr>');
+                        $('#libros-table').html('<tr><td colspan="10">Error al realizar la búsqueda. Intenta de nuevo.</td></tr>');
+                        $('#search-status').hide();
                     }
                 });
-            });
+            }
+            
+            function construirAcciones(libro) {
+                var acciones = '';
+                
+                if (userIsBibliotecaria) {
+                    var editUrl = "{% url 'editar_libro' 12345 %}".replace('12345', libro.id_libro);
+                    acciones += '<a href="' + editUrl + '" class="edit-link">';
+                    acciones += '<img src="' + lapizImg + '" alt="Editar" style="cursor: pointer; width: 20px; height: 20px;">';
+                    acciones += '</a> ';
+                    acciones += '<img src="' + trashImg + '" alt="Eliminar" onclick="abrirModal(' + libro.id_libro + ')" style="cursor: pointer; width: 20px; height: 20px; margin-left: 5px;"> ';
+                }
+                
+                if (userIsAuthenticated) {
+                    var puedePrestar = {{ user.puede_solicitar_prestamo|yesno:"true,false" }};
+                    var tieneSancionesCriticas = {{ user.tiene_sanciones_criticas|yesno:"true,false" }};
+                    var puedePrestarMas = {{ user.puede_solicitar_mas_prestamos|yesno:"true,false" }};
+                    
+                    if (!puedePrestar) {
+                        acciones += '<img src="{% static 'libros/img/bloqueado.png' %}" alt="Usuario Sancionado" style="width: 20px; height: 20px; margin-left: 5px; opacity: 0.5;" title="No puedes solicitar préstamos - Usuario sancionado">';
+                        acciones += '<span style="font-size: 10px; color: #dc3545; display: block;">Sancionado</span>';
+                    } else if (!puedePrestarMas) {
+                        acciones += '<img src="{% static 'libros/img/limite.png' %}" alt="Límite Alcanzado" style="width: 20px; height: 20px; margin-left: 5px; opacity: 0.5;" title="Límite de 3 préstamos alcanzado">';
+                    } else if (tieneSancionesCriticas) {
+                        acciones += '<a href="{% url 'verificar_sanciones_criticas' %}" style="color: #dc3545; text-decoration: none;">';
+                        acciones += '<img src="{% static 'libros/img/alerta.png' %}" alt="Compensación Requerida" style="width: 20px; height: 20px; margin-left: 5px;" title="Debes cumplir compensación">';
+                        acciones += '<span style="font-size: 10px; color: #dc3545; display: block;">Compensación</span>';
+                        acciones += '</a>';
+                    } else {
+                        var prestamoUrl = "{% url 'solicitar_prestamo' 12345 %}".replace('12345', libro.id_libro);
+                        acciones += '<a href="' + prestamoUrl + '">';
+                        acciones += '<img src="' + libroAbiertoImg + '" alt="Solicitar Préstamo" style="cursor: pointer; width: 20px; height: 20px; margin-left: 5px;" title="Solicitar Préstamo">';
+                        acciones += '</a>';
+                    }
+                } else {
+                    acciones += '<span style="font-size: 12px; color: #666;">Inicia sesión para solicitar préstamos</span>';
+                }
+                
+                return acciones;
+            }
+            
+            function construirFilaLibro(libro, acciones) {
+                var fila = '<tr>';
+                fila += '<td>' + (libro.num_inventario || '') + '</td>';
+                fila += '<td>' + (libro.titulo || '') + '</td>';
+                fila += '<td>' + (libro.autor || '') + '</td>';
+                fila += '<td>' + (libro.editorial || '') + '</td>';
+                fila += '<td>' + (libro.clasificacion_cdu || '') + '</td>';
+                fila += '<td>' + (libro.siglas_autor_titulo || '') + '</td>';
+                fila += '<td>' + (libro.sede || '') + '</td>';
+                fila += '<td>' + (libro.disponibilidad || '') + '</td>';
+                fila += '<td><img src="' + (libro.img || '') + '" alt="' + (libro.titulo || '') + '" width="100" onerror="this.src=\'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDEwMCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjEwMCIgaGVpZ2h0PSIxMDAiIGZpbGw9IiNmMGYwZjAiLz48dGV4dCB4PSI1MCIgeT0iNTAiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxMiIgZmlsbD0iIzk5OTk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPk5vIEltYWdlbjwvdGV4dD48L3N2Zz4=\'"></td>';
+                fila += '<td>' + acciones + '</td>';
+                fila += '</tr>';
+                return fila;
+            }
         });
     </script>
 
     <style>
-        body{
+        body {
             font-family: 'Calibri', 'Arial', sans-serif;
         }
 
-        /* Estilos para el modal */
+        /* NUEVOS ESTILOS PARA PAGINACIÓN */
+        .pagination-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+        }
+
+        .pagination {
+            display: flex;
+            gap: 5px;
+        }
+
+        .page-link {
+            display: inline-block;
+            padding: 8px 12px;
+            margin: 0 2px;
+            text-decoration: none;
+            color: #004c8c;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            background-color: white;
+            transition: all 0.3s ease;
+        }
+
+        .page-link:hover {
+            background-color: #e9ecef;
+            border-color: #adb5bd;
+        }
+
+        .page-link.current {
+            background-color: #004c8c;
+            color: white;
+            border-color: #004c8c;
+            font-weight: bold;
+        }
+
+        .page-link.disabled {
+            color: #6c757d;
+            background-color: #e9ecef;
+            border-color: #dee2e6;
+            cursor: not-allowed;
+        }
+
+        .pagination-info {
+            font-size: 14px;
+            color: #6c757d;
+            font-weight: 500;
+        }
+
+        .pagination-jump {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .page-input {
+            width: 80px;
+            padding: 6px 8px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .btn-go {
+            padding: 6px 12px;
+            background-color: #004c8c;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-go:hover {
+            background-color: #003d6b;
+        }
+
+        #search-status, #search-results-count {
+            display: none;
+            font-size: 14px;
+            color: #6c757d;
+            margin: 10px 0;
+            font-style: italic;
+        }
+
+        /* Responsive para paginación */
+        @media screen and (max-width: 768px) {
+            .pagination-container {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+
+            .pagination {
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+
+            .page-link {
+                padding: 6px 10px;
+                font-size: 12px;
+            }
+
+            .pagination-jump {
+                justify-content: center;
+            }
+        }
+
+        /* Estilos existentes del modal y otros */
         #modal {
             display: none;
             position: fixed;
@@ -214,7 +348,6 @@
             background-color: #e53935;
         }
 
-        /* Estilos para el formulario de búsqueda */
         #search-form {
             margin-bottom: 20px;
             position: relative;
@@ -253,7 +386,6 @@
             outline: none;
         }
 
-        /* Estilos para el header */
         header {
             background-color: #004c8c;
             color: white;
@@ -271,7 +403,6 @@
             font-size: 1.5em;
         }
 
-        /* Estilos para la tabla de libros */
         table {
             width: 100%;
             border-collapse: collapse;
@@ -293,12 +424,10 @@
             background-color: #f5f5f5;
         }
 
-        /* Estilos para las acciones */
         td img {
             margin-right: 5px;
         }
 
-        /* Footer */
         footer {
             background-color: #004c8c;
             color: white;
@@ -336,7 +465,6 @@
             background-color: #1e87dc;
         }
 
-        /* Responsive Design */
         @media screen and (max-width: 768px) {
             #modalContent {
                 width: 90%;
@@ -387,7 +515,6 @@
     <main>
         <h2>Lista de Libros</h2>
         
-        <!-- Solo mostrar botones de administración para bibliotecarias -->
         {% if user.es_bibliotecaria %}
         <div style="margin-bottom: 20px;">
             <a href="{% url 'alta_libro' %}" class="btn-carga-manual">Carga Manual</a>
@@ -395,15 +522,21 @@
         </div>
         {% endif %}
 
-        <!-- Mostrar solo para usuarios normales -->
         <div style="margin-bottom: 20px;">
             <a href="{% url 'pantalla_principal' %}" class="btn-carga-manual" style="background-color: #004c8c;">🏠 Volver al Home</a>
         </div>
         
         <!-- Barra de búsqueda -->
         <form id="search-form">
-            <input type="text" id="search-query" placeholder="Buscar libros por título, autor o resumen...">
+            <input type="text" id="search-query" placeholder="Buscar libros por título, autor o resumen... (deja vacío para ver todos)">
         </form>
+
+        <!-- Estado de búsqueda -->
+        <div id="search-status"></div>
+        <div id="search-results-count"></div>
+
+        <!-- PAGINACIÓN SUPERIOR -->
+        {% include 'libros/includes/paginacion.html' %}
 
         <!-- Tabla para mostrar los libros -->
         <table>
@@ -447,7 +580,6 @@
                                 <span style="font-size: 10px; color: #dc3545; display: block;">Sancionado</span>
                             {% elif not user.puede_solicitar_mas_prestamos %}
                                 <img src="{% static 'libros/img/limite.png' %}" alt="Límite Alcanzado" style="width: 20px; height: 20px; margin-left: 5px; opacity: 0.5;" title="Límite de 3 préstamos alcanzado">
-                                {% comment %} <span style="font-size: 10px; color: #dc3545; display: block;">Límite (3/3)</span> {% endcomment %}
                             {% elif user.tiene_sanciones_criticas %}
                                 <a href="{% url 'verificar_sanciones_criticas' %}" style="color: #dc3545; text-decoration: none;">
                                     <img src="{% static 'libros/img/alerta.png' %}" alt="Compensación Requerida" style="width: 20px; height: 20px; margin-left: 5px;" title="Debes cumplir compensación">
@@ -471,6 +603,9 @@
                 {% endfor %}
             </tbody>
         </table>
+
+        <!-- PAGINACIÓN INFERIOR -->
+        {% include 'libros/includes/paginacion.html' %}
 
         <!-- Modal para confirmación de baja (solo visible para bibliotecarias) -->
         {% if user.es_bibliotecaria %}
