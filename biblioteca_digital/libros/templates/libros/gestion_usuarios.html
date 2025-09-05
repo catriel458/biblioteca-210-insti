@@ -62,9 +62,14 @@
                                     '<span class="badge badge-active">Activo</span>' : 
                                     '<span class="badge badge-inactive">Inactivo</span>';
                                 
-                                var tipoBadge = usuario.perfil === 'bibliotecaria' ? 
-                                    '<span class="badge badge-bibliotecaria">Bibliotecaria</span>' : 
-                                    '<span class="badge badge-alumno">Alumno</span>';
+                                var tipoBadge = '';
+                                if (usuario.perfil === 'bibliotecaria') {
+                                    tipoBadge = '<span class="badge badge-bibliotecaria">Bibliotecaria</span>';
+                                } else if (usuario.perfil === 'docente') {
+                                    tipoBadge = '<span class="badge badge-docente">Docente</span>';
+                                } else {
+                                    tipoBadge = '<span class="badge badge-alumno">Alumno</span>';
+                                }
                                 
                                 // CORREGIDO: Usar Django template tags para URLs
                                 var editUrl = "{% url 'editar_usuario' 12345 %}".replace('12345', usuario.id);
@@ -564,6 +569,12 @@
                 font-size: 22px;
             }
         }
+
+    .badge-docente {
+    background-color: #e2e3e5;
+    color: #495057;
+}
+
     </style>
 </head>
 
@@ -630,13 +641,17 @@
                         <td>{{ usuario.nombre }}</td>
                         <td>{{ usuario.apellido }}</td>
                         <td>{{ usuario.email }}</td>
+                    
                         <td>
                             {% if usuario.perfil == 'bibliotecaria' %}
                                 <span class="badge badge-bibliotecaria">Bibliotecaria</span>
+                            {% elif usuario.perfil == 'docente' %}
+                                <span class="badge badge-docente">Docente</span>
                             {% else %}
                                 <span class="badge badge-alumno">Alumno</span>
                             {% endif %}
                         </td>
+
                         <td>
                             {% if usuario.is_active %}
                                 <span class="badge badge-active">Activo</span>
