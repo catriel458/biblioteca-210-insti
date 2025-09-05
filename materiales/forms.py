@@ -19,13 +19,13 @@ class LibroForm(forms.ModelForm):
         ]
         
         widgets = {
-            'titulo': forms.TextInput(attrs={'class': 'form-control'}),
-            'autor': forms.TextInput(attrs={'class': 'form-control'}),
-            'editorial': forms.TextInput(attrs={'class': 'form-control'}),
-            'descripcion': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
-            'siglas_autor_titulo': forms.TextInput(attrs={'class': 'form-control'}),
-            'clasificacion_cdu': forms.TextInput(attrs={'class': 'form-control'}),
-            'etiqueta_palabra_clave': forms.Textarea(attrs={'class': 'form-control', 'rows': 2}),
+            'titulo': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese el título del libro'}),
+            'autor': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese el autor del libro'}),
+            'editorial': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese la editorial'}),
+            'descripcion': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Ingrese una descripción del libro'}),
+            'siglas_autor_titulo': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese las siglas del autor y título'}),
+            'clasificacion_cdu': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese la clasificación CDU'}),
+            'etiqueta_palabra_clave': forms.Textarea(attrs={'class': 'form-control', 'rows': 2, 'placeholder': 'Ingrese palabras clave separadas por comas'}),
             #'num_inventario': forms.NumberInput(attrs={'class': 'form-control', 'min': 1}),
             'sede': forms.Select(attrs={'class': 'form-control'}, choices=[
                 ('', 'Seleccione una sede'),
@@ -37,9 +37,9 @@ class LibroForm(forms.ModelForm):
                 ('Aula', 'Aula'),
                 ('Domicilio', 'Domicilio'),
             ]),
-            'observaciones': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
-            'num_ejemplar': forms.NumberInput(attrs={'class': 'form-control', 'min': 1}),
-            'img': forms.URLInput(attrs={'class': 'form-control'}),
+            'observaciones': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Ingrese observaciones adicionales'}),
+            'num_ejemplar': forms.NumberInput(attrs={'class': 'form-control', 'min': 1, 'placeholder': 'Cantidad de ejemplares'}),
+            'img': forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'URL de la imagen del libro'}),
         }
         
     def __init__(self, *args, **kwargs):
@@ -51,9 +51,24 @@ class LibroForm(forms.ModelForm):
         self.fields['autor'].required = False
         self.fields['editorial'].required = False
         self.fields['descripcion'].required = False
+        self.fields['siglas_autor_titulo'].required = False
+        self.fields['siglas_autor_titulo'].initial = ''
         self.fields['clasificacion_cdu'].required = False
+        self.fields['clasificacion_cdu'].initial = ''
         self.fields['etiqueta_palabra_clave'].required = False
+        self.fields['etiqueta_palabra_clave'].initial = ''
         self.fields['observaciones'].required = False
+        self.fields['observaciones'].initial = ''
+        # Hacer opcionales los campos sede y disponibilidad ya que ahora se manejan dinámicamente
+        self.fields['sede'].required = False
+        self.fields['disponibilidad'].required = False
+        # Asegurar que sede siempre tenga seleccionado "Seleccione una sede"
+        self.fields['sede'].initial = ''
+        # Configurar cantidad de ejemplares con valor inicial 1
+        self.fields['num_ejemplar'].initial = 1
+        # Eliminar el atributo readonly para permitir cambiar la cantidad
+        self.fields['num_ejemplar'].widget.attrs['min'] = 1
+        self.fields['num_ejemplar'].widget.attrs['max'] = 10  # Limitamos a 10 ejemplares
         
     def clean_img(self):
         """Validación personalizada para imagen URL"""
@@ -72,9 +87,127 @@ class MapaForm(forms.ModelForm):
         fields = ['id_mapa', 'tipo', 'descripcion', 'num_ejemplar']
 
 class MultimediaForm(forms.ModelForm):
+    # Carreras REALES del Instituto Superior de Formación Docente y Técnica Nº 210
+    CARRERA_CHOICES = [
+        ('', 'Seleccione una carrera'),
+        # PROFESORADOS
+        ('Profesorado de Educación Inicial', 'Profesorado de Educación Inicial'),
+        ('Profesorado de Educación Primaria', 'Profesorado de Educación Primaria'),  
+        ('Profesorado de Educación Secundaria en Geografía', 'Profesorado de Educación Secundaria en Geografía'),
+        ('Profesorado de Educación Secundaria en Ciencias Políticas', 'Profesorado de Educación Secundaria en Ciencias Políticas'),
+        # TECNICATURAS
+        ('Tecnicatura Superior en Análisis de Sistemas', 'Tecnicatura Superior en Análisis de Sistemas'),
+        ('Tecnicatura Superior en Enfermería', 'Tecnicatura Superior en Enfermería'),
+        ('Tecnicatura Superior en Acompañamiento Terapéutico', 'Tecnicatura Superior en Acompañamiento Terapéutico'),
+        ('Tecnicatura Superior en Higiene y Seguridad en el Trabajo', 'Tecnicatura Superior en Higiene y Seguridad en el Trabajo'),
+    ]
+
+    # Materias organizadas por carrera
+    MATERIAS_POR_CARRERA = {
+        'Profesorado de Educación Inicial': [
+            'Pedagogía', 'Psicología Educacional', 'Sociología de la Educación', 
+            'Historia y Política de la Educación Argentina', 'Filosofía de la Educación',
+            'Didáctica General', 'Curriculum y Didáctica del Nivel Inicial', 
+            'Juego y Desarrollo Infantil', 'Literatura Infantil', 'Matemática y su Didáctica',
+            'Ciencias Sociales y su Didáctica', 'Ciencias Naturales y su Didáctica',
+            'Lengua y su Didáctica', 'Educación Artística', 'Educación Física',
+            'Práctica Docente I', 'Práctica Docente II', 'Práctica Docente III', 'Práctica Docente IV'
+        ],
+        'Profesorado de Educación Primaria': [
+            'Pedagogía', 'Psicología Educacional', 'Sociología de la Educación',
+            'Historia y Política de la Educación Argentina', 'Filosofía de la Educación',
+            'Didáctica General', 'Curriculum y Didáctica del Nivel Primario',
+            'Matemática y su Didáctica I', 'Matemática y su Didáctica II',
+            'Lengua y su Didáctica I', 'Lengua y su Didáctica II',
+            'Ciencias Sociales y su Didáctica I', 'Ciencias Sociales y su Didáctica II',
+            'Ciencias Naturales y su Didáctica I', 'Ciencias Naturales y su Didáctica II',
+            'Educación Artística', 'Educación Física', 'Tecnologías de la Información',
+            'Práctica Docente I', 'Práctica Docente II', 'Práctica Docente III', 'Práctica Docente IV'
+        ],
+        'Profesorado de Educación Secundaria en Geografía': [
+            'Geografía Física I', 'Geografía Física II', 'Geografía Humana I', 'Geografía Humana II',
+            'Cartografía', 'Sistemas de Información Geográfica', 'Geografía Económica',
+            'Geografía Política', 'Geografía Cultural', 'Geografía de Argentina',
+            'Geografía de América Latina', 'Geografía Mundial', 'Didáctica de la Geografía',
+            'Práctica Docente I', 'Práctica Docente II', 'Práctica Docente III', 'Práctica Docente IV'
+        ],
+        'Profesorado de Educación Secundaria en Ciencias Políticas': [
+            'Teoría Política I', 'Teoría Política II', 'Historia del Pensamiento Político',
+            'Sistemas Políticos Comparados', 'Política Internacional', 'Economía Política',
+            'Sociología Política', 'Derecho Constitucional', 'Políticas Públicas',
+            'Metodología de la Investigación', 'Didáctica de las Ciencias Políticas',
+            'Práctica Docente I', 'Práctica Docente II', 'Práctica Docente III', 'Práctica Docente IV'
+        ],
+        'Tecnicatura Superior en Análisis de Sistemas': [
+            'Programación I', 'Programación II', 'Programación III',
+            'Bases de Datos I', 'Bases de Datos II', 'Sistemas Operativos',
+            'Redes de Computadoras', 'Análisis de Sistemas', 'Diseño de Sistemas',
+            'Ingeniería de Software', 'Matemática', 'Estadística',
+            'Arquitectura de Computadoras', 'Seguridad Informática',
+            'Práctica Profesional I', 'Práctica Profesional II'
+        ],
+        'Tecnicatura Superior en Enfermería': [
+            'Anatomía y Fisiología', 'Microbiología y Parasitología', 'Enfermería Básica',
+            'Farmacología', 'Nutrición y Dietética', 'Enfermería del Adulto y Anciano',
+            'Enfermería en Salud Mental', 'Enfermería Materno-Infantil',
+            'Enfermería Comunitaria', 'Ética y Deontología Profesional',
+            'Práctica Profesional I', 'Práctica Profesional II'
+        ],
+        'Tecnicatura Superior en Acompañamiento Terapéutico': [
+            'Psicología General', 'Psicopatología', 'Técnicas de Acompañamiento Terapéutico',
+            'Ética y Deontología Profesional', 'Psicología del Desarrollo',
+            'Psicofarmacología', 'Intervención en Crisis', 'Rehabilitación Psicosocial',
+            'Salud Mental Comunitaria', 'Discapacidad e Inclusión',
+            'Práctica Profesional I', 'Práctica Profesional II'
+        ],
+        'Tecnicatura Superior en Higiene y Seguridad en el Trabajo': [
+            'Matemática', 'Física', 'Química', 'Legislación Laboral',
+            'Higiene Industrial I', 'Higiene Industrial II', 'Seguridad Industrial I', 'Seguridad Industrial II',
+            'Medicina del Trabajo', 'Toxicología Laboral', 'Ergonomía',
+            'Protección contra Incendios', 'Contaminación Ambiental', 'Gestión de Residuos',
+            'Capacitación en Seguridad', 'Investigación de Accidentes', 'Auditorías de Seguridad',
+            'Gestión de Riesgos', 'Práctica Profesional I', 'Práctica Profesional II'
+        ]
+    }
+    
     class Meta:
         model = Multimedia
-        fields = ['id_inventario', 'profesor', 'carrera', 'materia', 'ingresar_enlace', 'titulo_contenido']
+        fields = ['profesor', 'carrera', 'materia', 'ingresar_enlace', 'titulo_contenido']
+        
+        widgets = {
+            'profesor': forms.TextInput(attrs={
+                'class': 'form-control form-control-sm',
+                'placeholder': 'Ingrese el nombre del profesor'
+            }),
+            'carrera': forms.Select(attrs={
+                'class': 'form-control form-control-sm',
+                'id': 'id_carrera'
+            }),
+            'materia': forms.Select(attrs={
+                'class': 'form-control form-control-sm',
+                'id': 'id_materia'
+            }),
+            'ingresar_enlace': forms.URLInput(attrs={
+                'class': 'form-control form-control-sm',
+                'placeholder': 'https://ejemplo.com/contenido.pdf'
+            }),
+            'titulo_contenido': forms.TextInput(attrs={
+                'class': 'form-control form-control-sm',
+                'placeholder': 'Ingrese el título del contenido'
+            }),
+        }
+        
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        
+        # Configurar las opciones de carrera
+        self.fields['carrera'].widget.choices = self.CARRERA_CHOICES
+        
+        # Configurar materia como select vacío inicialmente
+        self.fields['materia'].widget.choices = [('', 'Primero seleccione una carrera')]
+        
+        # Configurar campos opcionales/requeridos
+        self.fields['ingresar_enlace'].required = False
 
 class NotebookForm(forms.ModelForm):
     class Meta:
@@ -97,19 +230,37 @@ class ProyectorForm(forms.ModelForm):
     class Meta:
         model = Proyector
         fields = ['id_proyector', 'sede', 'num_registro', 'modelo_pro']
+        
+        widgets = {
+            'id_proyector': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese el ID del proyector'}),
+            'sede': forms.Select(attrs={'class': 'form-control'}, choices=[
+                ('', 'Seleccione una sede'),
+                ('La Plata', 'La Plata'),
+                ('Abasto', 'Abasto'),
+            ]),
+            'num_registro': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese el número de registro'}),
+            'modelo_pro': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese el modelo del proyector'}),
+        }
 
 class VariosForm(forms.ModelForm):
     class Meta:
         model = Varios
         fields = ['id_varios', 'tipo', 'descripcion', 'num_ejemplar']
+        
+        widgets = {
+            'id_varios': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese el ID del artículo'}),
+            'tipo': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese el tipo de artículo'}),
+            'descripcion': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Ingrese una descripción del artículo'}),
+            'num_ejemplar': forms.NumberInput(attrs={'class': 'form-control', 'min': 1, 'placeholder': 'Cantidad de ejemplares'}),
+        }
 
 class RegistroForm(UserCreationForm):
-    nombre = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'class': 'form-control'}))
-    apellido = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'class': 'form-control'}))
-    email = forms.EmailField(widget=forms.EmailInput(attrs={'class': 'form-control'}))
-    dni = forms.CharField(max_length=8, widget=forms.TextInput(attrs={'class': 'form-control'}))
-    password1 = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control'}))
-    password2 = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control'}))
+    nombre = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese su nombre'}))
+    apellido = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese su apellido'}))
+    email = forms.EmailField(widget=forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese su correo electrónico'}))
+    dni = forms.CharField(max_length=8, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese su DNI (7-8 dígitos)'}))
+    password1 = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese su contraseña'}))
+    password2 = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Confirme su contraseña'}))
     
     class Meta:
         model = Usuario
@@ -134,11 +285,11 @@ class RegistroForm(UserCreationForm):
 class LoginForm(AuthenticationForm):
     username = forms.CharField(
         max_length=8,
-        widget=forms.TextInput(attrs={'class': 'form-control', 'autofocus': True}),
+        widget=forms.TextInput(attrs={'class': 'form-control', 'autofocus': True, 'placeholder': 'Ingrese su DNI'}),
         label='DNI'
     )
     password = forms.CharField(
-        widget=forms.PasswordInput(attrs={'class': 'form-control'}),
+        widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese su contraseña'}),
         label='Contraseña'
     )
     
@@ -156,9 +307,9 @@ class LoginForm(AuthenticationForm):
         return self.cleaned_data
 
 class CambiarPasswordForm(forms.Form):
-    password_actual = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control'}))
-    password_nueva = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control'}))
-    password_confirmar = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control'}))
+    password_actual = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese su contraseña actual'}))
+    password_nueva = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese su nueva contraseña'}))
+    password_confirmar = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Confirme su nueva contraseña'}))
     
     def __init__(self, user, *args, **kwargs):
         self.user = user

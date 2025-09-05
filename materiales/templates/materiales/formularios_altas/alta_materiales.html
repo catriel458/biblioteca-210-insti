@@ -77,7 +77,7 @@
         <!-- Botones -->
         <div id="buttons-container" class="row bg-white px-0 mx-0" style="border:none; box-shadow:none; display: none;">
             <div class="col-12 d-flex justify-content-end gap-5">
-              <!-- Estan repetidos los botones -->
+              <!-- Los botones se cargan dinámicamente con cada formulario específico -->
             </div>
         </div>
     </form>
@@ -218,11 +218,33 @@ document.addEventListener("DOMContentLoaded", function () {
                 .then(html => {
                     formularioEspecifico.innerHTML = html;
                     buttonsContainer.style.display = 'flex';
+                    
+                    // 🔥 IMPORTANTE: Establecer el action correcto para multimedia
+                    const form = document.getElementById('form_alta_material');
+                    if (form) {
+                        form.action = '/alta-multimedia/';
+                        console.log('🔧 Action del formulario multimedia establecido a:', form.action);
+                    }
+                    
+                    // Ocultar el modal de confirmación genérico ya que multimedia tiene su propio modal
+                    const contenedorModal = document.getElementById('contenedor-modal-confirmacion');
+                    if (contenedorModal) {
+                        contenedorModal.style.display = 'none';
+                        console.log('🔧 Modal de confirmación genérico ocultado para multimedia');
+                    }
+                    
+                    // 🎯 CRÍTICO: Inicializar funcionalidad carrera-materia DESPUÉS de cargar HTML
+                    setTimeout(() => {
+                        initCarreraMateriaFunctionality();
+                    }, 100); // Pequeño delay para asegurar que el DOM esté listo
+                    
                     // No mostrar carga masiva ni URL para multimedia
                     if (uploadSimple) uploadSimple.style.display = 'none';
                     if (uploadBox) uploadBox.style.display = 'none';
+                    console.log('✅ Formulario de multimedia cargado');
                 })
                 .catch(error => {
+                    console.error('❌ Error cargando multimedia:', error);
                     formularioEspecifico.innerHTML = `<p class="text-danger">Error al cargar el formulario: ${error.message}</p>`;
                     buttonsContainer.style.display = 'none';
                 });
@@ -322,10 +344,11 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // 🎯 FUNCIÓN PARA INICIALIZAR CARRERA-MATERIA (solo cuando se carga programa)
+    // 🎯 FUNCIÓN PARA INICIALIZAR CARRERA-MATERIA (para programa y multimedia)
     function initCarreraMateriaFunctionality() {
-        const carreraSelect = document.getElementById('id_carrera');
-        const materiaSelect = document.getElementById('id_materia');
+        // Buscar elementos por ambos posibles IDs (para compatibilidad con diferentes formularios)
+        const carreraSelect = document.getElementById('id_carrera') || document.getElementById('carrera');
+        const materiaSelect = document.getElementById('id_materia') || document.getElementById('materia');
         
         console.log('🎯 Inicializando carrera-materia...', !!carreraSelect, !!materiaSelect);
         
@@ -333,7 +356,7 @@ document.addEventListener("DOMContentLoaded", function () {
             console.log('⚠️ Elementos carrera-materia no encontrados');
             return;
         }
-
+        
         // Materias por carrera - IDÉNTICO al primer archivo
         const materiasPorCarrera = {
             'Profesorado de Educación Inicial': [
@@ -385,7 +408,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 'Desarrollo Web', 'Programación Orientada a Objetos', 'Metodologías de Desarrollo',
                 'Gestión de Proyectos', 'Práctica Profesionalizante I', 'Práctica Profesionalizante II'
             ],
-            'Tecnicatura Superior en Enfermería': [
+            'Tecnicatura en Enfermería': [
                 'Anatomía y Fisiología I', 'Anatomía y Fisiología II', 'Microbiología y Parasitología',
                 'Farmacología', 'Patología', 'Nutrición y Dietoterapia',
                 'Enfermería Básica', 'Enfermería Médica', 'Enfermería Quirúrgica',
@@ -394,7 +417,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 'Bioética', 'Epidemiología', 'Primeros Auxilios',
                 'Práctica Profesional I', 'Práctica Profesional II', 'Práctica Profesional III'
             ],
-            'Tecnicatura Superior en Acompañamiento Terapéutico': [
+            'Tecnicatura en Acompañamiento Terapéutico': [
                 'Psicología General', 'Psicopatología', 'Neurociencias', 'Desarrollo Humano',
                 'Teorías y Técnicas de Acompañamiento Terapéutico', 'Comunicación Terapéutica',
                 'Dinámicas Familiares', 'Integración Social', 'Recreación Terapéutica',
@@ -411,8 +434,54 @@ document.addEventListener("DOMContentLoaded", function () {
                 'Gestión de Riesgos', 'Práctica Profesional I', 'Práctica Profesional II'
             ]
         };
-
-        // FUNCIÓN para cargar materias
+        
+        // Función para cargar materias según la carrera seleccionada
+        function cargarMaterias(carreraSeleccionada) {
+            console.log('📚 Carrera seleccionada:', carreraSeleccionada);
+            
+            // Limpiar opciones de materia
+            materiaSelect.innerHTML = '';
+            
+            if (carreraSeleccionada && materiasPorCarrera[carreraSeleccionada]) {
+                // Agregar opción vacía
+                const opcionVacia = document.createElement('option');
+                opcionVacia.value = '';
+                opcionVacia.textContent = 'Seleccione una materia';
+                materiaSelect.appendChild(opcionVacia);
+                
+                // Agregar materias de la carrera seleccionada
+                materiasPorCarrera[carreraSeleccionada].forEach(function(materia) {
+                    const option = document.createElement('option');
+                    option.value = materia;
+                    option.textContent = materia;
+                    materiaSelect.appendChild(option);
+                });
+                
+                materiaSelect.disabled = false;
+                console.log('✅ Materias cargadas:', materiasPorCarrera[carreraSeleccionada].length);
+            } else {
+                // No hay carrera seleccionada o no tiene materias
+                const opcionVacia = document.createElement('option');
+                opcionVacia.value = '';
+                opcionVacia.textContent = 'Primero seleccione una carrera';
+                materiaSelect.appendChild(opcionVacia);
+                materiaSelect.disabled = true;
+                console.log('⚠️ No hay materias para:', carreraSeleccionada);
+            }
+        }
+        
+        // Event listener para cambio de carrera
+        carreraSelect.addEventListener('change', function() {
+            cargarMaterias(this.value);
+        });
+        
+        // Inicializar estado de materia
+        materiaSelect.disabled = true;
+        
+        // Si ya hay una carrera seleccionada al cargar (por ejemplo, por validación de errores)
+        if (carreraSelect.value) {
+            cargarMaterias(carreraSelect.value);
+        }
         function cargarMaterias(carreraSeleccionada) {
             console.log('📚 Carrera seleccionada:', carreraSeleccionada);
             

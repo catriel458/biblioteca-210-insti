@@ -1194,7 +1194,7 @@ def alta_materiales(request):
 def alta_libro(request):
     """
     Vista para procesar el envío del formulario de alta de libro
-    CORREGIDA: Sin campo resumen y con manejo completo de URLs de imagen
+    Actualizada para manejar múltiples ejemplares
     """
     print(f"🔥🔥🔥 INICIO alta_libro")
     print(f"🔥 Método: {request.method}")
@@ -1222,6 +1222,22 @@ def alta_libro(request):
                 img_url = form.cleaned_data.get('img', '').strip()
                 print(f"📷 URL de imagen recibida: '{img_url}'")
                 
+                # Obtener la cantidad de ejemplares
+                num_ejemplares = int(form.cleaned_data.get('num_ejemplar', 1))
+                print(f"📚 Cantidad de ejemplares: {num_ejemplares}")
+                
+                # Recopilar datos de ejemplares
+                ejemplares = []
+                for i in range(1, num_ejemplares + 1):
+                    ejemplar_data = {
+                        'sede': request.POST.get(f'sede_{i}', ''),
+                        'disponibilidad': request.POST.get(f'disponibilidad_{i}', ''),
+                        'observaciones': request.POST.get(f'observaciones_{i}', '')
+                    }
+                    ejemplares.append(ejemplar_data)
+                
+                print(f"📋 Datos de ejemplares: {ejemplares}")
+                
                 # NO guardar en base de datos, solo en sesión
                 form_data = {
                     'titulo': form.cleaned_data.get('titulo', ''),
@@ -1231,11 +1247,8 @@ def alta_libro(request):
                     'siglas_autor_titulo': form.cleaned_data.get('siglas_autor_titulo', ''),
                     'clasificacion_cdu': form.cleaned_data.get('clasificacion_cdu', ''),
                     'etiqueta_palabra_clave': form.cleaned_data.get('etiqueta_palabra_clave', ''),
-                    #'num_inventario': form.cleaned_data.get('num_inventario', 1),
-                    'sede': form.cleaned_data.get('sede', ''),
-                    'disponibilidad': form.cleaned_data.get('disponibilidad', ''),
-                    'observaciones': form.cleaned_data.get('observaciones', ''),
-                    'num_ejemplar': form.cleaned_data.get('num_ejemplar', 1),
+                    'num_ejemplar': num_ejemplares,
+                    'ejemplares': ejemplares,  # Lista de ejemplares con sus datos
                     'img': img_url  # Guardar la URL directamente
                 }
                 
@@ -1266,7 +1279,7 @@ def alta_libro(request):
 def confirmar_alta_libro(request):
     """
     Vista para mostrar el modal de confirmación
-    CORREGIDA: Verifica datos en sesión
+    Actualizada para manejar múltiples ejemplares
     """
     print("🎯 Llegó a confirmar_alta_libro")  # Debug
     
@@ -1282,14 +1295,15 @@ def confirmar_alta_libro(request):
     
     # Renderizar página con modal automático
     return render(request, 'materiales/formularios_altas/confirmacion_alta_material.html', {
-        'form_data': form_data
+        'form_data': form_data,
+        'ejemplares': form_data.get('ejemplares', [])
     })
 
 
 def guardar_libro_confirmado(request):
     """
     Vista para guardar definitivamente después de confirmar en el modal
-    CORREGIDA: Maneja correctamente las URLs de imagen
+    Actualizada para manejar múltiples ejemplares
     """
     print("💾 Llegó a guardar_libro_confirmado")  # Debug
     
@@ -1299,34 +1313,53 @@ def guardar_libro_confirmado(request):
             libro_data = request.session['libro_data']
             print(f"📦 Datos a guardar: {libro_data}")  # Debug
             
-            # Crear el libro en base de datos
-            libro = Libro(
-                estado='Disponible',
-                titulo=libro_data.get('titulo', ''),
-                autor=libro_data.get('autor', ''),
-                editorial=libro_data.get('editorial', ''),
-                descripcion=libro_data.get('descripcion', ''),
-                siglas_autor_titulo=libro_data.get('siglas_autor_titulo', ''),
-                clasificacion_cdu=libro_data.get('clasificacion_cdu', ''),
-                etiqueta_palabra_clave=libro_data.get('etiqueta_palabra_clave', ''),
-                #num_inventario=libro_data.get('num_inventario', 1),
-                sede=libro_data.get('sede', ''),
-                disponibilidad=libro_data.get('disponibilidad', ''),
-                observaciones=libro_data.get('observaciones', ''),
-                num_ejemplar=libro_data.get('num_ejemplar', 1),
-                # IMPORTANTE: Manejar la imagen correctamente
-                img=libro_data.get('img', '') or ''  # Asegurar que sea string vacío si es None
-            )
+            # Obtener datos comunes para todos los ejemplares
+            titulo = libro_data.get('titulo', '')
+            autor = libro_data.get('autor', '')
+            editorial = libro_data.get('editorial', '')
+            descripcion = libro_data.get('descripcion', '')
+            siglas_autor_titulo = libro_data.get('siglas_autor_titulo', '')
+            clasificacion_cdu = libro_data.get('clasificacion_cdu', '')
+            etiqueta_palabra_clave = libro_data.get('etiqueta_palabra_clave', '')
+            img_url = libro_data.get('img', '') or ''
             
-            # GUARDAR EN BASE DE DATOS
-            libro.save()
-            print(f"✅ Libro guardado en BD con ID: {libro.id_libro}")  # Debug
-            print(f"📷 URL de imagen guardada: '{libro.img}'")  # Debug
+            # Obtener la lista de ejemplares
+            ejemplares = libro_data.get('ejemplares', [])
+            num_ejemplares = libro_data.get('num_ejemplar', 1)
+            
+            libros_guardados = []
+            
+            # Crear un libro por cada ejemplar
+            for i, ejemplar_data in enumerate(ejemplares):
+                # Crear el libro en base de datos
+                libro = Libro(
+                    estado='Disponible',
+                    titulo=titulo,
+                    autor=autor,
+                    editorial=editorial,
+                    descripcion=descripcion,
+                    siglas_autor_titulo=siglas_autor_titulo,
+                    clasificacion_cdu=clasificacion_cdu,
+                    etiqueta_palabra_clave=etiqueta_palabra_clave,
+                    sede=ejemplar_data.get('sede', ''),
+                    disponibilidad=ejemplar_data.get('disponibilidad', ''),
+                    observaciones=ejemplar_data.get('observaciones', ''),
+                    num_ejemplar=i + 1,  # Número de ejemplar (1, 2, 3, ...)
+                    img=img_url  # Misma imagen para todos los ejemplares
+                )
+                
+                # GUARDAR EN BASE DE DATOS
+                libro.save()
+                libros_guardados.append(libro)
+                print(f"✅ Ejemplar {i+1}/{num_ejemplares} guardado con ID: {libro.id_libro}")  # Debug
+            
+            print(f"📷 URL de imagen guardada: '{img_url}'")  # Debug
+            print(f"✅ Total de ejemplares guardados: {len(libros_guardados)}")  # Debug
             
             # Limpiar sesión
             del request.session['libro_data']
             
-            messages.success(request, f'✅ Libro "{libro.titulo}" registrado exitosamente.')
+            messages.success(request, f'✅ {num_ejemplares} ejemplares del libro "{titulo}" registrados exitosamente.')
             return redirect('alta_materiales')
             
         except Exception as e:
@@ -1546,9 +1579,162 @@ def alta_mapa(request):
     pass
 
 #@user_passes_test(es_bibliotecaria)
+def formulario_multimedia(request):
+    """
+    Vista para mostrar el formulario de alta de multimedia (solo GET)
+    """
+    print("🎬 LLEGÓ A formulario_multimedia")  # DEBUG
+    form = MultimediaForm()
+    return render(request, 'materiales/formularios_altas/alta_multimedia.html', {'form': form})
+
+#@user_passes_test(es_bibliotecaria)
 def alta_multimedia(request):
-    # ... código existente ...
-    pass
+    """
+    Vista para procesar el envío del formulario de alta de multimedia
+    """
+    print(f"🔥🔥🔥 INICIO alta_multimedia")
+    print(f"🔥 Método: {request.method}")
+    print(f"🔥 URL: {request.path}")
+    print(f"🔥 POST data keys: {list(request.POST.keys()) if request.method == 'POST' else 'No POST'}")
+    
+    if request.method == 'POST':
+        print("🔥 POST recibido en alta_multimedia - procesando para modal")
+        
+        # Verificar si hay datos en POST
+        if not request.POST:
+            print("❌ POST está vacío!")
+            messages.error(request, 'No se recibieron datos del formulario.')
+            return redirect('formulario_multimedia')
+            
+        form = MultimediaForm(request.POST)
+        print(f"🔍 Formulario MultimediaForm creado. Es válido? {form.is_valid()}")
+        
+        if not form.is_valid():
+            print(f"❌ Errores del formulario: {form.errors}")
+            # Mostrar errores en la página
+            return render(request, 'materiales/formularios_altas/alta_multimedia.html', {
+                'form': form,
+                'error': 'Por favor corrige los errores en el formulario.'
+            })
+        
+        if form.is_valid():
+            print("✅ Formulario válido - guardando en sesión")
+            try:
+                # Obtener la URL de imagen del formulario
+                img_url = form.cleaned_data.get('img', '').strip()
+                print(f"📷 URL de imagen recibida: '{img_url}'")
+                
+                # NO guardar en base de datos, solo en sesión - CAMPOS SIMPLIFICADOS
+                form_data = {
+                    'profesor': form.cleaned_data.get('profesor', ''),
+                    'carrera': form.cleaned_data.get('carrera', ''),
+                    'materia': form.cleaned_data.get('materia', ''),
+                    'ingresar_enlace': form.cleaned_data.get('ingresar_enlace', ''),
+                    'titulo_contenido': form.cleaned_data.get('titulo_contenido', ''),
+                }
+                
+                # Guardar en sesión
+                request.session['multimedia_data'] = form_data
+                print(f"📦 Datos guardados en sesión: {form_data}")
+                
+                # Redirigir al modal de confirmación
+                print("🚀 Redirigiendo a confirmar_alta_multimedia")
+                return redirect('confirmar_alta_multimedia')
+                
+            except Exception as e:
+                print(f"❌ Error al procesar: {e}")
+                import traceback
+                traceback.print_exc()
+                messages.error(request, f'Error al procesar el multimedia: {str(e)}')
+                return render(request, 'materiales/formularios_altas/alta_multimedia.html', {
+                    'form': form,
+                    'error': f'Error al procesar: {str(e)}'
+                })
+    else:
+        # Si es GET, mostrar formulario vacío
+        print("🔄 GET recibido en alta_multimedia, mostrando formulario")
+        form = MultimediaForm()
+        return render(request, 'materiales/formularios_altas/alta_multimedia.html', {'form': form})
+
+def confirmar_alta_multimedia(request):
+    """
+    Vista para mostrar el modal de confirmación para multimedia
+    """
+    print("🎯 Llegó a confirmar_alta_multimedia")  # Debug
+    
+    # Verificar que existan datos en la sesión
+    if 'multimedia_data' not in request.session:
+        print("❌ No hay datos en sesión")  # Debug
+        messages.error(request, 'No hay datos para confirmar. Por favor, complete el formulario nuevamente.')
+        return redirect('formulario_multimedia')
+    
+    # Obtener datos de la sesión
+    form_data = request.session['multimedia_data']
+    print(f"📋 Datos de sesión: {form_data}")  # Debug
+    
+    # Renderizar página con modal automático
+    return render(request, 'materiales/formularios_altas/confirmacion_alta_multimedia.html', {
+        'form_data': form_data
+    })
+
+def guardar_alta_multimedia(request):
+    """
+    Vista para guardar definitivamente el multimedia en la base de datos
+    """
+    print("💾 Llegó a guardar_alta_multimedia")  # Debug
+    
+    if request.method == 'POST' and 'multimedia_data' in request.session:
+        print("✅ POST recibido y datos en sesión")  # Debug
+        
+        try:
+            # Obtener datos de la sesión
+            form_data = request.session['multimedia_data']
+            print(f"📋 Datos de sesión: {form_data}")  # Debug
+            
+            # Crear objeto Multimedia
+            multimedia = Multimedia(
+                estado='Disponible',
+                profesor=form_data.get('profesor', ''),
+                carrera=form_data.get('carrera', ''),
+                materia=form_data.get('materia', ''),
+                ingresar_enlace=form_data.get('ingresar_enlace', ''),
+                titulo_contenido=form_data.get('titulo_contenido', ''),
+                img=''  # Sin imagen por defecto
+            )
+            
+            # GUARDAR EN BASE DE DATOS
+            multimedia.save()
+            print(f"✅ Multimedia guardado en BD con ID: {multimedia.id_multimedia}")  # Debug
+            
+            # Limpiar sesión
+            del request.session['multimedia_data']
+            
+            messages.success(request, f'✅ Multimedia "{multimedia.titulo_contenido}" registrado exitosamente.')
+            return redirect('alta_materiales')
+            
+        except Exception as e:
+            print(f"❌ Error al guardar: {e}")  # Debug
+            import traceback
+            traceback.print_exc()
+            messages.error(request, f'❌ Error al guardar el multimedia: {str(e)}')
+            return redirect('alta_materiales')
+    else:
+        print("❌ No hay datos o método incorrecto")  # Debug
+        messages.error(request, 'No hay datos para guardar.')
+        return redirect('alta_materiales')
+
+def cancelar_alta_multimedia(request):
+    """
+    Vista para cancelar la alta y limpiar datos de sesión
+    """
+    print("🔴 Cancelando alta de multimedia")  # Debug
+    
+    if 'multimedia_data' in request.session:
+        del request.session['multimedia_data']
+        print("🗑️ Datos de sesión eliminados")  # Debug
+    
+    messages.info(request, 'Operación cancelada.')
+    return redirect('alta_materiales')
 
 # Comentando esta función duplicada para evitar conflictos
 '''

@@ -104,6 +104,7 @@
             <div class="col-12 col-sm-6 col-lg-4 form-group mb-3">
                 <label for="{{ form.num_ejemplar.id_for_label }}" class="text-input" style="color:#25898D;">Cant. de ejemplares:</label>
                 {{ form.num_ejemplar }}
+                <small class="form-text text-muted">Seleccione la cantidad de ejemplares a registrar (máximo 10)</small>
                 {% if form.num_ejemplar.errors %}
                     <div class="text-danger">{{ form.num_ejemplar.errors }}</div>
                 {% endif %}
@@ -175,38 +176,41 @@
             </div>
         </div>
 
-        <!-- Ejemplar N°, Sede y Disponibilidad -->
-        <div class="row">
-            <div class="col-12 col-sm-4 col-lg-4 form-group mb-3">
-                <label for="ejemplar_numero" class="text-input" style="color:#25898D;">Ejemplar N°:</label>
-                <input type="text" id="ejemplar_numero" class="form-control" value="1" readonly>
+        <!-- Contenedor para ejemplares -->
+        <div id="ejemplares-container">
+            <h4 class="mt-4 mb-3" style="color:#25898D;">Información de ejemplares</h4>
+            
+            <!-- El primer ejemplar siempre se muestra -->
+            <div class="ejemplar-item mb-4 p-3" style="border: 1px solid #e0e0e0; border-radius: 8px; background-color: #f9f9f9;">
+                <h5 style="color:#25898D;">Ejemplar #1</h5>
+                <div class="row">
+                    <div class="col-12 col-sm-4 col-lg-4 form-group mb-3">
+                        <label class="text-input" style="color:#25898D;">Sede:</label>
+                        <select name="sede_1" class="form-control">
+                            <option value="">Seleccione una sede</option>
+                            <option value="La Plata">La Plata</option>
+                            <option value="Abasto">Abasto</option>
+                        </select>
+                    </div>
+                    <div class="col-12 col-sm-4 col-lg-4 form-group mb-3">
+                        <label class="text-input" style="color:#25898D;">Disponibilidad:</label>
+                        <select name="disponibilidad_1" class="form-control">
+                            <option value="">Seleccione disponibilidad</option>
+                            <option value="Aula">Aula</option>
+                            <option value="Domicilio">Domicilio</option>
+                        </select>
+                    </div>
+                    <div class="col-12 col-sm-4 col-lg-4 form-group mb-3">
+                        <label class="text-input" style="color:#25898D;">Observaciones:</label>
+                        <textarea name="observaciones_1" class="form-control" rows="2"></textarea>
+                    </div>
+                </div>
             </div>
-            <div class="col-12 col-sm-4 col-lg-4 form-group mb-3">
-                <label for="{{ form.sede.id_for_label }}" class="text-input" style="color:#25898D;">Sede:</label>
-                {{ form.sede }}
-                {% if form.sede.errors %}
-                    <div class="text-danger">{{ form.sede.errors }}</div>
-                {% endif %}
-            </div>
-            <div class="col-12 col-sm-4 col-lg-4 form-group mb-3">
-                <label for="{{ form.disponibilidad.id_for_label }}" class="text-input" style="color:#25898D;">Disponibilidad:</label>
-                {{ form.disponibilidad }}
-                {% if form.disponibilidad.errors %}
-                    <div class="text-danger">{{ form.disponibilidad.errors }}</div>
-                {% endif %}
-            </div>
+            
+            <!-- Aquí se agregarán dinámicamente más ejemplares con JavaScript -->
         </div>
 
-        <!-- Observaciones -->
-        <div class="row">
-            <div class="col-12 form-group mb-3">
-                <label for="{{ form.observaciones.id_for_label }}" class="text-input" style="color:#25898D;">Observaciones:</label>
-                {{ form.observaciones }}
-                {% if form.observaciones.errors %}
-                    <div class="text-danger">{{ form.observaciones.errors }}</div>
-                {% endif %}
-            </div>
-        </div>
+        <!-- Las observaciones ahora están en cada ejemplar -->
 
         <!-- Botones -->
         <div class="row">
@@ -219,7 +223,7 @@
 </div>
 
 <!-- Modal de Confirmación de Alta de Material -->
-<div class="modal fade" id="modalConfirmacionAltaMaterial" tabindex="-1" aria-labelledby="modalConfirmacionLabel" aria-hidden="true">
+<div class="modal fade" id="modalConfirmacionAltaMaterial" tabindex="-1" aria-labelledby="modalConfirmacionLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
   <div class="modal-dialog modal-dialog-centered modal-lg">
     <div class="modal-content">
       <div class="modal-header">
@@ -322,7 +326,7 @@
         </div>  
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-secondary" id="btnCancelarModal">Cancelar</button>
         <button type="button" class="btn btn-primary" id="btnConfirmarAltaMaterial">Confirmar</button>
       </div>
     </div>
@@ -337,14 +341,11 @@ document.addEventListener('DOMContentLoaded', function() {
     
     const form = document.getElementById('form_alta_material');
     const modalElement = document.getElementById('modalConfirmacionAltaMaterial');
+    const numEjemplaresInput = document.getElementById('id_num_ejemplar');
+    const ejemplaresContainer = document.getElementById('ejemplares-container');
     
-    if (!form) {
-        console.error('❌ Formulario no encontrado');
-        return;
-    }
-    
-    if (!modalElement) {
-        console.error('❌ Modal no encontrado');
+    if (!form || !modalElement || !numEjemplaresInput || !ejemplaresContainer) {
+        console.error('❌ Elementos necesarios no encontrados');
         return;
     }
     
@@ -357,7 +358,112 @@ document.addEventListener('DOMContentLoaded', function() {
     
     console.log('✅ Todo está listo');
     
-    const modal = new bootstrap.Modal(modalElement);
+    // Inicializar el modal
+    let modal;
+    try {
+        // Asegurarse de que el modal esté correctamente definido en el DOM
+        if (!modalElement) {
+            throw new Error('El elemento del modal no existe en el DOM');
+        }
+        
+        // Verificar si Bootstrap está disponible
+        if (typeof bootstrap === 'undefined' || !bootstrap.Modal) {
+            throw new Error('Bootstrap Modal no está disponible');
+        }
+        
+        // Inicializar el modal con opciones explícitas
+        modal = new bootstrap.Modal(modalElement, {
+            backdrop: 'static',
+            keyboard: false
+        });
+        console.log('✅ Modal inicializado correctamente');
+    } catch (error) {
+        console.error('❌ Error al inicializar el modal:', error);
+        alert('Error al inicializar el modal: ' + error.message);
+        return;
+    }
+    
+    // Función para generar ejemplares según la cantidad seleccionada
+    function generarEjemplares() {
+        const cantidad = parseInt(numEjemplaresInput.value) || 1;
+        console.log(`🔄 Generando ${cantidad} ejemplares`);
+        
+        // Guardar los valores actuales de los ejemplares existentes
+        const valoresGuardados = {};
+        const ejemplaresExistentes = ejemplaresContainer.querySelectorAll('.ejemplar-item');
+        
+        ejemplaresExistentes.forEach((ejemplar, index) => {
+            const num = index + 1;
+            const sedeSelect = ejemplar.querySelector(`[name="sede_${num}"]`);
+            const dispSelect = ejemplar.querySelector(`[name="disponibilidad_${num}"]`);
+            const obsTextarea = ejemplar.querySelector(`[name="observaciones_${num}"]`);
+            
+            if (sedeSelect) valoresGuardados[`sede_${num}`] = sedeSelect.value;
+            if (dispSelect) valoresGuardados[`disponibilidad_${num}`] = dispSelect.value;
+            if (obsTextarea) valoresGuardados[`observaciones_${num}`] = obsTextarea.value;
+        });
+        
+        // Limpiar el contenedor de ejemplares pero mantener el título
+        const ejemplaresItems = ejemplaresContainer.querySelectorAll('.ejemplar-item');
+        ejemplaresItems.forEach(item => item.remove());
+        
+        // Generar todos los ejemplares
+        for (let i = 1; i <= cantidad; i++) {
+            const nuevoEjemplar = document.createElement('div');
+            nuevoEjemplar.className = 'ejemplar-item mb-4 p-3';
+            nuevoEjemplar.style = 'border: 1px solid #e0e0e0; border-radius: 8px; background-color: #f9f9f9;';
+            
+            nuevoEjemplar.innerHTML = `
+                <h5 style="color:#25898D;">Ejemplar #${i}</h5>
+                <div class="row">
+                    <div class="col-12 col-sm-4 col-lg-4 form-group mb-3">
+                        <label class="text-input" style="color:#25898D;">Sede:</label>
+                        <select name="sede_${i}" class="form-control">
+                            <option value="">Seleccione una sede</option>
+                            <option value="La Plata">La Plata</option>
+                            <option value="Abasto">Abasto</option>
+                        </select>
+                    </div>
+                    <div class="col-12 col-sm-4 col-lg-4 form-group mb-3">
+                        <label class="text-input" style="color:#25898D;">Disponibilidad:</label>
+                        <select name="disponibilidad_${i}" class="form-control">
+                            <option value="">Seleccione disponibilidad</option>
+                            <option value="Aula">Aula</option>
+                            <option value="Domicilio">Domicilio</option>
+                        </select>
+                    </div>
+                    <div class="col-12 col-sm-4 col-lg-4 form-group mb-3">
+                        <label class="text-input" style="color:#25898D;">Observaciones:</label>
+                        <textarea name="observaciones_${i}" class="form-control" rows="2" placeholder="Observaciones sobre este ejemplar"></textarea>
+                    </div>
+                </div>
+            `;
+            
+            ejemplaresContainer.appendChild(nuevoEjemplar);
+            
+            // Restaurar valores guardados si existen
+            if (valoresGuardados[`sede_${i}`]) {
+                const sedeSelect = nuevoEjemplar.querySelector(`[name="sede_${i}"]`);
+                if (sedeSelect) sedeSelect.value = valoresGuardados[`sede_${i}`];
+            }
+            
+            if (valoresGuardados[`disponibilidad_${i}`]) {
+                const dispSelect = nuevoEjemplar.querySelector(`[name="disponibilidad_${i}"]`);
+                if (dispSelect) dispSelect.value = valoresGuardados[`disponibilidad_${i}`];
+            }
+            
+            if (valoresGuardados[`observaciones_${i}`]) {
+                const obsTextarea = nuevoEjemplar.querySelector(`[name="observaciones_${i}"]`);
+                if (obsTextarea) obsTextarea.value = valoresGuardados[`observaciones_${i}`];
+            }
+        }
+    }
+    
+    // Escuchar cambios en la cantidad de ejemplares
+    numEjemplaresInput.addEventListener('change', generarEjemplares);
+    
+    // Generar ejemplares iniciales al cargar la página
+    generarEjemplares();
     
     // Interceptar el submit del formulario
     form.addEventListener('submit', function(e) {
@@ -373,19 +479,10 @@ document.addEventListener('DOMContentLoaded', function() {
             const siglas = form.querySelector('[name="siglas_autor_titulo"]')?.value || 'Sin especificar';
             const clasificacion = form.querySelector('[name="clasificacion_cdu"]')?.value || 'Sin especificar';
             const palabras = form.querySelector('[name="etiqueta_palabra_clave"]')?.value || 'Sin especificar';
-           // const inventario = form.querySelector('[name="num_inventario"]')?.value || 'Sin especificar';
-            const ejemplar = form.querySelector('[name="num_ejemplar"]')?.value || 'Sin especificar';
-            const observaciones = form.querySelector('[name="observaciones"]')?.value || 'Sin observaciones';
+            const cantidadEjemplares = form.querySelector('[name="num_ejemplar"]')?.value || '1';
             const imagen = form.querySelector('[name="img"]')?.value || 'Sin imagen';
             
-            // Obtener texto de selects
-            const sedeSelect = form.querySelector('[name="sede"]');
-            const sede = sedeSelect ? sedeSelect.options[sedeSelect.selectedIndex]?.text || 'Sin especificar' : 'Sin especificar';
-            
-            const disponibilidadSelect = form.querySelector('[name="disponibilidad"]');
-            const disponibilidad = disponibilidadSelect ? disponibilidadSelect.options[disponibilidadSelect.selectedIndex]?.text || 'Sin especificar' : 'Sin especificar';
-            
-            // Llenar el modal con los datos
+            // Llenar el modal con los datos generales
             document.getElementById('confirmTipoMaterial').textContent = 'LIBRO';
             document.getElementById('confirmTitulo').textContent = titulo;
             document.getElementById('confirmAutor').textContent = autor;
@@ -394,19 +491,79 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('confirmSiglasAutor').textContent = siglas;
             document.getElementById('confirmClasificacion').textContent = clasificacion;
             document.getElementById('confirmPalabrasClave').textContent = palabras;
-            document.getElementById('confirmSede').textContent = sede;
-            document.getElementById('confirmDisponibilidad').textContent = disponibilidad;
-            document.getElementById('confirmEjemplarNum').textContent = ejemplar;
-            document.getElementById('confirmObservaciones').textContent = observaciones;
+            document.getElementById('confirmEjemplarNum').textContent = cantidadEjemplares;
             document.getElementById('confirmImagen').textContent = imagen;
             
-            // Mostrar el modal
-            modal.show();
-            console.log('✅ Modal mostrado correctamente');
+            // Recopilar información de ejemplares
+            let ejemplaresInfo = '';
+            const cantidad = parseInt(cantidadEjemplares) || 1;
+            
+            for (let i = 1; i <= cantidad; i++) {
+                const sedeSelect = form.querySelector(`[name="sede_${i}"]`);
+                const sede = sedeSelect ? sedeSelect.options[sedeSelect.selectedIndex]?.text || 'Sin especificar' : 'Sin especificar';
+                
+                const dispSelect = form.querySelector(`[name="disponibilidad_${i}"]`);
+                const disponibilidad = dispSelect ? dispSelect.options[dispSelect.selectedIndex]?.text || 'Sin especificar' : 'Sin especificar';
+                
+                const observaciones = form.querySelector(`[name="observaciones_${i}"]`)?.value || 'Sin observaciones';
+                
+                ejemplaresInfo += `<div class="mb-2 p-2" style="background-color: #f0f0f0; border-radius: 4px;">
+                    <strong>Ejemplar #${i}:</strong> 
+                    Sede: ${sede}, 
+                    Disponibilidad: ${disponibilidad}, 
+                    Observaciones: ${observaciones}
+                </div>`;
+            }
+            
+            // Actualizar la sección de observaciones con la información de ejemplares
+            document.getElementById('confirmObservaciones').innerHTML = ejemplaresInfo;
+            
+            // Verificar que el modal esté inicializado correctamente
+            if (!modal) {
+                console.error('❌ El modal no está inicializado');
+                try {
+                    // Intentar inicializar el modal nuevamente
+                    modal = new bootstrap.Modal(modalElement, {
+                        backdrop: 'static',
+                        keyboard: false
+                    });
+                } catch (initError) {
+                    console.error('❌ No se pudo inicializar el modal:', initError);
+                    alert('Error al inicializar el modal. Se enviará el formulario directamente.');
+                    form.submit();
+                    return;
+                }
+            }
+            
+            // Mostrar el modal usando jQuery si está disponible, o bootstrap directamente
+            try {
+                // Asegurarse de que el modal esté en el DOM
+                if (!document.body.contains(modalElement)) {
+                    throw new Error('El modal no está en el DOM');
+                }
+                
+                // Mostrar el modal
+                modal.show();
+                console.log('✅ Modal mostrado correctamente');
+                
+                // Verificar que el modal se muestre realmente
+                setTimeout(() => {
+                    if (!modalElement.classList.contains('show')) {
+                        console.warn('⚠️ El modal no se mostró después de 100ms, intentando forzar la visualización');
+                        modalElement.classList.add('show');
+                        modalElement.style.display = 'block';
+                        document.body.classList.add('modal-open');
+                    }
+                }, 100);
+            } catch (modalError) {
+                console.error('❌ Error al mostrar el modal:', modalError);
+                alert('Error al mostrar el modal de confirmación: ' + modalError.message + '. Se enviará el formulario directamente.');
+                form.submit();
+            }
             
         } catch (error) {
             console.error('❌ Error al llenar el modal:', error);
-            alert('Error al mostrar la vista previa. Se guardará directamente.');
+            alert('Error al mostrar la vista previa: ' + error.message + '. Se guardará directamente.');
             form.submit();
         }
     });
@@ -414,15 +571,25 @@ document.addEventListener('DOMContentLoaded', function() {
     // Manejar el botón de confirmación
     document.getElementById('btnConfirmarAltaMaterial').addEventListener('click', function() {
         console.log('✅ Usuario confirmó - enviando formulario');
+        
+        // Remover el event listener para evitar bucle infinito
+        const newForm = form.cloneNode(true);
+        form.parentNode.replaceChild(newForm, form);
+        
+        // Ocultar el modal y luego enviar el formulario
         modal.hide();
         
         // Esperar a que se cierre el modal y luego enviar
         setTimeout(() => {
-            // Remover el event listener para evitar bucle infinito
-            const newForm = form.cloneNode(true);
-            form.parentNode.replaceChild(newForm, form);
+            console.log('Enviando formulario después del timeout');
             newForm.submit();
-        }, 300);
+        }, 500);
+    });
+    
+    // Manejar el botón de cancelar
+    document.getElementById('btnCancelarModal').addEventListener('click', function() {
+        console.log('❌ Usuario canceló - cerrando modal');
+        modal.hide();
     });
     
     console.log('🎉 Todo configurado correctamente');

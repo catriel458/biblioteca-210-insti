@@ -29,7 +29,11 @@ urlpatterns = [
     
     # URLs de multimedia
     path('multimedia/', views.multimedia_view, name='multimedia'),
+    path('formulario/multimedia/', views.formulario_multimedia, name='formulario_multimedia'),
     path('alta-multimedia/', views.alta_multimedia, name='alta_multimedia'),
+    path('confirmar-alta-multimedia/', views.confirmar_alta_multimedia, name='confirmar_alta_multimedia'),
+    path('guardar-alta-multimedia/', views.guardar_alta_multimedia, name='guardar_alta_multimedia'),
+    path('cancelar-alta-multimedia/', views.cancelar_alta_multimedia, name='cancelar_alta_multimedia'),
     path('baja-multimedia/', views.baja_multimedia, name='baja_multimedia'),
     path('editar-multimedia/<int:multi_id>/', views.editar_multimedia, name='editar_multimedia'),
     path('buscar-multimedia/', views.buscar_multimedia, name='buscar_multimedia'),

@@ -1,5 +1,7 @@
 {% load static %}
-<div data-block="content" data-form-type="multimedia">
+<form id="form_alta_multimedia" method="POST" action="/alta-multimedia/">
+  {% csrf_token %}
+  <div data-block="content" data-form-type="multimedia">
     <div class="row mb-4">
         <div class="col-md-2">
             <label for="profesor">Profesor/a <span class="text-danger">*</span></label>
@@ -29,14 +31,14 @@
     </div>
     <div class="row mb-4">
         <div class="col-md-2">
-            <label for="url">Ingresar enlace (URL) <span class="text-danger">*</span></label>
+            <label for="ingresar_enlace">Ingresar enlace (URL)</label>
             <div class="input-group">
-                <input type="url" class="form-control" id="url" name="url" required placeholder="URL del programa">
+                <input type="url" class="form-control" id="ingresar_enlace" name="ingresar_enlace" placeholder="URL del contenido multimedia">
             </div>
         </div>
         <div class="col-md-4">
-            <label for="titulo" class="form-label small">Titulo del contenido <span class="text-danger">*</span></label>
-            <input type="text" class="form-control form-control-sm" id="titulo" name="titulo" required>
+            <label for="titulo_contenido" class="form-label small">Titulo del contenido <span class="text-danger">*</span></label>
+            <input type="text" class="form-control form-control-sm" id="titulo_contenido" name="titulo_contenido" required>
             </div>
         </div>
     </div>
@@ -44,7 +46,17 @@
     <div id="contenedor-ejemplares-multimedia" class="mb-4">
         <!-- Los ejemplares se generarán aquí dinámicamente -->
     </div>
-</div>
+    
+    <!-- Botones -->
+    <div class="row mt-4">
+        <div class="col-12 text-end">
+            <a href="{% url 'alta_materiales' %}" class="btn btn-secondary me-2">Cancelar</a>
+            <button type="submit" class="btn btn-primary">Guardar</button>
+        </div>
+    </div>
+    <!-- Fin de botones -->
+  </div>
+</form>
 <!-- Importación del JS dinámico de ejemplares -->
 <script src="{% static 'js/form_altas.js' %}"></script>
 <script src="{% static 'js/form_controller.js' %}"></script>
@@ -52,6 +64,7 @@
 <!-- Script para la funcionalidad carrera-materia -->
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        const form = document.querySelector('form');
         const carreraSelect = document.getElementById('carrera');
         const materiaSelect = document.getElementById('materia');
         
@@ -138,48 +151,69 @@
             ]
         };
 
-        // Función para cargar materias
-        function cargarMaterias(carreraSeleccionada) {
-            // Limpiar opciones de materia
-            materiaSelect.innerHTML = '';
+        // ✅ VERIFICACIÓN CRÍTICA: Solo ejecutar si estamos en la página de multimedia
+        // Verificar si existe el campo carrera Y si es el formulario de multimedia
+        if (form && carreraSelect && materiaSelect) {
+            console.log('🎯 Inicializando funcionalidad carrera-materia para multimedia');
             
-            if (carreraSeleccionada && materiasPorCarrera[carreraSeleccionada]) {
-                // Agregar opción vacía
-                const opcionVacia = document.createElement('option');
-                opcionVacia.value = '';
-                opcionVacia.textContent = 'Seleccione una materia';
-                materiaSelect.appendChild(opcionVacia);
-                
-                // Agregar materias de la carrera seleccionada
-                materiasPorCarrera[carreraSeleccionada].forEach(function(materia) {
-                    const option = document.createElement('option');
-                    option.value = materia;
-                    option.textContent = materia;
-                    materiaSelect.appendChild(option);
-                });
-                
-                materiaSelect.disabled = false;
-            } else {
-                // No hay carrera seleccionada o no tiene materias
-                const opcionVacia = document.createElement('option');
-                opcionVacia.value = '';
-                opcionVacia.textContent = 'Primero seleccione una carrera';
-                materiaSelect.appendChild(opcionVacia);
-                materiaSelect.disabled = true;
+            // Forzar el action correcto si es necesario
+            if (form.action === '') {
+                form.action = '/alta-multimedia/';
+                console.log('🔧 Action corregido a:', form.action);
             }
-        }
-        
-        // Event listener para cambio de carrera
-        carreraSelect.addEventListener('change', function() {
-            cargarMaterias(this.value);
-        });
-        
-        // Inicializar estado de materia
-        materiaSelect.disabled = true;
-        
-        // Si ya hay una carrera seleccionada al cargar
-        if (carreraSelect.value) {
-            cargarMaterias(carreraSelect.value);
+            
+            // FUNCIÓN para cargar materias
+            function cargarMaterias(carreraSeleccionada) {
+                console.log('📚 Carrera seleccionada:', carreraSeleccionada);
+                
+                // Limpiar opciones de materia
+                materiaSelect.innerHTML = '';
+                
+                if (carreraSeleccionada && materiasPorCarrera[carreraSeleccionada]) {
+                    // Agregar opción vacía
+                    const opcionVacia = document.createElement('option');
+                    opcionVacia.value = '';
+                    opcionVacia.textContent = 'Seleccione una materia';
+                    materiaSelect.appendChild(opcionVacia);
+                    
+                    // Agregar materias de la carrera seleccionada
+                    materiasPorCarrera[carreraSeleccionada].forEach(function(materia) {
+                        const option = document.createElement('option');
+                        option.value = materia;
+                        option.textContent = materia;
+                        materiaSelect.appendChild(option);
+                    });
+                    
+                    materiaSelect.disabled = false;
+                    console.log('✅ Materias cargadas:', materiasPorCarrera[carreraSeleccionada].length);
+                } else {
+                    // No hay carrera seleccionada o no tiene materias
+                    const opcionVacia = document.createElement('option');
+                    opcionVacia.value = '';
+                    opcionVacia.textContent = 'Primero seleccione una carrera';
+                    materiaSelect.appendChild(opcionVacia);
+                    materiaSelect.disabled = true;
+                    console.log('⚠️ No hay materias para:', carreraSeleccionada);
+                }
+            }
+            
+            // Event listener para cambio de carrera
+            carreraSelect.addEventListener('change', function() {
+                cargarMaterias(this.value);
+            });
+            
+            // Inicializar estado de materia
+            materiaSelect.disabled = true;
+            
+            // Si ya hay una carrera seleccionada al cargar (por ejemplo, por validación de errores)
+            if (carreraSelect.value) {
+                cargarMaterias(carreraSelect.value);
+            }
+            
+            // Verificar cuando se envía
+            form.addEventListener('submit', function(e) {
+                console.log('🚀 MULTIMEDIA enviándose a:', form.action);
+            });
         }
     });
 </script>
