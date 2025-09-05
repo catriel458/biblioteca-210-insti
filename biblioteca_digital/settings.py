@@ -37,10 +37,7 @@ ALLOWED_HOSTS = []
 # Static & Media
 STATIC_URL = 'static/'
 STATICFILES_DIRS = [ 
-    BASE_DIR / 'static',
-    # BASE_DIR / 'views' / 'static',
-    BASE_DIR / 'materiales' / 'views' / 'static',
-    BASE_DIR / 'materiales' / 'materiales'
+    BASE_DIR / 'materiales' / 'static',
 ]
 
 MEDIA_URL = '/media/'

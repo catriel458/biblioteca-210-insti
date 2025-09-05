@@ -9,6 +9,13 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     function mostrarVistaPrevia() {
+        // Validar campos dinámicos de ejemplares antes de mostrar el modal
+        if (typeof window.validarCamposDinamicosEjemplares === 'function') {
+            if (!window.validarCamposDinamicosEjemplares()) {
+                return; // No mostrar el modal si la validación falla
+            }
+        }
+        
         // Obtener datos del formulario
         const formData = new FormData(form);
         

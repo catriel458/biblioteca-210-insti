@@ -3,7 +3,7 @@
 <div data-block="content" data-form="mapa">
     <div class="row mb-3">
         <div class="col-md-3">
-            <label for="sede">Sede:</label>
+            <label for="sede">Sede: <span style="color: red;">*</span></label>
             <select class="form-select select-sede" id="sede-mapa" name="sede_mapa" required>
                 <option value="">Seleccione una sede</option>
                 <option value="sede1">La Plata</option>
@@ -12,32 +12,23 @@
         </div>
         
         <div class="col-md-3">
-            <label for="cant_ejemplares" class="form-label small">Cant. de ejemplares <span class="text-danger">*</span></label>
-            <input type="number" class="form-control form-control-sm" id="cant_ejemplares" name="cant_ejemplares" min="1" value="1" required>
+            <label for="input-nuevo-tipo-mapa">Tipo de Mapa: <span style="color: red;">*</span></label>
+            <select class="form-select select-sede" id="input-nuevo-tipo-mapa" required>
+                <option value="">Seleccione un tipo</option>
+                <option value="FISICO">FISICO</option>
+                <option value="FISICO-POLITICO">FISICO-POLITICO</option>
+                <option value="POLITICO">POLITICO</option>
+                <option value="OTROS">OTROS</option>
+            </select>
         </div>
-        
-        <div class="col-md-3">
-            <label for="num_registro" class="form-label small">N° de Registro <span class="text-danger">*</span></label>
-            <input type="text" class="form-control form-control-sm" id="num_registro" name="num_registro" required>
+        <div class="col-md-2">
+            <label for="input-nueva-cant-mapa">Cantidad: <span style="color: red;">*</span></label>
+            <input type="number" class="form-select select-sede" id="input-nueva-cant-mapa" min="1" max="5" value="1" required>
         </div>
+
     </div>
     
-    <div class="row mb-3">
-        <div class="col-md-3">
-            <label for="tipo-mapa" class="form-label small">Tipo a registrar <span class="text-danger">*</span></label>
-            <input type="text" class="form-control form-control-sm" id="tipo-mapa" name="tipo_mapa" required>
-        </div>
-        
-        <div class="col-md-3">
-            <label for="denominacion" class="form-label small">Denominación <span class="text-danger">*</span></label>
-            <input type="text" class="form-control form-control-sm" id="denominacion" name="denominacion" required>
-        </div>
-        
-        <div class="col-md-6">
-            <label for="descripcion" class="form-label small">Descripción <span class="text-danger">*</span></label>
-            <textarea class="form-control form-control-sm" id="descripcion" name="descripcion" rows="2" required></textarea>
-        </div>
-    </div>
+
     
     <!-- Contenedor dinámico para tipo y cantidad -->
     <div class="row mb-3">
@@ -50,7 +41,7 @@
     </div>
     
     <!-- Botones -->
-    <div class="row">
+    <div class="row" style="margin-bottom: 120px;">
         <div class="col-12 d-flex justify-content-end gap-3">
             <button type="reset" class="btn btn-outline-danger btn-sm">Cancelar</button>
             <button type="submit" class="btn btn-primary btn-sm">Guardar</button>
@@ -58,23 +49,45 @@
     </div>
 </div>
 
+<style>
+/* Asegurar que los botones no queden ocultos detrás del footer */
+.content {
+    padding-bottom: 100px !important;
+}
+
+/* Estilo específico para el contenedor de botones del formulario de mapas */
+[data-form="mapa"] .row:last-of-type {
+    margin-bottom: 120px !important;
+    padding-bottom: 20px;
+}
+
+/* Asegurar que el contenedor de ejemplares tenga espacio suficiente */
+#contenedor-ejemplares-mapa {
+    margin-bottom: 20px;
+}
+</style>
+
 <!-- Importación del JS dinámico de ejemplares -->
 <script src="{% static 'js/form_altas.js' %}"></script>
 <script src="{% static 'js/form_controller.js' %}"></script>
+
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const inputTipo = document.getElementById('tipo-mapa');
-        if (inputTipo) {
-            inputTipo.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter' && inputTipo.value.trim() !== '') {
-                    e.preventDefault();
-                    if (inputTipo.value.trim() !== '') {
-                        TiposEjemplares.agregarTipoDesdeUI();
-                        // Limpiar el input después de agregar
-                        inputTipo.value = '';
-                    }
-                }
-            });
+    // Inicializar gruposTiposMapa si no existe
+    if (!window.gruposTiposMapa) {
+        window.gruposTiposMapa = [];
+    }
+    
+    // Llamar a la función de renderizado
+    window.renderizarTiposMapa();
+    
+    // Actualizar el input de sede cuando se seleccione un tipo de mapa
+    document.getElementById('input-nuevo-tipo-mapa').addEventListener('change', function() {
+        const sedeInput = document.getElementById('sede-mapa');
+        const tipoSeleccionado = this.value;
+        if (tipoSeleccionado) {
+            sedeInput.value = tipoSeleccionado;
+        } else {
+            sedeInput.value = '';
         }
     });
 </script>
