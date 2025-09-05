@@ -99,24 +99,26 @@
         {% csrf_token %}
 
         <!-- Campos principales -->
+        <!-- Número de Ejemplar (Cantidad de ejemplares) -->
         <div class="row">
-            <div class="col-12 col-sm-6 col-lg-6 form-group mb-3">
+            <div class="col-12 col-sm-6 col-lg-4 form-group mb-3">
+                <label for="{{ form.num_ejemplar.id_for_label }}" class="text-input" style="color:#25898D;">Cant. de ejemplares:</label>
+                {{ form.num_ejemplar }}
+                {% if form.num_ejemplar.errors %}
+                    <div class="text-danger">{{ form.num_ejemplar.errors }}</div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Título, Autor y Editorial en una fila -->
+        <div class="row">
+            <div class="col-12 col-sm-6 col-lg-4 form-group mb-3">
                 <label for="{{ form.titulo.id_for_label }}" class="text-input" style="color:#25898D;">Título:</label>
                 {{ form.titulo }}
                 {% if form.titulo.errors %}
                     <div class="text-danger">{{ form.titulo.errors }}</div>
                 {% endif %}
             </div>
-            <div class="col-12 col-sm-6 col-lg-6 form-group mb-3">
-                <label for="{{ form.descripcion.id_for_label }}" class="text-input" style="color:#25898D;">Descripción:</label>
-                {{ form.descripcion }}
-                {% if form.descripcion.errors %}
-                    <div class="text-danger">{{ form.descripcion.errors }}</div>
-                {% endif %}
-            </div>
-        </div>
-
-        <div class="row">
             <div class="col-12 col-sm-6 col-lg-4 form-group mb-3">
                 <label for="{{ form.autor.id_for_label }}" class="text-input" style="color:#25898D;">Autor:</label>
                 {{ form.autor }}
@@ -131,25 +133,41 @@
                     <div class="text-danger">{{ form.editorial.errors }}</div>
                 {% endif %}
             </div>
-            <div class="col-12 col-sm-6 col-lg-4 form-group mb-3">
-                <label for="{{ form.siglas_autor_titulo.id_for_label }}" class="text-input" style="color:#25898D;">Siglas Autor/Título:</label>
+        </div>
+
+        <!-- Descripción en una fila completa -->
+        <div class="row">
+            <div class="col-12 form-group mb-3">
+                <label for="{{ form.descripcion.id_for_label }}" class="text-input" style="color:#25898D;">Descripción:</label>
+                {{ form.descripcion }}
+                {% if form.descripcion.errors %}
+                    <div class="text-danger">{{ form.descripcion.errors }}</div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Siglas Autor/Título y Clasificación CDU -->
+        <div class="row">
+            <div class="col-12 col-sm-6 col-lg-6 form-group mb-3">
+                <label for="{{ form.siglas_autor_titulo.id_for_label }}" class="text-input" style="color:#25898D;">Siglas de autor / título:</label>
                 {{ form.siglas_autor_titulo }}
                 {% if form.siglas_autor_titulo.errors %}
                     <div class="text-danger">{{ form.siglas_autor_titulo.errors }}</div>
                 {% endif %}
             </div>
-        </div>
-
-        <div class="row">
-            <div class="col-12 col-sm-6 col-lg-4 form-group mb-3">
-                <label for="{{ form.clasificacion_cdu.id_for_label }}" class="text-input" style="color:#25898D;">Clasificación CDU:</label>
+            <div class="col-12 col-sm-6 col-lg-6 form-group mb-3">
+                <label for="{{ form.clasificacion_cdu.id_for_label }}" class="text-input" style="color:#25898D;">Clasificación / CDU:</label>
                 {{ form.clasificacion_cdu }}
                 {% if form.clasificacion_cdu.errors %}
                     <div class="text-danger">{{ form.clasificacion_cdu.errors }}</div>
                 {% endif %}
             </div>
-            <div class="col-12 col-sm-6 col-lg-8 form-group mb-3">
-                <label for="{{ form.etiqueta_palabra_clave.id_for_label }}" class="text-input" style="color:#25898D;">Palabras clave:</label>
+        </div>
+
+        <!-- Etiquetas / palabras clave en una fila completa -->
+        <div class="row">
+            <div class="col-12 form-group mb-3">
+                <label for="{{ form.etiqueta_palabra_clave.id_for_label }}" class="text-input" style="color:#25898D;">Etiquetas / palabras clave:</label>
                 {{ form.etiqueta_palabra_clave }}
                 {% if form.etiqueta_palabra_clave.errors %}
                     <div class="text-danger">{{ form.etiqueta_palabra_clave.errors }}</div>
@@ -157,22 +175,20 @@
             </div>
         </div>
 
+        <!-- Ejemplar N°, Sede y Disponibilidad -->
         <div class="row">
-            {% comment %} <div class="col-12 col-sm-6 col-lg-4 form-group mb-3">
-                <label for="{{ form.num_inventario.id_for_label }}" class="text-input" style="color:#25898D;">Número de Inventario:</label>
-                {{ form.num_inventario }}
-                {% if form.num_inventario.errors %}
-                    <div class="text-danger">{{ form.num_inventario.errors }}</div>
-                {% endif %}
-            </div> {% endcomment %}
-            <div class="col-12 col-sm-6 col-lg-4 form-group mb-3">
+            <div class="col-12 col-sm-4 col-lg-4 form-group mb-3">
+                <label for="ejemplar_numero" class="text-input" style="color:#25898D;">Ejemplar N°:</label>
+                <input type="text" id="ejemplar_numero" class="form-control" value="1" readonly>
+            </div>
+            <div class="col-12 col-sm-4 col-lg-4 form-group mb-3">
                 <label for="{{ form.sede.id_for_label }}" class="text-input" style="color:#25898D;">Sede:</label>
                 {{ form.sede }}
                 {% if form.sede.errors %}
                     <div class="text-danger">{{ form.sede.errors }}</div>
                 {% endif %}
             </div>
-            <div class="col-12 col-sm-6 col-lg-4 form-group mb-3">
+            <div class="col-12 col-sm-4 col-lg-4 form-group mb-3">
                 <label for="{{ form.disponibilidad.id_for_label }}" class="text-input" style="color:#25898D;">Disponibilidad:</label>
                 {{ form.disponibilidad }}
                 {% if form.disponibilidad.errors %}
@@ -181,16 +197,9 @@
             </div>
         </div>
 
-        <!-- AGREGAR CAMPO NUM_EJEMPLAR QUE FALTABA -->
+        <!-- Observaciones -->
         <div class="row">
-            <div class="col-12 col-sm-6 col-lg-4 form-group mb-3">
-                <label for="{{ form.num_ejemplar.id_for_label }}" class="text-input" style="color:#25898D;">Número de Ejemplar:</label>
-                {{ form.num_ejemplar }}
-                {% if form.num_ejemplar.errors %}
-                    <div class="text-danger">{{ form.num_ejemplar.errors }}</div>
-                {% endif %}
-            </div>
-            <div class="col-12 col-sm-6 col-lg-8 form-group mb-3">
+            <div class="col-12 form-group mb-3">
                 <label for="{{ form.observaciones.id_for_label }}" class="text-input" style="color:#25898D;">Observaciones:</label>
                 {{ form.observaciones }}
                 {% if form.observaciones.errors %}
@@ -199,23 +208,11 @@
             </div>
         </div>
 
-        <!-- IMAGEN URL -->
-        <div class="row">
-            <div class="col-12 form-group mb-3">
-                <label for="{{ form.img.id_for_label }}" class="text-input" style="color:#25898D;">URL de Imagen:</label>
-                {{ form.img }}
-                {% if form.img.errors %}
-                    <div class="text-danger">{{ form.img.errors }}</div>
-                {% endif %}
-                <small class="form-text text-muted">{{ form.img.help_text }}</small>
-            </div>
-        </div>
-
         <!-- Botones -->
         <div class="row">
             <div class="col-12 d-flex justify-content-end gap-3">
-                <button type="reset" class="btn btn-outline-danger btn-sm">Cancelar</button>
-                <button type="submit" class="btn btn-primary btn-sm">Guardar</button>
+                <button type="reset" class="btn btn-outline-danger btn-sm">CANCELAR</button>
+                <button type="submit" class="btn btn-primary btn-sm">GUARDAR</button>
             </div>
         </div>
     </form>

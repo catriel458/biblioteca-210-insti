@@ -99,47 +99,44 @@
 
         <!-- CAMPOS SIMPLIFICADOS - SOLO LOS NECESARIOS -->
         <div class="row">
-            <div class="col-12 col-sm-6 form-group mb-3">
+            <div class="col-md-3 form-group mb-3">
                 <label for="{{ form.profesor.id_for_label }}" class="text-input" style="color:#25898D;">Profesor/a:</label>
                 {{ form.profesor }}
                 {% if form.profesor.errors %}
                     <div class="text-danger">{{ form.profesor.errors }}</div>
                 {% endif %}
             </div>
-            <div class="col-12 col-sm-6 form-group mb-3">
+            <div class="col-md-4 form-group mb-3">
                 <label for="{{ form.carrera.id_for_label }}" class="text-input" style="color:#25898D;">Carrera:</label>
                 {{ form.carrera }}
                 {% if form.carrera.errors %}
                     <div class="text-danger">{{ form.carrera.errors }}</div>
                 {% endif %}
             </div>
-        </div>
-
-        <div class="row">
-            <div class="col-12 col-sm-6 form-group mb-3">
+            <div class="col-md-5 form-group mb-3">
                 <label for="{{ form.materia.id_for_label }}" class="text-input" style="color:#25898D;">Materia:</label>
                 {{ form.materia }}
                 {% if form.materia.errors %}
                     <div class="text-danger">{{ form.materia.errors }}</div>
                 {% endif %}
             </div>
-            <div class="col-12 col-sm-6 form-group mb-3">
-                <label for="{{ form.ciclo_lectivo.id_for_label }}" class="text-input" style="color:#25898D;">Ciclo Lectivo:</label>
-                {{ form.ciclo_lectivo }}
-                {% if form.ciclo_lectivo.errors %}
-                    <div class="text-danger">{{ form.ciclo_lectivo.errors }}</div>
-                {% endif %}
-            </div>
         </div>
 
         <div class="row">
-            <div class="col-12 form-group mb-3">
+            <div class="col-md-7 form-group mb-3">
                 <label for="{{ form.ingresar_enlace.id_for_label }}" class="text-input" style="color:#25898D;">Enlace (URL):</label>
                 {{ form.ingresar_enlace }}
                 {% if form.ingresar_enlace.errors %}
                     <div class="text-danger">{{ form.ingresar_enlace.errors }}</div>
                 {% endif %}
                 <small class="form-text text-muted">Enlace al programa de la materia (opcional)</small>
+            </div>
+            <div class="col-md-5 form-group mb-3">
+                <label for="{{ form.ciclo_lectivo.id_for_label }}" class="text-input" style="color:#25898D;">Ciclo Lectivo:</label>
+                {{ form.ciclo_lectivo }}
+                {% if form.ciclo_lectivo.errors %}
+                    <div class="text-danger">{{ form.ciclo_lectivo.errors }}</div>
+                {% endif %}
             </div>
         </div>
 

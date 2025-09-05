@@ -4,6 +4,12 @@
     <form id="form_alta_material" action="{% url 'alta_notebook' %}" method="POST">
         {% csrf_token %}
         <div class="row mb-3">
+
+            <div class="col-md-3">
+                <label for="cant_ejemplares" class="form-label small">Cant. de ejemplares <span class="text-danger">*</span></label>
+                <input type="number" class="form-control form-control-sm" id="cant_ejemplares" name="num_ejemplar" min="1" value="1" required>
+            </div>
+
             <div class="col-md-3">
                 <label for="sede">Sede:</label>
                 <select class="form-select" id="sede" name="sede" required>
@@ -12,16 +18,6 @@
                     <option value="Abasto">Abasto</option>
                 </select>
             </div>
-            
-            <div class="col-md-3">
-                <label for="marca" class="form-label small">Marca <span class="text-danger">*</span></label>
-                <input type="text" class="form-control form-control-sm" id="marca" name="marca" required>
-            </div>
-            
-            <div class="col-md-3">
-                <label for="modelo_not" class="form-label small">Modelo <span class="text-danger">*</span></label>
-                <input type="text" class="form-control form-control-sm" id="modelo_not" name="modelo_not" required>
-            </div>
         </div>
         
         <div class="row mb-3">
@@ -29,11 +25,11 @@
                 <label for="num_registro" class="form-label small">N° de Registro <span class="text-danger">*</span></label>
                 <input type="text" class="form-control form-control-sm" id="num_registro" name="num_registro" required>
             </div>
-            
+        
             <div class="col-md-3">
-                <label for="cant_ejemplares" class="form-label small">Cant. de ejemplares <span class="text-danger">*</span></label>
-                <input type="number" class="form-control form-control-sm" id="cant_ejemplares" name="num_ejemplar" min="1" value="1" required>
-            </div>
+                <label for="modelo_not" class="form-label small">Modelo <span class="text-danger">*</span></label>
+                <input type="text" class="form-control form-control-sm" id="modelo_not" name="modelo_not" required>
+            </div>    
         </div>
         
         <!-- Contenedor para los ejemplares -->
