@@ -323,7 +323,7 @@ function cancelarModal() {
 // Manejar cuando se cierra el modal con X
 document.getElementById('modalConfirmacionAltaMaterial').addEventListener('hidden.bs.modal', function () {
     console.log('🔴 Modal cerrado, regresando al formulario...');
-    window.location.href = '{% url "formulario_libro" %}';
+    window.location.href = '{% url "alta_materiales" %}';
 });
 </script>
 {% endblock %}
