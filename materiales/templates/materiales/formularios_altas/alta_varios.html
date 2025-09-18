@@ -1,0 +1,66 @@
+{% load static %}
+
+<div data-block="content" data-form="varios">
+    <div class="row mb-3">
+        <div class="col-md-3">
+            <label for="sede" class="form-label small">Sede: <span class="text-danger">*</span></label>
+            <select class="form-control form-control-sm" id="sede-varios" name="sede_varios" required>
+                <option value="">Seleccione una sede</option>
+                <option value="sede1">La Plata</option>
+                <option value="sede2">Abasto</option>
+            </select>
+        </div>
+        
+        <div class="col-md-3">
+            <label for="tipo-varios" class="form-label small">Tipo a registrar <span class="text-danger">*</span></label>
+            <input type="text" class="form-control form-control-sm" id="tipo-varios" name="tipo_varios" required>
+        </div>
+        
+        <div class="col-md-3">
+            <label for="cant_ejemplares" class="form-label small">Cant. de ejemplares <span class="text-danger">*</span></label>
+            <input type="number" class="form-control form-control-sm" id="cant_ejemplares" name="cant_ejemplares" min="1" value="1" required>
+        </div>
+    </div>
+
+    <!-- Contenedor para mostrar los tipos agregados -->
+    <div id="contenedor-tipos-varios-nuevo" class="mb-4">
+        <!-- Los tipos se mostrarán aquí dinámicamente -->
+    </div>
+
+    <!-- Contenedor para los ejemplares -->
+    <div id="contenedor-ejemplares-varios" class="mb-4">
+        <!-- Los ejemplares se generarán aquí dinámicamente -->
+    </div>
+    
+    <!-- Botones -->
+    <div class="row">
+        <div class="col-12 d-flex justify-content-end gap-3">
+            <button type="reset" class="btn btn-outline-danger btn-sm">Cancelar</button>
+            <button type="submit" class="btn btn-primary btn-sm">Guardar</button>
+        </div>
+    </div>
+</div>
+
+<!-- Importación del JS dinámico de ejemplares -->
+<script src="{% static 'js/form_altas.js' %}"></script>
+<script src="{% static 'js/form_controller.js' %}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Inicializar renderizado para formulario de varios
+        const containerVariosNuevo = document.getElementById('contenedor-tipos-varios-nuevo');
+        if (containerVariosNuevo) {
+            window.renderizarTiposVariosNuevo();
+        }
+        
+        // Agregar listener para Enter en el input de tipo
+        const inputTipo = document.getElementById('input-nuevo-tipo-varios');
+        if (inputTipo) {
+            inputTipo.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter' && inputTipo.value.trim() !== '') {
+                    e.preventDefault();
+                    agregarTipoVariosNuevoDesdeInputs();
+                }
+            });
+        }
+    });
+</script>
