@@ -1376,7 +1376,9 @@ def cambiar_password(request):
 @login_required  # Agregar este decorador
 def lista_libros(request):
     # Obtener todos los libros disponibles
-    todos_los_libros = Libro.objects.filter(estado='Disponible').order_by('titulo')
+    todos_los_libros = Libro.objects.filter(estado='Disponible').extra(
+    select={'titulo_clean': "TRIM(UPPER(titulo))"}
+    ).order_by('titulo_clean')
     
     # Configurar paginación con 30 libros por página
     paginator = Paginator(todos_los_libros, 30)
