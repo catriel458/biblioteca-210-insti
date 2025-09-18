@@ -25,11 +25,16 @@
                 <label for="num_registro" class="form-label small">N° de Registro <span class="text-danger">*</span></label>
                 <input type="text" class="form-control form-control-sm" id="num_registro" name="num_registro" required>
             </div>
-        
+            
             <div class="col-md-3">
-                <label for="modelo_not" class="form-label small">Modelo <span class="text-danger">*</span></label>
-                <input type="text" class="form-control form-control-sm" id="modelo_not" name="modelo_not" required>
-            </div>    
+                <label for="cant_ejemplares" class="form-label small">Cant. de ejemplares <span class="text-danger">*</span></label>
+                <input type="number" class="form-control form-control-sm" id="cant_ejemplares" name="num_ejemplar" min="1" value="1" required>
+            </div>
+        </div>
+
+        <!-- Contenedor para mostrar los tipos agregados -->
+        <div id="contenedor-tipos-notebook" class="mb-4">
+            <!-- Los tipos se mostrarán aquí dinámicamente -->
         </div>
         
         <!-- Contenedor para los ejemplares -->

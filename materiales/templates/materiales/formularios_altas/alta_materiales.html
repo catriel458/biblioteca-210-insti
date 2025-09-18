@@ -198,11 +198,32 @@ document.addEventListener("DOMContentLoaded", function () {
                 .then(html => {
                     formularioEspecifico.innerHTML = html;
                     buttonsContainer.style.display = 'flex';
+                    
+                    // 🔥 IMPORTANTE: Establecer el action correcto para mapa
+                    const form = document.getElementById('form_alta_material');
+                    if (form) {
+                        form.action = '/alta-mapa/';
+                        console.log('🔧 Action del formulario mapa establecido a:', form.action);
+                    }
+                    
+                    // 🎯 CRÍTICO: Inicializar funcionalidad de mapas DESPUÉS de cargar HTML
+                    setTimeout(() => {
+                        // Inicializar arrays globales y renderizar tipos de mapa
+                        if (typeof window.gruposTiposMapa === 'undefined') {
+                            window.gruposTiposMapa = [];
+                        }
+                        if (typeof window.renderizarTiposMapa === 'function') {
+                            window.renderizarTiposMapa();z
+                        }
+                    }, 100); // Pequeño delay para asegurar que el DOM esté listo
+                    
                     // No mostrar carga masiva ni URL para mapas
                     if (uploadSimple) uploadSimple.style.display = 'none';
                     if (uploadBox) uploadBox.style.display = 'none';
+                    console.log('✅ Formulario de mapa cargado');
                 })
                 .catch(error => {
+                    console.error('❌ Error cargando mapa:', error);
                     formularioEspecifico.innerHTML = `<p class="text-danger">Error al cargar el formulario: ${error.message}</p>`;
                     buttonsContainer.style.display = 'none';
                 });
@@ -532,4 +553,12 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 });
 </script>
+
+<!-- Scripts necesarios para funcionalidad de formularios dinámicos -->
+<script src="{% static 'js/form_altas.js' %}"></script>
+<script src="{% static 'js/form_controller.js' %}"></script>
+<script src="{% static 'js/confirmacion_alta_material.js' %}"></script>
+
+<!-- Modal de confirmación -->
+{% include 'modals/confirmacion_alta_material.html' %}
 {% endblock %}
