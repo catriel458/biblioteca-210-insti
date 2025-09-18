@@ -1,57 +1,58 @@
 {% extends 'components/baseb.html' %}
 {% load static %}
+
+{% block title %}Confirmación de Alta de Notebook{% endblock %}
+
 {% block extra_styles %}
-    <link rel="stylesheet" href="{% static 'css/main.css' %}">
-    <link rel="stylesheet" href="{% static 'css/style_form.css' %}">
-    <link rel="stylesheet" href="{% static 'css/botones.css' %}">
     <style>
-        /* Estilos del modal */
-        .modal-dialog.modal-lg {
-            max-width: 1300px;
+        body {
+            background-color: #f5f5f5;
         }
 
         .modal-content {
             border-radius: 15px;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            border: none;
         }
 
         .modal-header {
             background-color: #f8f9fa;
             border-bottom: 2px solid #dee2e6;
             border-radius: 15px 15px 0 0;
-            padding: 1.5rem;
+            padding: 1.25rem;
         }
 
         .modal-title {
-            color: #007bff;
-            font-weight: bold;
-            font-size: 1.4rem;
+            color: #25898D;
+            font-weight: 600;
+            font-size: 1.5rem;
         }
 
         .modal-body {
             padding: 1.5rem;
-            max-height: 70vh;
-            overflow-y: auto;
         }
 
         .section-container {
-            background-color: #fff;
-            border-radius: 10px;
-            padding: 1.25rem;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
             margin-bottom: 1.5rem;
-        }
-
-        .section-title {
-            color: #212529;
-            font-weight: 600;
-            margin-bottom: 1rem;
-            font-size: 1.1rem;
-            text-transform: uppercase;
+            padding: 1rem;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
         }
 
         .tipo-material-title {
             color: #212529;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .text-primary {
+            color: #25898D !important;
+            font-weight: 600;
+        }
+
+        .section-title {
+            color: #25898D;
             margin-bottom: 1rem;
             padding-bottom: 0.5rem;
             border-bottom: 2px solid #25898D;
@@ -163,12 +164,12 @@
 {% block content %}
 <div class="loading-container">
     <div class="loading-text">
-        <i class="fas fa-spinner fa-spin"></i> Procesando datos del programa...
+        <i class="fas fa-spinner fa-spin"></i> Procesando datos de la notebook...
     </div>
     <p>Se abrirá el modal de confirmación automáticamente</p>
 </div>
 
-<!-- Modal de Confirmación de Alta de Material -->
+<!-- Modal de Confirmación de Alta de Notebook -->
 <div class="modal fade" id="modalConfirmacionAltaMaterial" tabindex="-1" aria-labelledby="modalConfirmacionLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-lg">
     <div class="modal-content">
@@ -180,52 +181,39 @@
         <div class="container-fluid">
           <!-- Tipo de Material -->
           <div class="section-container mb-4">
-            <h6 class="tipo-material-title">TIPO DE MATERIAL: <span id="confirmTipoMaterial" class="text-primary">PROGRAMA</span></h6>
+            <h6 class="tipo-material-title">TIPO DE MATERIAL: <span id="confirmTipoMaterial" class="text-primary">NOTEBOOK</span></h6>
           </div>
 
-          <!-- Información Principal - SOLO CAMPOS NECESARIOS -->
+          <!-- Información Principal -->
           <div class="section-container mb-4">
-            <h6 class="section-title">Información del Programa</h6>
+            <h6 class="section-title">Información Principal</h6>
+            <div class="row g-3">
+              <div class="col-md-4">
+                <strong>Marca:</strong>
+                <p id="confirmMarca" class="info-text">{{ form_data.marca|default:"Sin especificar" }}</p>
+              </div>
+              <div class="col-md-4">
+                <strong>Modelo:</strong>
+                <p id="confirmModelo" class="info-text">{{ form_data.modelo_not|default:"Sin especificar" }}</p>
+              </div>
+              <div class="col-md-4">
+                <strong>N° de Registro:</strong>
+                <p id="confirmRegistro" class="info-text">{{ form_data.num_registro|default:"Sin especificar" }}</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Ubicación y Disponibilidad -->
+          <div class="section-container mb-4">
+            <h6 class="section-title">Ubicación y Disponibilidad</h6>
             <div class="row g-3">
               <div class="col-md-6">
-                <strong>Profesor/a:</strong>
-                <p id="confirmProfesor" class="info-text">{{ form_data.profesor|default:"Sin especificar" }}</p>
+                <strong>Sede:</strong>
+                <p id="confirmSede" class="info-text">{{ form_data.sede|default:"Sin especificar" }}</p>
               </div>
               <div class="col-md-6">
-                <strong>Carrera:</strong>
-                <p id="confirmCarrera" class="info-text">{{ form_data.carrera|default:"Sin especificar" }}</p>
-              </div>
-            </div>
-            <div class="row g-3 mt-2">
-              <div class="col-md-4">
-                <strong>Materia:</strong>
-                <p id="confirmMateria" class="info-text">{{ form_data.materia|default:"Sin especificar" }}</p>
-              </div>
-              <div class="col-md-4">
-                <strong>Ciclo Lectivo:</strong>
-                <p id="confirmCicloLectivo" class="info-text">{{ form_data.ciclo_lectivo|default:"Sin especificar" }}</p>
-              </div>
-              <div class="col-md-4">
-                <strong>Enlace:</strong>
-                <p id="confirmEnlace" class="info-text">
-                  {% if form_data.ingresar_enlace %}
-                    <a href="{{ form_data.ingresar_enlace }}" target="_blank">{{ form_data.ingresar_enlace }}</a>
-                  {% else %}
-                    Sin enlace
-                  {% endif %}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <!-- Ejemplares - INFORMACIÓN SIMPLIFICADA -->
-          <div class="section-container">
-            <h6 class="section-title">Resumen</h6>
-            <div id="ejemplaresContainer" class="mt-3">
-              <div class="ejemplar-info">
-                <p><strong>Estado:</strong> El programa será registrado como disponible</p>
-                <p><strong>Sede:</strong> La Plata (por defecto)</p>
-                <p><strong>Ejemplar:</strong> #1</p>
+                <strong>Ejemplares:</strong>
+                <p id="confirmEjemplares" class="info-text">{{ form_data.num_ejemplar|default:"1" }}</p>
               </div>
             </div>
           </div>
@@ -233,7 +221,7 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" onclick="cancelarModal()">Cancelar</button>
-        <button type="button" class="btn btn-primary" id="btnConfirmarAltaMaterial" onclick="confirmarPrograma()">Confirmar</button>
+        <button type="button" class="btn btn-primary" id="btnConfirmarAltaMaterial" onclick="confirmarNotebook()">Confirmar</button>
       </div>
     </div>
   </div>
@@ -243,11 +231,11 @@
 {% block extra_scripts %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('🚀 Página de confirmación PROGRAMA cargada');
+    console.log('🚀 Página de confirmación NOTEBOOK cargada');
     console.log('📋 Datos recibidos:', {
-        profesor: '{{ form_data.profesor|escapejs }}',
-        carrera: '{{ form_data.carrera|escapejs }}',
-        materia: '{{ form_data.materia|escapejs }}'
+        marca: '{{ form_data.marca|escapejs }}',
+        modelo: '{{ form_data.modelo_not|escapejs }}',
+        registro: '{{ form_data.num_registro|escapejs }}'
     });
     
     // Verificar que Bootstrap está disponible
@@ -263,40 +251,47 @@ document.addEventListener('DOMContentLoaded', function() {
             keyboard: false      // No se cierra con ESC
         });
         modal.show();
-        console.log('✅ Modal de PROGRAMA mostrado automáticamente');
+        console.log('✅ Modal mostrado automáticamente');
     }, 500);
 });
 
-function confirmarPrograma() {
-    console.log('🟢 Confirmando programa...');
-    
-    // Crear un formulario invisible para enviar la confirmación
-    const form = document.createElement('form');
-    form.method = 'POST';
-    form.action = '{% url "guardar_programa_confirmado" %}';
-    
-    // Agregar token CSRF
-    const csrfToken = document.createElement('input');
-    csrfToken.type = 'hidden';
-    csrfToken.name = 'csrfmiddlewaretoken';
-    csrfToken.value = '{{ csrf_token }}';
-    form.appendChild(csrfToken);
-    
-    // Agregar al DOM y enviar
-    document.body.appendChild(form);
-    form.submit();
+// Función para cancelar y volver al formulario
+function cancelarModal() {
+    console.log('❌ Usuario canceló - volviendo al formulario de alta');
+    window.location.href = '/alta/';
 }
 
-function cancelarModal() {
-    console.log('🔴 Cancelando programa...');
-    // Redirigir de vuelta al formulario
-    window.location.href = '{% url "formulario_programa" %}';
+// Función para confirmar y enviar el formulario
+function confirmarNotebook() {
+    console.log('✅ Usuario confirmó - enviando formulario');
+    
+    // Crear un formulario dinámicamente
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = '{% url "guardar_alta_notebook" %}';
+    
+    // Agregar el token CSRF
+    const csrfInput = document.createElement('input');
+    csrfInput.type = 'hidden';
+    csrfInput.name = 'csrfmiddlewaretoken';
+    csrfInput.value = '{{ csrf_token }}';
+    form.appendChild(csrfInput);
+    
+    // Agregar el formulario al documento y enviarlo
+    document.body.appendChild(form);
+    form.submit();
+    
+    // Redirigir a la página de alta después de enviar el formulario
+    setTimeout(function() {
+        console.log('🔄 Redirigiendo a la página de alta de materiales...');
+        window.location.href = '{% url "alta_materiales" %}';
+    }, 100);
 }
 
 // Manejar cuando se cierra el modal con X
 document.getElementById('modalConfirmacionAltaMaterial').addEventListener('hidden.bs.modal', function () {
     console.log('🔴 Modal cerrado, regresando al formulario...');
-    window.location.href = '{% url "formulario_programa" %}';
+    window.location.href = '{% url "alta_materiales" %}';
 });
 </script>
 {% endblock %}

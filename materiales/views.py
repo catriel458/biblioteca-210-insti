@@ -1294,7 +1294,7 @@ def confirmar_alta_libro(request):
     print(f"📋 Datos de sesión: {form_data}")  # Debug
     
     # Renderizar página con modal automático
-    return render(request, 'materiales/formularios_altas/confirmacion_alta_material.html', {
+    return render(request, 'materiales/formularios_altas/confirmaciones_alta/confirmacion_alta_material.html', {
         'form_data': form_data,
         'ejemplares': form_data.get('ejemplares', [])
     })
@@ -1672,7 +1672,7 @@ def confirmar_alta_multimedia(request):
     print(f"📋 Datos de sesión: {form_data}")  # Debug
     
     # Renderizar página con modal automático
-    return render(request, 'materiales/formularios_altas/confirmacion_alta_multimedia.html', {
+    return render(request, 'materiales/formularios_altas/confirmaciones_alta/confirmacion_alta_multimedia.html', {
         'form_data': form_data
     })
 
@@ -1752,6 +1752,89 @@ def alta_proyector(request):
 def alta_varios(request):
     # ... código existente ...
     pass
+
+def confirmacion_alta_varios(request):
+    """
+    Vista para mostrar el modal de confirmación para varios
+    """
+    print("🎯 Llegó a confirmacion_alta_varios")  # Debug
+    
+    if request.method == 'POST':
+        # Guardar los datos del formulario en la sesión
+        varios_data = {
+            'cant_ejemplares': request.POST.get('cant_ejemplares', ''),
+            'sede': request.POST.get('sede', ''),
+            'num_registro': request.POST.get('num_registro', ''),
+            'nombre_varios': request.POST.get('nombre_varios', ''),
+            'estado': 'Disponible',  # Valor por defecto
+        }
+        
+        # Guardar en sesión
+        request.session['varios_data'] = varios_data
+        print(f"📋 Datos guardados en sesión: {varios_data}")  # Debug
+        
+        # Renderizar página con modal automático
+        return render(request, 'materiales/formularios_altas/confirmaciones_alta/confirmacion_alta_varios.html', {
+            'form_data': varios_data
+        })
+    else:
+        # Si no es POST, redirigir al formulario
+        messages.error(request, 'Método no permitido. Por favor, complete el formulario correctamente.')
+        return redirect('alta_varios')
+
+def cancelar_alta_varios(request):
+    """
+    Vista para cancelar el alta de varios
+    """
+    # Limpiar datos de sesión si existen
+    if 'varios_data' in request.session:
+        del request.session['varios_data']
+    
+    messages.info(request, 'Se ha cancelado el registro del material varios.')
+    return redirect('alta_materiales')
+
+def guardar_alta_varios(request):
+    """
+    Vista para guardar definitivamente después de confirmar en el modal
+    """
+    print("💾 Guardando material varios confirmado")  # Debug
+    
+    if request.method == 'POST':
+        # Recuperar datos de la sesión
+        varios_data = request.session.get('varios_data', None)
+        
+        if varios_data:
+            try:
+                # Crear el objeto Varios
+                varios = Varios()
+                varios.nombre_varios = varios_data.get('nombre_varios', '')
+                varios.sede = varios_data.get('sede', '')
+                varios.num_registro = varios_data.get('num_registro', '')
+                varios.estado = varios_data.get('estado', 'Disponible')
+                varios.save()
+                
+                # Crear ejemplares
+                cant_ejemplares = int(varios_data.get('cant_ejemplares', 1))
+                for _ in range(cant_ejemplares):
+                    ejemplar = EjemplarVarios()
+                    ejemplar.varios = varios
+                    ejemplar.save()
+                
+                # Limpiar sesión
+                del request.session['varios_data']
+                
+                messages.success(request, f'Material varios "{varios.nombre_varios}" registrado exitosamente con {cant_ejemplares} ejemplar(es).')
+                return redirect('alta_materiales')
+            
+            except Exception as e:
+                messages.error(request, f'Error al guardar el material varios: {str(e)}')
+                return redirect('alta_materiales')
+        else:
+            messages.error(request, 'No se encontraron datos para guardar. Por favor, complete el formulario nuevamente.')
+            return redirect('alta_materiales')
+    else:
+        messages.error(request, 'Método no permitido.')
+        return redirect('alta_materiales')
 
 # Actualizar la vista de préstamos solicitados para mostrar solo los del usuario actual
 @login_required
@@ -1959,7 +2042,7 @@ def confirmar_alta_programa(request):
     print(f"📋 Datos de sesión: {form_data}")  # Debug
     
     # Renderizar página con modal automático
-    return render(request, 'materiales/formularios_altas/confirmacion_alta_programa.html', {
+    return render(request, 'materiales/formularios_altas/confirmaciones_alta/confirmacion_alta_programa.html', {
         'form_data': form_data
     })
 
@@ -2034,3 +2117,170 @@ def lista_programas(request):
     """
     programas = Programa.objects.filter(estado='Disponible')
     return render(request, 'materiales/programas/lista_programas.html', {'programas': programas})
+
+def confirmacion_alta_notebook(request):
+    """
+    Vista para mostrar el modal de confirmación para notebook
+    """
+    print("🎯 Llegó a confirmacion_alta_notebook")  # Debug
+    
+    if request.method == 'POST':
+        # Guardar los datos del formulario en la sesión
+        notebook_data = {
+            'num_ejemplar': request.POST.get('num_ejemplar', ''),
+            'sede': request.POST.get('sede', ''),
+            'num_registro': request.POST.get('num_registro', ''),
+            'marca': request.POST.get('marca', ''),
+            'modelo_not': request.POST.get('modelo_not', ''),
+            'estado': 'Disponible',  # Valor por defecto
+        }
+        
+        # Guardar en sesión
+        request.session['notebook_data'] = notebook_data
+        print(f"📋 Datos guardados en sesión: {notebook_data}")  # Debug
+        
+        # Renderizar página con modal automático
+        return render(request, 'materiales/formularios_altas/confirmaciones_alta/confirmacion_alta_notebook.html', {
+            'form_data': notebook_data
+        })
+    else:
+        # Si no es POST, redirigir al formulario
+        messages.error(request, 'Método no permitido. Por favor, complete el formulario correctamente.')
+        return redirect('alta_notebook')
+
+def guardar_alta_notebook(request):
+    """
+    Vista para guardar definitivamente después de confirmar en el modal
+    """
+    print("💾 Llegó a guardar_alta_notebook")  # Debug
+    
+    if request.method == 'POST' and 'notebook_data' in request.session:
+        try:
+            # Obtener datos de la sesión
+            notebook_data = request.session['notebook_data']
+            print(f"📦 Datos a guardar: {notebook_data}")  # Debug
+            
+            # Crear la notebook en base de datos
+            notebook = Notebook(
+                estado=notebook_data.get('estado', 'Disponible'),
+                sede=notebook_data.get('sede', 'La Plata'),
+                cantidad=notebook_data.get('cantidad', '1'),
+                ubicacion=notebook_data.get('ubicacion', ''),
+                num_registro=notebook_data.get('num_registro', ''),
+                marca=notebook_data.get('marca', ''),
+                modelo=notebook_data.get('modelo_not', ''),  # Corregido para usar modelo_not
+                disponibilidad='Domicilio',  # Valor por defecto
+                observaciones='',  # Vacío
+            )
+            
+            # GUARDAR EN BASE DE DATOS
+            notebook.save()
+            print(f"✅ Notebook guardada en BD con ID: {notebook.id_notebook}")  # Debug
+            
+            # Limpiar sesión
+            if 'notebook_data' in request.session:
+                del request.session['notebook_data']
+                
+            # Mensaje de éxito
+            messages.success(request, f'Notebook registrada correctamente con ID: {notebook.id_notebook}')
+            return redirect('alta_materiales')
+            
+        except Exception as e:
+            print(f"❌ Error al guardar notebook: {str(e)}")  # Debug
+            messages.error(request, f'Error al guardar notebook: {str(e)}')
+            return redirect('alta_materiales')
+    else:
+        # Si no hay datos en la sesión o no es POST, redirigir al formulario
+        messages.error(request, 'No hay datos para guardar. Por favor, complete el formulario nuevamente.')
+        return redirect('alta_materiales')
+
+def cancelar_alta_notebook(request):
+    """
+    Vista para cancelar la alta y limpiar datos de sesión
+    """
+    print("🔴 Cancelando alta de notebook")  # Debug
+    
+    if 'notebook_data' in request.session:
+        del request.session['notebook_data']
+        print("🗑️ Datos de sesión eliminados")  # Debug
+    
+    messages.info(request, 'Operación cancelada.')
+    return redirect('alta_materiales')
+
+# Vistas para la confirmación de alta de proyector
+def confirmacion_alta_proyector(request):
+    """
+    Vista para mostrar el modal de confirmación para proyector
+    """
+    print("🎯 Llegó a confirmacion_alta_proyector")  # Debug
+    
+    if request.method == 'POST':
+        # Guardar los datos del formulario en la sesión
+        proyector_data = {
+            'cant_ejemplares': request.POST.get('cant_ejemplares', ''),
+            'sede': request.POST.get('sede', ''),
+            'num_registro': request.POST.get('num_registro', ''),
+            'modelo_proy': request.POST.get('modelo_proy', ''),
+            'estado': 'Disponible',  # Valor por defecto
+        }
+        
+        # Guardar en sesión
+        request.session['proyector_data'] = proyector_data
+        print(f"📋 Datos guardados en sesión: {proyector_data}")  # Debug
+        
+        # Renderizar página con modal automático
+        return render(request, 'materiales/formularios_altas/confirmaciones_alta/confirmacion_alta_proyector.html', {
+            'form_data': proyector_data
+        })
+    else:
+        # Si no es POST, redirigir al formulario
+        messages.error(request, 'Método no permitido. Por favor, complete el formulario correctamente.')
+        return redirect('alta_proyector')
+
+def guardar_alta_proyector(request):
+    """
+    Vista para guardar definitivamente después de confirmar en el modal
+    """
+    print("💾 Guardando proyector confirmado")  # Debug
+    
+    if request.method == 'POST':
+        # Recuperar datos de la sesión
+        proyector_data = request.session.get('proyector_data', {})
+        
+        if not proyector_data:
+            messages.error(request, 'No se encontraron datos del proyector en la sesión.')
+            return redirect('alta_materiales')
+        
+        try:
+            # Crear el proyector
+            proyector = Proyector.objects.create(
+                num_registro=proyector_data.get('num_registro'),
+                modelo=proyector_data.get('modelo_proy'),
+                sede=proyector_data.get('sede'),
+                estado=proyector_data.get('estado', 'Disponible')
+            )
+            
+            # Limpiar datos de sesión
+            if 'proyector_data' in request.session:
+                del request.session['proyector_data']
+            
+            messages.success(request, f'Proyector registrado exitosamente con ID: {proyector.id}')
+            return redirect('alta_materiales')
+            
+        except Exception as e:
+            messages.error(request, f'Error al guardar el proyector: {str(e)}')
+            return redirect('alta_materiales')
+    else:
+        messages.error(request, 'Método no permitido.')
+        return redirect('alta_materiales')
+
+def cancelar_alta_proyector(request):
+    """
+    Vista para cancelar el alta de proyector
+    """
+    # Limpiar datos de sesión si existen
+    if 'proyector_data' in request.session:
+        del request.session['proyector_data']
+    
+    messages.info(request, 'Se ha cancelado el registro del proyector.')
+    return redirect('alta_materiales')

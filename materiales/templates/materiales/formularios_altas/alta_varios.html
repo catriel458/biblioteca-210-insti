@@ -3,8 +3,8 @@
 <div data-block="content" data-form="varios">
     <div class="row mb-3">
         <div class="col-md-3">
-            <label for="sede">Sede:</label>
-            <select class="form-select select-sede" id="sede-varios" name="sede_varios" required>
+            <label for="sede" class="form-label small">Sede: <span class="text-danger">*</span></label>
+            <select class="form-control form-control-sm" id="sede-varios" name="sede_varios" required>
                 <option value="">Seleccione una sede</option>
                 <option value="sede1">La Plata</option>
                 <option value="sede2">Abasto</option>
@@ -12,15 +12,13 @@
         </div>
         
         <div class="col-md-3">
+            <label for="tipo-varios" class="form-label small">Tipo a registrar <span class="text-danger">*</span></label>
+            <input type="text" class="form-control form-control-sm" id="tipo-varios" name="tipo_varios" required>
+        </div>
+        
+        <div class="col-md-3">
             <label for="cant_ejemplares" class="form-label small">Cant. de ejemplares <span class="text-danger">*</span></label>
             <input type="number" class="form-control form-control-sm" id="cant_ejemplares" name="cant_ejemplares" min="1" value="1" required>
-        </div>
-    </div>
-    
-    <div class="row mb-3">
-        <div class="col-md-3">
-            <label for="tipo-varios">Tipo a registrar <span class="text-danger">*</span></label>
-            <input type="text" class="form-control form-control-sm" id="tipo-varios" name="tipo_varios" required>
         </div>
     </div>
 

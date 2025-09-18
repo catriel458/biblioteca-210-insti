@@ -283,7 +283,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     // 🔥 IMPORTANTE: Establecer el action correcto para notebook
                     const form = document.getElementById('form_alta_material');
                     if (form) {
-                        form.action = '/alta-notebook/';
+                        form.action = '{% url "confirmacion_alta_notebook" %}';
                         console.log('🔧 Action del formulario notebook establecido a:', form.action);
                     }
                     
@@ -316,6 +316,13 @@ document.addEventListener("DOMContentLoaded", function () {
                     // No mostrar carga masiva ni URL para proyector
                     if (uploadSimple) uploadSimple.style.display = 'none';
                     if (uploadBox) uploadBox.style.display = 'none';
+                    
+                    // Configurar la acción del formulario para proyector
+                    const form = document.getElementById('form_alta_material');
+                    if (form) {
+                        form.action = '{% url "confirmacion_alta_proyector" %}';
+                        console.log('✅ Acción del formulario configurada para proyector:', form.action);
+                    }
                 })
                 .catch(error => {
                     formularioEspecifico.innerHTML = `<p class="text-danger">Error al cargar el formulario: ${error.message}</p>`;
@@ -335,6 +342,13 @@ document.addEventListener("DOMContentLoaded", function () {
                     // No mostrar carga masiva ni URL para varios
                     if (uploadSimple) uploadSimple.style.display = 'none';
                     if (uploadBox) uploadBox.style.display = 'none';
+                    
+                    // Configurar la acción del formulario para varios
+                    const form = document.getElementById('form_alta_material');
+                    if (form) {
+                        form.action = '{% url "confirmacion_alta_varios" %}';
+                        console.log('✅ Acción del formulario configurada para varios:', form.action);
+                    }
                 })
                 .catch(error => {
                     formularioEspecifico.innerHTML = `<p class="text-danger">Error al cargar el formulario: ${error.message}</p>`;
@@ -558,7 +572,4 @@ document.addEventListener("DOMContentLoaded", function () {
 <script src="{% static 'js/form_altas.js' %}"></script>
 <script src="{% static 'js/form_controller.js' %}"></script>
 <script src="{% static 'js/confirmacion_alta_material.js' %}"></script>
-
-<!-- Modal de confirmación -->
-{% include 'modals/confirmacion_alta_material.html' %}
 {% endblock %}

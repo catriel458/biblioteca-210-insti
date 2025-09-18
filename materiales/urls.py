@@ -41,13 +41,19 @@ urlpatterns = [
     # URLs de notebooks
     path('notebook/', views.notebook_view, name='notebook'),
     path('alta-notebook/', views.alta_notebook, name='alta_notebook'),
+    path('confirmacion-alta-notebook/', views.confirmacion_alta_notebook, name='confirmacion_alta_notebook'),
+    path('guardar-alta-notebook/', views.guardar_alta_notebook, name='guardar_alta_notebook'),
+    path('cancelar-alta-notebook/', views.cancelar_alta_notebook, name='cancelar_alta_notebook'),
     path('baja-notebook/', views.baja_notebook, name='baja_notebook'),
     path('editar-notebook/<int:not_id>/', views.editar_notebook, name='editar_notebook'),
     path('buscar-notebooks/', views.buscar_notebooks, name='buscar_notebooks'),
     
-    # URLs de proyectores
+    # URLs de proyector
     path('proyector/', views.proyector_view, name='proyector'),
     path('alta-proyector/', views.alta_proyector, name='alta_proyector'),
+    path('confirmacion-alta-proyector/', views.confirmacion_alta_proyector, name='confirmacion_alta_proyector'),
+    path('guardar-alta-proyector/', views.guardar_alta_proyector, name='guardar_alta_proyector'),
+    path('cancelar-alta-proyector/', views.cancelar_alta_proyector, name='cancelar_alta_proyector'),
     path('baja-proyector/', views.baja_proyector, name='baja_proyector'),
     path('editar-proyector/<int:proyector_id>/', views.editar_proyector, name='editar_proyector'),
     path('buscar-proyectores/', views.buscar_proyectores, name='buscar_proyectores'),
@@ -55,6 +61,9 @@ urlpatterns = [
     # URLs de varios
     path('varios/', views.varios_view, name='varios'),
     path('alta-varios/', views.alta_varios, name='alta_varios'),
+    path('confirmacion-alta-varios/', views.confirmacion_alta_varios, name='confirmacion_alta_varios'),
+    path('guardar-alta-varios/', views.guardar_alta_varios, name='guardar_alta_varios'),
+    path('cancelar-alta-varios/', views.cancelar_alta_varios, name='cancelar_alta_varios'),
     path('baja-varios/', views.baja_varios, name='baja_varios'),
     path('editar-varios/<int:varios_id>/', views.editar_varios, name='editar_varios'),
     path('buscar-varios/', views.buscar_varios, name='buscar_varios'),

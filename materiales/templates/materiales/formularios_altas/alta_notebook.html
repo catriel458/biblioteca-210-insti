@@ -1,18 +1,17 @@
 {% load static %}
 <link rel="stylesheet" href="{% static 'materiales/css/alta_notebook.css' %}">
 <div data-block="content" data-form-type="notebook">
-    <form id="form_alta_material" action="{% url 'alta_notebook' %}" method="POST">
+    <form id="form_alta_material" action="{% url 'confirmacion_alta_notebook' %}" method="POST">
         {% csrf_token %}
         <div class="row mb-3">
-
             <div class="col-md-3">
                 <label for="cant_ejemplares" class="form-label small">Cant. de ejemplares <span class="text-danger">*</span></label>
                 <input type="number" class="form-control form-control-sm" id="cant_ejemplares" name="num_ejemplar" min="1" value="1" required>
             </div>
 
             <div class="col-md-3">
-                <label for="sede">Sede:</label>
-                <select class="form-select" id="sede" name="sede" required>
+                <label for="sede" class="form-label small">Sede: <span class="text-danger">*</span></label>
+                <select class="form-control form-control-sm" id="sede" name="sede" required>
                     <option value="">Seleccione una sede</option>
                     <option value="La Plata">La Plata</option>
                     <option value="Abasto">Abasto</option>
@@ -27,8 +26,8 @@
             </div>
             
             <div class="col-md-3">
-                <label for="cant_ejemplares" class="form-label small">Cant. de ejemplares <span class="text-danger">*</span></label>
-                <input type="number" class="form-control form-control-sm" id="cant_ejemplares" name="num_ejemplar" min="1" value="1" required>
+                <label for="modelo_not" class="form-label small">Modelo <span class="text-danger">*</span></label>
+                <input type="text" class="form-control form-control-sm" id="modelo_not" name="modelo_not" required>
             </div>
         </div>
 
@@ -52,145 +51,8 @@
     </form>
 </div>
 
-<!-- Modal de Confirmación de Alta de Material -->
-<div class="modal fade" id="modalConfirmacionAltaMaterial" tabindex="-1" aria-labelledby="modalConfirmacionLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered modal-lg">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="modalConfirmacionLabel">CONFIRME LOS DATOS</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-      </div>
-      <div class="modal-body">
-        <div class="container-fluid">
-          <!-- Tipo de Material -->
-          <div class="section-container mb-4">
-            <h6 class="tipo-material-title">TIPO DE MATERIAL: <span id="confirmTipoMaterial" class="text-primary"></span></h6>
-          </div>
+<!-- El modal de confirmación ahora se encuentra en confirmacion_alta_notebook.html -->
 
-          <!-- Información Principal -->
-          <div class="section-container mb-4">
-            <h6 class="section-title">Información Principal</h6>
-            <div class="row g-3">
-              <div class="col-md-4">
-                <strong>Marca:</strong>
-                <p id="confirmMarca" class="info-text"></p>
-              </div>
-              <div class="col-md-4">
-                <strong>Modelo:</strong>
-                <p id="confirmModelo" class="info-text"></p>
-              </div>
-              <div class="col-md-4">
-                <strong>N° de Registro:</strong>
-                <p id="confirmRegistro" class="info-text"></p>
-              </div>
-            </div>
-          </div>
-
-          <!-- Ubicación y Disponibilidad -->
-          <div class="section-container mb-4">
-            <h6 class="section-title">Ubicación y Disponibilidad</h6>
-            <div class="row g-3">
-              <div class="col-md-6">
-                <strong>Sede:</strong>
-                <p id="confirmSede" class="info-text"></p>
-              </div>
-              <div class="col-md-6">
-                <strong>Ejemplares:</strong>
-                <p id="confirmEjemplares" class="info-text"></p>
-              </div>
-            </div>
-          </div>
-        </div>  
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-        <button type="button" class="btn btn-primary" id="btnConfirmarAltaMaterial">Confirmar</button>
-      </div>
-    </div>
-  </div>
-</div>
 
 <!-- Importación del JS dinámico de ejemplares -->
 <script src="{% static 'js/form_altas.js' %}"></script>
-
-<!-- Script para el modal de confirmación -->
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('✅ Script cargado correctamente');
-    
-    const form = document.getElementById('form_alta_material');
-    const modalElement = document.getElementById('modalConfirmacionAltaMaterial');
-    
-    if (!form) {
-        console.error('❌ Formulario no encontrado');
-        return;
-    }
-    
-    if (!modalElement) {
-        console.error('❌ Modal no encontrado');
-        return;
-    }
-    
-    // Verificar que Bootstrap está disponible
-    if (typeof bootstrap === 'undefined') {
-        console.error('❌ Bootstrap no está cargado');
-        alert('Error: Bootstrap no está cargado. Verifique que esté incluido en baseb.html');
-        return;
-    }
-    
-    console.log('✅ Todo está listo');
-    
-    const modal = new bootstrap.Modal(modalElement);
-    
-    // Interceptar el submit del formulario
-    form.addEventListener('submit', function(e) {
-        e.preventDefault();
-        console.log('🚀 Formulario interceptado - mostrando modal');
-        
-        try {
-            // Obtener valores del formulario
-            const marca = form.querySelector('[name="marca"]')?.value || 'Sin especificar';
-            const modelo = form.querySelector('[name="modelo_not"]')?.value || 'Sin especificar';
-            const registro = form.querySelector('[name="num_registro"]')?.value || 'Sin especificar';
-            const ejemplares = form.querySelector('[name="num_ejemplar"]')?.value || 'Sin especificar';
-            
-            // Obtener texto de selects
-            const sedeSelect = form.querySelector('[name="sede"]');
-            const sede = sedeSelect ? sedeSelect.options[sedeSelect.selectedIndex]?.text || 'Sin especificar' : 'Sin especificar';
-            
-            // Llenar el modal con los datos
-            document.getElementById('confirmTipoMaterial').textContent = 'NOTEBOOK';
-            document.getElementById('confirmMarca').textContent = marca;
-            document.getElementById('confirmModelo').textContent = modelo;
-            document.getElementById('confirmRegistro').textContent = registro;
-            document.getElementById('confirmSede').textContent = sede;
-            document.getElementById('confirmEjemplares').textContent = ejemplares;
-            
-            // Mostrar el modal
-            modal.show();
-            console.log('✅ Modal mostrado correctamente');
-            
-        } catch (error) {
-            console.error('❌ Error al llenar el modal:', error);
-            alert('Error al mostrar la vista previa. Se guardará directamente.');
-            form.submit();
-        }
-    });
-    
-    // Manejar el botón de confirmación
-    document.getElementById('btnConfirmarAltaMaterial').addEventListener('click', function() {
-        console.log('✅ Usuario confirmó - enviando formulario');
-        modal.hide();
-        
-        // Esperar a que se cierre el modal y luego enviar
-        setTimeout(() => {
-            // Remover el event listener para evitar bucle infinito
-            const newForm = form.cloneNode(true);
-            form.parentNode.replaceChild(newForm, form);
-            newForm.submit();
-        }, 300);
-    });
-    
-    console.log('🎉 Todo configurado correctamente');
-});
-</script>
