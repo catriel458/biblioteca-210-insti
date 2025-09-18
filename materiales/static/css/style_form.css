@@ -1,0 +1,353 @@
+#form-container {
+    max-height: 400px; 
+    overflow-y: auto;
+}
+.row {
+    margin-bottom: 0.15rem;
+}
+input, textarea, select {
+    background-color: #25B7BB !important; 
+    color: #333;
+    border: none;
+    border-bottom: 2px solid #8B1D69;
+    border-radius: 4px;
+    transition: border-color 0.3s ease;
+}
+
+input:focus, textarea:focus, select:focus { 
+    outline: none;
+    box-shadow: none;
+    border-bottom: 2px solid #8B1D69;
+}
+
+textarea {
+    width: 100%; 
+    height: 80px;
+    resize: none;
+    overflow: hidden;
+}
+.select-sede {
+    background-color: rgba(49, 183, 188, 0.2) !important;
+
+}
+#input-nuevo-tipo {
+    display: block;
+    width: 100%;
+    border-bottom: 2px solid var(--input-border) !important;
+    border-radius: 10px !important;
+    background: transparent !important;
+    border-top: none !important;
+    border-left: none !important;
+    border-right: none !important;
+    padding: 0 12px;
+    box-shadow: none !important;
+}
+.input-especial {
+    display: block;
+    width: 100%;
+    border-bottom: 2px solid var(--input-border) !important;
+    border-radius: 10px !important;
+    background: transparent !important;
+    border-top: none !important;
+    border-left: none !important;
+    border-right: none !important;
+}
+
+.boton-mas {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    background-color: #ADE2E4;
+    border: 2px solid #25B7BB;
+    color: #25B7BB;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 2px 4px 12px rgba(0,0,0,0.18);
+    cursor: pointer;
+    transition: background 0.2s, box-shadow 0.2s;
+    margin: 0 auto;
+    user-select: none;
+}
+.boton-mas:hover {
+    background-color: #ADE2E4;
+    box-shadow: 2px 6px 16px rgba(49,183,188,0.18);
+}
+
+.boton-eliminar {
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    background-color: #dc3545;
+    border: 2px solid #dc3545;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 2px 4px 12px rgba(0,0,0,0.18);
+    cursor: pointer;
+    transition: background 0.2s, box-shadow 0.2s;
+    font-size: 14px;
+    font-weight: bold;
+    user-select: none;
+}
+.boton-eliminar:hover {
+    background-color: #c82333;
+    box-shadow: 2px 6px 16px rgba(220,53,69,0.3);
+}
+
+.textarea-wrapper {
+    height: 100%;
+    resize: none;
+}
+.hidden {
+    display: none;
+}
+.borde {
+    border-top: 2px dotted #81123b; 
+    padding-top: 10px;
+    margin-bottom: 20px;
+}
+.requerido {
+    font-family: 'Trebuchet MS';
+    color: red;
+    font-size: 10px;
+    font-weight: 700;
+    align-items: center;
+    justify-content: center;
+    display: flex;
+    text-align: center;
+    letter-spacing: 10%;
+}
+/* Estilos para el formlario de alta de material */
+.header-home { 
+    display: none; 
+} 
+
+.header-pantalla { 
+    display: block; 
+} 
+
+#cant_ejemplares_container { 
+    display: none; 
+} 
+
+#dynamic-rows { 
+    display: none; 
+} 
+
+#buttons-container { 
+    background: #fff;
+    padding: 0;
+    margin-bottom: 2%;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    position: static;
+    margin-top: auto;
+}
+
+form#form-material {
+    display: flex;
+    flex-direction: column;
+    min-height: 400px;
+}
+
+/* Estilos adicionales para el formulario */
+.container-fluid {
+    margin-top: 0.5%;
+}
+
+.btn-outline-danger, .btn-primary {
+    width: 100px;
+}
+
+.btn-outline-danger.btn-sm {
+    margin-right: 10px;
+}
+.boton-guardar {
+    width: 200px !important;
+}
+.boton-cancelar {
+    width: 100px !important;
+}
+
+.manual-button {
+    background-color: #8B1D69 !important;
+    width: 100% !important;
+    margin-left: 0;
+    min-width: 0;
+    box-sizing: border-box;
+}
+
+.upload-container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+}
+
+.upload-container button {
+    width: 100% !important;
+}
+
+.upload-box {
+    width: 100% !important;
+    min-width: 0;
+    box-sizing: border-box;
+    background-color: #d7f2f7;
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+}
+
+.custom-dashed-line {
+    border: none;
+    border-top: 4px dashed var(--input-border);
+    margin: 2%;
+    width: 100%;
+}
+
+/* Quitar bordes de tablas de tipo/cantidad en alta_mapa y alta_varios */
+#bloque-tipo-cantidad table,
+#bloque-tipo-cantidad th,
+#bloque-tipo-cantidad td {
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* Estilos para el formulario de alta de material */
+
+.form-group {
+    margin-bottom: 0.15rem;
+}
+
+.form-control {
+    height: calc(1.4em + 0.4rem + 2px);
+    padding: 0.2rem 0.4rem;
+    font-size: 0.8rem;
+    transition: all 0.3s ease;
+}
+
+label.small {
+    font-size: 0.75rem;
+    margin-bottom: 0.05rem;
+    line-height: 1;
+}
+
+.btn-sm {
+    padding: 0.2rem 0.5rem;
+    font-size: 0.8rem;
+    width: 100px;
+}
+
+.boton-redondeado {
+    padding: 0.2rem;
+    font-size: 0.8rem;
+    background-color: #ADE2E4;
+}
+
+.boton-redondeado span {
+    font-size: 24px;
+}
+
+small.text-muted {
+    font-size: 0.7rem;
+}
+
+.col-2.upload-container {
+    margin-left: auto;
+}
+
+#upload_box_container {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+    width: 100% !important;
+    min-width: 0;
+    box-sizing: border-box;
+}
+
+.row.align-items-center {
+    align-items: flex-start !important;
+}
+
+/* Mejoras de responsividad y espaciado */
+#formulario-especifico {
+    transition: all 0.3s ease;
+    min-height: 0;
+    overflow: hidden;
+}
+
+#dynamic-rows {
+    transition: all 0.3s ease;
+    min-height: 0;
+    overflow: hidden;
+}
+
+/* Media queries para responsividad */
+@media (max-width: 768px) {
+    .container-fluid {
+        padding: 0.5rem;
+    }
+    
+    .form-control-sm {
+        font-size: 0.875rem;
+    }
+    
+    .small {
+        font-size: 0.75rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .container-fluid {
+        padding: 0.25rem;
+    }
+}
+
+/* --- Custom Upload Box Styles --- */
+.custom-upload-box-container {
+    background: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
+}
+.custom-upload-box {
+    background: transparent !important;
+    border-radius: 12px;
+    padding: 0 0 12px 0;
+    box-shadow: none !important;
+    border: none !important;
+}
+.custom-upload-box h5 {
+    font-weight: bold;
+    font-size: 1.3rem;
+    margin-bottom: 10px;
+    letter-spacing: 1px;
+    background: transparent;
+}
+.custom-upload-btn {
+    background:#ADE2E4 !important;
+    border: 2px solid #54b5b5 !important;
+    color: #25B7BB !important;
+    border-radius: 6px;
+    box-shadow: none;
+    transition: background 0.2s, border 0.2s;
+}
+.custom-upload-btn:hover {
+    background: #1ca2a6 !important;
+    border-color: #247575 !important;
+}
+.custom-upload-input {
+    background: #e4f7f7 !important;
+    border: 1.5px solid #b4ecec !important;
+    color: #247575 !important;
+    border-radius: 6px;
+    font-size: 1rem;
+    box-shadow: 0 2px 0 #b47ca2;
+}
+.custom-upload-input::placeholder {
+    color: #6c8d8d !important;
+    letter-spacing: 1px;
+}
+/* --- End Custom Upload Box Styles --- */
