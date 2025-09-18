@@ -1575,8 +1575,7 @@ def reactivar_libro_mejorado(request, libro_id):
 # Agregar decoradores similares a todas las vistas de alta de material
 #@user_passes_test(es_bibliotecaria)
 def alta_mapa(request):
-    # ... código existente ...
-    pass
+    return render(request, 'materiales/formularios_altas/alta_mapa.html')
 
 #@user_passes_test(es_bibliotecaria)
 def formulario_multimedia(request):
