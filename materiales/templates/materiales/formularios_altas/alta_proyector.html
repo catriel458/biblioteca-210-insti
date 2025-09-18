@@ -10,23 +10,23 @@
             </select>
         </div>
         
-        <div class="col-md-3">
-            <label for="modelo_proy" class="form-label small">Modelo <span class="text-danger">*</span></label>
-            <input type="text" class="form-control form-control-sm" id="modelo_proy" name="modelo_proy" required>
-        </div>
-        
-        <div class="col-md-3">
-            <label for="num_registro" class="form-label small">N° de Registro <span class="text-danger">*</span></label>
-            <input type="text" class="form-control form-control-sm" id="num_registro" name="num_registro" required>
-        </div>
     </div>
+    
+    <!-- Sección para agregar tipos de proyectores dinámicamente -->
     <div class="row mb-3">
-        <div class="col-md-3 d-flex align-items-end" id="cant_ejemplares_container">
-            <div class="w-100">
-                <label for="cant_ejemplares" class="form-label small">Cant. de ejemplares <span class="text-danger">*</span></label>
-                <input type="number" class="form-control form-control-sm" id="cant_ejemplares" name="cant_ejemplares" min="1" value="1" required>
+        <div class="col-md-6">
+            <label for="input-nuevo-tipo-proyector" class="form-label small">Tipo de Proyector <span class="text-danger">*</span></label>
+            <div class="input-group">
+                <input type="text" class="form-control form-control-sm" id="input-nuevo-tipo-proyector" placeholder="Ej: Epson PowerLite, BenQ MX, etc.">
+                <input type="number" class="form-control form-control-sm" id="input-nueva-cant-proyector" placeholder="Cantidad" min="1" value="1">
+                <button type="button" class="btn btn-outline-primary btn-sm" onclick="agregarTipoProyectorDesdeInputs()">Agregar</button>
             </div>
         </div>
+    </div>
+
+    <!-- Contenedor para mostrar los tipos agregados -->
+    <div id="contenedor-tipos-proyector" class="mb-4">
+        <!-- Los tipos se mostrarán aquí dinámicamente -->
     </div>
     <!-- Contenedor para los ejemplares -->
     <div id="contenedor-ejemplares-proyector" class="mb-4">

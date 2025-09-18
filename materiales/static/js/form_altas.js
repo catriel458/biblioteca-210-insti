@@ -613,4 +613,552 @@ document.addEventListener('DOMContentLoaded', function () {
     if (containerMapa) {
         window.renderizarTiposMapa();
     }
+    
+    // Inicializar renderizado para formulario de notebook
+    const containerNotebookTipos = document.getElementById('contenedor-tipos-notebook');
+    if (containerNotebookTipos) {
+        window.renderizarTiposNotebook();
+    }
+    
+    // Inicializar renderizado para formulario de proyector
+    const containerProyectorTipos = document.getElementById('contenedor-tipos-proyector');
+    if (containerProyectorTipos) {
+        window.renderizarTiposProyector();
+    }
+    
+    // Inicializar renderizado para formulario de varios (nueva implementación)
+    const containerVariosNuevo = document.getElementById('contenedor-tipos-varios-nuevo');
+    if (containerVariosNuevo) {
+        window.renderizarTiposVariosNuevo();
+    }
+    
+    // Inicialización para multimedia
+    const contenedorMultimedia = document.getElementById('contenedor-tipos-multimedia');
+    if (contenedorMultimedia) {
+        console.log('🎯 Inicializando multimedia');
+        window.renderizarTiposMultimedia();
+    }
 });
+
+// === FUNCIONES ESPECÍFICAS PARA NOTEBOOKS ===
+window.gruposTiposNotebook = [];
+
+window.renderizarTiposNotebook = function() {
+    const contenedor = document.getElementById('contenedor-tipos-notebook');
+    if (!contenedor) return;
+
+    let html = '';
+    
+    window.gruposTiposNotebook.forEach((grupo, index) => {
+        html += `
+        <div class="card mb-3" style="border: 1px solid #dee2e6;">
+            <div class="card-header d-flex justify-content-between align-items-center" style="background-color: #f8f9fa; padding: 0.75rem;">
+                <h6 class="mb-0" style="color: #495057;">
+                    <strong>Tipo a registrar:</strong> ${grupo.tipo}
+                </h6>
+                <button type="button" class="btn btn-outline-danger btn-sm" onclick="eliminarGrupoTipoNotebook(${index})">
+                    <i class="fas fa-trash"></i> Eliminar
+                </button>
+            </div>
+            <div class="card-body" style="padding: 1rem;">
+                <div class="row mb-2">
+                    <div class="col-md-12">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="flex-grow-1">
+                                <label class="form-label small mb-1"><strong>Cantidad de ejemplares:</strong></label>
+                                <input type="number" 
+                                       class="form-control form-control-sm" 
+                                       value="${grupo.cantidad}" 
+                                       min="1" 
+                                       onchange="actualizarCantidadNotebook(${index}, this.value)"
+                                       style="max-width: 120px;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="ejemplares-notebook-${index}">
+                    <!-- Los ejemplares se generarán aquí -->
+                </div>
+            </div>
+        </div>`;
+    });
+
+    contenedor.innerHTML = html;
+    
+    // Generar ejemplares para cada grupo
+    window.gruposTiposNotebook.forEach((grupo, index) => {
+        generarEjemplaresNotebook(index, grupo.cantidad);
+    });
+};
+
+window.agregarGrupoTipoNotebook = function(tipo, cantidad) {
+    window.gruposTiposNotebook.push({ tipo, cantidad });
+    window.renderizarTiposNotebook();
+};
+
+window.agregarTipoNotebookDesdeInputs = function(inputTipoId = 'input-nuevo-tipo-notebook', inputCantId = 'input-nueva-cant-notebook') {
+    const inputTipo = document.getElementById(inputTipoId);
+    const inputCant = document.getElementById(inputCantId);
+    
+    if (!inputTipo || !inputCant) return;
+    
+    const tipo = inputTipo.value.trim();
+    const cantidad = parseInt(inputCant.value) || 1;
+    
+    if (tipo === '') {
+        alert('Por favor, ingrese un tipo de notebook.');
+        return;
+    }
+    
+    window.agregarGrupoTipoNotebook(tipo, cantidad);
+    
+    // Limpiar inputs
+    inputTipo.value = '';
+    inputCant.value = '1';
+};
+
+window.eliminarGrupoTipoNotebook = function(index) {
+    if (confirm('¿Está seguro de que desea eliminar este tipo de notebook?')) {
+        window.gruposTiposNotebook.splice(index, 1);
+        window.renderizarTiposNotebook();
+    }
+};
+
+window.actualizarCantidadNotebook = function(index, nuevaCantidad) {
+    const cantidad = parseInt(nuevaCantidad) || 1;
+    window.gruposTiposNotebook[index].cantidad = cantidad;
+    generarEjemplaresNotebook(index, cantidad);
+};
+
+function generarEjemplaresNotebook(grupoIndex, cantidad) {
+    const contenedor = document.getElementById(`ejemplares-notebook-${grupoIndex}`);
+    if (!contenedor) return;
+    
+    let html = '';
+    for (let i = 1; i <= cantidad; i++) {
+        html += `
+        <div class="row mb-2" style="border-left: 3px solid #007bff; padding-left: 10px; margin-left: 5px;">
+            <div class="col-md-1">
+                <label class="form-label small"><strong>N° Regis.</strong></label>
+                <input type="text" 
+                       class="form-control form-control-sm" 
+                       name="notebook_${grupoIndex}_${i}_registro" 
+                       placeholder="N° Registro" 
+                       required>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small"><strong>Denominación</strong></label>
+                <input type="text" 
+                       class="form-control form-control-sm" 
+                       name="notebook_${grupoIndex}_${i}_denominacion" 
+                       placeholder="Denominación" 
+                       required>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label small"><strong>Descripción</strong></label>
+                <textarea class="form-control form-control-sm" 
+                          name="notebook_${grupoIndex}_${i}_descripcion" 
+                          placeholder="Descripción del notebook" 
+                          rows="2" 
+                          required></textarea>
+            </div>
+        </div>`;
+    }
+     contenedor.innerHTML = html;
+}
+
+// === FUNCIONES ESPECÍFICAS PARA VARIOS (NUEVA IMPLEMENTACIÓN) ===
+window.gruposTiposVariosNuevo = [];
+
+window.renderizarTiposVariosNuevo = function() {
+    const contenedor = document.getElementById('contenedor-tipos-varios-nuevo');
+    if (!contenedor) return;
+
+    let html = '';
+    
+    window.gruposTiposVariosNuevo.forEach((grupo, index) => {
+        html += `
+        <div class="card mb-3" style="border: 1px solid #dee2e6;">
+            <div class="card-header d-flex justify-content-between align-items-center" style="background-color: #f8f9fa; padding: 0.75rem;">
+                <h6 class="mb-0" style="color: #495057;">
+                    <strong>Tipo a registrar:</strong> ${grupo.tipo}
+                </h6>
+                <button type="button" class="btn btn-outline-danger btn-sm" onclick="eliminarGrupoTipoVariosNuevo(${index})">
+                    <i class="fas fa-trash"></i> Eliminar
+                </button>
+            </div>
+            <div class="card-body" style="padding: 1rem;">
+                <div class="row mb-2">
+                    <div class="col-md-12">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="flex-grow-1">
+                                <label class="form-label small mb-1"><strong>Cantidad de ejemplares:</strong></label>
+                                <input type="number" 
+                                       class="form-control form-control-sm" 
+                                       value="${grupo.cantidad}" 
+                                       min="1" 
+                                       onchange="actualizarCantidadVariosNuevo(${index}, this.value)"
+                                       style="max-width: 120px;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="ejemplares-varios-nuevo-${index}">
+                    <!-- Los ejemplares se generarán aquí -->
+                </div>
+            </div>
+        </div>`;
+    });
+
+    contenedor.innerHTML = html;
+    
+    // Generar ejemplares para cada grupo
+    window.gruposTiposVariosNuevo.forEach((grupo, index) => {
+        generarEjemplaresVariosNuevo(index, grupo.cantidad);
+    });
+};
+
+window.agregarGrupoTipoVariosNuevo = function(tipo, cantidad) {
+    window.gruposTiposVariosNuevo.push({ tipo, cantidad });
+    window.renderizarTiposVariosNuevo();
+};
+
+window.agregarTipoVariosNuevoDesdeInputs = function(inputTipoId = 'input-nuevo-tipo-varios', inputCantId = 'input-nueva-cant-varios') {
+    const inputTipo = document.getElementById(inputTipoId);
+    const inputCant = document.getElementById(inputCantId);
+    
+    if (!inputTipo || !inputCant) return;
+    
+    const tipo = inputTipo.value.trim();
+    const cantidad = parseInt(inputCant.value) || 1;
+    
+    if (tipo === '') {
+        alert('Por favor, ingrese un tipo de material.');
+        return;
+    }
+    
+    window.agregarGrupoTipoVariosNuevo(tipo, cantidad);
+    
+    // Limpiar inputs
+    inputTipo.value = '';
+    inputCant.value = '1';
+};
+
+window.eliminarGrupoTipoVariosNuevo = function(index) {
+    if (confirm('¿Está seguro de que desea eliminar este tipo de material?')) {
+        window.gruposTiposVariosNuevo.splice(index, 1);
+        window.renderizarTiposVariosNuevo();
+    }
+};
+
+window.actualizarCantidadVariosNuevo = function(index, nuevaCantidad) {
+    const cantidad = parseInt(nuevaCantidad) || 1;
+    window.gruposTiposVariosNuevo[index].cantidad = cantidad;
+    generarEjemplaresVariosNuevo(index, cantidad);
+};
+
+function generarEjemplaresVariosNuevo(grupoIndex, cantidad) {
+    const contenedor = document.getElementById(`ejemplares-varios-nuevo-${grupoIndex}`);
+    if (!contenedor) return;
+    
+    let html = '';
+    for (let i = 1; i <= cantidad; i++) {
+        html += `
+        <div class="row mb-2" style="border-left: 3px solid #ffc107; padding-left: 10px; margin-left: 5px;">
+            <div class="col-md-1">
+                <label class="form-label small"><strong>N° Regis.</strong></label>
+                <input type="text" 
+                       class="form-control form-control-sm" 
+                       name="varios_${grupoIndex}_${i}_registro" 
+                       placeholder="N° Registro" 
+                       required>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small"><strong>Denominación</strong></label>
+                <input type="text" 
+                       class="form-control form-control-sm" 
+                       name="varios_${grupoIndex}_${i}_denominacion" 
+                       placeholder="Denominación" 
+                       required>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label small"><strong>Descripción</strong></label>
+                <textarea class="form-control form-control-sm" 
+                          name="varios_${grupoIndex}_${i}_descripcion" 
+                          placeholder="Descripción del material" 
+                          rows="2" 
+                          required></textarea>
+            </div>
+        </div>`;
+    }
+    contenedor.innerHTML = html;
+}
+
+// === FUNCIONES ESPECÍFICAS PARA PROYECTORES ===
+window.gruposTiposProyector = [];
+
+window.renderizarTiposProyector = function() {
+    const contenedor = document.getElementById('contenedor-tipos-proyector');
+    if (!contenedor) return;
+
+    let html = '';
+    
+    window.gruposTiposProyector.forEach((grupo, index) => {
+        html += `
+        <div class="card mb-3" style="border: 1px solid #dee2e6;">
+            <div class="card-header d-flex justify-content-between align-items-center" style="background-color: #f8f9fa; padding: 0.75rem;">
+                <h6 class="mb-0" style="color: #495057;">
+                    <strong>Tipo a registrar:</strong> ${grupo.tipo}
+                </h6>
+                <button type="button" class="btn btn-outline-danger btn-sm" onclick="eliminarGrupoTipoProyector(${index})">
+                    <i class="fas fa-trash"></i> Eliminar
+                </button>
+            </div>
+            <div class="card-body" style="padding: 1rem;">
+                <div class="row mb-2">
+                    <div class="col-md-12">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="flex-grow-1">
+                                <label class="form-label small mb-1"><strong>Cantidad de ejemplares:</strong></label>
+                                <input type="number" 
+                                       class="form-control form-control-sm" 
+                                       value="${grupo.cantidad}" 
+                                       min="1" 
+                                       onchange="actualizarCantidadProyector(${index}, this.value)"
+                                       style="max-width: 120px;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="ejemplares-proyector-${index}">
+                    <!-- Los ejemplares se generarán aquí -->
+                </div>
+            </div>
+        </div>`;
+    });
+
+    contenedor.innerHTML = html;
+    
+    // Generar ejemplares para cada grupo
+    window.gruposTiposProyector.forEach((grupo, index) => {
+        generarEjemplaresProyector(index, grupo.cantidad);
+    });
+};
+
+window.agregarGrupoTipoProyector = function(tipo, cantidad) {
+    window.gruposTiposProyector.push({ tipo, cantidad });
+    window.renderizarTiposProyector();
+};
+
+window.agregarTipoProyectorDesdeInputs = function(inputTipoId = 'input-nuevo-tipo-proyector', inputCantId = 'input-nueva-cant-proyector') {
+    const inputTipo = document.getElementById(inputTipoId);
+    const inputCant = document.getElementById(inputCantId);
+    
+    if (!inputTipo || !inputCant) return;
+    
+    const tipo = inputTipo.value.trim();
+    const cantidad = parseInt(inputCant.value) || 1;
+    
+    if (tipo === '') {
+        alert('Por favor, ingrese un tipo de proyector.');
+        return;
+    }
+    
+    window.agregarGrupoTipoProyector(tipo, cantidad);
+    
+    // Limpiar inputs
+    inputTipo.value = '';
+    inputCant.value = '1';
+};
+
+window.eliminarGrupoTipoProyector = function(index) {
+    if (confirm('¿Está seguro de que desea eliminar este tipo de proyector?')) {
+        window.gruposTiposProyector.splice(index, 1);
+        window.renderizarTiposProyector();
+    }
+};
+
+window.actualizarCantidadProyector = function(index, nuevaCantidad) {
+    const cantidad = parseInt(nuevaCantidad) || 1;
+    window.gruposTiposProyector[index].cantidad = cantidad;
+    generarEjemplaresProyector(index, cantidad);
+};
+
+function generarEjemplaresProyector(grupoIndex, cantidad) {
+    const contenedor = document.getElementById(`ejemplares-proyector-${grupoIndex}`);
+    if (!contenedor) return;
+    
+    let html = '';
+    for (let i = 1; i <= cantidad; i++) {
+        html += `
+        <div class="row mb-2" style="border-left: 3px solid #28a745; padding-left: 10px; margin-left: 5px;">
+            <div class="col-md-1">
+                <label class="form-label small"><strong>N° Regis.</strong></label>
+                <input type="text" 
+                       class="form-control form-control-sm" 
+                       name="proyector_${grupoIndex}_${i}_registro" 
+                       placeholder="N° Registro" 
+                       required>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small"><strong>Denominación</strong></label>
+                <input type="text" 
+                       class="form-control form-control-sm" 
+                       name="proyector_${grupoIndex}_${i}_denominacion" 
+                       placeholder="Denominación" 
+                       required>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label small"><strong>Descripción</strong></label>
+                <textarea class="form-control form-control-sm" 
+                          name="proyector_${grupoIndex}_${i}_descripcion" 
+                          placeholder="Descripción del proyector" 
+                          rows="2" 
+                          required></textarea>
+            </div>
+        </div>`;
+    }
+     contenedor.innerHTML = html;
+}
+
+// ===== FUNCIONES PARA MULTIMEDIA =====
+
+// Variable global para almacenar los grupos de tipos de multimedia
+window.gruposTiposMultimedia = [];
+
+// Función para renderizar los tipos de multimedia
+window.renderizarTiposMultimedia = function() {
+    const contenedor = document.getElementById('contenedor-tipos-multimedia');
+    if (!contenedor) {
+        console.log('⚠️ Contenedor tipos multimedia no encontrado');
+        return;
+    }
+    
+    let html = '';
+    
+    window.gruposTiposMultimedia.forEach((grupo, index) => {
+        html += `
+        <div class="card mb-3" style="border: 1px solid #dee2e6;">
+            <div class="card-header d-flex justify-content-between align-items-center" style="background-color: #f8f9fa; padding: 0.75rem;">
+                <h6 class="mb-0" style="color: #495057;">
+                    <strong>Tipo a registrar:</strong> ${grupo.tipo}
+                </h6>
+                <button type="button" class="btn btn-outline-danger btn-sm" onclick="eliminarGrupoTipoMultimedia(${index})">
+                    <i class="fas fa-trash"></i> Eliminar
+                </button>
+            </div>
+            <div class="card-body" style="padding: 1rem;">
+                <div class="row mb-2">
+                    <div class="col-md-12">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="flex-grow-1">
+                                <label class="form-label small mb-1"><strong>Cantidad de ejemplares:</strong></label>
+                                <input type="number" 
+                                       class="form-control form-control-sm" 
+                                       value="${grupo.cantidad}" 
+                                       min="1" 
+                                       onchange="actualizarCantidadMultimedia(${index}, this.value)"
+                                       style="max-width: 120px;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="ejemplares-multimedia-${index}">
+                    <!-- Los ejemplares se generarán aquí -->
+                </div>
+            </div>
+        </div>`;
+    });
+
+    contenedor.innerHTML = html;
+    
+    // Generar ejemplares para cada grupo
+    window.gruposTiposMultimedia.forEach((grupo, index) => {
+        generarEjemplaresMultimedia(index, grupo.cantidad);
+    });
+};
+
+// Función para agregar un nuevo grupo de tipo multimedia
+window.agregarGrupoTipoMultimedia = function(tipo, cantidad) {
+    window.gruposTiposMultimedia.push({ tipo, cantidad });
+    window.renderizarTiposMultimedia();
+};
+
+// Función para agregar tipo multimedia desde los inputs
+window.agregarTipoMultimediaDesdeInputs = function(inputTipoId = 'input-nuevo-tipo-multimedia', inputCantId = 'input-nueva-cant-multimedia') {
+    const inputTipo = document.getElementById(inputTipoId);
+    const inputCant = document.getElementById(inputCantId);
+    
+    if (!inputTipo || !inputCant) return;
+    
+    const tipo = inputTipo.value.trim();
+    const cantidad = parseInt(inputCant.value) || 1;
+    
+    if (tipo === '') {
+        alert('Por favor, ingrese un tipo de multimedia.');
+        return;
+    }
+    
+    window.agregarGrupoTipoMultimedia(tipo, cantidad);
+    
+    // Limpiar inputs
+    inputTipo.value = '';
+    inputCant.value = '1';
+};
+
+// Función para eliminar un grupo de tipo multimedia
+window.eliminarGrupoTipoMultimedia = function(index) {
+    if (confirm('¿Está seguro de que desea eliminar este tipo de multimedia?')) {
+        window.gruposTiposMultimedia.splice(index, 1);
+        window.renderizarTiposMultimedia();
+    }
+};
+
+// Función para actualizar la cantidad de un grupo
+window.actualizarCantidadMultimedia = function(index, nuevaCantidad) {
+    const cantidad = parseInt(nuevaCantidad) || 1;
+    window.gruposTiposMultimedia[index].cantidad = cantidad;
+    generarEjemplaresMultimedia(index, cantidad);
+};
+
+// Función para generar ejemplares de un grupo específico
+function generarEjemplaresMultimedia(grupoIndex, cantidad) {
+    const contenedor = document.getElementById(`ejemplares-multimedia-${grupoIndex}`);
+    if (!contenedor) return;
+    
+    let html = '';
+    for (let i = 1; i <= cantidad; i++) {
+        html += `
+        <div class="row mb-2" style="border-left: 3px solid #dc3545; padding-left: 10px; margin-left: 5px;">
+            <div class="col-md-1">
+                <label class="form-label small"><strong>N° Regis.</strong></label>
+                <input type="text" 
+                       class="form-control form-control-sm" 
+                       name="multimedia_${grupoIndex}_${i}_registro" 
+                       placeholder="N° Registro" 
+                       required>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small"><strong>Denominación</strong></label>
+                <input type="text" 
+                       class="form-control form-control-sm" 
+                       name="multimedia_${grupoIndex}_${i}_denominacion" 
+                       placeholder="Denominación" 
+                       required>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label small"><strong>Descripción</strong></label>
+                <textarea class="form-control form-control-sm" 
+                          name="multimedia_${grupoIndex}_${i}_descripcion" 
+                          placeholder="Descripción del multimedia" 
+                          rows="2" 
+                          required></textarea>
+            </div>
+        </div>`;
+    }
+    contenedor.innerHTML = html;
+}

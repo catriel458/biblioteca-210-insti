@@ -42,6 +42,26 @@
         </div>
     </div>
 
+    <!-- Sección para agregar tipos de multimedia dinámicamente -->
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <label for="input-nuevo-tipo-multimedia" class="form-label">Agregar Tipo de Multimedia:</label>
+            <input type="text" class="form-control" id="input-nuevo-tipo-multimedia" placeholder="Ej: Video, Audio, Presentación, etc.">
+        </div>
+        <div class="col-md-3">
+            <label for="input-cantidad-multimedia" class="form-label">Cantidad:</label>
+            <input type="number" class="form-control" id="input-cantidad-multimedia" min="1" value="1">
+        </div>
+        <div class="col-md-3 d-flex align-items-end">
+            <button type="button" class="btn btn-primary" id="btn-agregar-multimedia">Agregar</button>
+        </div>
+    </div>
+
+    <!-- Contenedor para mostrar los tipos agregados -->
+    <div id="contenedor-tipos-multimedia" class="mb-4">
+        <!-- Los tipos de multimedia se mostrarán aquí dinámicamente -->
+    </div>
+
     <!-- Contenedor para los ejemplares -->
     <div id="contenedor-ejemplares-multimedia" class="mb-4">
         <!-- Los ejemplares se generarán aquí dinámicamente -->
@@ -54,6 +74,21 @@
 <!-- Script para la funcionalidad carrera-materia -->
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // Inicializar funcionalidad dinámica de multimedia
+        if (typeof window.renderizarTiposMultimedia === 'function') {
+            window.renderizarTiposMultimedia();
+        }
+        
+        // Agregar listener para el input de multimedia
+        const inputMultimedia = document.getElementById('input-nuevo-tipo-multimedia');
+        if (inputMultimedia) {
+            inputMultimedia.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter' && typeof window.agregarTipoMultimediaDesdeInputs === 'function') {
+                    window.agregarTipoMultimediaDesdeInputs();
+                }
+            });
+        }
+        
         const carreraSelect = document.getElementById('carrera');
         const materiaSelect = document.getElementById('materia');
         

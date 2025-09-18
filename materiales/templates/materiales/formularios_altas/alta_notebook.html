@@ -29,11 +29,23 @@
                 <label for="num_registro" class="form-label small">N° de Registro <span class="text-danger">*</span></label>
                 <input type="text" class="form-control form-control-sm" id="num_registro" name="num_registro" required>
             </div>
-            
-            <div class="col-md-3">
-                <label for="cant_ejemplares" class="form-label small">Cant. de ejemplares <span class="text-danger">*</span></label>
-                <input type="number" class="form-control form-control-sm" id="cant_ejemplares" name="num_ejemplar" min="1" value="1" required>
+        </div>
+        
+        <!-- Sección para agregar tipos de notebooks dinámicamente -->
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label for="input-nuevo-tipo-notebook" class="form-label small">Tipo de Notebook <span class="text-danger">*</span></label>
+                <div class="input-group">
+                    <input type="text" class="form-control form-control-sm" id="input-nuevo-tipo-notebook" placeholder="Ej: Lenovo ThinkPad, HP Pavilion, etc.">
+                    <input type="number" class="form-control form-control-sm" id="input-nueva-cant-notebook" placeholder="Cantidad" min="1" value="1">
+                    <button type="button" class="btn btn-outline-primary btn-sm" onclick="agregarTipoNotebookDesdeInputs()">Agregar</button>
+                </div>
             </div>
+        </div>
+
+        <!-- Contenedor para mostrar los tipos agregados -->
+        <div id="contenedor-tipos-notebook" class="mb-4">
+            <!-- Los tipos se mostrarán aquí dinámicamente -->
         </div>
         
         <!-- Contenedor para los ejemplares -->
