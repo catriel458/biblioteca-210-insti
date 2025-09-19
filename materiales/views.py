@@ -2237,6 +2237,110 @@ def confirmacion_alta_proyector(request):
         messages.error(request, 'Método no permitido. Por favor, complete el formulario correctamente.')
         return redirect('alta_proyector')
 
+# Vistas para la confirmación de alta de mapa
+def confirmacion_alta_mapa(request):
+    """
+    Vista para mostrar el modal de confirmación para mapa
+    """
+    print("🎯 Llegó a confirmacion_alta_mapa")  # Debug
+    
+    if request.method == 'POST':
+        # Obtener los datos del formulario
+        sede = request.POST.get('sede', '')
+        num_registro = request.POST.get('num_registro', '')
+        
+        # Obtener los tipos de mapa desde el formulario
+        tipos_mapa = []
+        # Convertir los datos de tipos de mapa del formulario
+        if 'gruposTiposMapa' in request.POST:
+            try:
+                grupos_tipos_mapa = json.loads(request.POST.get('gruposTiposMapa', '[]'))
+                for grupo in grupos_tipos_mapa:
+                    tipos_mapa.append({
+                        'tipo': grupo.get('tipo', ''),
+                        'cantidad': grupo.get('cantidad', 1)
+                    })
+            except json.JSONDecodeError:
+                print("❌ Error al decodificar JSON de tipos de mapa")
+        
+        # Guardar los datos en la sesión
+        mapa_data = {
+            'sede': sede,
+            'num_registro': num_registro,
+            'tipos_mapa': tipos_mapa
+        }
+        
+        # Guardar en sesión
+        request.session['mapa_data'] = mapa_data
+        print(f"📋 Datos de mapa guardados en sesión: {mapa_data}")  # Debug
+        
+        # Renderizar página con modal automático
+        return render(request, 'materiales/formularios_altas/confirmaciones_alta/confirmacion_alta_mapa.html', {
+            'form_data': mapa_data,
+            'tipos_mapa': tipos_mapa
+        })
+    else:
+        # Si no es POST, redirigir al formulario
+        messages.error(request, 'Método no permitido. Por favor, complete el formulario correctamente.')
+        return redirect('alta_materiales')
+
+def guardar_alta_mapa(request):
+    """
+    Vista para guardar el mapa confirmado en la base de datos
+    """
+    print("🎯 Llegó a guardar_alta_mapa")  # Debug
+    
+    if request.method != 'POST':
+        messages.error(request, 'Método no permitido.')
+        return redirect('alta_materiales')
+    
+    # Verificar que existan datos en la sesión
+    if 'mapa_data' not in request.session:
+        messages.error(request, 'No hay datos para guardar. Por favor, complete el formulario nuevamente.')
+        return redirect('alta_materiales')
+    
+    # Obtener datos de la sesión
+    mapa_data = request.session['mapa_data']
+    print(f"📋 Datos de mapa a guardar: {mapa_data}")  # Debug
+    
+    try:
+        # Guardar cada tipo de mapa
+        for tipo_mapa in mapa_data.get('tipos_mapa', []):
+            # Crear el registro de mapa para cada cantidad
+            for _ in range(int(tipo_mapa.get('cantidad', 1))):
+                mapa = Mapas(
+                    tipo=tipo_mapa.get('tipo', ''),
+                    sede=mapa_data.get('sede', ''),
+                    num_registro=mapa_data.get('num_registro', '')
+                )
+                mapa.save()
+                print(f"✅ Mapa guardado: {mapa}")
+        
+        # Limpiar datos de sesión
+        if 'mapa_data' in request.session:
+            del request.session['mapa_data']
+        
+        messages.success(request, 'Mapa(s) registrado(s) correctamente.')
+        return redirect('alta_materiales')
+    
+    except Exception as e:
+        print(f"❌ Error al guardar mapa: {str(e)}")
+        messages.error(request, f'Error al guardar el mapa: {str(e)}')
+        return redirect('alta_materiales')
+
+def cancelar_alta_mapa(request):
+    """
+    Vista para cancelar la alta y limpiar datos de sesión
+    """
+    print("🔴 Cancelando alta de mapa")  # Debug
+    
+    if 'mapa_data' in request.session:
+        del request.session['mapa_data']
+        print("🗑️ Datos de sesión eliminados")  # Debug
+    
+    messages.info(request, 'Operación cancelada.')
+    return redirect('alta_materiales')
+
 def guardar_alta_proyector(request):
     """
     Vista para guardar definitivamente después de confirmar en el modal

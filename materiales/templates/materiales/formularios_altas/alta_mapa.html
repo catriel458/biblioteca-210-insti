@@ -28,8 +28,8 @@
         </div>
         
         <div class="col-md-3">
-            <label for="num_registro" class="form-label small">N° de Registro <span class="text-danger">*</span></label>
-            <input type="text" class="form-control form-control-sm" id="num_registro" name="num_registro" required>
+            <label for="input-nueva-cant-mapa" class="form-label small">Cantidad <span class="text-danger">*</span></label>
+            <input type="number" class="form-control form-control-sm" id="input-nueva-cant-mapa" name="cantidad_mapa" min="1" value="1" required>
         </div>
     </div>
     
@@ -49,7 +49,7 @@
     <div class="row" style="margin-bottom: 120px;">
         <div class="col-12 d-flex justify-content-end gap-3">
             <button type="reset" class="btn btn-outline-danger btn-sm">Cancelar</button>
-            <button type="submit" class="btn btn-primary btn-sm">Guardar</button>
+            <button type="submit" class="btn btn-primary btn-sm" formaction="{% url 'confirmar_alta_mapa' %}" formmethod="post">Guardar</button>
         </div>
     </div>
 </div>

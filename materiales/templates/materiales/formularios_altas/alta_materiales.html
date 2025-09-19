@@ -202,7 +202,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     // 🔥 IMPORTANTE: Establecer el action correcto para mapa
                     const form = document.getElementById('form_alta_material');
                     if (form) {
-                        form.action = '/alta-mapa/';
+                        form.action = '/confirmar-alta-mapa/';
                         console.log('🔧 Action del formulario mapa establecido a:', form.action);
                     }
                     
@@ -213,7 +213,7 @@ document.addEventListener("DOMContentLoaded", function () {
                             window.gruposTiposMapa = [];
                         }
                         if (typeof window.renderizarTiposMapa === 'function') {
-                            window.renderizarTiposMapa();z
+                            window.renderizarTiposMapa();
                         }
                     }, 100); // Pequeño delay para asegurar que el DOM esté listo
                     
