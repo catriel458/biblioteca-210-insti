@@ -2291,55 +2291,105 @@ def guardar_alta_mapa(request):
     print("🎯 Llegó a guardar_alta_mapa")  # Debug
     
     if request.method != 'POST':
+        print("❌ Método no permitido: " + request.method)  # Debug
         messages.error(request, 'Método no permitido.')
         return redirect('alta_materiales')
     
     # Verificar que existan datos en la sesión
     if 'mapa_data' not in request.session:
-        messages.error(request, 'No hay datos para guardar. Por favor, complete el formulario nuevamente.')
-        return redirect('alta_materiales')
+        print("❌ No hay datos de mapa en la sesión")  # Debug
+        # Intentar buscar en otras claves posibles
+        session_keys = list(request.session.keys())
+        print(f"🔑 Claves disponibles en la sesión: {session_keys}")
+        
+        # Buscar claves que puedan contener datos de mapa
+        mapa_keys = [k for k in session_keys if 'mapa' in k.lower()]
+        if mapa_keys:
+            print(f"🔍 Encontradas posibles claves de mapa: {mapa_keys}")
+            # Usar la primera clave encontrada
+            mapa_key = mapa_keys[0]
+            print(f"🔑 Usando clave alternativa: {mapa_key}")
+            mapa_data = request.session[mapa_key]
+        else:
+            messages.error(request, 'No hay datos para guardar. Por favor, complete el formulario nuevamente.')
+            return redirect('alta_materiales')
+    else:
+        # Obtener datos de la sesión
+        mapa_data = request.session['mapa_data']
     
-    # Obtener datos de la sesión
-    mapa_data = request.session['mapa_data']
     print(f"📋 Datos de mapa a guardar: {mapa_data}")  # Debug
     
     try:
-        # Guardar cada tipo de mapa
-        for tipo_mapa in mapa_data.get('tipos_mapa', []):
-            # Crear el registro de mapa para cada cantidad
-            for _ in range(int(tipo_mapa.get('cantidad', 1))):
+        # Verificar la estructura de tipos_mapa
+        tipos_mapa = mapa_data.get('tipos_mapa', [])
+        print(f"🗂️ Tipos de mapa encontrados: {len(tipos_mapa)}")  # Debug
+        
+        if not tipos_mapa:
+            print("⚠️ No hay tipos de mapa definidos")  # Debug
+            # Intentar buscar datos en otra estructura
+            print(f"🔍 Buscando datos en otra estructura. Claves disponibles: {mapa_data.keys()}")
+            
+            # Si no hay tipos_mapa pero hay al menos tipo, sede y num_registro, crear un mapa simple
+            if 'tipo' in mapa_data or 'sede' in mapa_data or 'num_registro' in mapa_data:
+                print("🔄 Creando mapa simple con datos disponibles")
                 mapa = Mapas(
-                    tipo=tipo_mapa.get('tipo', ''),
-                    sede=mapa_data.get('sede', ''),
-                    num_registro=mapa_data.get('num_registro', '')
+                    tipo=mapa_data.get('tipo', 'Sin especificar'),
+                    sede=mapa_data.get('sede', 'La Plata'),
+                    num_registro=mapa_data.get('num_registro', '1'),
+                    denominacion=mapa_data.get('denominacion', 'Mapa')
                 )
                 mapa.save()
-                print(f"✅ Mapa guardado: {mapa}")
+                print(f"✅ Mapa simple guardado: ID={mapa.id_mapa}, Tipo={mapa.tipo}")
+                
+                # Limpiar sesión
+                for key in list(request.session.keys()):
+                    if 'mapa' in key.lower():
+                        del request.session[key]
+                        print(f"🧹 Datos de sesión limpiados: {key}")
+                
+                messages.success(request, '✅ Mapa registrado correctamente.')
+                return redirect('alta_materiales')
+            else:
+                messages.warning(request, 'No se encontraron tipos de mapa para guardar.')
+                return redirect('alta_materiales')
+        
+        mapas_guardados = []
+        
+        # Guardar cada tipo de mapa
+        for tipo_mapa in tipos_mapa:
+            print(f"📌 Procesando tipo: {tipo_mapa}")  # Debug
+            # Crear el registro de mapa para cada cantidad
+            cantidad = int(tipo_mapa.get('cantidad', 1))
+            print(f"🔢 Cantidad a crear: {cantidad}")  # Debug
+            
+            for i in range(cantidad):
+                mapa = Mapas(
+                    tipo=tipo_mapa.get('tipo', ''),
+                    sede=mapa_data.get('sede', 'La Plata'),
+                    num_registro=mapa_data.get('num_registro', '1'),
+                    denominacion=mapa_data.get('denominacion', f"Mapa {tipo_mapa.get('tipo', '')}")
+                )
+                mapa.save()
+                mapas_guardados.append(mapa)
+                print(f"✅ Mapa guardado #{i+1}: ID={mapa.id_mapa}, Tipo={mapa.tipo}")
+        
+        print(f"✅ Total mapas guardados: {len(mapas_guardados)}")  # Debug
         
         # Limpiar datos de sesión
-        if 'mapa_data' in request.session:
-            del request.session['mapa_data']
+        for key in list(request.session.keys()):
+            if 'mapa' in key.lower():
+                del request.session[key]
+                print(f"🧹 Datos de sesión limpiados: {key}")
         
-        messages.success(request, 'Mapa(s) registrado(s) correctamente.')
+        messages.success(request, f'✅ {len(mapas_guardados)} mapa(s) registrado(s) correctamente.')
         return redirect('alta_materiales')
     
     except Exception as e:
         print(f"❌ Error al guardar mapa: {str(e)}")
+        import traceback
+        traceback.print_exc()  # Imprime el stack trace completo
         messages.error(request, f'Error al guardar el mapa: {str(e)}')
         return redirect('alta_materiales')
-
-def cancelar_alta_mapa(request):
-    """
-    Vista para cancelar la alta y limpiar datos de sesión
-    """
-    print("🔴 Cancelando alta de mapa")  # Debug
-    
-    if 'mapa_data' in request.session:
-        del request.session['mapa_data']
-        print("🗑️ Datos de sesión eliminados")  # Debug
-    
-    messages.info(request, 'Operación cancelada.')
-    return redirect('alta_materiales')
 
 def guardar_alta_proyector(request):
     """
@@ -2387,4 +2437,15 @@ def cancelar_alta_proyector(request):
         del request.session['proyector_data']
     
     messages.info(request, 'Se ha cancelado el registro del proyector.')
+    return redirect('alta_materiales')
+
+def cancelar_alta_mapa(request):
+    """
+    Vista para cancelar el alta de mapa
+    """
+    # Limpiar datos de sesión si existen
+    if 'mapa_data' in request.session:
+        del request.session['mapa_data']
+    
+    messages.info(request, 'Se ha cancelado el registro del mapa.')
     return redirect('alta_materiales')

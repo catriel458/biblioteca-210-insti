@@ -98,104 +98,79 @@
         .btn {
             padding: 0.5rem 2rem;
             font-weight: 500;
-            border-radius: 8px;
-            transition: all 0.3s ease;
-            min-width: fit-content;
         }
 
-        .btn-primary {
-            background-color: #007bff;
-            border-color: #007bff;
-        }
-
-        .btn-primary:hover {
-            background-color: #007bff;
-            border-color: #007bff;
-            transform: translateY(-1px);
-        }
-
-        .btn-secondary {
-            background-color: #f8f9fa;
-            border-color: #dee2e6;
-            color: #dc3545;
-        }
-
-        .btn-secondary:hover {
-            background-color: #e9ecef;
-            border-color: #dee2e6;
-            color: #dc3545;
-        }
-
-        .loading-container {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background-color: rgba(255, 255, 255, 0.9);
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            z-index: 9999;
-        }
-
-        .loading-text {
-            font-size: 1.5rem;
-            margin-bottom: 1rem;
-            color: #007bff;
-        }
-
-        .loading-text i {
-            margin-right: 0.5rem;
-        }
-
+        /* Estilos específicos para tipos de mapa */
         .tipos-mapa-container {
-            margin-top: 1rem;
-            border-top: 1px solid #dee2e6;
-            padding-top: 1rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
         }
 
         .tipo-mapa-item {
-            background-color: #f8f9fa;
-            border-radius: 5px;
-            padding: 0.75rem;
-            margin-bottom: 0.5rem;
-            border-left: 3px solid #25898D;
+            background-color: #f0f8ff;
+            border: 1px solid #b8daff;
+            border-radius: 8px;
+            padding: 10px 15px;
             display: flex;
+            align-items: center;
             justify-content: space-between;
-        }
-
-        .tipo-mapa-item span {
-            font-weight: 500;
+            min-width: 200px;
         }
 
         .tipo-mapa-cantidad {
-            background-color: #e9ecef;
+            background-color: #007bff;
+            color: white;
             border-radius: 50%;
             width: 25px;
             height: 25px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 0.8rem;
             font-weight: bold;
+            margin-left: 10px;
+        }
+
+        /* Indicador de carga */
+        .loading-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
     </style>
 {% endblock %}
 
 {% block content %}
+<!-- Indicador de carga -->
 <div class="loading-container">
-    <div class="loading-text">
-        <i class="fas fa-spinner fa-spin"></i> Procesando datos del mapa...
-    </div>
-    <p>Se abrirá el modal de confirmación automáticamente</p>
+    <div class="spinner"></div>
 </div>
 
-<!-- Modal de Confirmación de Alta de Mapa -->
-<div class="modal fade" id="modalConfirmacionAltaMaterial" tabindex="-1" aria-labelledby="modalConfirmacionLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered modal-lg">
+<!-- Modal de confirmación -->
+<div class="modal fade show" id="modalConfirmacionAltaMaterial" tabindex="-1" aria-labelledby="modalConfirmacionLabel" aria-hidden="true" data-bs-backdrop="static" style="display: block;">
+  <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="modalConfirmacionLabel">CONFIRME LOS DATOS</h5>
@@ -227,12 +202,16 @@
           <div class="section-container">
             <h6 class="section-title">Tipos de Mapa</h6>
             <div id="tiposMapaContainer" class="tipos-mapa-container">
-              {% for tipo in tipos_mapa %}
-              <div class="tipo-mapa-item">
-                <span>{{ tipo.tipo }}</span>
-                <div class="tipo-mapa-cantidad">{{ tipo.cantidad }}</div>
-              </div>
-              {% endfor %}
+              {% if tipos_mapa %}
+                {% for tipo in tipos_mapa %}
+                <div class="tipo-mapa-item">
+                  <span>{{ tipo.tipo }}</span>
+                  <div class="tipo-mapa-cantidad">{{ tipo.cantidad }}</div>
+                </div>
+                {% endfor %}
+              {% else %}
+                <p>No se han especificado tipos de mapa.</p>
+              {% endif %}
             </div>
           </div>
         </div>  
@@ -247,18 +226,33 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('🔍 DOM cargado, configurando modal...');
+    
     // Ocultar el indicador de carga
-    setTimeout(function() {
-        document.querySelector('.loading-container').style.display = 'none';
-        
-        // Mostrar el modal automáticamente
-        const modal = new bootstrap.Modal(document.getElementById('modalConfirmacionAltaMaterial'), {
+    document.querySelector('.loading-container').style.display = 'none';
+    
+    // Asegurar que el modal esté visible
+    var modalElement = document.getElementById('modalConfirmacionAltaMaterial');
+    
+    // Verificar si Bootstrap está disponible
+    if (typeof bootstrap !== 'undefined') {
+        // Usar Bootstrap para mostrar el modal
+        var modal = new bootstrap.Modal(modalElement, {
             backdrop: 'static',
-            keyboard: false      // No se cierra con ESC
+            keyboard: false
         });
         modal.show();
-        console.log('✅ Modal de MAPA mostrado automáticamente');
-    }, 500);
+        console.log('✅ Modal mostrado con Bootstrap');
+    } else {
+        // Fallback si Bootstrap no está disponible
+        modalElement.classList.add('show');
+        modalElement.style.display = 'block';
+        document.body.classList.add('modal-open');
+        console.log('✅ Modal mostrado con fallback');
+    }
+    
+    console.log('📊 Datos del formulario:', {{ form_data|safe|default:"{}" }});
+    console.log('📊 Tipos de mapa:', {{ tipos_mapa|safe|default:"[]" }});
 });
 
 function confirmarMapa() {
