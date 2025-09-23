@@ -13,7 +13,7 @@
 
         <div class="col-md-4">
             <label for="input-nuevo-tipo-mapa">Tipo de Mapa: <span style="color: red;">*</span></label>
-            <select class="form-select select-sede" id="input-nuevo-tipo-mapa" required>
+            <select class="form-select select-sede" id="input-nuevo-tipo-mapa" name="input-nuevo-tipo-mapa" required>
                 <option value="">Seleccione un tipo</option>
                 <option value="FISICO">FISICO</option>
                 <option value="FISICO-POLITICO">FISICO-POLITICO</option>
@@ -24,11 +24,12 @@
         
         <div class="col-md-4">
             <label for="input-nueva-cant-mapa" class="form-label small">Cantidad <span class="text-danger">*</span></label>
-            <input type="number" class="form-control form-control-sm" id="input-nueva-cant-mapa" name="cantidad_mapa" min="1" value="1" required>
+            <input type="number" class="form-control form-control-sm" id="input-nueva-cant-mapa" name="input-nueva-cant-mapa" min="1" value="1" required>
         </div>
     </div>
     
-
+    <!-- Campo oculto para enviar los datos de grupos de tipos -->
+    <input type="hidden" id="gruposTiposMapa" name="gruposTiposMapa" value="">
     
     <!-- Contenedor dinámico para tipo y cantidad -->
     <div class="row mb-3">
@@ -44,7 +45,7 @@
     <div class="row" style="margin-bottom: 120px;">
         <div class="col-12 d-flex justify-content-end gap-3">
             <button type="reset" class="btn btn-outline-danger btn-sm">Cancelar</button>
-            <button type="submit" class="btn btn-primary btn-sm" formaction="{% url 'confirmar_alta_mapa' %}" formmethod="post">Guardar</button>
+            <button type="submit" class="btn btn-primary btn-sm" formaction="{% url 'confirmar_alta_mapa' %}" formmethod="post" onclick="prepararEnvioFormulario()">Guardar</button>
         </div>
     </div>
 </div>
@@ -77,6 +78,44 @@
         window.gruposTiposMapa = [];
     }
     
+    // Función para preparar el envío del formulario
+    function prepararEnvioFormulario() {
+        // Serializar los datos de gruposTiposMapa
+        const gruposTiposMapaInput = document.getElementById('gruposTiposMapa');
+        if (gruposTiposMapaInput && window.gruposTiposMapa) {
+            gruposTiposMapaInput.value = JSON.stringify(window.gruposTiposMapa);
+        }
+        
+        // Agregar campos ocultos para cada tipo de grupo
+        window.gruposTiposMapa.forEach((grupo, idx) => {
+            const tipoInput = document.createElement('input');
+            tipoInput.type = 'hidden';
+            tipoInput.name = `tipo_grupo_${idx}`;
+            tipoInput.value = grupo.tipo;
+            document.querySelector('[data-form="mapa"]').appendChild(tipoInput);
+        });
+        
+        console.log('📤 Datos preparados para envío:', {
+            gruposTiposMapa: window.gruposTiposMapa,
+            sede: document.getElementById('sede-mapa').value
+        });
+    }
+    
+    // Agregar event listener al formulario principal cuando se carga el DOM
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('form_alta_material');
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                // Solo interceptar si es el formulario de mapas
+                const tipoMaterial = document.getElementById('tipo_material');
+                if (tipoMaterial && tipoMaterial.value === 'mapa') {
+                    console.log('🗺️ Interceptando envío del formulario de mapas...');
+                    prepararEnvioFormulario();
+                }
+            });
+        }
+    });
+    
     // Llamar a la función de renderizado
     window.renderizarTiposMapa();
     
@@ -86,8 +125,23 @@
         const tipoSeleccionado = this.value;
         if (tipoSeleccionado) {
             sedeInput.value = tipoSeleccionado;
+            
+            // Agregar automáticamente el tipo seleccionado a gruposTiposMapa
+            const cantidadInput = document.getElementById('input-nueva-cant-mapa');
+            const cantidad = parseInt(cantidadInput.value) || 1;
+            
+            // Limpiar tipos anteriores y agregar el nuevo
+            window.gruposTiposMapa = [];
+            window.gruposTiposMapa.push({ tipo: tipoSeleccionado, cantidad: cantidad });
+            
+            // Renderizar los tipos
+            window.renderizarTiposMapa();
+            
+            console.log('🗺️ Tipo de mapa agregado:', { tipo: tipoSeleccionado, cantidad: cantidad });
         } else {
             sedeInput.value = '';
+            window.gruposTiposMapa = [];
+            window.renderizarTiposMapa();
         }
     });
 </script>

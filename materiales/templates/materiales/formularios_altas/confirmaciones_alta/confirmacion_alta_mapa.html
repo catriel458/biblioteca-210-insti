@@ -132,32 +132,62 @@
             margin-left: 10px;
         }
 
-        /* Indicador de carga */
-        .loading-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(255, 255, 255, 0.8);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
+        /* Nuevos estilos para ejemplares */
+        .ejemplar-card {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-left: 4px solid #007bff;
         }
-
-        .spinner {
-            width: 50px;
-            height: 50px;
-            border: 5px solid #f3f3f3;
-            border-top: 5px solid #3498db;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
+        
+        .ejemplar-header {
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
         }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        
+        .ejemplar-field {
+            margin-bottom: 8px;
+        }
+        
+        .ejemplar-field strong {
+            color: #25898D;
+            font-size: 0.85rem;
+            display: inline-block;
+            min-width: 100px;
+        }
+        
+        .ejemplar-field span {
+            color: #212529;
+            font-size: 0.9rem;
+        }
+        
+        .tipo-header {
+            background-color: #e3f2fd;
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border-left: 4px solid #2196f3;
+        }
+        
+        .tipo-title {
+            color: #1976d2;
+            font-weight: 600;
+            margin: 0;
+            font-size: 1.1rem;
+        }
+        
+        .cantidad-badge {
+            background-color: #2196f3;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            margin-left: 10px;
         }
     </style>
 {% endblock %}
@@ -170,7 +200,7 @@
 
 <!-- Modal de confirmación -->
 <div class="modal fade show" id="modalConfirmacionAltaMaterial" tabindex="-1" aria-labelledby="modalConfirmacionLabel" aria-hidden="true" data-bs-backdrop="static" style="display: block;">
-  <div class="modal-dialog modal-lg">
+  <div class="modal-dialog modal-xl">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="modalConfirmacionLabel">CONFIRME LOS DATOS</h5>
@@ -185,34 +215,67 @@
 
           <!-- Información Principal -->
           <div class="section-container mb-4">
-            <h6 class="section-title">Información del Mapa</h6>
+            <h6 class="section-title">Información General</h6>
             <div class="row g-3">
               <div class="col-md-6">
                 <strong>Sede:</strong>
-                <p id="confirmSede" class="info-text">{{ form_data.sede|default:"Sin especificar" }}</p>
+                <p id="confirmSede" class="info-text">{{ form_data.sede_texto|default:"Sin especificar" }}</p>
               </div>
               <div class="col-md-6">
-                <strong>N° de Registro:</strong>
-                <p id="confirmNumRegistro" class="info-text">{{ form_data.num_registro|default:"Sin especificar" }}</p>
+                <strong>N° de Registro Base:</strong>
+                <p id="confirmNumRegistro" class="info-text">{{ form_data.n_registro|default:"Sin especificar" }}</p>
               </div>
             </div>
           </div>
 
-          <!-- Tipos de Mapa -->
+          <!-- Detalle de Mapas por Tipo -->
           <div class="section-container">
-            <h6 class="section-title">Tipos de Mapa</h6>
-            <div id="tiposMapaContainer" class="tipos-mapa-container">
-              {% if tipos_mapa %}
-                {% for tipo in tipos_mapa %}
-                <div class="tipo-mapa-item">
-                  <span>{{ tipo.tipo }}</span>
-                  <div class="tipo-mapa-cantidad">{{ tipo.cantidad }}</div>
+            <h6 class="section-title">Detalle de Mapas</h6>
+            
+            {% if tipos_mapa %}
+              {% for tipo_grupo in tipos_mapa %}
+                <div class="tipo-header">
+                  <h6 class="tipo-title">
+                    {{ tipo_grupo.tipo|upper }}
+                    <span class="cantidad-badge">{{ tipo_grupo.cantidad }} ejemplar{{ tipo_grupo.cantidad|pluralize:"es" }}</span>
+                  </h6>
                 </div>
-                {% endfor %}
-              {% else %}
-                <p>No se han especificado tipos de mapa.</p>
-              {% endif %}
-            </div>
+                
+                <div class="row">
+                  {% for ejemplar in tipo_grupo.ejemplares %}
+                    <div class="col-md-6 mb-3">
+                      <div class="ejemplar-card">
+                        <div class="ejemplar-header">Ejemplar {{ forloop.counter }}</div>
+                        
+                        <div class="ejemplar-field">
+                          <strong>N° Registro:</strong>
+                          <span>{{ ejemplar.n_registro|default:"Sin especificar" }}</span>
+                        </div>
+                        
+                        <div class="ejemplar-field">
+                          <strong>Denominación:</strong>
+                          <span>{{ ejemplar.denominacion|default:"Sin especificar" }}</span>
+                        </div>
+                        
+                        <div class="ejemplar-field">
+                          <strong>Descripción:</strong>
+                          <span>{{ ejemplar.descripcion|default:"Sin descripción" }}</span>
+                        </div>
+                      </div>
+                    </div>
+                  {% endfor %}
+                </div>
+                
+                {% if not forloop.last %}
+                  <hr class="my-4">
+                {% endif %}
+              {% endfor %}
+            {% else %}
+              <div class="alert alert-warning">
+                <i class="fas fa-exclamation-triangle"></i>
+                No se han especificado mapas para confirmar.
+              </div>
+            {% endif %}
           </div>
         </div>  
       </div>

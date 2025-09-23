@@ -2245,28 +2245,134 @@ def confirmacion_alta_mapa(request):
     print("🎯 Llegó a confirmacion_alta_mapa")  # Debug
     
     if request.method == 'POST':
-        # Obtener los datos del formulario
-        sede = request.POST.get('sede', '')
-        num_registro = request.POST.get('num_registro', '')
+        # Obtener los datos básicos del formulario
+        sede_value = request.POST.get('sede_mapa', '')
         
-        # Obtener los tipos de mapa desde el formulario
+        # Convertir el valor de sede a texto legible
+        sede_mapping = {
+            'sede1': 'La Plata',
+            'sede2': 'Abasto'
+        }
+        sede_texto = sede_mapping.get(sede_value, sede_value)
+        
+        print(f"📋 Datos POST recibidos: {dict(request.POST)}")  # Debug
+        
+        # CORREGIDO: Obtener los tipos de mapa desde gruposTiposMapa JSON
         tipos_mapa = []
-        # Convertir los datos de tipos de mapa del formulario
-        if 'gruposTiposMapa' in request.POST:
-            try:
-                grupos_tipos_mapa = json.loads(request.POST.get('gruposTiposMapa', '[]'))
-                for grupo in grupos_tipos_mapa:
-                    tipos_mapa.append({
-                        'tipo': grupo.get('tipo', ''),
-                        'cantidad': grupo.get('cantidad', 1)
+        grupos_tipos_json = request.POST.get('gruposTiposMapa', '[]')
+        
+        # Obtener el tipo seleccionado del dropdown como fallback
+        tipo_dropdown = request.POST.get('input-nuevo-tipo-mapa', 'GENERAL')
+        
+        try:
+            grupos_tipos_data = json.loads(grupos_tipos_json) if grupos_tipos_json else []
+            print(f"📋 Grupos tipos data: {grupos_tipos_data}")  # Debug
+        except json.JSONDecodeError:
+            grupos_tipos_data = []
+            print("❌ Error al decodificar JSON de gruposTiposMapa")  # Debug
+        
+        # Crear un mapeo de índice de grupo a tipo
+        tipo_por_grupo = {}
+        for idx, grupo in enumerate(grupos_tipos_data):
+            tipo_por_grupo[str(idx)] = grupo.get('tipo', tipo_dropdown)
+        
+        print(f"📋 Mapeo tipo por grupo: {tipo_por_grupo}")  # Debug
+        
+        # Procesar datos de ejemplares dinámicos
+        for key, value in request.POST.items():
+            if key.startswith('n_registro_'):
+                # Extraer índice del campo (ej: "n_registro_0_1" -> "0_1")
+                idx = key.replace('n_registro_', '')
+                
+                # Validar que el índice tenga el formato correcto
+                if '_' not in idx:
+                    continue
+                    
+                try:
+                    grupo_idx, ejemplar_idx = idx.split('_')
+                except ValueError:
+                    continue
+                
+                # Buscar o crear el grupo de tipo
+                grupo_encontrado = None
+                for grupo in tipos_mapa:
+                    if grupo['grupo_idx'] == grupo_idx:
+                        grupo_encontrado = grupo
+                        break
+                
+                if not grupo_encontrado:
+                    # CORREGIDO: Obtener el tipo desde el mapeo creado
+                    tipo_grupo = tipo_por_grupo.get(grupo_idx, tipo_dropdown)
+                    
+                    print(f"📋 Tipo para grupo {grupo_idx}: {tipo_grupo}")  # Debug
+                    
+                    grupo_encontrado = {
+                        'grupo_idx': grupo_idx,
+                        'tipo': tipo_grupo,
+                        'ejemplares': []
+                    }
+                    tipos_mapa.append(grupo_encontrado)
+                
+                # Agregar ejemplar al grupo
+                ejemplar = {
+                    'idx': idx,
+                    'n_registro': value,
+                    'denominacion': request.POST.get(f'denominacion_{idx}', ''),
+                    'descripcion': request.POST.get(f'descripcion_{idx}', '')
+                }
+                grupo_encontrado['ejemplares'].append(ejemplar)
+        
+        # Si no se encontraron ejemplares dinámicos, crear uno básico usando los datos de gruposTiposMapa
+        if not tipos_mapa and grupos_tipos_data:
+            # Usar los datos de gruposTiposMapa para crear los tipos
+            for idx, grupo in enumerate(grupos_tipos_data):
+                tipo_grupo = grupo.get('tipo', tipo_dropdown)
+                cantidad_grupo = grupo.get('cantidad', 1)
+                
+                # Crear ejemplares para este tipo
+                ejemplares = []
+                for ej_idx in range(cantidad_grupo):
+                    ejemplares.append({
+                        'idx': f'{idx}_{ej_idx}',
+                        'n_registro': request.POST.get('num_registro', ''),
+                        'denominacion': f'Mapa {tipo_grupo}',
+                        'descripcion': ''
                     })
-            except json.JSONDecodeError:
-                print("❌ Error al decodificar JSON de tipos de mapa")
+                
+                tipos_mapa.append({
+                    'grupo_idx': str(idx),
+                    'tipo': tipo_grupo,
+                    'ejemplares': ejemplares
+                })
+        elif not tipos_mapa:
+            # Fallback si no hay datos de gruposTiposMapa
+            tipo_basico = request.POST.get('input-nuevo-tipo-mapa', tipo_dropdown)
+            cantidad_basica = int(request.POST.get('input-nueva-cant-mapa', 1))
+            
+            tipos_mapa.append({
+                'grupo_idx': '0',
+                'tipo': tipo_basico,
+                'ejemplares': [{
+                    'idx': '0_0',
+                    'n_registro': request.POST.get('num_registro', ''),
+                    'denominacion': f'Mapa {tipo_basico}',
+                    'descripcion': ''
+                }]
+            })
+        
+        # Calcular cantidad por tipo y obtener el primer n_registro
+        primer_n_registro = ""
+        for grupo in tipos_mapa:
+            grupo['cantidad'] = len(grupo['ejemplares'])
+            # Obtener el primer n_registro si no lo tenemos aún
+            if grupo['ejemplares'] and not primer_n_registro:
+                primer_n_registro = grupo['ejemplares'][0]['n_registro']
         
         # Guardar los datos en la sesión
         mapa_data = {
-            'sede': sede,
-            'num_registro': num_registro,
+            'sede': sede_value,  # Guardamos el valor original para el procesamiento
+            'sede_texto': sede_texto,  # Guardamos el texto para mostrar
+            'n_registro': primer_n_registro,
             'tipos_mapa': tipos_mapa
         }
         
@@ -2298,96 +2404,78 @@ def guardar_alta_mapa(request):
     # Verificar que existan datos en la sesión
     if 'mapa_data' not in request.session:
         print("❌ No hay datos de mapa en la sesión")  # Debug
-        # Intentar buscar en otras claves posibles
-        session_keys = list(request.session.keys())
-        print(f"🔑 Claves disponibles en la sesión: {session_keys}")
-        
-        # Buscar claves que puedan contener datos de mapa
-        mapa_keys = [k for k in session_keys if 'mapa' in k.lower()]
-        if mapa_keys:
-            print(f"🔍 Encontradas posibles claves de mapa: {mapa_keys}")
-            # Usar la primera clave encontrada
-            mapa_key = mapa_keys[0]
-            print(f"🔑 Usando clave alternativa: {mapa_key}")
-            mapa_data = request.session[mapa_key]
-        else:
-            messages.error(request, 'No hay datos para guardar. Por favor, complete el formulario nuevamente.')
-            return redirect('alta_materiales')
-    else:
-        # Obtener datos de la sesión
-        mapa_data = request.session['mapa_data']
-    
-    print(f"📋 Datos de mapa a guardar: {mapa_data}")  # Debug
-    
-    try:
-        # Verificar la estructura de tipos_mapa
-        tipos_mapa = mapa_data.get('tipos_mapa', [])
-        print(f"🗂️ Tipos de mapa encontrados: {len(tipos_mapa)}")  # Debug
-        
-        if not tipos_mapa:
-            print("⚠️ No hay tipos de mapa definidos")  # Debug
-            # Intentar buscar datos en otra estructura
-            print(f"🔍 Buscando datos en otra estructura. Claves disponibles: {mapa_data.keys()}")
-            
-            # Si no hay tipos_mapa pero hay al menos tipo, sede y num_registro, crear un mapa simple
-            if 'tipo' in mapa_data or 'sede' in mapa_data or 'num_registro' in mapa_data:
-                print("🔄 Creando mapa simple con datos disponibles")
-                mapa = Mapas(
-                    tipo=mapa_data.get('tipo', 'Sin especificar'),
-                    sede=mapa_data.get('sede', 'La Plata'),
-                    num_registro=mapa_data.get('num_registro', '1'),
-                    denominacion=mapa_data.get('denominacion', 'Mapa')
-                )
-                mapa.save()
-                print(f"✅ Mapa simple guardado: ID={mapa.id_mapa}, Tipo={mapa.tipo}")
-                
-                # Limpiar sesión
-                for key in list(request.session.keys()):
-                    if 'mapa' in key.lower():
-                        del request.session[key]
-                        print(f"🧹 Datos de sesión limpiados: {key}")
-                
-                messages.success(request, '✅ Mapa registrado correctamente.')
-                return redirect('alta_materiales')
-            else:
-                messages.warning(request, 'No se encontraron tipos de mapa para guardar.')
-                return redirect('alta_materiales')
-        
-        mapas_guardados = []
-        
-        # Guardar cada tipo de mapa
-        for tipo_mapa in tipos_mapa:
-            print(f"📌 Procesando tipo: {tipo_mapa}")  # Debug
-            # Crear el registro de mapa para cada cantidad
-            cantidad = int(tipo_mapa.get('cantidad', 1))
-            print(f"🔢 Cantidad a crear: {cantidad}")  # Debug
-            
-            for i in range(cantidad):
-                mapa = Mapas(
-                    tipo=tipo_mapa.get('tipo', ''),
-                    sede=mapa_data.get('sede', 'La Plata'),
-                    num_registro=mapa_data.get('num_registro', '1'),
-                    denominacion=mapa_data.get('denominacion', f"Mapa {tipo_mapa.get('tipo', '')}")
-                )
-                mapa.save()
-                mapas_guardados.append(mapa)
-                print(f"✅ Mapa guardado #{i+1}: ID={mapa.id_mapa}, Tipo={mapa.tipo}")
-        
-        print(f"✅ Total mapas guardados: {len(mapas_guardados)}")  # Debug
-        
-        # Limpiar datos de sesión
-        for key in list(request.session.keys()):
-            if 'mapa' in key.lower():
-                del request.session[key]
-                print(f"🧹 Datos de sesión limpiados: {key}")
-        
-        messages.success(request, f'✅ {len(mapas_guardados)} mapa(s) registrado(s) correctamente.')
+        messages.error(request, 'No se encontraron datos para guardar. Por favor, complete el formulario nuevamente.')
         return redirect('alta_materiales')
     
+    try:
+        # Recuperar datos de la sesión
+        mapa_data = request.session.get('mapa_data', {})
+        tipos_mapa = mapa_data.get('tipos_mapa', [])
+        
+        print(f"📋 Procesando datos: {mapa_data}")  # Debug
+        
+        # CORREGIDO: Mapear correctamente el valor de sede
+        sede_value = mapa_data.get('sede', '')
+        sede_mapping = {
+            'sede1': 'La Plata',
+            'sede2': 'Abasto'
+        }
+        sede_final = sede_mapping.get(sede_value, sede_value)
+        print(f"📋 Sede original: {sede_value}, Sede final: {sede_final}")  # Debug
+        
+        if tipos_mapa:
+            # Crear registros individuales para cada ejemplar
+            mapas_creados = []
+            
+            for tipo_grupo in tipos_mapa:
+                tipo = tipo_grupo.get('tipo', 'GENERAL')
+                ejemplares = tipo_grupo.get('ejemplares', [])
+                
+                for ejemplar in ejemplares:
+                    # CORREGIDO: Solo usar campos que existen en el modelo Mapas
+                    mapa = Mapas.objects.create(
+                        # Campos heredados de Inventario
+                        estado='Disponible',
+                        descripcion=ejemplar.get('descripcion', ''),  # Usar el campo heredado
+                        num_ejemplar=1,  # Campo heredado
+                        # Campos específicos de Mapas
+                        sede=sede_final,  # CORREGIDO: Usar el valor mapeado
+                        num_registro=ejemplar.get('n_registro', ''),
+                        denominacion=ejemplar.get('denominacion', f'Mapa {tipo}'),
+                        tipo=tipo
+                    )
+                    mapas_creados.append(mapa)
+                    print(f"✅ Mapa creado: {mapa.num_registro} - {mapa.denominacion} - Sede: {mapa.sede}")
+            
+            # Mensaje de éxito
+            cantidad_total = len(mapas_creados)
+            messages.success(request, f'Se han registrado exitosamente {cantidad_total} mapa(s).')
+            
+        else:
+            # Fallback: crear un registro simple si no hay tipos específicos
+            mapa = Mapas.objects.create(
+                # Campos heredados de Inventario
+                estado='Disponible',
+                num_ejemplar=1,
+                # Campos específicos de Mapas
+                sede=sede_final,  # CORREGIDO: Usar el valor mapeado
+                num_registro=mapa_data.get('n_registro', ''),
+                denominacion='Mapa General',
+                tipo='GENERAL'
+            )
+            messages.success(request, 'Mapa registrado exitosamente.')
+            print(f"✅ Mapa simple creado: {mapa.num_registro} - Sede: {mapa.sede}")
+        
+        # Limpiar datos de sesión
+        if 'mapa_data' in request.session:
+            del request.session['mapa_data']
+            print("🧹 Datos de sesión limpiados")
+        
+        # CORREGIDO: Redirigir a una URL válida
+        return redirect('alta_materiales')
+        
     except Exception as e:
-        print(f"❌ Error al guardar mapa: {str(e)}")
-        import traceback
-        traceback.print_exc()  # Imprime el stack trace completo
+        print(f"❌ Error al guardar mapa: {str(e)}")  # Debug
         messages.error(request, f'Error al guardar el mapa: {str(e)}')
         return redirect('alta_materiales')
 
