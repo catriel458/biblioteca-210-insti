@@ -6,7 +6,6 @@
     <link rel="stylesheet" href="{% static 'css/main.css' %}">
     <link rel="stylesheet" href="{% static 'css/style_form.css' %}">
     <link rel="stylesheet" href="{% static 'css/botones.css' %}">
-    <link rel="stylesheet" href="{% static 'css/confirmacion_carga_exitosa.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -256,6 +255,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     // 🎯 CRÍTICO: Inicializar funcionalidad carrera-materia DESPUÉS de cargar HTML
                     setTimeout(() => {
                         initCarreraMateriaFunctionality();
+                        initMultimediaFunctionality(); // Inicializar funcionalidad del botón '+'
                     }, 100); // Pequeño delay para asegurar que el DOM esté listo
                     
                     // No mostrar carga masiva ni URL para multimedia
@@ -343,12 +343,19 @@ document.addEventListener("DOMContentLoaded", function () {
                     if (uploadSimple) uploadSimple.style.display = 'none';
                     if (uploadBox) uploadBox.style.display = 'none';
                     
+                    // 🎯 CRÍTICO: Inicializar funcionalidad carrera-materia DESPUÉS de cargar HTML
+                    setTimeout(() => {
+                        initCarreraMateriaFunctionality();
+                        initVariosFunctionality(); // Inicializar funcionalidad del botón '+' para varios
+                    }, 100); // Pequeño delay para asegurar que el DOM esté listo
+                    
                     // Configurar la acción del formulario para varios
                     const form = document.getElementById('form_alta_material');
                     if (form) {
                         form.action = '{% url "confirmacion_alta_varios" %}';
                         console.log('✅ Acción del formulario configurada para varios:', form.action);
                     }
+                    console.log('✅ Formulario de varios cargado');
                 })
                 .catch(error => {
                     formularioEspecifico.innerHTML = `<p class="text-danger">Error al cargar el formulario: ${error.message}</p>`;
@@ -565,11 +572,290 @@ document.addEventListener("DOMContentLoaded", function () {
         
         console.log('✅ Funcionalidad carrera-materia inicializada correctamente');
     }
+
+    // 🎯 FUNCIÓN PARA INICIALIZAR FUNCIONALIDAD MULTIMEDIA
+    function initMultimediaFunctionality() {
+        console.log('🚀 Inicializando funcionalidad multimedia...');
+        
+        // Inicializar gruposTiposMultimedia si no existe
+        if (!window.gruposTiposMultimedia) {
+            window.gruposTiposMultimedia = [];
+        }
+        
+        // Event listener para el botón de agregar multimedia
+        const btnAgregarMultimedia = document.getElementById('btn-agregar-multimedia');
+        console.log('🔍 Botón encontrado:', btnAgregarMultimedia);
+        
+        if (btnAgregarMultimedia) {
+            // Remover event listeners previos para evitar duplicados
+            btnAgregarMultimedia.replaceWith(btnAgregarMultimedia.cloneNode(true));
+            const newBtn = document.getElementById('btn-agregar-multimedia');
+            
+            newBtn.addEventListener('click', function() {
+                console.log('➕ Botón clickeado, ejecutando agregarNuevoMultimedia()');
+                agregarNuevoMultimedia();
+            });
+            console.log('✅ Event listener agregado correctamente al botón +');
+        } else {
+            console.error('❌ No se encontró el botón btn-agregar-multimedia');
+        }
+    }
+
+    // 🎯 FUNCIÓN PARA AGREGAR NUEVO GRUPO DE MULTIMEDIA
+    function agregarNuevoMultimedia() {
+        console.log('🔄 Ejecutando agregarNuevoMultimedia()');
+        const contenedor = document.getElementById('contenedor-tipos-multimedia');
+        console.log('📦 Contenedor encontrado:', contenedor);
+        
+        if (!contenedor) {
+            console.error('❌ No se encontró el contenedor contenedor-tipos-multimedia');
+            return;
+        }
+        
+        const index = window.gruposTiposMultimedia.length;
+        console.log('🔢 Índice actual:', index);
+        
+        // Crear nuevo grupo
+        const nuevoGrupo = {
+            url: '',
+            titulo: ''
+        };
+        
+        window.gruposTiposMultimedia.push(nuevoGrupo);
+        
+        // Crear HTML para el nuevo grupo con la estructura exacta especificada
+        const grupoHTML = `
+            <div class="grupo-multimedia mb-3" data-index="${index}">
+                <div class="row">
+                    <div class="col-md-2">
+                        <label for="ingresar_enlace_${index}" class="form-label small">Ingresar enlace (URL)</label>
+                        <div class="input-group">
+                            <input type="url" class="form-control form-control-sm" 
+                                   id="ingresar_enlace_${index}" 
+                                   name="ingresar_enlace_${index}" 
+                                   placeholder="URL del contenido multimedia">
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="titulo_contenido_${index}" class="form-label small">Titulo del contenido <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control form-control-sm" 
+                               id="titulo_contenido_${index}" 
+                               name="titulo_contenido_${index}" 
+                               required>
+                    </div>
+                    <div class="col-md-2 d-flex align-items-end">
+                        <button type="button" class="boton-eliminar" 
+                                onclick="eliminarMultimedia(${index})" 
+                                title="Eliminar este contenido multimedia">×</button>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        contenedor.insertAdjacentHTML('beforeend', grupoHTML);
+        console.log('✅ Nuevo grupo agregado exitosamente');
+    }
+
+    // 🎯 FUNCIÓN PARA ELIMINAR MULTIMEDIA
+    function eliminarMultimedia(index) {
+        console.log('🗑️ Eliminando multimedia con índice:', index);
+        
+        // Eliminar del array
+        window.gruposTiposMultimedia.splice(index, 1);
+        
+        // Eliminar del DOM
+        const grupo = document.querySelector(`[data-index="${index}"]`);
+        if (grupo) {
+            grupo.remove();
+        }
+        
+        // Actualizar índices
+        actualizarIndicesMultimedia();
+        console.log('✅ Multimedia eliminado y índices actualizados');
+    }
+
+    // 🎯 FUNCIÓN PARA ACTUALIZAR ÍNDICES
+    function actualizarIndicesMultimedia() {
+        const grupos = document.querySelectorAll('.grupo-multimedia');
+        grupos.forEach((grupo, nuevoIndex) => {
+            grupo.setAttribute('data-index', nuevoIndex);
+            
+            // Actualizar IDs y names de los inputs
+            const inputUrl = grupo.querySelector('input[type="url"]');
+            const inputTitulo = grupo.querySelector('input[type="text"]');
+            const labelUrl = grupo.querySelector('label[for*="ingresar_enlace"]');
+            const labelTitulo = grupo.querySelector('label[for*="titulo_contenido"]');
+            
+            if (inputUrl) {
+                inputUrl.id = `ingresar_enlace_${nuevoIndex}`;
+                inputUrl.name = `ingresar_enlace_${nuevoIndex}`;
+            }
+            if (inputTitulo) {
+                inputTitulo.id = `titulo_contenido_${nuevoIndex}`;
+                inputTitulo.name = `titulo_contenido_${nuevoIndex}`;
+            }
+            if (labelUrl) {
+                labelUrl.setAttribute('for', `ingresar_enlace_${nuevoIndex}`);
+            }
+            if (labelTitulo) {
+                labelTitulo.setAttribute('for', `titulo_contenido_${nuevoIndex}`);
+            }
+            
+            // Actualizar el botón de eliminar
+            const btnEliminar = grupo.querySelector('button');
+            if (btnEliminar) {
+                btnEliminar.setAttribute('onclick', `eliminarMultimedia(${nuevoIndex})`);
+            }
+        });
+    }
+
+    // Hacer las funciones globales para que puedan ser llamadas desde onclick
+    window.eliminarMultimedia = eliminarMultimedia;
+    window.actualizarIndicesMultimedia = actualizarIndicesMultimedia;
+
+    // 🎯 FUNCIÓN PARA INICIALIZAR FUNCIONALIDAD VARIOS
+    function initVariosFunctionality() {
+        console.log('🚀 Inicializando funcionalidad varios...');
+        
+        // Inicializar gruposTiposVarios si no existe
+        if (!window.gruposTiposVarios) {
+            window.gruposTiposVarios = [];
+        }
+        
+        // Event listener para el botón de agregar varios
+        const btnAgregarVarios = document.getElementById('btn-agregar-varios');
+        console.log('🔍 Botón encontrado:', btnAgregarVarios);
+        
+        if (btnAgregarVarios) {
+            // Remover event listeners previos para evitar duplicados
+            btnAgregarVarios.replaceWith(btnAgregarVarios.cloneNode(true));
+            const newBtn = document.getElementById('btn-agregar-varios');
+            
+            newBtn.addEventListener('click', function() {
+                console.log('➕ Botón clickeado, ejecutando agregarNuevoVarios()');
+                agregarNuevoVarios();
+            });
+            console.log('✅ Event listener agregado correctamente al botón +');
+        } else {
+            console.error('❌ No se encontró el botón btn-agregar-varios');
+        }
+    }
+
+    // 🎯 FUNCIÓN PARA AGREGAR NUEVO GRUPO DE VARIOS
+    function agregarNuevoVarios() {
+        console.log('🔄 Ejecutando agregarNuevoVarios()');
+        const contenedor = document.getElementById('contenedor-tipos-varios-dinamicos');
+        console.log('📦 Contenedor encontrado:', contenedor);
+        
+        if (!contenedor) {
+            console.error('❌ No se encontró el contenedor contenedor-tipos-varios-dinamicos');
+            return;
+        }
+        
+        const index = window.gruposTiposVarios.length;
+        console.log('🔢 Índice actual:', index);
+        
+        // Crear nuevo grupo
+        const nuevoGrupo = {
+            tipo: '',
+            cantidad: 1
+        };
+        
+        window.gruposTiposVarios.push(nuevoGrupo);
+        
+        // Crear HTML para el nuevo grupo con la estructura exacta especificada
+        const grupoHTML = `
+            <div class="grupo-varios mb-3" data-index="${index}">
+                <div class="row">
+                    <div class="col-md-3">
+                        <label for="tipo_varios_${index}" class="form-label small">Tipo a registrar <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control form-control-sm" 
+                               id="tipo_varios_${index}" 
+                               name="tipo_varios_${index}" 
+                               required>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="cant_ejemplares_${index}" class="form-label small">Cant. de ejemplares <span class="text-danger">*</span></label>
+                        <input type="number" class="form-control form-control-sm" 
+                               id="cant_ejemplares_${index}" 
+                               name="cant_ejemplares_${index}" 
+                               min="1" 
+                               value="1" 
+                               required>
+                    </div>
+                    <div class="col-md-1 d-flex align-items-end">
+                         <button type="button" class="boton-eliminar" 
+                                 onclick="eliminarVarios(${index})" 
+                                 title="Eliminar este tipo de material">×</button>
+                     </div>
+                </div>
+            </div>
+        `;
+        
+        contenedor.insertAdjacentHTML('beforeend', grupoHTML);
+        console.log('✅ Nuevo grupo agregado exitosamente');
+    }
+
+    // 🎯 FUNCIÓN PARA ELIMINAR VARIOS
+    function eliminarVarios(index) {
+        console.log('🗑️ Eliminando varios con índice:', index);
+        
+        // Eliminar del array
+        window.gruposTiposVarios.splice(index, 1);
+        
+        // Eliminar del DOM
+        const grupo = document.querySelector(`[data-index="${index}"]`);
+        if (grupo) {
+            grupo.remove();
+        }
+        
+        // Actualizar índices
+        actualizarIndicesVarios();
+        console.log('✅ Varios eliminado y índices actualizados');
+    }
+
+    // 🎯 FUNCIÓN PARA ACTUALIZAR ÍNDICES
+    function actualizarIndicesVarios() {
+        const grupos = document.querySelectorAll('.grupo-varios');
+        grupos.forEach((grupo, nuevoIndex) => {
+            grupo.setAttribute('data-index', nuevoIndex);
+            
+            // Actualizar IDs y names de los inputs
+            const inputTipo = grupo.querySelector('input[type="text"]');
+            const inputCantidad = grupo.querySelector('input[type="number"]');
+            const labelTipo = grupo.querySelector('label[for*="tipo_varios"]');
+            const labelCantidad = grupo.querySelector('label[for*="cant_ejemplares"]');
+            
+            if (inputTipo) {
+                inputTipo.id = `tipo_varios_${nuevoIndex}`;
+                inputTipo.name = `tipo_varios_${nuevoIndex}`;
+            }
+            if (inputCantidad) {
+                inputCantidad.id = `cant_ejemplares_${nuevoIndex}`;
+                inputCantidad.name = `cant_ejemplares_${nuevoIndex}`;
+            }
+            if (labelTipo) {
+                labelTipo.setAttribute('for', `tipo_varios_${nuevoIndex}`);
+            }
+            if (labelCantidad) {
+                labelCantidad.setAttribute('for', `cant_ejemplares_${nuevoIndex}`);
+            }
+            
+            // Actualizar el botón de eliminar
+            const btnEliminar = grupo.querySelector('button');
+            if (btnEliminar) {
+                btnEliminar.setAttribute('onclick', `eliminarVarios(${nuevoIndex})`);
+            }
+        });
+    }
+
+    // Hacer las funciones globales para que puedan ser llamadas desde onclick
+    window.eliminarVarios = eliminarVarios;
+    window.actualizarIndicesVarios = actualizarIndicesVarios;
 });
 </script>
 
 <!-- Scripts necesarios para funcionalidad de formularios dinámicos -->
 <script src="{% static 'js/form_altas.js' %}"></script>
-<script src="{% static 'js/form_controller.js' %}"></script>
-<script src="{% static 'js/confirmacion_alta_material.js' %}"></script>
+<!-- <script src="{% static 'js/confirmacion_alta_material.js' %}"></script> -->
 {% endblock %}

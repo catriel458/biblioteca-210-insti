@@ -1,4 +1,5 @@
 {% load static %}
+<link rel="stylesheet" href="{% static 'css/style_form.css' %}">
 <form id="form_alta_multimedia" method="POST" action="/alta-multimedia/" data-form-id="multimedia">
   {% csrf_token %}
   <div data-block="content" data-form-type="multimedia">
@@ -30,6 +31,7 @@
         </div>
     </div>
     <div class="row mb-4">
+        <!-- Campos iniciales para URL y título -->
         <div class="col-md-2">
             <label for="ingresar_enlace" class="form-label small">Ingresar enlace (URL)</label>
             <div class="input-group">
@@ -39,7 +41,19 @@
         <div class="col-md-4">
             <label for="titulo_contenido" class="form-label small">Titulo del contenido <span class="text-danger">*</span></label>
             <input type="text" class="form-control form-control-sm" id="titulo_contenido" name="titulo_contenido" required>
-            </div>
+        </div>
+        <div class="col-md-1 d-flex align-items-end">
+            <button type="button" class="boton-mas" id="btn-agregar-multimedia" title="Agregar otro contenido multimedia">
+                +
+            </button>
+        </div>
+        
+        <!-- Input hidden para almacenar los grupos de multimedia -->
+        <input type="hidden" id="gruposMultimedia" name="gruposMultimedia" value="">
+        
+        <!-- Contenedor para mostrar resumen de multimedia agregados -->
+        <div class="col-12 mt-3">
+            <div id="contenedor-tipos-multimedia"></div>
         </div>
     </div>
 
@@ -52,7 +66,7 @@
     <div class="row mt-4">
         <div class="col-12 text-end">
             <a href="{% url 'alta_materiales' %}" class="btn btn-secondary me-2">Cancelar</a>
-            <button type="submit" class="btn btn-primary">Guardar</button>
+            <button type="submit" class="btn btn-primary" onclick="prepararEnvioFormulario()">Guardar</button>
         </div>
     </div>
     <!-- Fin de botones -->
@@ -60,19 +74,122 @@
 </form>
 <!-- Importación del JS dinámico de ejemplares -->
 <script src="{% static 'js/form_altas.js' %}"></script>
-<script src="{% static 'js/form_controller.js' %}"></script>
 
-<!-- Script para la funcionalidad carrera-materia -->
+<!-- Script simplificado para funcionalidad multimedia -->
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    // Inicializar gruposTiposMultimedia si no existe
+    if (!window.gruposTiposMultimedia) {
+        window.gruposTiposMultimedia = [];
+    }
+
+    // Función para agregar nuevo grupo de multimedia
+     function agregarNuevoMultimedia() {
+         console.log('Ejecutando agregarNuevoMultimedia()');
+         const contenedor = document.getElementById('contenedor-tipos-multimedia');
+         console.log('Contenedor encontrado:', contenedor);
+         const index = window.gruposTiposMultimedia.length;
+         console.log('Índice actual:', index);
+         
+         // Crear nuevo grupo
+         const nuevoGrupo = {
+             url: '',
+             titulo: ''
+         };
+         
+         window.gruposTiposMultimedia.push(nuevoGrupo);
+         
+         // Crear HTML para el nuevo grupo con la estructura exacta especificada
+         const grupoHTML = `
+             <div class="grupo-multimedia mb-3" data-index="${index}">
+                 <div class="row">
+                     <div class="col-md-2">
+                         <label for="ingresar_enlace_${index}" class="form-label small">Ingresar enlace (URL)</label>
+                         <div class="input-group">
+                             <input type="url" class="form-control form-control-sm" 
+                                    id="ingresar_enlace_${index}" 
+                                    name="ingresar_enlace_${index}" 
+                                    placeholder="URL del contenido multimedia">
+                         </div>
+                     </div>
+                     <div class="col-md-4">
+                         <label for="titulo_contenido_${index}" class="form-label small">Titulo del contenido <span class="text-danger">*</span></label>
+                         <input type="text" class="form-control form-control-sm" 
+                                id="titulo_contenido_${index}" 
+                                name="titulo_contenido_${index}" 
+                                required>
+                     </div>
+                     <div class="col-md-2 d-flex align-items-end">
+                         <button type="button" class="btn btn-outline-danger btn-sm" 
+                                 onclick="eliminarMultimedia(${index})" 
+                                 title="Eliminar este contenido multimedia">
+                             <i class="fas fa-trash"></i>
+                         </button>
+                     </div>
+                 </div>
+             </div>
+         `;
+         
+         contenedor.insertAdjacentHTML('beforeend', grupoHTML);
+         console.log('Nuevo grupo agregado exitosamente');
+     }
+
+    // Función para eliminar grupo de multimedia
+    function eliminarMultimedia(index) {
+        const grupo = document.querySelector(`[data-index="${index}"]`);
+        if (grupo) {
+            grupo.remove();
+            window.gruposTiposMultimedia.splice(index, 1);
+            // Reindexar los elementos restantes
+            actualizarIndices();
+        }
+    }
+
+    // Función para actualizar índices después de eliminar
+     function actualizarIndices() {
+         const grupos = document.querySelectorAll('.grupo-multimedia');
+         grupos.forEach((grupo, nuevoIndex) => {
+             grupo.setAttribute('data-index', nuevoIndex);
+             const inputs = grupo.querySelectorAll('input');
+             const labels = grupo.querySelectorAll('label');
+             
+             // Actualizar el input de URL
+             inputs[0].id = `ingresar_enlace_${nuevoIndex}`;
+             inputs[0].name = `ingresar_enlace_${nuevoIndex}`;
+             labels[0].setAttribute('for', `ingresar_enlace_${nuevoIndex}`);
+             
+             // Actualizar el input de título
+             inputs[1].id = `titulo_contenido_${nuevoIndex}`;
+             inputs[1].name = `titulo_contenido_${nuevoIndex}`;
+             labels[1].setAttribute('for', `titulo_contenido_${nuevoIndex}`);
+             
+             // Actualizar el botón de eliminar
+             const btnEliminar = grupo.querySelector('button');
+             btnEliminar.setAttribute('onclick', `eliminarMultimedia(${nuevoIndex})`);
+         });
+     }
+
+    // Función de inicialización
+    function inicializarFuncionalidadMultimedia() {
+        console.log('🚀 Inicializando funcionalidad multimedia...');
+        // Event listener para el botón de agregar multimedia
+        const btnAgregarMultimedia = document.getElementById('btn-agregar-multimedia');
+        console.log('Botón encontrado:', btnAgregarMultimedia);
+        if (btnAgregarMultimedia) {
+            btnAgregarMultimedia.addEventListener('click', function() {
+                console.log('Botón clickeado, ejecutando agregarNuevoMultimedia()');
+                agregarNuevoMultimedia();
+            });
+            console.log('Event listener agregado correctamente');
+        } else {
+            console.error('No se encontró el botón btn-agregar-multimedia');
+        }
+        
+        // Configuración de carrera-materia
         const carreraSelect = document.getElementById('carrera');
         const materiaSelect = document.getElementById('materia');
+        const form = document.getElementById('form_alta_multimedia');
         
-        if (!carreraSelect || !materiaSelect) {
-            console.log('⚠️ Elementos carrera-materia no encontrados');
-            return;
-        }
-
+        if (carreraSelect && materiaSelect) {
         // Materias por carrera
         const materiasPorCarrera = {
             'Profesorado de Educación Inicial': [
@@ -150,70 +267,50 @@
                 'Gestión de Riesgos', 'Práctica Profesional I', 'Práctica Profesional II'
             ]
         };
-
-        // ✅ VERIFICACIÓN CRÍTICA: Solo ejecutar si estamos en la página de multimedia
-        // Verificar si existe el campo carrera Y si es el formulario de multimedia
-        if (form && carreraSelect && materiaSelect) {
-            console.log('🎯 Inicializando funcionalidad carrera-materia para multimedia');
+        
+        // Función para cargar materias
+        function cargarMaterias(carreraSeleccionada) {
+            materiaSelect.innerHTML = '';
             
-            // Forzar el action correcto si es necesario
-            if (form.action === '') {
-                form.action = '/alta-multimedia/';
-                console.log('🔧 Action corregido a:', form.action);
-            }
-            
-            // FUNCIÓN para cargar materias
-            function cargarMaterias(carreraSeleccionada) {
-                console.log('📚 Carrera seleccionada:', carreraSeleccionada);
+            if (carreraSeleccionada && materiasPorCarrera[carreraSeleccionada]) {
+                const opcionVacia = document.createElement('option');
+                opcionVacia.value = '';
+                opcionVacia.textContent = 'Seleccione una materia';
+                materiaSelect.appendChild(opcionVacia);
                 
-                // Limpiar opciones de materia
-                materiaSelect.innerHTML = '';
+                materiasPorCarrera[carreraSeleccionada].forEach(function(materia) {
+                    const option = document.createElement('option');
+                    option.value = materia;
+                    option.textContent = materia;
+                    materiaSelect.appendChild(option);
+                });
                 
-                if (carreraSeleccionada && materiasPorCarrera[carreraSeleccionada]) {
-                    // Agregar opción vacía
-                    const opcionVacia = document.createElement('option');
-                    opcionVacia.value = '';
-                    opcionVacia.textContent = 'Seleccione una materia';
-                    materiaSelect.appendChild(opcionVacia);
-                    
-                    // Agregar materias de la carrera seleccionada
-                    materiasPorCarrera[carreraSeleccionada].forEach(function(materia) {
-                        const option = document.createElement('option');
-                        option.value = materia;
-                        option.textContent = materia;
-                        materiaSelect.appendChild(option);
-                    });
-                    
-                    materiaSelect.disabled = false;
-                    console.log('✅ Materias cargadas:', materiasPorCarrera[carreraSeleccionada].length);
-                } else {
-                    // No hay carrera seleccionada o no tiene materias
-                    const opcionVacia = document.createElement('option');
-                    opcionVacia.value = '';
-                    opcionVacia.textContent = 'Primero seleccione una carrera';
-                    materiaSelect.appendChild(opcionVacia);
-                    materiaSelect.disabled = true;
-                    console.log('⚠️ No hay materias para:', carreraSeleccionada);
-                }
+                materiaSelect.disabled = false;
+            } else {
+                const opcionVacia = document.createElement('option');
+                opcionVacia.value = '';
+                opcionVacia.textContent = 'Primero seleccione una carrera';
+                materiaSelect.appendChild(opcionVacia);
+                materiaSelect.disabled = true;
             }
-            
-            // Event listener para cambio de carrera
-            carreraSelect.addEventListener('change', function() {
-                cargarMaterias(this.value);
-            });
-            
-            // Inicializar estado de materia
-            materiaSelect.disabled = true;
-            
-            // Si ya hay una carrera seleccionada al cargar (por ejemplo, por validación de errores)
-            if (carreraSelect.value) {
-                cargarMaterias(carreraSelect.value);
-            }
-            
-            // Verificar cuando se envía
-            form.addEventListener('submit', function(e) {
-                console.log('🚀 MULTIMEDIA enviándose a:', form.action);
-            });
         }
+        
+        // Event listener para cambio de carrera
+        carreraSelect.addEventListener('change', function() {
+            cargarMaterias(this.value);
+        });
+        
+        // Inicializar estado
+        materiaSelect.disabled = true;
+        if (carreraSelect.value) {
+            cargarMaterias(carreraSelect.value);
+        }
+        }
+    }
+    
+    // Inicializar cuando el DOM esté listo
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('📄 DOM Content Loaded - Ejecutando inicialización multimedia');
+        inicializarFuncionalidadMultimedia();
     });
 </script>

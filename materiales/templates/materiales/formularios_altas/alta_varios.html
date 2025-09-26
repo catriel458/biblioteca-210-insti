@@ -20,6 +20,20 @@
             <label for="cant_ejemplares" class="form-label small">Cant. de ejemplares <span class="text-danger">*</span></label>
             <input type="number" class="form-control form-control-sm" id="cant_ejemplares" name="cant_ejemplares" min="1" value="1" required>
         </div>
+        
+        <div class="col-md-1 d-flex align-items-end">
+            <button type="button" class="boton-mas" id="btn-agregar-varios" title="Agregar otro tipo de material">
+                +
+            </button>
+        </div>
+    </div>
+
+    <!-- Contenedor para elementos dinámicos -->
+    <div id="contenedor-tipos-varios-dinamicos" class="mb-3">
+        <!-- Los nuevos grupos de tipo y cantidad se agregarán aquí -->
+    </div>
+
+    <div class="row mb-3">
     </div>
 
     <!-- Contenedor para mostrar los tipos agregados -->

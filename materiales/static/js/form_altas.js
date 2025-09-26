@@ -76,8 +76,94 @@ function inicializarListenersTiposMaterial(selectorCantidad, selectorCheckbox, r
                 renderFn();
             }
         });
-    });
+     });
 }
+
+// Función para guardar datos del formulario multimedia
+window.guardarDatosFormularioMultimedia = function() {
+    window.datosFormularioMultimedia = {};
+    
+    // Guardar datos de campos básicos
+    const profesor = document.getElementById('profesor');
+    const carrera = document.getElementById('carrera');
+    const materia = document.getElementById('materia');
+    
+    if (profesor) window.datosFormularioMultimedia.profesor = profesor.value;
+    if (carrera) window.datosFormularioMultimedia.carrera = carrera.value;
+    if (materia) window.datosFormularioMultimedia.materia = materia.value;
+    
+    // Guardar datos de ejemplares dinámicos
+    window.gruposTiposMultimedia.forEach((grupo, index) => {
+        const inputUrl = document.getElementById(`multimedia_${index}_url`);
+        const inputTitulo = document.getElementById(`multimedia_${index}_titulo`);
+        
+        if (inputUrl) {
+            window.datosFormularioMultimedia[`multimedia_${index}_url`] = inputUrl.value;
+        }
+        if (inputTitulo) {
+            window.datosFormularioMultimedia[`multimedia_${index}_titulo`] = inputTitulo.value;
+        }
+    });
+    
+    console.log('💾 Datos del formulario multimedia guardados:', window.datosFormularioMultimedia);
+};
+
+// Función para restaurar datos del formulario multimedia
+window.restaurarDatosFormularioMultimedia = function() {
+    if (!window.datosFormularioMultimedia) return;
+    
+    // Restaurar datos de campos básicos
+    const profesor = document.getElementById('profesor');
+    const carrera = document.getElementById('carrera');
+    const materia = document.getElementById('materia');
+    
+    if (profesor && window.datosFormularioMultimedia.profesor) {
+        profesor.value = window.datosFormularioMultimedia.profesor;
+    }
+    if (carrera && window.datosFormularioMultimedia.carrera) {
+        carrera.value = window.datosFormularioMultimedia.carrera;
+    }
+    if (materia && window.datosFormularioMultimedia.materia) {
+        materia.value = window.datosFormularioMultimedia.materia;
+    }
+    
+    // Restaurar datos de ejemplares dinámicos
+    window.gruposTiposMultimedia.forEach((grupo, index) => {
+        const inputUrl = document.getElementById(`multimedia_${index}_url`);
+        const inputTitulo = document.getElementById(`multimedia_${index}_titulo`);
+        
+        if (inputUrl && window.datosFormularioMultimedia[`multimedia_${index}_url`]) {
+            inputUrl.value = window.datosFormularioMultimedia[`multimedia_${index}_url`];
+        }
+        if (inputTitulo && window.datosFormularioMultimedia[`multimedia_${index}_titulo`]) {
+            inputTitulo.value = window.datosFormularioMultimedia[`multimedia_${index}_titulo`];
+        }
+    });
+    
+    console.log('🔄 Datos del formulario multimedia restaurados');
+};
+
+// Función para restaurar datos del formulario multimedia después de agregar
+window.restaurarDatosFormularioMultimediaAgregar = function() {
+    if (!window.datosFormularioMultimedia) return;
+    
+    // Solo restaurar campos básicos, no los ejemplares dinámicos
+    const profesor = document.getElementById('profesor');
+    const carrera = document.getElementById('carrera');
+    const materia = document.getElementById('materia');
+    
+    if (profesor && window.datosFormularioMultimedia.profesor) {
+        profesor.value = window.datosFormularioMultimedia.profesor;
+    }
+    if (carrera && window.datosFormularioMultimedia.carrera) {
+        carrera.value = window.datosFormularioMultimedia.carrera;
+    }
+    if (materia && window.datosFormularioMultimedia.materia) {
+        materia.value = window.datosFormularioMultimedia.materia;
+    }
+    
+    console.log('🔄 Datos básicos del formulario multimedia restaurados después de agregar');
+};
 
 // === Estado independiente ===
 window.gruposTiposMapa = [];
@@ -427,11 +513,12 @@ window.agregarTipoMapaDesdeInputs = function(inputTipoId = 'input-nuevo-tipo-map
 
 // --- Función de validación para campos dinámicos de ejemplares ---
 window.validarCamposDinamicosEjemplares = function() {
+    // Validar campos de mapas
     const contenedorEjemplares = document.getElementById('contenedor-ejemplares-mapa');
     const fieldsets = contenedorEjemplares ? contenedorEjemplares.querySelectorAll('fieldset.mb-4.p-3.rounded') : [];
     
     // Si no hay fieldsets generados con las clases específicas, validar campos iniciales
-    if (fieldsets.length === 0) {
+    if (fieldsets.length === 0 && contenedorEjemplares) {
         const camposIniciales = [
             { campo: document.getElementById('sede-mapa'), nombre: 'Sede' },
             { campo: document.getElementById('input-nuevo-tipo-mapa'), nombre: 'Tipo de Mapa' },
@@ -452,27 +539,55 @@ window.validarCamposDinamicosEjemplares = function() {
     }
     
     // Si hay fieldsets generados, validar solo los campos requeridos dentro de los fieldsets
-    const camposRequeridos = contenedorEjemplares.querySelectorAll('input[required]');
-    const camposVacios = [];
-    
-    camposRequeridos.forEach(campo => {
-        if (!campo.value.trim()) {
-            camposVacios.push(campo);
+    if (contenedorEjemplares) {
+        const camposRequeridos = contenedorEjemplares.querySelectorAll('input[required]');
+        const camposVacios = [];
+        
+        camposRequeridos.forEach(campo => {
+            if (!campo.value.trim()) {
+                camposVacios.push(campo);
+            }
+        });
+        
+        if (camposVacios.length > 0) {
+            // Encontrar el primer campo vacío y hacer scroll hacia él
+            const primerCampoVacio = camposVacios[0];
+            primerCampoVacio.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            primerCampoVacio.focus();
+            
+            // Mostrar mensaje de error específico
+            const label = primerCampoVacio.previousElementSibling || primerCampoVacio.parentElement.querySelector('label');
+            const nombreCampo = label ? label.textContent.replace('*', '').trim().replace(':', '') : 'Campo requerido';
+            alert(`Por favor, complete el campo "${nombreCampo}" antes de guardar.`);
+            
+            return false;
         }
-    });
+    }
     
-    if (camposVacios.length > 0) {
-        // Encontrar el primer campo vacío y hacer scroll hacia él
-        const primerCampoVacio = camposVacios[0];
-        primerCampoVacio.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        primerCampoVacio.focus();
+    // Validar campos de multimedia
+    const contenedorMultimedia = document.getElementById('contenedor-ejemplares-multimedia');
+    if (contenedorMultimedia && window.gruposTiposMultimedia && window.gruposTiposMultimedia.length === 0) {
+        // Si no hay multimedia dinámicos, validar campos iniciales
+        const urlInicial = document.getElementById('ingresar_enlace');
+        const tituloInicial = document.getElementById('titulo_contenido');
         
-        // Mostrar mensaje de error específico
-        const label = primerCampoVacio.previousElementSibling || primerCampoVacio.parentElement.querySelector('label');
-        const nombreCampo = label ? label.textContent.replace('*', '').trim().replace(':', '') : 'Campo requerido';
-        alert(`Por favor, complete el campo "${nombreCampo}" antes de guardar.`);
-        
-        return false;
+        if (tituloInicial && tituloInicial.hasAttribute('required') && !tituloInicial.value.trim()) {
+            tituloInicial.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            tituloInicial.focus();
+            alert('Por favor, complete el campo "Título del contenido" antes de guardar.');
+            return false;
+        }
+    } else if (contenedorMultimedia && window.gruposTiposMultimedia && window.gruposTiposMultimedia.length > 0) {
+        // Si hay multimedia dinámicos, validar que tengan título
+        for (let i = 0; i < window.gruposTiposMultimedia.length; i++) {
+            const tituloInput = document.getElementById(`multimedia_${i}_titulo`);
+            if (tituloInput && !tituloInput.value.trim()) {
+                tituloInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                tituloInput.focus();
+                alert(`Por favor, complete el título del ejemplar ${i + 1} antes de guardar.`);
+                return false;
+            }
+        }
     }
     
     return true;
@@ -1039,75 +1154,100 @@ window.renderizarTiposMultimedia = function() {
     
     let html = '';
     
-    window.gruposTiposMultimedia.forEach((grupo, index) => {
+    // Mostrar tabla resumen si hay multimedia agregados
+    if (window.gruposTiposMultimedia.length > 0) {
         html += `
-        <div class="card mb-3" style="border: 1px solid #dee2e6;">
-            <div class="card-header d-flex justify-content-between align-items-center" style="background-color: #f8f9fa; padding: 0.75rem;">
-                <h6 class="mb-0" style="color: #495057;">
-                    <strong>Tipo a registrar:</strong> ${grupo.tipo}
-                </h6>
-                <button type="button" class="btn btn-outline-danger btn-sm" onclick="eliminarGrupoTipoMultimedia(${index})">
-                    <i class="fas fa-trash"></i> Eliminar
-                </button>
-            </div>
-            <div class="card-body" style="padding: 1rem;">
-                <div class="row mb-2">
-                    <div class="col-md-12">
-                        <div class="d-flex align-items-center gap-3">
-                            <div class="flex-grow-1">
-                                <label class="form-label small mb-1"><strong>Cantidad de ejemplares:</strong></label>
-                                <input type="number" 
-                                       class="form-control form-control-sm" 
-                                       value="${grupo.cantidad}" 
-                                       min="1" 
-                                       onchange="actualizarCantidadMultimedia(${index}, this.value)"
-                                       style="max-width: 120px;">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div id="ejemplares-multimedia-${index}">
-                    <!-- Los ejemplares se generarán aquí -->
-                </div>
-            </div>
+        <div class="table-responsive mb-3">
+            <table class="table table-sm table-bordered">
+                <thead class="table-light">
+                    <tr>
+                        <th>URL</th>
+                        <th>Título</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>`;
+        
+        window.gruposTiposMultimedia.forEach((grupo, index) => {
+            html += `
+                    <tr>
+                        <td>${grupo.url || 'Sin URL'}</td>
+                        <td>${grupo.titulo || 'Sin título'}</td>
+                        <td>
+                            <button type="button" class="btn btn-outline-danger btn-sm" onclick="eliminarGrupoTipoMultimedia(${index})">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>`;
+        });
+        
+        html += `
+                </tbody>
+            </table>
         </div>`;
-    });
-
+    }
+    
     contenedor.innerHTML = html;
     
-    // Generar ejemplares para cada grupo
-    window.gruposTiposMultimedia.forEach((grupo, index) => {
-        generarEjemplaresMultimedia(index, grupo.cantidad);
-    });
+    // Generar ejemplares dinámicos
+    generarEjemplaresMultimedia();
+    
+    // Manejar atributo required de campos iniciales
+    const urlInicial = document.getElementById('ingresar_enlace');
+    const tituloInicial = document.getElementById('titulo_contenido');
+    
+    if (window.gruposTiposMultimedia.length > 0) {
+        // Si hay multimedia dinámicos, los campos iniciales no son requeridos
+        if (urlInicial) urlInicial.removeAttribute('required');
+        if (tituloInicial) tituloInicial.removeAttribute('required');
+    } else {
+        // Si no hay multimedia dinámicos, el título inicial es requerido
+        if (tituloInicial) tituloInicial.setAttribute('required', '');
+    }
 };
 
 // Función para agregar un nuevo grupo de tipo multimedia
-window.agregarGrupoTipoMultimedia = function(tipo, cantidad) {
-    window.gruposTiposMultimedia.push({ tipo, cantidad });
+window.agregarGrupoTipoMultimedia = function(url, titulo) {
+    window.gruposTiposMultimedia.push({ url, titulo });
     window.renderizarTiposMultimedia();
 };
 
 // Función para agregar tipo multimedia desde los inputs
-window.agregarTipoMultimediaDesdeInputs = function(inputTipoId = 'input-nuevo-tipo-multimedia', inputCantId = 'input-nueva-cant-multimedia') {
-    const inputTipo = document.getElementById(inputTipoId);
-    const inputCant = document.getElementById(inputCantId);
+window.agregarTipoMultimediaDesdeInputs = function() {
+    const inputUrl = document.getElementById('ingresar_enlace');
+    const inputTitulo = document.getElementById('titulo_contenido');
     
-    if (!inputTipo || !inputCant) return;
-    
-    const tipo = inputTipo.value.trim();
-    const cantidad = parseInt(inputCant.value) || 1;
-    
-    if (tipo === '') {
-        alert('Por favor, ingrese un tipo de multimedia.');
+    if (!inputUrl || !inputTitulo) {
+        console.log('⚠️ Campos URL o título no encontrados');
         return;
     }
     
-    window.agregarGrupoTipoMultimedia(tipo, cantidad);
+    const url = inputUrl.value.trim();
+    const titulo = inputTitulo.value.trim();
+    
+    if (titulo === '') {
+        alert('Por favor, ingrese un título para el contenido multimedia.');
+        inputTitulo.focus();
+        return;
+    }
+    
+    // Guardar datos del formulario antes de agregar
+    if (typeof guardarDatosFormularioMultimedia === 'function') {
+        guardarDatosFormularioMultimedia();
+    }
+    
+    window.agregarGrupoTipoMultimedia(url, titulo);
     
     // Limpiar inputs
-    inputTipo.value = '';
-    inputCant.value = '1';
+    inputUrl.value = '';
+    inputTitulo.value = '';
+    
+    // Restaurar datos del formulario
+    if (typeof restaurarDatosFormularioMultimediaAgregar === 'function') {
+        restaurarDatosFormularioMultimediaAgregar();
+    }
+    
+    console.log('✅ Multimedia agregado:', { url, titulo });
 };
 
 // Función para eliminar un grupo de tipo multimedia
@@ -1118,47 +1258,71 @@ window.eliminarGrupoTipoMultimedia = function(index) {
     }
 };
 
-// Función para actualizar la cantidad de un grupo
-window.actualizarCantidadMultimedia = function(index, nuevaCantidad) {
-    const cantidad = parseInt(nuevaCantidad) || 1;
-    window.gruposTiposMultimedia[index].cantidad = cantidad;
-    generarEjemplaresMultimedia(index, cantidad);
-};
-
-// Función para generar ejemplares de un grupo específico
-function generarEjemplaresMultimedia(grupoIndex, cantidad) {
-    const contenedor = document.getElementById(`ejemplares-multimedia-${grupoIndex}`);
-    if (!contenedor) return;
+// Función para generar ejemplares dinámicos de multimedia
+function generarEjemplaresMultimedia() {
+    const contenedor = document.getElementById('contenedor-ejemplares-multimedia');
+    if (!contenedor) {
+        console.log('⚠️ Contenedor ejemplares multimedia no encontrado');
+        return;
+    }
     
     let html = '';
-    for (let i = 1; i <= cantidad; i++) {
+    
+    // Generar fieldsets para cada multimedia agregado
+    window.gruposTiposMultimedia.forEach((grupo, index) => {
         html += `
-        <div class="row mb-2" style="border-left: 3px solid #dc3545; padding-left: 10px; margin-left: 5px;">
-            <div class="col-md-1">
-                <label class="form-label small"><strong>N° Regis.</strong></label>
-                <input type="text" 
-                       class="form-control form-control-sm" 
-                       name="multimedia_${grupoIndex}_${i}_registro" 
-                       placeholder="N° Registro" 
-                       required>
+        <div class="dotted-separator mb-3"></div>
+        <fieldset class="border p-3 mb-3" style="border-radius: 8px; background-color: #f8f9fa;">
+            <legend class="w-auto px-2" style="font-size: 1rem; font-weight: bold; color: #495057;">
+                Ejemplar ${index + 1}
+            </legend>
+            <div class="row">
+                <div class="col-md-2">
+                    <label for="multimedia_${index}_url" class="form-label small">Ingresar enlace (URL)</label>
+                    <div class="input-group">
+                        <input type="url" 
+                               class="form-control form-control-sm" 
+                               id="multimedia_${index}_url" 
+                               name="multimedia_${index}_url" 
+                               value="${grupo.url || ''}" 
+                               placeholder="URL del contenido multimedia">
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <label for="multimedia_${index}_titulo" class="form-label small">Título del contenido <span class="text-danger">*</span></label>
+                    <input type="text" 
+                           class="form-control form-control-sm" 
+                           id="multimedia_${index}_titulo" 
+                           name="multimedia_${index}_titulo" 
+                           value="${grupo.titulo || ''}" 
+                           required 
+                           placeholder="Título del contenido">
+                </div>
             </div>
-            <div class="col-md-3">
-                <label class="form-label small"><strong>Denominación</strong></label>
-                <input type="text" 
-                       class="form-control form-control-sm" 
-                       name="multimedia_${grupoIndex}_${i}_denominacion" 
-                       placeholder="Denominación" 
-                       required>
-            </div>
-            <div class="col-md-6">
-                <label class="form-label small"><strong>Descripción</strong></label>
-                <textarea class="form-control form-control-sm" 
-                          name="multimedia_${grupoIndex}_${i}_descripcion" 
-                          placeholder="Descripción del multimedia" 
-                          rows="2" 
-                          required></textarea>
-            </div>
-        </div>`;
-    }
+        </fieldset>`;
+    });
+    
     contenedor.innerHTML = html;
+    
+    // Agregar event listeners para actualizar los datos cuando cambien los inputs
+    window.gruposTiposMultimedia.forEach((grupo, index) => {
+        const inputUrl = document.getElementById(`multimedia_${index}_url`);
+        const inputTitulo = document.getElementById(`multimedia_${index}_titulo`);
+        
+        if (inputUrl) {
+            inputUrl.addEventListener('input', function() {
+                window.gruposTiposMultimedia[index].url = this.value;
+                // Actualizar tabla resumen
+                window.renderizarTiposMultimedia();
+            });
+        }
+        
+        if (inputTitulo) {
+            inputTitulo.addEventListener('input', function() {
+                window.gruposTiposMultimedia[index].titulo = this.value;
+                // Actualizar tabla resumen
+                window.renderizarTiposMultimedia();
+            });
+        }
+    });
 }

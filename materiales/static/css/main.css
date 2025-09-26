@@ -149,6 +149,13 @@ input:focus, textarea:focus, select:focus {
     height: 0;
 }
 
+.dotted-separator {
+    border-bottom: 4px dashed var(--input-border);
+    width: 100%;
+    margin: 24px 0;
+    height: 0;
+}
+
 .text-input {
     font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
     letter-spacing: 10%;
