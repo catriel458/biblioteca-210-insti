@@ -307,6 +307,43 @@
         }
         }
     }
+
+    // Función para preparar el envío del formulario de multimedia
+    function prepararEnvioFormulario() {
+        console.log('📤 Preparando envío del formulario de multimedia...');
+        
+        // Recopilar datos de multimedia desde los inputs del DOM
+        const gruposMultimedia = [];
+        const contenedor = document.getElementById('contenedor-ejemplares-multimedia');
+        
+        if (contenedor) {
+            const grupos = contenedor.querySelectorAll('.grupo-multimedia');
+            grupos.forEach((grupo, index) => {
+                const urlInput = grupo.querySelector(`input[name="ingresar_enlace_${index}"]`);
+                const tituloInput = grupo.querySelector(`input[name="titulo_contenido_${index}"]`);
+                
+                if (urlInput && tituloInput) {
+                    gruposMultimedia.push({
+                        url: urlInput.value || '',
+                        titulo: tituloInput.value || ''
+                    });
+                }
+            });
+        }
+        
+        // Actualizar window.gruposTiposMultimedia
+        window.gruposTiposMultimedia = gruposMultimedia;
+        
+        // Serializar los datos si existe el input hidden
+        const gruposTiposMultimediaInput = document.getElementById('gruposTiposMultimedia');
+        if (gruposTiposMultimediaInput) {
+            gruposTiposMultimediaInput.value = JSON.stringify(window.gruposTiposMultimedia);
+        }
+        
+        console.log('📤 Datos de multimedia preparados:', {
+            gruposTiposMultimedia: window.gruposTiposMultimedia
+        });
+    }
     
     // Inicializar cuando el DOM esté listo
     document.addEventListener('DOMContentLoaded', function() {

@@ -2264,12 +2264,15 @@ def confirmacion_alta_mapa(request):
         # Obtener el tipo seleccionado del dropdown como fallback
         tipo_dropdown = request.POST.get('input-nuevo-tipo-mapa', 'GENERAL')
         
+        print(f"🔍 gruposTiposMapa JSON recibido: '{grupos_tipos_json}'")  # Debug
+        print(f"🔍 tipo_dropdown recibido: '{tipo_dropdown}'")  # Debug
+        
         try:
             grupos_tipos_data = json.loads(grupos_tipos_json) if grupos_tipos_json else []
-            print(f"📋 Grupos tipos data: {grupos_tipos_data}")  # Debug
-        except json.JSONDecodeError:
+            print(f"📋 Grupos tipos data parseado: {grupos_tipos_data}")  # Debug
+        except json.JSONDecodeError as e:
             grupos_tipos_data = []
-            print("❌ Error al decodificar JSON de gruposTiposMapa")  # Debug
+            print(f"❌ Error al decodificar JSON de gruposTiposMapa: {e}")  # Debug
         
         # Crear un mapeo de índice de grupo a tipo
         tipo_por_grupo = {}
@@ -2324,10 +2327,13 @@ def confirmacion_alta_mapa(request):
         
         # Si no se encontraron ejemplares dinámicos, crear uno básico usando los datos de gruposTiposMapa
         if not tipos_mapa and grupos_tipos_data:
+            print(f"🔧 Creando tipos_mapa desde grupos_tipos_data")  # Debug
             # Usar los datos de gruposTiposMapa para crear los tipos
             for idx, grupo in enumerate(grupos_tipos_data):
                 tipo_grupo = grupo.get('tipo', tipo_dropdown)
                 cantidad_grupo = grupo.get('cantidad', 1)
+                
+                print(f"🔧 Procesando grupo {idx}: tipo='{tipo_grupo}', cantidad={cantidad_grupo}")  # Debug
                 
                 # Crear ejemplares para este tipo
                 ejemplares = []
@@ -2379,6 +2385,7 @@ def confirmacion_alta_mapa(request):
         # Guardar en sesión
         request.session['mapa_data'] = mapa_data
         print(f"📋 Datos de mapa guardados en sesión: {mapa_data}")  # Debug
+        print(f"🎯 tipos_mapa final enviado al template: {tipos_mapa}")  # Debug
         
         # Renderizar página con modal automático
         return render(request, 'materiales/formularios_altas/confirmaciones_alta/confirmacion_alta_mapa.html', {

@@ -250,7 +250,7 @@ window.renderizarTiposMapa = function() {
         html += `<tr>
             <td><span class="form-control" style="width:180px;height:39px;display:inline-block;vertical-align:middle;border-bottom:2px solid #81123b;">${g.tipo}</span></td>
             <td>
-                <input type='number' class='form-control form-control-sm input-cant-mapa' data-idx='${idx}' value='${g.cantidad}' min='1' max='5' style='width:70px;display:inline-block;vertical-align:middle;'>
+                <input type='number' id='cant-mapa-${idx}' name='cant-mapa-${idx}' class='form-control form-control-sm input-cant-mapa' data-idx='${idx}' value='${g.cantidad}' min='1' max='5' style='width:70px;display:inline-block;vertical-align:middle;'>
             </td>
             <td style="vertical-align:middle; text-align:center;">
                 <button type='button' class='boton-eliminar btn-eliminar-tipo-mapa' data-idx='${idx}' title='Eliminar tipo'>×</button>

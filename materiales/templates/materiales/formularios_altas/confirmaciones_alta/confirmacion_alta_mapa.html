@@ -221,10 +221,7 @@
                 <strong>Sede:</strong>
                 <p id="confirmSede" class="info-text">{{ form_data.sede_texto|default:"Sin especificar" }}</p>
               </div>
-              <div class="col-md-6">
-                <strong>N° de Registro Base:</strong>
-                <p id="confirmNumRegistro" class="info-text">{{ form_data.n_registro|default:"Sin especificar" }}</p>
-              </div>
+
             </div>
           </div>
 
@@ -236,8 +233,7 @@
               {% for tipo_grupo in tipos_mapa %}
                 <div class="tipo-header">
                   <h6 class="tipo-title">
-                    {{ tipo_grupo.tipo|upper }}
-                    <span class="cantidad-badge">{{ tipo_grupo.cantidad }} ejemplar{{ tipo_grupo.cantidad|pluralize:"es" }}</span>
+                    {{ tipo_grupo.tipo|upper|default:"SIN TIPO" }}
                   </h6>
                 </div>
                 

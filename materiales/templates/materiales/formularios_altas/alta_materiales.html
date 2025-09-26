@@ -853,6 +853,71 @@ document.addEventListener("DOMContentLoaded", function () {
     window.eliminarVarios = eliminarVarios;
     window.actualizarIndicesVarios = actualizarIndicesVarios;
 });
+
+// ===== FUNCIONES GLOBALES PARA PREPARAR ENVÍO DE FORMULARIOS =====
+
+// Función global para preparar envío de formulario de mapas
+window.prepararEnvioFormulario = function() {
+    const tipoMaterial = document.getElementById('tipo_material').value;
+    
+    if (tipoMaterial === 'mapa') {
+        // Serializar los datos de gruposTiposMapa
+        const gruposTiposMapaInput = document.getElementById('gruposTiposMapa');
+        if (gruposTiposMapaInput && window.gruposTiposMapa) {
+            gruposTiposMapaInput.value = JSON.stringify(window.gruposTiposMapa);
+        }
+        
+        // Agregar campos ocultos para cada tipo de grupo
+        if (window.gruposTiposMapa) {
+            window.gruposTiposMapa.forEach((grupo, idx) => {
+                const tipoInput = document.createElement('input');
+                tipoInput.type = 'hidden';
+                tipoInput.name = `tipo_grupo_${idx}`;
+                tipoInput.value = grupo.tipo;
+                document.getElementById('form_alta_material').appendChild(tipoInput);
+            });
+        }
+        
+        console.log('📤 Datos de mapa preparados para envío:', {
+            gruposTiposMapa: window.gruposTiposMapa,
+            sede: document.getElementById('sede-mapa')?.value
+        });
+    }
+    else if (tipoMaterial === 'multimedia') {
+        // Recopilar datos de multimedia de los inputs
+        const multimediaData = [];
+        let index = 0;
+        
+        // Buscar todos los grupos de multimedia
+        while (true) {
+            const urlInput = document.getElementById(`url_contenido_${index}`);
+            const tituloInput = document.getElementById(`titulo_contenido_${index}`);
+            
+            if (!urlInput || !tituloInput) break;
+            
+            if (urlInput.value.trim() && tituloInput.value.trim()) {
+                multimediaData.push({
+                    url: urlInput.value.trim(),
+                    titulo: tituloInput.value.trim()
+                });
+            }
+            index++;
+        }
+        
+        // Actualizar window.gruposTiposMultimedia
+        window.gruposTiposMultimedia = multimediaData;
+        
+        // Serializar en el input hidden
+        const gruposMultimediaInput = document.getElementById('gruposMultimedia');
+        if (gruposMultimediaInput) {
+            gruposMultimediaInput.value = JSON.stringify(multimediaData);
+        }
+        
+        console.log('📤 Datos de multimedia preparados para envío:', {
+            gruposTiposMultimedia: multimediaData
+        });
+    }
+};
 </script>
 
 <!-- Scripts necesarios para funcionalidad de formularios dinámicos -->
