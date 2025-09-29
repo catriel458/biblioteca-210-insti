@@ -637,15 +637,15 @@ function plantillaEjemplarElemento(idx, tipo = "") {
     return `
     <div class="row mb-3">
             <div class="col-md-2">
-                <label for="n_registro_${idx}">N° de registro: <span style="color: red;">*</span></label>
+                <label for="n_registro_${idx}" style="font-size: 14px;">N° de registro: <span style="color: red;">*</span></label>
                 <input type="text" class="form-control" id="n_registro_${idx}" name="n_registro_${idx}" required />
             </div>
             <div class="col-md-2">
-                <label for="denominacion_${idx}">Denominación: <span style="color: red;">*</span></label>
+                <label for="denominacion_${idx}" style="font-size: 14px;">Denominación: <span style="color: red;">*</span></label>
                 <input type="text" class="form-control" id="denominacion_${idx}" name="denominacion_${idx}" required />
             </div>
             <div class="col-md-6">
-                <label for="descripcion_${idx}">Descripción:</label>
+                <label for="descripcion_${idx}" style="font-size: 14px;">Descripción:</label>
                 <textarea class="form-control textarea-wrapper" id="descripcion_${idx}" rows="3" name="descripcion_${idx}"></textarea>
             </div>
         </div>
@@ -653,57 +653,123 @@ function plantillaEjemplarElemento(idx, tipo = "") {
 }
 
 
-// === EJEMPLARES DINÁMICOS GENERALES (Notebook y Proyector) ===
+// === EJEMPLARES DINÁMICOS GENERALES (Solo Proyector) ===
 // Genera el HTML de un ejemplar según el tipo de material
 function plantillaEjemplarMaterial(idx, tipo) {
-    if (tipo === 'notebook') {
+    if (tipo === 'proyector') {
         return `
+        <!-- Línea punteada -->
+        <div style="
+            background: repeating-linear-gradient(
+                to right,
+                #8B1D69 0px,
+                #8B1D69 10px,
+                transparent 10px,
+                transparent 30px
+            );
+            height: 3px;
+            margin: 25px 0;
+            width: 100%;
+        "></div>
         <div class="row mb-2">
             <div class="col-md-3">
-                <label for="serie_${idx}">N° de serie:</label>
-                <input type="text" class="form-control" id="serie_${idx}" name="serie_${idx}" required placeholder="N° de serie...">
-            </div>
-            <div class="col-md-3">
-                <label for="modelo_${idx}">Modelo:</label>
-                <input type="text" class="form-control" id="modelo_${idx}" name="modelo_${idx}" required placeholder="Modelo...">
-            </div>
-        </div>`;
-    } else if (tipo === 'proyector') {
-        return `
-        <div class="row mb-2">
-            <div class="col-md-3">
-                <label for="sede_${idx}">Sede:</label>
-                <input type="text" class="form-control" id="sede_${idx}" name="sede_${idx}" required placeholder="Sede...">
-            </div>
-            <div class="col-md-3">
-                <label for="n_registro_${idx}">N° de registro:</label>
+                <label for="n_registro_${idx}" style="font-size: 14px;">N° de registro:</label>
                 <input type="text" class="form-control" id="n_registro_${idx}" name="n_registro_${idx}" required placeholder="N° de registro...">
             </div>
             <div class="col-md-3">
-                <label for="modelo_${idx}">Modelo:</label>
+                <label for="modelo_${idx}" style="font-size: 14px;">Modelo:</label>
                 <input type="text" class="form-control" id="modelo_${idx}" name="modelo_${idx}" required placeholder="Modelo..." />
+            </div>
+        </div>`;
+    } else if (tipo === 'notebook') {
+        return `
+        <!-- Línea punteada -->
+        <div style="
+            background: repeating-linear-gradient(
+                to right,
+                #8B1D69 0px,
+                #8B1D69 10px,
+                transparent 10px,
+                transparent 30px
+            );
+            height: 3px;
+            margin: 25px 0;
+            width: 100%;
+        "></div>
+        <div class="row mb-2">
+            <div class="col-md-3">
+                <label for="n_registro_${idx}" style="font-size: 14px;">N° de registro:</label>
+                <input type="text" class="form-control" id="n_registro_${idx}" name="n_registro_${idx}" required placeholder="N° de registro...">
+            </div>
+            <div class="col-md-3">
+                <label for="modelo_${idx}" style="font-size: 14px;">Modelo:</label>
+                <input type="text" class="form-control" id="modelo_${idx}" name="modelo_${idx}" required placeholder="Modelo..." />
+            </div>
+        </div>`;
+    } else if (tipo === 'libro') {
+        return `
+        <!-- Línea punteada -->
+        <div style="
+            background: repeating-linear-gradient(
+                to right,
+                #8B1D69 0px,
+                #8B1D69 10px,
+                transparent 10px,
+                transparent 30px
+            );
+            height: 3px;
+            margin: 25px 0;
+            width: 100%;
+        "></div>
+        <div class="row mb-3">
+            <div class="col-12">
+                <h5 style="color:#25898D;">Ejemplar #${idx}</h5>
+            </div>
+            <div class="col-12 col-sm-4 col-lg-4 form-group mb-3">
+                <label class="text-input" style="color:#25898D; font-size: 14px;">Sede:</label>
+                <select name="sede_${idx}" class="form-control">
+                    <option value="">Seleccione una sede</option>
+                    <option value="La Plata">La Plata</option>
+                    <option value="Abasto">Abasto</option>
+                </select>
+            </div>
+            <div class="col-12 col-sm-4 col-lg-4 form-group mb-3">
+                <label class="text-input" style="color:#25898D; font-size: 14px;">Disponibilidad:</label>
+                <select name="disponibilidad_${idx}" class="form-control">
+                    <option value="">Seleccione disponibilidad</option>
+                    <option value="Aula">Aula</option>
+                    <option value="Domicilio">Domicilio</option>
+                </select>
+            </div>
+            <div class="col-12 col-sm-4 col-lg-4 form-group mb-3">
+                <label class="text-input" style="color:#25898D; font-size: 14px;">Observaciones:</label>
+                <textarea name="observaciones_${idx}" class="form-control" rows="2" placeholder="Observaciones sobre este ejemplar"></textarea>
             </div>
         </div>`;
     }
     return '';
 }
 
-// Generador dinámico de ejemplares para notebook y proyector
+// Generador dinámico de ejemplares para proyector, notebook y libro
 window.updateRowsMaterial = function(tipo) {
     const cantidadInput = document.querySelector('input[name="cant_ejemplares"]');
-    const containerNotebook = document.getElementById('contenedor-ejemplares-notebook');
     const containerProyector = document.getElementById('contenedor-ejemplares-proyector');
+    const containerNotebook = document.getElementById('contenedor-ejemplares-notebook');
+    const containerLibro = document.getElementById('contenedor-ejemplares-libro');
     const cantidad = parseInt(cantidadInput ? cantidadInput.value : 1) || 1;
 
-    // Limpiar ambos contenedores
-    if (containerNotebook) containerNotebook.innerHTML = '';
+    // Limpiar contenedores
     if (containerProyector) containerProyector.innerHTML = '';
+    if (containerNotebook) containerNotebook.innerHTML = '';
+    if (containerLibro) containerLibro.innerHTML = '';
 
     for (let i = 1; i <= cantidad; i++) {
-        if (tipo === 'notebook' && containerNotebook) {
-            containerNotebook.insertAdjacentHTML('beforeend', plantillaEjemplarMaterial(i, 'notebook'));
-        } else if (tipo === 'proyector' && containerProyector) {
+        if (tipo === 'proyector' && containerProyector) {
             containerProyector.insertAdjacentHTML('beforeend', plantillaEjemplarMaterial(i, 'proyector'));
+        } else if (tipo === 'notebook' && containerNotebook) {
+            containerNotebook.insertAdjacentHTML('beforeend', plantillaEjemplarMaterial(i, 'notebook'));
+        } else if (tipo === 'libro' && containerLibro) {
+            containerLibro.insertAdjacentHTML('beforeend', plantillaEjemplarMaterial(i, 'libro'));
         }
     }
 };
@@ -711,13 +777,15 @@ window.updateRowsMaterial = function(tipo) {
 // Inicializar evento al cargar (solo para carga directa, no dinámica)
 document.addEventListener('DOMContentLoaded', function () {
     const inputCantidad = document.querySelector('input[name="cant_ejemplares"]');
-    const containerNotebook = document.getElementById('contenedor-ejemplares-notebook');
     const containerProyector = document.getElementById('contenedor-ejemplares-proyector');
+    const containerNotebook = document.getElementById('contenedor-ejemplares-notebook');
     const containerMapa = document.getElementById('contenedor-ejemplares-mapa');
+    const containerLibro = document.getElementById('contenedor-ejemplares-libro');
     
     let tipo = '';
-    if (containerNotebook) tipo = 'notebook';
-    else if (containerProyector) tipo = 'proyector';
+    if (containerProyector) tipo = 'proyector';
+    else if (containerNotebook) tipo = 'notebook';
+    else if (containerLibro) tipo = 'libro';
     
     if (inputCantidad && tipo) {
         inputCantidad.addEventListener('input', function() { window.updateRowsMaterial(tipo); });
@@ -729,16 +797,48 @@ document.addEventListener('DOMContentLoaded', function () {
         window.renderizarTiposMapa();
     }
     
-    // Inicializar renderizado para formulario de notebook
-    const containerNotebookTipos = document.getElementById('contenedor-tipos-notebook');
-    if (containerNotebookTipos) {
-        window.renderizarTiposNotebook();
-    }
-    
     // Inicializar renderizado para formulario de proyector
     const containerProyectorTipos = document.getElementById('contenedor-tipos-proyector');
     if (containerProyectorTipos) {
         window.renderizarTiposProyector();
+        
+        // Inicializar el botón de agregar proyector
+        const btnAgregarProyector = document.getElementById('btn-agregar-proyector');
+        if (btnAgregarProyector) {
+            btnAgregarProyector.addEventListener('click', function() {
+                window.agregarTipoProyectorDesdeInputs();
+            });
+        }
+    }
+    
+    // Configurar evento dinámico para proyectores
+    const cantEjemplaresProyector = document.getElementById('cant_ejemplares');
+    const contenedorEjemplaresProyector = document.getElementById('contenedor-ejemplares-proyector');
+    
+    if (cantEjemplaresProyector && contenedorEjemplaresProyector) {
+        // Event listener para cambios dinámicos
+        cantEjemplaresProyector.addEventListener('input', function() {
+            window.updateRowsMaterial('proyector');
+        });
+        
+        cantEjemplaresProyector.addEventListener('change', function() {
+            window.updateRowsMaterial('proyector');
+        });
+    }
+    
+    // Configurar evento dinámico para notebooks
+    const cantEjemplaresNotebook = document.getElementById('cant_ejemplares');
+    const contenedorEjemplaresNotebook = document.getElementById('contenedor-ejemplares-notebook');
+    
+    if (cantEjemplaresNotebook && contenedorEjemplaresNotebook) {
+        // Event listener para cambios dinámicos
+        cantEjemplaresNotebook.addEventListener('input', function() {
+            window.updateRowsMaterial('notebook');
+        });
+        
+        cantEjemplaresNotebook.addEventListener('change', function() {
+            window.updateRowsMaterial('notebook');
+        });
     }
     
     // Inicializar renderizado para formulario de varios (nueva implementación)
@@ -754,134 +854,6 @@ document.addEventListener('DOMContentLoaded', function () {
         window.renderizarTiposMultimedia();
     }
 });
-
-// === FUNCIONES ESPECÍFICAS PARA NOTEBOOKS ===
-window.gruposTiposNotebook = [];
-
-window.renderizarTiposNotebook = function() {
-    const contenedor = document.getElementById('contenedor-tipos-notebook');
-    if (!contenedor) return;
-
-    let html = '';
-    
-    window.gruposTiposNotebook.forEach((grupo, index) => {
-        html += `
-        <div class="card mb-3" style="border: 1px solid #dee2e6;">
-            <div class="card-header d-flex justify-content-between align-items-center" style="background-color: #f8f9fa; padding: 0.75rem;">
-                <h6 class="mb-0" style="color: #495057;">
-                    <strong>Tipo a registrar:</strong> ${grupo.tipo}
-                </h6>
-                <button type="button" class="btn btn-outline-danger btn-sm" onclick="eliminarGrupoTipoNotebook(${index})">
-                    <i class="fas fa-trash"></i> Eliminar
-                </button>
-            </div>
-            <div class="card-body" style="padding: 1rem;">
-                <div class="row mb-2">
-                    <div class="col-md-12">
-                        <div class="d-flex align-items-center gap-3">
-                            <div class="flex-grow-1">
-                                <label class="form-label small mb-1"><strong>Cantidad de ejemplares:</strong></label>
-                                <input type="number" 
-                                       class="form-control form-control-sm" 
-                                       value="${grupo.cantidad}" 
-                                       min="1" 
-                                       onchange="actualizarCantidadNotebook(${index}, this.value)"
-                                       style="max-width: 120px;">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div id="ejemplares-notebook-${index}">
-                    <!-- Los ejemplares se generarán aquí -->
-                </div>
-            </div>
-        </div>`;
-    });
-
-    contenedor.innerHTML = html;
-    
-    // Generar ejemplares para cada grupo
-    window.gruposTiposNotebook.forEach((grupo, index) => {
-        generarEjemplaresNotebook(index, grupo.cantidad);
-    });
-};
-
-window.agregarGrupoTipoNotebook = function(tipo, cantidad) {
-    window.gruposTiposNotebook.push({ tipo, cantidad });
-    window.renderizarTiposNotebook();
-};
-
-window.agregarTipoNotebookDesdeInputs = function(inputTipoId = 'input-nuevo-tipo-notebook', inputCantId = 'input-nueva-cant-notebook') {
-    const inputTipo = document.getElementById(inputTipoId);
-    const inputCant = document.getElementById(inputCantId);
-    
-    if (!inputTipo || !inputCant) return;
-    
-    const tipo = inputTipo.value.trim();
-    const cantidad = parseInt(inputCant.value) || 1;
-    
-    if (tipo === '') {
-        alert('Por favor, ingrese un tipo de notebook.');
-        return;
-    }
-    
-    window.agregarGrupoTipoNotebook(tipo, cantidad);
-    
-    // Limpiar inputs
-    inputTipo.value = '';
-    inputCant.value = '1';
-};
-
-window.eliminarGrupoTipoNotebook = function(index) {
-    if (confirm('¿Está seguro de que desea eliminar este tipo de notebook?')) {
-        window.gruposTiposNotebook.splice(index, 1);
-        window.renderizarTiposNotebook();
-    }
-};
-
-window.actualizarCantidadNotebook = function(index, nuevaCantidad) {
-    const cantidad = parseInt(nuevaCantidad) || 1;
-    window.gruposTiposNotebook[index].cantidad = cantidad;
-    generarEjemplaresNotebook(index, cantidad);
-};
-
-function generarEjemplaresNotebook(grupoIndex, cantidad) {
-    const contenedor = document.getElementById(`ejemplares-notebook-${grupoIndex}`);
-    if (!contenedor) return;
-    
-    let html = '';
-    for (let i = 1; i <= cantidad; i++) {
-        html += `
-        <div class="row mb-2" style="border-left: 3px solid #007bff; padding-left: 10px; margin-left: 5px;">
-            <div class="col-md-1">
-                <label class="form-label small"><strong>N° Regis.</strong></label>
-                <input type="text" 
-                       class="form-control form-control-sm" 
-                       name="notebook_${grupoIndex}_${i}_registro" 
-                       placeholder="N° Registro" 
-                       required>
-            </div>
-            <div class="col-md-3">
-                <label class="form-label small"><strong>Denominación</strong></label>
-                <input type="text" 
-                       class="form-control form-control-sm" 
-                       name="notebook_${grupoIndex}_${i}_denominacion" 
-                       placeholder="Denominación" 
-                       required>
-            </div>
-            <div class="col-md-6">
-                <label class="form-label small"><strong>Descripción</strong></label>
-                <textarea class="form-control form-control-sm" 
-                          name="notebook_${grupoIndex}_${i}_descripcion" 
-                          placeholder="Descripción del notebook" 
-                          rows="2" 
-                          required></textarea>
-            </div>
-        </div>`;
-    }
-     contenedor.innerHTML = html;
-}
 
 // === FUNCIONES ESPECÍFICAS PARA VARIOS (NUEVA IMPLEMENTACIÓN) ===
 window.gruposTiposVariosNuevo = [];
@@ -1068,7 +1040,7 @@ window.agregarGrupoTipoProyector = function(tipo, cantidad) {
     window.renderizarTiposProyector();
 };
 
-window.agregarTipoProyectorDesdeInputs = function(inputTipoId = 'input-nuevo-tipo-proyector', inputCantId = 'input-nueva-cant-proyector') {
+window.agregarTipoProyectorDesdeInputs = function(inputTipoId = 'tipo-proyector', inputCantId = 'cant_ejemplares') {
     const inputTipo = document.getElementById(inputTipoId);
     const inputCant = document.getElementById(inputCantId);
     

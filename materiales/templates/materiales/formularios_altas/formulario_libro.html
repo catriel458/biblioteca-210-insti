@@ -102,12 +102,9 @@
         <!-- Número de Ejemplar (Cantidad de ejemplares) -->
         <div class="row">
             <div class="col-12 col-sm-6 col-lg-4 form-group mb-3">
-                <label for="{{ form.num_ejemplar.id_for_label }}" class="text-input" style="color:#25898D;">Cant. de ejemplares:</label>
-                {{ form.num_ejemplar }}
+                <label for="cant_ejemplares" class="text-input" style="color:#25898D; font-size: 14px;">Cant. de ejemplares:</label>
+                <input type="number" name="cant_ejemplares" id="cant_ejemplares" class="form-control" min="1" max="10" value="1" required>
                 <small class="form-text text-muted">Seleccione la cantidad de ejemplares a registrar (máximo 10)</small>
-                {% if form.num_ejemplar.errors %}
-                    <div class="text-danger">{{ form.num_ejemplar.errors }}</div>
-                {% endif %}
             </div>
         </div>
         
@@ -121,14 +118,14 @@
                 {% endif %}
             </div>
             <div class="col-12 col-sm-6 col-lg-4 form-group mb-3">
-                <label for="{{ form.autor.id_for_label }}" class="text-input" style="color:#25898D;">Autor:</label>
+                <label for="{{ form.autor.id_for_label }}" class="text-input" style="color:#25898D; font-size: 14px;">Autor<span class="text-danger">*</span>:</label>
                 {{ form.autor }}
                 {% if form.autor.errors %}
                     <div class="text-danger">{{ form.autor.errors }}</div>
                 {% endif %}
             </div>
             <div class="col-12 col-sm-6 col-lg-4 form-group mb-3">
-                <label for="{{ form.editorial.id_for_label }}" class="text-input" style="color:#25898D;">Editorial:</label>
+                <label for="{{ form.editorial.id_for_label }}" class="text-input" style="color:#25898D; font-size: 14px;">Editorial:</label>
                 {{ form.editorial }}
                 {% if form.editorial.errors %}
                     <div class="text-danger">{{ form.editorial.errors }}</div>
@@ -139,7 +136,7 @@
         <!-- Descripción en una fila completa -->
         <div class="row">
             <div class="col-12 form-group mb-3">
-                <label for="{{ form.descripcion.id_for_label }}" class="text-input" style="color:#25898D;">Descripción:</label>
+                <label for="{{ form.descripcion.id_for_label }}" class="text-input" style="color:#25898D; font-size: 14px;">Descripción:</label>
                 {{ form.descripcion }}
                 {% if form.descripcion.errors %}
                     <div class="text-danger">{{ form.descripcion.errors }}</div>
@@ -150,14 +147,14 @@
         <!-- Siglas Autor/Título y Clasificación CDU -->
         <div class="row">
             <div class="col-12 col-sm-6 col-lg-6 form-group mb-3">
-                <label for="{{ form.siglas_autor_titulo.id_for_label }}" class="text-input" style="color:#25898D;">Siglas de autor / título:</label>
+                <label for="{{ form.siglas_autor_titulo.id_for_label }}" class="text-input" style="color:#25898D; font-size: 14px;">Siglas de autor / título:</label>
                 {{ form.siglas_autor_titulo }}
                 {% if form.siglas_autor_titulo.errors %}
                     <div class="text-danger">{{ form.siglas_autor_titulo.errors }}</div>
                 {% endif %}
             </div>
             <div class="col-12 col-sm-6 col-lg-6 form-group mb-3">
-                <label for="{{ form.clasificacion_cdu.id_for_label }}" class="text-input" style="color:#25898D;">Clasificación / CDU:</label>
+                <label for="{{ form.clasificacion_cdu.id_for_label }}" class="text-input" style="color:#25898D; font-size: 14px;">Clasificación / CDU:</label>
                 {{ form.clasificacion_cdu }}
                 {% if form.clasificacion_cdu.errors %}
                     <div class="text-danger">{{ form.clasificacion_cdu.errors }}</div>
@@ -168,7 +165,7 @@
         <!-- Etiquetas / palabras clave en una fila completa -->
         <div class="row">
             <div class="col-12 form-group mb-3">
-                <label for="{{ form.etiqueta_palabra_clave.id_for_label }}" class="text-input" style="color:#25898D;">Etiquetas / palabras clave:</label>
+                <label for="{{ form.etiqueta_palabra_clave.id_for_label }}" class="text-input" style="color:#25898D; font-size: 14px;">Etiquetas / palabras clave:</label>
                 {{ form.etiqueta_palabra_clave }}
                 {% if form.etiqueta_palabra_clave.errors %}
                     <div class="text-danger">{{ form.etiqueta_palabra_clave.errors }}</div>
@@ -176,38 +173,9 @@
             </div>
         </div>
 
-        <!-- Contenedor para ejemplares -->
-        <div id="ejemplares-container">
-            <h4 class="mt-4 mb-3" style="color:#25898D;">Información de ejemplares</h4>
-            
-            <!-- El primer ejemplar siempre se muestra -->
-            <div class="ejemplar-item mb-4 p-3" style="border: 1px solid #e0e0e0; border-radius: 8px; background-color: #f9f9f9;">
-                <h5 style="color:#25898D;">Ejemplar #1</h5>
-                <div class="row">
-                    <div class="col-12 col-sm-4 col-lg-4 form-group mb-3">
-                        <label class="text-input" style="color:#25898D;">Sede:</label>
-                        <select name="sede_1" class="form-control">
-                            <option value="">Seleccione una sede</option>
-                            <option value="La Plata">La Plata</option>
-                            <option value="Abasto">Abasto</option>
-                        </select>
-                    </div>
-                    <div class="col-12 col-sm-4 col-lg-4 form-group mb-3">
-                        <label class="text-input" style="color:#25898D;">Disponibilidad:</label>
-                        <select name="disponibilidad_1" class="form-control">
-                            <option value="">Seleccione disponibilidad</option>
-                            <option value="Aula">Aula</option>
-                            <option value="Domicilio">Domicilio</option>
-                        </select>
-                    </div>
-                    <div class="col-12 col-sm-4 col-lg-4 form-group mb-3">
-                        <label class="text-input" style="color:#25898D;">Observaciones:</label>
-                        <textarea name="observaciones_1" class="form-control" rows="2"></textarea>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Aquí se agregarán dinámicamente más ejemplares con JavaScript -->
+        <!-- Contenedor para ejemplares dinámicos -->
+        <div id="contenedor-ejemplares-libro">
+            <!-- Los ejemplares se generarán dinámicamente aquí -->
         </div>
 
         <!-- Las observaciones ahora están en cada ejemplar -->
@@ -335,16 +303,17 @@
 {% endblock %}
 
 {% block extra_scripts %}
+<!-- Incluir el script centralizado de form_altas.js -->
+<script src="{% static 'js/form_altas.js' %}"></script>
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('✅ Script cargado correctamente');
+    console.log('✅ Script de libro cargado correctamente');
     
     const form = document.getElementById('form_alta_material');
     const modalElement = document.getElementById('modalConfirmacionAltaMaterial');
-    const numEjemplaresInput = document.getElementById('id_num_ejemplar');
-    const ejemplaresContainer = document.getElementById('ejemplares-container');
     
-    if (!form || !modalElement || !numEjemplaresInput || !ejemplaresContainer) {
+    if (!form || !modalElement) {
         console.error('❌ Elementos necesarios no encontrados');
         return;
     }
@@ -356,7 +325,7 @@ document.addEventListener('DOMContentLoaded', function() {
         return;
     }
     
-    console.log('✅ Todo está listo');
+    console.log('✅ Todo está listo para libro');
     
     // Inicializar el modal
     let modal;
@@ -383,88 +352,6 @@ document.addEventListener('DOMContentLoaded', function() {
         return;
     }
     
-    // Función para generar ejemplares según la cantidad seleccionada
-    function generarEjemplares() {
-        const cantidad = parseInt(numEjemplaresInput.value) || 1;
-        console.log(`🔄 Generando ${cantidad} ejemplares`);
-        
-        // Guardar los valores actuales de los ejemplares existentes
-        const valoresGuardados = {};
-        const ejemplaresExistentes = ejemplaresContainer.querySelectorAll('.ejemplar-item');
-        
-        ejemplaresExistentes.forEach((ejemplar, index) => {
-            const num = index + 1;
-            const sedeSelect = ejemplar.querySelector(`[name="sede_${num}"]`);
-            const dispSelect = ejemplar.querySelector(`[name="disponibilidad_${num}"]`);
-            const obsTextarea = ejemplar.querySelector(`[name="observaciones_${num}"]`);
-            
-            if (sedeSelect) valoresGuardados[`sede_${num}`] = sedeSelect.value;
-            if (dispSelect) valoresGuardados[`disponibilidad_${num}`] = dispSelect.value;
-            if (obsTextarea) valoresGuardados[`observaciones_${num}`] = obsTextarea.value;
-        });
-        
-        // Limpiar el contenedor de ejemplares pero mantener el título
-        const ejemplaresItems = ejemplaresContainer.querySelectorAll('.ejemplar-item');
-        ejemplaresItems.forEach(item => item.remove());
-        
-        // Generar todos los ejemplares
-        for (let i = 1; i <= cantidad; i++) {
-            const nuevoEjemplar = document.createElement('div');
-            nuevoEjemplar.className = 'ejemplar-item mb-4 p-3';
-            nuevoEjemplar.style = 'border: 1px solid #e0e0e0; border-radius: 8px; background-color: #f9f9f9;';
-            
-            nuevoEjemplar.innerHTML = `
-                <h5 style="color:#25898D;">Ejemplar #${i}</h5>
-                <div class="row">
-                    <div class="col-12 col-sm-4 col-lg-4 form-group mb-3">
-                        <label class="text-input" style="color:#25898D;">Sede:</label>
-                        <select name="sede_${i}" class="form-control">
-                            <option value="">Seleccione una sede</option>
-                            <option value="La Plata">La Plata</option>
-                            <option value="Abasto">Abasto</option>
-                        </select>
-                    </div>
-                    <div class="col-12 col-sm-4 col-lg-4 form-group mb-3">
-                        <label class="text-input" style="color:#25898D;">Disponibilidad:</label>
-                        <select name="disponibilidad_${i}" class="form-control">
-                            <option value="">Seleccione disponibilidad</option>
-                            <option value="Aula">Aula</option>
-                            <option value="Domicilio">Domicilio</option>
-                        </select>
-                    </div>
-                    <div class="col-12 col-sm-4 col-lg-4 form-group mb-3">
-                        <label class="text-input" style="color:#25898D;">Observaciones:</label>
-                        <textarea name="observaciones_${i}" class="form-control" rows="2" placeholder="Observaciones sobre este ejemplar"></textarea>
-                    </div>
-                </div>
-            `;
-            
-            ejemplaresContainer.appendChild(nuevoEjemplar);
-            
-            // Restaurar valores guardados si existen
-            if (valoresGuardados[`sede_${i}`]) {
-                const sedeSelect = nuevoEjemplar.querySelector(`[name="sede_${i}"]`);
-                if (sedeSelect) sedeSelect.value = valoresGuardados[`sede_${i}`];
-            }
-            
-            if (valoresGuardados[`disponibilidad_${i}`]) {
-                const dispSelect = nuevoEjemplar.querySelector(`[name="disponibilidad_${i}"]`);
-                if (dispSelect) dispSelect.value = valoresGuardados[`disponibilidad_${i}`];
-            }
-            
-            if (valoresGuardados[`observaciones_${i}`]) {
-                const obsTextarea = nuevoEjemplar.querySelector(`[name="observaciones_${i}"]`);
-                if (obsTextarea) obsTextarea.value = valoresGuardados[`observaciones_${i}`];
-            }
-        }
-    }
-    
-    // Escuchar cambios en la cantidad de ejemplares
-    numEjemplaresInput.addEventListener('change', generarEjemplares);
-    
-    // Generar ejemplares iniciales al cargar la página
-    generarEjemplares();
-    
     // Interceptar el submit del formulario
     form.addEventListener('submit', function(e) {
         e.preventDefault();
@@ -479,7 +366,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const siglas = form.querySelector('[name="siglas_autor_titulo"]')?.value || 'Sin especificar';
             const clasificacion = form.querySelector('[name="clasificacion_cdu"]')?.value || 'Sin especificar';
             const palabras = form.querySelector('[name="etiqueta_palabra_clave"]')?.value || 'Sin especificar';
-            const cantidadEjemplares = form.querySelector('[name="num_ejemplar"]')?.value || '1';
+            const cantidadEjemplares = form.querySelector('[name="cant_ejemplares"]')?.value || '1';
             const imagen = form.querySelector('[name="img"]')?.value || 'Sin imagen';
             
             // Llenar el modal con los datos generales

@@ -186,35 +186,42 @@
 
           <!-- Información Principal -->
           <div class="section-container mb-4">
-            <h6 class="section-title">Información Principal</h6>
+            <h6 class="section-title">Información del Notebook</h6>
             <div class="row g-3">
-              <div class="col-md-4">
-                <strong>Marca:</strong>
-                <p id="confirmMarca" class="info-text">{{ form_data.marca|default:"Sin especificar" }}</p>
+              <div class="col-md-6">
+                <strong>Número de Registro:</strong>
+                <p id="confirmNumRegistro" class="info-text">{{ form_data.num_registro|default:"Sin especificar" }}</p>
               </div>
-              <div class="col-md-4">
+              <div class="col-md-6">
                 <strong>Modelo:</strong>
                 <p id="confirmModelo" class="info-text">{{ form_data.modelo_not|default:"Sin especificar" }}</p>
-              </div>
-              <div class="col-md-4">
-                <strong>N° de Registro:</strong>
-                <p id="confirmRegistro" class="info-text">{{ form_data.num_registro|default:"Sin especificar" }}</p>
               </div>
             </div>
           </div>
 
-          <!-- Ubicación y Disponibilidad -->
-          <div class="section-container mb-4">
-            <h6 class="section-title">Ubicación y Disponibilidad</h6>
-            <div class="row g-3">
-              <div class="col-md-6">
-                <strong>Sede:</strong>
-                <p id="confirmSede" class="info-text">{{ form_data.sede|default:"Sin especificar" }}</p>
+          <!-- Ejemplares -->
+          <div class="section-container">
+            <h6 class="section-title">Información de Ejemplares ({{ form_data.cant_ejemplares }} ejemplares)</h6>
+            <div id="ejemplaresContainer" class="mt-3">
+              {% for ejemplar in ejemplares %}
+              <div class="ejemplar-info">
+                <h6>Ejemplar #{{ forloop.counter }}</h6>
+                <div class="row g-3">
+                  <div class="col-md-4">
+                    <strong>Sede:</strong>
+                    <p class="info-text">{{ ejemplar.sede|default:"Sin especificar" }}</p>
+                  </div>
+                  <div class="col-md-4">
+                    <strong>N° de Registro:</strong>
+                    <p class="info-text">{{ ejemplar.num_registro|default:"Sin especificar" }}</p>
+                  </div>
+                  <div class="col-md-4">
+                    <strong>Modelo:</strong>
+                    <p class="info-text">{{ ejemplar.modelo_not|default:"Sin especificar" }}</p>
+                  </div>
+                </div>
               </div>
-              <div class="col-md-6">
-                <strong>Ejemplares:</strong>
-                <p id="confirmEjemplares" class="info-text">{{ form_data.num_ejemplar|default:"1" }}</p>
-              </div>
+              {% endfor %}
             </div>
           </div>
         </div>  
@@ -267,6 +274,20 @@ function confirmarNotebook() {
     
     // Crear un formulario dinámicamente
     const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = '{% url "guardar_alta_notebook" %}';
+    
+    // Agregar el token CSRF
+    const csrfInput = document.createElement('input');
+    csrfInput.type = 'hidden';
+    csrfInput.name = 'csrfmiddlewaretoken';
+    csrfInput.value = '{{ csrf_token }}';
+    form.appendChild(csrfInput);
+    
+    // Agregar al DOM y enviar
+    document.body.appendChild(form);
+    form.submit();
+}
     form.method = 'POST';
     form.action = '{% url "guardar_alta_notebook" %}';
     

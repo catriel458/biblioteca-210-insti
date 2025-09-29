@@ -144,6 +144,27 @@ document.addEventListener("DOMContentLoaded", function () {
                     // Solo mostrar carga masiva y URL para libros
                     if (uploadSimple) uploadSimple.style.display = 'block';
                     if (uploadBox) uploadBox.style.display = 'block';
+                    
+                    // 🎯 CRÍTICO: Inicializar funcionalidad dinámica DESPUÉS de cargar HTML
+                    setTimeout(() => {
+                        // Inicializar ejemplares dinámicos para libros
+                        const cantidadInput = document.querySelector('input[name="cant_ejemplares"]');
+                        if (cantidadInput) {
+                            // Generar ejemplares iniciales
+                            window.updateRowsMaterial('libro');
+                            
+                            // Agregar event listener para cambios en cantidad
+                            cantidadInput.addEventListener('input', function() {
+                                console.log('🔄 Cantidad de ejemplares cambiada:', this.value);
+                                window.updateRowsMaterial('libro');
+                            });
+                            
+                            console.log('✅ Funcionalidad dinámica de libros inicializada');
+                        } else {
+                            console.warn('⚠️ Input de cantidad de ejemplares no encontrado');
+                        }
+                    }, 100); // Pequeño delay para asegurar que el DOM esté listo
+                    
                     console.log('✅ Formulario de libro cargado');
                 })
                 .catch(error => {
@@ -297,6 +318,13 @@ document.addEventListener("DOMContentLoaded", function () {
                     // No mostrar carga masiva ni URL para notebook
                     if (uploadSimple) uploadSimple.style.display = 'none';
                     if (uploadBox) uploadBox.style.display = 'none';
+                    
+                    // 🎯 CRÍTICO: Inicializar funcionalidad dinámica DESPUÉS de cargar HTML
+                    setTimeout(() => {
+                        initNotebookDynamicFunctionality();
+                    }, 100); // Pequeño delay para asegurar que el DOM esté listo
+                    
+                    console.log('✅ Formulario de notebook cargado');
                 })
                 .catch(error => {
                     formularioEspecifico.innerHTML = `<p class="text-danger">Error al cargar el formulario: ${error.message}</p>`;
@@ -323,6 +351,13 @@ document.addEventListener("DOMContentLoaded", function () {
                         form.action = '{% url "confirmacion_alta_proyector" %}';
                         console.log('✅ Acción del formulario configurada para proyector:', form.action);
                     }
+                    
+                    // 🎯 CRÍTICO: Inicializar funcionalidad dinámica DESPUÉS de cargar HTML
+                    setTimeout(() => {
+                        initProyectorDynamicFunctionality();
+                    }, 100); // Pequeño delay para asegurar que el DOM esté listo
+                    
+                    console.log('✅ Formulario de proyector cargado');
                 })
                 .catch(error => {
                     formularioEspecifico.innerHTML = `<p class="text-danger">Error al cargar el formulario: ${error.message}</p>`;
@@ -371,7 +406,77 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
-    // FUNCIONALIDAD AGREGADA: Mostrar nombre del archivo seleccionado
+// Función para inicializar la funcionalidad dinámica del proyector
+function initProyectorDynamicFunctionality() {
+    console.log('🎯 Inicializando funcionalidad dinámica del proyector...');
+    
+    const cantEjemplaresProyector = document.getElementById('cant_ejemplares');
+    const contenedorEjemplaresProyector = document.getElementById('contenedor-ejemplares-proyector');
+    
+    if (cantEjemplaresProyector && contenedorEjemplaresProyector) {
+        console.log('✅ Elementos encontrados, configurando eventos...');
+        
+        // Event listener para cambios dinámicos
+        cantEjemplaresProyector.addEventListener('input', function() {
+            console.log('🔄 Input event triggered, cantidad:', this.value);
+            window.updateRowsMaterial('proyector');
+        });
+        
+        cantEjemplaresProyector.addEventListener('change', function() {
+            console.log('🔄 Change event triggered, cantidad:', this.value);
+            window.updateRowsMaterial('proyector');
+        });
+        
+        // Llamar inicialmente para generar campos si ya hay un valor
+        if (cantEjemplaresProyector.value && cantEjemplaresProyector.value > 0) {
+            console.log('🔄 Generando campos iniciales para cantidad:', cantEjemplaresProyector.value);
+            window.updateRowsMaterial('proyector');
+        }
+        
+        console.log('✅ Funcionalidad dinámica del proyector inicializada correctamente');
+    } else {
+        console.error('❌ No se encontraron los elementos necesarios para la funcionalidad dinámica');
+        console.log('cantEjemplaresProyector:', cantEjemplaresProyector);
+        console.log('contenedorEjemplaresProyector:', contenedorEjemplaresProyector);
+    }
+}
+
+// Función para inicializar la funcionalidad dinámica del notebook
+function initNotebookDynamicFunctionality() {
+    console.log('💻 Inicializando funcionalidad dinámica del notebook...');
+    
+    const cantEjemplaresNotebook = document.getElementById('cant_ejemplares');
+    const contenedorEjemplaresNotebook = document.getElementById('contenedor-ejemplares-notebook');
+    
+    if (cantEjemplaresNotebook && contenedorEjemplaresNotebook) {
+        console.log('✅ Elementos encontrados, configurando eventos...');
+        
+        // Event listener para cambios dinámicos
+        cantEjemplaresNotebook.addEventListener('input', function() {
+            console.log('🔄 Input event triggered, cantidad:', this.value);
+            window.updateRowsMaterial('notebook');
+        });
+        
+        cantEjemplaresNotebook.addEventListener('change', function() {
+            console.log('🔄 Change event triggered, cantidad:', this.value);
+            window.updateRowsMaterial('notebook');
+        });
+        
+        // Llamar inicialmente para generar campos si ya hay un valor
+        if (cantEjemplaresNotebook.value && cantEjemplaresNotebook.value > 0) {
+            console.log('🔄 Generando campos iniciales para cantidad:', cantEjemplaresNotebook.value);
+            window.updateRowsMaterial('notebook');
+        }
+        
+        console.log('✅ Funcionalidad dinámica del notebook inicializada correctamente');
+    } else {
+        console.error('❌ No se encontraron los elementos necesarios para la funcionalidad dinámica del notebook');
+        console.log('cantEjemplaresNotebook:', cantEjemplaresNotebook);
+        console.log('contenedorEjemplaresNotebook:', contenedorEjemplaresNotebook);
+    }
+}
+
+// FUNCIONALIDAD AGREGADA: Mostrar nombre del archivo seleccionado
     const cargarArchivo = document.getElementById('cargar_archivo');
     const nombreArchivo = document.getElementById('nombre_archivo_carga_simple');
     
@@ -628,7 +733,7 @@ document.addEventListener("DOMContentLoaded", function () {
             <div class="grupo-multimedia mb-3" data-index="${index}">
                 <div class="row">
                     <div class="col-md-2">
-                        <label for="ingresar_enlace_${index}" class="form-label small">Ingresar enlace (URL)</label>
+                        <label for="ingresar_enlace_${index}" style="font-size: 14px;">Ingresar enlace (URL)</label>
                         <div class="input-group">
                             <input type="url" class="form-control form-control-sm" 
                                    id="ingresar_enlace_${index}" 
@@ -637,7 +742,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         </div>
                     </div>
                     <div class="col-md-4">
-                        <label for="titulo_contenido_${index}" class="form-label small">Titulo del contenido <span class="text-danger">*</span></label>
+                        <label for="titulo_contenido_${index}" style="font-size: 14px;">Titulo del contenido <span class="text-danger">*</span></label>
                         <input type="text" class="form-control form-control-sm" 
                                id="titulo_contenido_${index}" 
                                name="titulo_contenido_${index}" 
@@ -768,14 +873,14 @@ document.addEventListener("DOMContentLoaded", function () {
             <div class="grupo-varios mb-3" data-index="${index}">
                 <div class="row">
                     <div class="col-md-3">
-                        <label for="tipo_varios_${index}" class="form-label small">Tipo a registrar <span class="text-danger">*</span></label>
+                        <label for="tipo_varios_${index}" style="font-size: 14px;">Tipo a registrar <span class="text-danger">*</span></label>
                         <input type="text" class="form-control form-control-sm" 
                                id="tipo_varios_${index}" 
                                name="tipo_varios_${index}" 
                                required>
                     </div>
                     <div class="col-md-3">
-                        <label for="cant_ejemplares_${index}" class="form-label small">Cant. de ejemplares <span class="text-danger">*</span></label>
+                        <label for="cant_ejemplares_${index}" style="font-size: 14px;">Cant. de ejemplares <span class="text-danger">*</span></label>
                         <input type="number" class="form-control form-control-sm" 
                                id="cant_ejemplares_${index}" 
                                name="cant_ejemplares_${index}" 

@@ -1,52 +1,40 @@
 {% load static %}
-<form id="form_alta_proyector" method="POST" action="{% url 'confirmacion_alta_proyector' %}" data-form-id="proyector">
-  {% csrf_token %}
-  <div data-block="content" data-form-type="proyector">
-    <div class="row mb-3">
-        <div class="col-md-3">
-            <label for="cant_ejemplares" class="form-label small">Cant. de ejemplares <span class="text-danger">*</span></label>
-            <input type="number" class="form-control form-control-sm" id="cant_ejemplares" name="cant_ejemplares" min="1" value="1" required>
-        </div>        
-        <div class="col-md-3">
-            <label for="sede" class="form-label small">Sede: <span class="text-danger">*</span></label>
-            <select class="form-control form-control-sm" id="sede" name="sede" required>
-                <option value="">Seleccione una sede</option>
+<link rel="stylesheet" href="{% static 'css/alta_proyector.css' %}">
+
+<form id="alta-proyector-form" method="POST">
+    {% csrf_token %}
+
+    <div data-block="content" data-form-type="proyector">
+
+        <!-- Fila: Cant. de ejemplares -->
+        <div class="row mb-3">
+            <div class="col-md-3">
+                <label for="cant_ejemplares" style="font-size: 14px;">Cant. de ejemplares</label>
+                <input type="number" class="form-control custom-input" id="cant_ejemplares" name="cant_ejemplares" min="1" value="1">
+            </div>
+
+            <div class="col-md-3">
+                <label for="sede" style="font-size: 14px;">Sede<span class="text-danger">*</span></label>
+                <select class="form-control custom-input" id="sede" name="sede" required>
+                <option value="">Aún sin seleccionar</option>
                 <option value="sede1">La Plata</option>
                 <option value="sede2">Abasto</option>
-            </select>
+                </select>
+            </div>    
         </div>
-    </div>
-    
-    <div class="row mb-3">
-        <div class="col-md-3">
-            <label for="num_registro" class="form-label small">N° de Registro <span class="text-danger">*</span></label>
-            <input type="text" class="form-control form-control-sm" id="num_registro" name="num_registro" required>
-        </div>
-        
-        <div class="col-md-3">
-            <label for="modelo_proy" class="form-label small">Modelo <span class="text-danger">*</span></label>
-            <input type="text" class="form-control form-control-sm" id="modelo_proy" name="modelo_proy" required>
-        </div>
-    </div>
 
-    <!-- Contenedor para mostrar los tipos agregados -->
-    <div id="contenedor-tipos-proyector" class="mb-4">
-        <!-- Los tipos se mostrarán aquí dinámicamente -->
-    </div>
-    <!-- Contenedor para los ejemplares -->
-    <div id="contenedor-ejemplares-proyector" class="mb-4">
-        <!-- Los ejemplares se generarán aquí dinámicamente -->
-    </div>
-    
-    <!-- Botones -->
-    <div class="row">
-        <div class="col-12 d-flex justify-content-end gap-3">
-            <button type="reset" class="btn btn-outline-danger btn-sm">Cancelar</button>
-            <button type="submit" class="btn btn-primary btn-sm">Guardar</button>
+        <!-- Contenedor para ejemplares dinámicos -->
+        <div id="contenedor-ejemplares-proyector"></div>
+
+        <!-- Botones mejorados -->
+        <div class="row botones-container">
+            <div class="col-12 d-flex justify-content-end gap-3">
+                <button type="button" class="btn btn-outline-danger btn-cancelar" onclick="cancelarFormulario()">CANCELAR</button>
+                <button type="submit" class="btn btn-primary btn-guardar btn-save">GUARDAR</button>
+            </div>
         </div>
     </div>
-</div>
 </form>
+
 <!-- Importación del JS dinámico de ejemplares -->
 <script src="{% static 'js/form_altas.js' %}"></script>
-<script src="{% static 'js/form_controller.js' %}"></script>

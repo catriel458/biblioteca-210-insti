@@ -90,8 +90,8 @@ textarea.form-control {
 
 /* Estilos específicos del formulario */
 #form-container {
-    max-height: 400px;
-    overflow-y: auto;
+    /* Eliminado max-height y overflow-y para evitar doble scroll */
+    /* El modal-body ya maneja el scroll correctamente */
 }
 
 .row {

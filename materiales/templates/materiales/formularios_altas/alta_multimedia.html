@@ -4,13 +4,13 @@
   {% csrf_token %}
   <div data-block="content" data-form-type="multimedia">
     <div class="row mb-4">
-        <div class="col-md-2">
-            <label for="profesor" class="form-label small">Profesor/a <span class="text-danger">*</span></label>
+        <div class="col-md-3">
+            <label for="profesor" style="font-size: 14px;">Profesor/a <span class="text-danger">*</span></label>
             <input type="text" class="form-control form-control-sm" id="profesor" name="profesor" 
                    required placeholder="Nombre del profesor">
         </div>
-        <div class="col-md-2">
-            <label for="carrera" class="form-label small">Carrera <span class="text-danger">*</span></label>
+        <div class="col-md-3">
+            <label for="carrera" style="font-size: 14px;">Carrera <span class="text-danger">*</span></label>
             <select class="form-control form-control-sm" id="carrera" name="carrera" required>
                 <option value="">Carrera</option>
                 <option value="Profesorado de Educación Inicial">Profesorado de Educación Inicial</option>
@@ -23,8 +23,8 @@
                 <option value="Tecnicatura Superior en Higiene y Seguridad en el Trabajo">Tecnicatura Superior en Higiene y Seguridad en el Trabajo</option>
             </select>
         </div>
-        <div class="col-md-2">
-            <label for="materia" class="form-label small">Materia <span class="text-danger">*</span></label>
+        <div class="col-md-3">
+            <label for="materia" style="font-size: 14px;">Materia <span class="text-danger">*</span></label>
             <select class="form-control form-control-sm" id="materia" name="materia" required>
                 <option value="">Primero seleccione una carrera</option>
             </select>
@@ -32,14 +32,14 @@
     </div>
     <div class="row mb-4">
         <!-- Campos iniciales para URL y título -->
-        <div class="col-md-2">
-            <label for="ingresar_enlace" class="form-label small">Ingresar enlace (URL)</label>
+        <div class="col-md-3">
+            <label for="ingresar_enlace" style="font-size: 14px;">Ingresar enlace (URL)</label>
             <div class="input-group">
                 <input type="url" class="form-control form-control-sm" id="ingresar_enlace" name="ingresar_enlace" placeholder="URL del contenido multimedia">
             </div>
         </div>
-        <div class="col-md-4">
-            <label for="titulo_contenido" class="form-label small">Titulo del contenido <span class="text-danger">*</span></label>
+        <div class="col-md-3">
+            <label for="titulo_contenido" style="font-size: 14px;">Titulo del contenido <span class="text-danger">*</span></label>
             <input type="text" class="form-control form-control-sm" id="titulo_contenido" name="titulo_contenido" required>
         </div>
         <div class="col-md-1 d-flex align-items-end">
@@ -103,7 +103,7 @@
              <div class="grupo-multimedia mb-3" data-index="${index}">
                  <div class="row">
                      <div class="col-md-2">
-                         <label for="ingresar_enlace_${index}" class="form-label small">Ingresar enlace (URL)</label>
+                         <label for="ingresar_enlace_${index}" style="font-size: 14px;">Ingresar enlace (URL)</label>
                          <div class="input-group">
                              <input type="url" class="form-control form-control-sm" 
                                     id="ingresar_enlace_${index}" 
@@ -112,7 +112,7 @@
                          </div>
                      </div>
                      <div class="col-md-4">
-                         <label for="titulo_contenido_${index}" class="form-label small">Titulo del contenido <span class="text-danger">*</span></label>
+                         <label for="titulo_contenido_${index}" style="font-size: 14px;">Titulo del contenido <span class="text-danger">*</span></label>
                          <input type="text" class="form-control form-control-sm" 
                                 id="titulo_contenido_${index}" 
                                 name="titulo_contenido_${index}" 

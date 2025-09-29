@@ -4,11 +4,11 @@
   <div data-block="content" data-form-type="programa">
     <div class="row mb-3">
       <div class="col-md-3">
-        <label for="profesor">Profesor/a<span class="text-danger">*</span></label>
+        <label for="profesor" style="font-size: 14px;">Profesor/a<span class="text-danger">*</span></label>
         <input type="text" class="form-control" id="profesor" name="profesor" required placeholder="Escriba aquí...">
       </div>
       <div class="col-md-4">
-        <label for="carrera">Carrera<span class="text-danger">*</span></label>
+        <label for="carrera" style="font-size: 14px;">Carrera<span class="text-danger">*</span></label>
         <select class="form-control" id="carrera" name="carrera" required>
           <option value="">Aún sin seleccionar</option>
           <option value="Análisis de Sistemas">Tecnicatura Superior en Análisis de Sistemas</option>
@@ -20,7 +20,7 @@
         </select>
       </div>
       <div class="col-md-5">
-        <label for="materia">Materia<span class="text-danger">*</span></label>
+        <label for="materia" style="font-size: 14px;">Materia<span class="text-danger">*</span></label>
         <input type="text" class="form-control" id="materia" name="materia" required 
                placeholder="Aún sin seleccionar">
       </div>
@@ -28,13 +28,13 @@
     
     <div class="row mb-3">
       <div class="col-md-7">
-        <label for="url">Ingresar enlace (URL)<span class="text-danger">*</span></label>
+        <label for="url" style="font-size: 14px;">Ingresar enlace (URL)<span class="text-danger">*</span></label>
         <div class="input-group">
             <input type="url" class="form-control" id="url" name="url" required placeholder="Pegue un enlace aquí...">
         </div>
       </div>
       <div class="col-md-5">
-        <label for="ciclo_lectivo">Ciclo lectivo<span class="text-danger">*</span></label>
+        <label for="ciclo_lectivo" style="font-size: 14px;">Ciclo lectivo<span class="text-danger">*</span></label>
         <input type="text" class="form-control" id="ciclo_lectivo" name="ciclo_lectivo" required placeholder="Escriba aquí...">
       </div>
     </div>
@@ -47,4 +47,3 @@
 
 <!-- Importación del JS dinámico de ejemplares -->
 <script src="{% static 'js/form_altas.js' %}"></script>
-<script src="{% static 'js/form_controller.js' %}"></script>

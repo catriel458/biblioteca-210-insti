@@ -13,9 +13,7 @@ class LibroForm(forms.ModelForm):
         fields = [
             'titulo', 'autor', 'editorial', 'descripcion',
             'siglas_autor_titulo', 'clasificacion_cdu', 
-            'etiqueta_palabra_clave', #'num_inventario',
-            'sede', 'disponibilidad', 'observaciones', 
-            'num_ejemplar', 'img'
+            'etiqueta_palabra_clave', 'img'
         ]
         
         widgets = {
@@ -26,19 +24,6 @@ class LibroForm(forms.ModelForm):
             'siglas_autor_titulo': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese las siglas del autor y título'}),
             'clasificacion_cdu': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese la clasificación CDU'}),
             'etiqueta_palabra_clave': forms.Textarea(attrs={'class': 'form-control', 'rows': 2, 'placeholder': 'Ingrese palabras clave separadas por comas'}),
-            #'num_inventario': forms.NumberInput(attrs={'class': 'form-control', 'min': 1}),
-            'sede': forms.Select(attrs={'class': 'form-control'}, choices=[
-                ('', 'Seleccione una sede'),
-                ('La Plata', 'La Plata'),
-                ('Abasto', 'Abasto'),
-            ]),
-            'disponibilidad': forms.Select(attrs={'class': 'form-control'}, choices=[
-                ('', 'Seleccione disponibilidad'),
-                ('Aula', 'Aula'),
-                ('Domicilio', 'Domicilio'),
-            ]),
-            'observaciones': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Ingrese observaciones adicionales'}),
-            'num_ejemplar': forms.NumberInput(attrs={'class': 'form-control', 'min': 1, 'placeholder': 'Cantidad de ejemplares'}),
             'img': forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'URL de la imagen del libro'}),
         }
         
@@ -57,18 +42,6 @@ class LibroForm(forms.ModelForm):
         self.fields['clasificacion_cdu'].initial = ''
         self.fields['etiqueta_palabra_clave'].required = False
         self.fields['etiqueta_palabra_clave'].initial = ''
-        self.fields['observaciones'].required = False
-        self.fields['observaciones'].initial = ''
-        # Hacer opcionales los campos sede y disponibilidad ya que ahora se manejan dinámicamente
-        self.fields['sede'].required = False
-        self.fields['disponibilidad'].required = False
-        # Asegurar que sede siempre tenga seleccionado "Seleccione una sede"
-        self.fields['sede'].initial = ''
-        # Configurar cantidad de ejemplares con valor inicial 1
-        self.fields['num_ejemplar'].initial = 1
-        # Eliminar el atributo readonly para permitir cambiar la cantidad
-        self.fields['num_ejemplar'].widget.attrs['min'] = 1
-        self.fields['num_ejemplar'].widget.attrs['max'] = 10  # Limitamos a 10 ejemplares
         
     def clean_img(self):
         """Validación personalizada para imagen URL"""

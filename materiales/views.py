@@ -1222,13 +1222,13 @@ def alta_libro(request):
                 img_url = form.cleaned_data.get('img', '').strip()
                 print(f"📷 URL de imagen recibida: '{img_url}'")
                 
-                # Obtener la cantidad de ejemplares
-                num_ejemplares = int(form.cleaned_data.get('num_ejemplar', 1))
-                print(f"📚 Cantidad de ejemplares: {num_ejemplares}")
+                # Obtener la cantidad de ejemplares desde el campo dinámico
+                cant_ejemplares = int(request.POST.get('cant_ejemplares', 1))
+                print(f"📚 Cantidad de ejemplares: {cant_ejemplares}")
                 
-                # Recopilar datos de ejemplares
+                # Recopilar datos de ejemplares dinámicos
                 ejemplares = []
-                for i in range(1, num_ejemplares + 1):
+                for i in range(1, cant_ejemplares + 1):
                     ejemplar_data = {
                         'sede': request.POST.get(f'sede_{i}', ''),
                         'disponibilidad': request.POST.get(f'disponibilidad_{i}', ''),
@@ -1247,7 +1247,7 @@ def alta_libro(request):
                     'siglas_autor_titulo': form.cleaned_data.get('siglas_autor_titulo', ''),
                     'clasificacion_cdu': form.cleaned_data.get('clasificacion_cdu', ''),
                     'etiqueta_palabra_clave': form.cleaned_data.get('etiqueta_palabra_clave', ''),
-                    'num_ejemplar': num_ejemplares,
+                    'num_ejemplar': cant_ejemplares,
                     'ejemplares': ejemplares,  # Lista de ejemplares con sus datos
                     'img': img_url  # Guardar la URL directamente
                 }
@@ -2125,13 +2125,30 @@ def confirmacion_alta_notebook(request):
     print("🎯 Llegó a confirmacion_alta_notebook")  # Debug
     
     if request.method == 'POST':
+        # Obtener datos básicos del formulario
+        cant_ejemplares = int(request.POST.get('cant_ejemplares', 1))
+        sede = request.POST.get('sede', '')
+        num_registro = request.POST.get('num_registro', '')
+        modelo_not = request.POST.get('modelo_not', '')
+        
+        # Crear lista de ejemplares
+        ejemplares = []
+        for i in range(cant_ejemplares):
+            ejemplar = {
+                'sede': request.POST.get(f'sede_{i+1}', sede),
+                'num_registro': request.POST.get(f'num_registro_{i+1}', num_registro),
+                'modelo_not': request.POST.get(f'modelo_not_{i+1}', modelo_not),
+                'disponibilidad': 'Disponible'
+            }
+            ejemplares.append(ejemplar)
+        
         # Guardar los datos del formulario en la sesión
         notebook_data = {
-            'num_ejemplar': request.POST.get('num_ejemplar', ''),
-            'sede': request.POST.get('sede', ''),
-            'num_registro': request.POST.get('num_registro', ''),
-            'marca': request.POST.get('marca', ''),
-            'modelo_not': request.POST.get('modelo_not', ''),
+            'cant_ejemplares': cant_ejemplares,
+            'sede': sede,
+            'num_registro': num_registro,
+            'modelo_not': modelo_not,
+            'ejemplares': ejemplares,
             'estado': 'Disponible',  # Valor por defecto
         }
         
@@ -2141,12 +2158,67 @@ def confirmacion_alta_notebook(request):
         
         # Renderizar página con modal automático
         return render(request, 'materiales/formularios_altas/confirmaciones_alta/confirmacion_alta_notebook.html', {
-            'form_data': notebook_data
+            'form_data': notebook_data,
+            'ejemplares': ejemplares
         })
     else:
         # Si no es POST, redirigir al formulario
         messages.error(request, 'Método no permitido. Por favor, complete el formulario correctamente.')
         return redirect('alta_notebook')
+
+def guardar_alta_notebook(request):
+    """
+    Vista para guardar definitivamente después de confirmar en el modal
+    """
+    print("💾 Guardando notebook confirmado")  # Debug
+    
+    if request.method == 'POST':
+        # Recuperar datos de la sesión
+        notebook_data = request.session.get('notebook_data', {})
+        
+        if not notebook_data:
+            messages.error(request, 'No se encontraron datos del notebook en la sesión.')
+            return redirect('alta_materiales')
+        
+        try:
+            # Crear múltiples notebooks según la cantidad de ejemplares
+            ejemplares = notebook_data.get('ejemplares', [])
+            notebooks_creados = []
+            
+            for ejemplar in ejemplares:
+                notebook = Notebook.objects.create(
+                    num_registro=ejemplar.get('num_registro'),
+                    modelo=ejemplar.get('modelo_not'),
+                    sede=ejemplar.get('sede'),
+                    estado=ejemplar.get('disponibilidad', 'Disponible')
+                )
+                notebooks_creados.append(notebook)
+            
+            # Limpiar datos de sesión
+            if 'notebook_data' in request.session:
+                del request.session['notebook_data']
+            
+            cantidad = len(notebooks_creados)
+            messages.success(request, f'Notebook(s) registrado(s) exitosamente: {cantidad} ejemplar(es)')
+            return redirect('alta_materiales')
+            
+        except Exception as e:
+            messages.error(request, f'Error al guardar el notebook: {str(e)}')
+            return redirect('alta_materiales')
+    else:
+        messages.error(request, 'Método no permitido.')
+        return redirect('alta_materiales')
+
+def cancelar_alta_notebook(request):
+    """
+    Vista para cancelar el alta de notebook
+    """
+    # Limpiar datos de sesión si existen
+    if 'notebook_data' in request.session:
+        del request.session['notebook_data']
+    
+    messages.info(request, 'Se ha cancelado el registro del notebook.')
+    return redirect('alta_materiales')
 
 def guardar_alta_notebook(request):
     """
