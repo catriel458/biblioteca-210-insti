@@ -262,7 +262,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     // 🔥 IMPORTANTE: Establecer el action correcto para multimedia
                     const form = document.getElementById('form_alta_material');
                     if (form) {
-                        form.action = '/alta-multimedia/';
+                        form.action = '{% url "alta_multimedia" %}';
                         console.log('🔧 Action del formulario multimedia establecido a:', form.action);
                     }
                     
@@ -989,13 +989,13 @@ window.prepararEnvioFormulario = function() {
         });
     }
     else if (tipoMaterial === 'multimedia') {
-        // Recopilar datos de multimedia de los inputs
+        // Recopilar datos de multimedia de los inputs con los nombres correctos
         const multimediaData = [];
         let index = 0;
         
-        // Buscar todos los grupos de multimedia
+        // Buscar todos los grupos de multimedia con los nombres correctos
         while (true) {
-            const urlInput = document.getElementById(`url_contenido_${index}`);
+            const urlInput = document.getElementById(`ingresar_enlace_${index}`);
             const tituloInput = document.getElementById(`titulo_contenido_${index}`);
             
             if (!urlInput || !tituloInput) break;
@@ -1017,6 +1017,23 @@ window.prepararEnvioFormulario = function() {
         if (gruposMultimediaInput) {
             gruposMultimediaInput.value = JSON.stringify(multimediaData);
         }
+        
+        // Crear campos hidden para el servidor (similar al patrón de mapas)
+        multimediaData.forEach((multimedia, idx) => {
+            // Campo hidden para URL
+            const urlHiddenInput = document.createElement('input');
+            urlHiddenInput.type = 'hidden';
+            urlHiddenInput.name = `multimedia_${idx}_url`;
+            urlHiddenInput.value = multimedia.url;
+            document.getElementById('form_alta_material').appendChild(urlHiddenInput);
+            
+            // Campo hidden para título
+            const tituloHiddenInput = document.createElement('input');
+            tituloHiddenInput.type = 'hidden';
+            tituloHiddenInput.name = `multimedia_${idx}_titulo`;
+            tituloHiddenInput.value = multimedia.titulo;
+            document.getElementById('form_alta_material').appendChild(tituloHiddenInput);
+        });
         
         console.log('📤 Datos de multimedia preparados para envío:', {
             gruposTiposMultimedia: multimediaData

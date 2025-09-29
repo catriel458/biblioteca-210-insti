@@ -185,15 +185,15 @@
 
           <!-- Información Principal -->
           <div class="section-container mb-4">
-            <h6 class="section-title">Información del Proyector</h6>
+            <h6 class="section-title">Información General</h6>
             <div class="row g-3">
               <div class="col-md-6">
-                <strong>Número de Registro:</strong>
-                <p id="confirmNumRegistro" class="info-text">{{ form_data.num_registro|default:"Sin especificar" }}</p>
+                <strong>Cantidad de Ejemplares:</strong>
+                <p class="info-text">{{ form_data.cant_ejemplares }}</p>
               </div>
               <div class="col-md-6">
-                <strong>Modelo:</strong>
-                <p id="confirmModelo" class="info-text">{{ form_data.modelo_proy|default:"Sin especificar" }}</p>
+                <strong>Sede:</strong>
+                <p class="info-text">{{ form_data.sede|default:"Sin especificar" }}</p>
               </div>
             </div>
           </div>
@@ -203,16 +203,16 @@
             <h6 class="section-title">Información de Ejemplares ({{ form_data.cant_ejemplares }} ejemplares)</h6>
             <div id="ejemplaresContainer" class="mt-3">
               {% for ejemplar in ejemplares %}
-              <div class="ejemplar-info">
+              <div class="ejemplar-info mb-3 p-3" style="border-left: 3px solid #28a745; background-color: #f8f9fa;">
                 <h6>Ejemplar #{{ forloop.counter }}</h6>
                 <div class="row g-3">
                   <div class="col-md-6">
-                    <strong>Sede:</strong>
-                    <p class="info-text">{{ ejemplar.sede|default:"Sin especificar" }}</p>
+                    <strong>N° de Registro:</strong>
+                    <p class="info-text">{{ ejemplar.num_registro|default:"Sin especificar" }}</p>
                   </div>
                   <div class="col-md-6">
-                    <strong>Disponibilidad:</strong>
-                    <p class="info-text">{{ ejemplar.disponibilidad|default:"Disponible" }}</p>
+                    <strong>Modelo:</strong>
+                    <p class="info-text">{{ ejemplar.modelo|default:"Sin especificar" }}</p>
                   </div>
                 </div>
               </div>

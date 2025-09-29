@@ -197,15 +197,49 @@
               </div>
             </div>
             <div class="row g-3 mt-2">
-              <div class="col-md-4">
+              <div class="col-md-12">
                 <strong>Materia:</strong>
                 <p id="confirmMateria" class="info-text">{{ form_data.materia|default:"Sin especificar" }}</p>
               </div>
-              <div class="col-md-4">
+            </div>
+          </div>
+
+          <!-- Contenido Multimedia Dinámico -->
+          {% if form_data.multimedia_items %}
+          <div class="section-container mb-4">
+            <h6 class="section-title">Contenido Multimedia</h6>
+            {% for item in form_data.multimedia_items %}
+            <div class="ejemplar-info">
+              <h6>Multimedia {{ forloop.counter }}</h6>
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <strong>Título del Contenido:</strong>
+                  <p class="info-text">{{ item.titulo|default:"Sin especificar" }}</p>
+                </div>
+                <div class="col-md-6">
+                  <strong>Enlace (URL):</strong>
+                  <p class="info-text">
+                    {% if item.url %}
+                      <a href="{{ item.url }}" target="_blank">{{ item.url }}</a>
+                    {% else %}
+                      Sin enlace
+                    {% endif %}
+                  </p>
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+          {% else %}
+          <!-- Campos estáticos si no hay multimedia dinámicos -->
+          <div class="section-container mb-4">
+            <h6 class="section-title">Contenido Multimedia</h6>
+            <div class="row g-3">
+              <div class="col-md-6">
                 <strong>Título del Contenido:</strong>
                 <p id="confirmTitulo" class="info-text">{{ form_data.titulo_contenido|default:"Sin especificar" }}</p>
               </div>
-              <div class="col-md-4">
+              <div class="col-md-6">
                 <strong>Enlace:</strong>
                 <p id="confirmEnlace" class="info-text">
                   {% if form_data.ingresar_enlace %}
@@ -217,6 +251,7 @@
               </div>
             </div>
           </div>
+          {% endif %}
 
           <!-- Ejemplares - INFORMACIÓN SIMPLIFICADA -->
           <div class="section-container">

@@ -180,43 +180,25 @@
         <div class="container-fluid">
           <!-- Tipo de Material -->
           <div class="section-container mb-4">
-            <h6 class="tipo-material-title">TIPO DE MATERIAL: <span id="confirmTipoMaterial" class="text-primary">{{ form_data.tipo_varios|upper }}</span></h6>
+            <h6 class="tipo-material-title">TIPO DE MATERIAL: <span id="confirmTipoMaterial" class="text-primary">VARIOS</span></h6>
           </div>
 
           <!-- Información Principal -->
           <div class="section-container mb-4">
             <h6 class="section-title">Información del Material</h6>
             <div class="row g-3">
-              <div class="col-md-6">
-                <strong>Tipo:</strong>
+              <div class="col-md-4">
+                <strong>Sede:</strong>
+                <p id="confirmSede" class="info-text">{{ form_data.sede|default:"Sin especificar" }}</p>
+              </div>
+              <div class="col-md-4">
+                <strong>Tipo a registrar:</strong>
                 <p id="confirmTipo" class="info-text">{{ form_data.tipo_varios|default:"Sin especificar" }}</p>
               </div>
-              <div class="col-md-6">
+              <div class="col-md-4">
                 <strong>Cantidad de Ejemplares:</strong>
                 <p id="confirmCantidad" class="info-text">{{ form_data.cant_ejemplares|default:"1" }}</p>
               </div>
-            </div>
-          </div>
-
-          <!-- Ejemplares -->
-          <div class="section-container">
-            <h6 class="section-title">Información de Ejemplares</h6>
-            <div id="ejemplaresContainer" class="mt-3">
-              {% for ejemplar in ejemplares %}
-              <div class="ejemplar-info">
-                <h6>Ejemplar #{{ forloop.counter }}</h6>
-                <div class="row g-3">
-                  <div class="col-md-6">
-                    <strong>Sede:</strong>
-                    <p class="info-text">{{ ejemplar.sede|default:"Sin especificar" }}</p>
-                  </div>
-                  <div class="col-md-6">
-                    <strong>Disponibilidad:</strong>
-                    <p class="info-text">{{ ejemplar.disponibilidad|default:"Disponible" }}</p>
-                  </div>
-                </div>
-              </div>
-              {% endfor %}
             </div>
           </div>
         </div>  

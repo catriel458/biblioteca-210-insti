@@ -1590,6 +1590,7 @@ def formulario_multimedia(request):
 def alta_multimedia(request):
     """
     Vista para procesar el envío del formulario de alta de multimedia
+    Reescrita siguiendo el patrón exitoso de alta_libro
     """
     print(f"🔥🔥🔥 INICIO alta_multimedia")
     print(f"🔥 Método: {request.method}")
@@ -1602,34 +1603,58 @@ def alta_multimedia(request):
         # Verificar si hay datos en POST
         if not request.POST:
             print("❌ POST está vacío!")
-            messages.error(request, 'No se recibieron datos del formulario.')
             return redirect('formulario_multimedia')
             
         form = MultimediaForm(request.POST)
-        print(f"🔍 Formulario MultimediaForm creado. Es válido? {form.is_valid()}")
+        print(f"🔍 Formulario creado. Es válido? {form.is_valid()}")
         
         if not form.is_valid():
             print(f"❌ Errores del formulario: {form.errors}")
-            # Mostrar errores en la página
-            return render(request, 'materiales/formularios_altas/alta_multimedia.html', {
-                'form': form,
-                'error': 'Por favor corrige los errores en el formulario.'
-            })
         
         if form.is_valid():
             print("✅ Formulario válido - guardando en sesión")
             try:
-                # Obtener la URL de imagen del formulario
-                img_url = form.cleaned_data.get('img', '').strip()
-                print(f"📷 URL de imagen recibida: '{img_url}'")
+                # Obtener la cantidad de multimedia items desde el campo dinámico
+                cant_multimedia = int(request.POST.get('cant_multimedia', 0))
+                print(f"📱 Cantidad de multimedia: {cant_multimedia}")
                 
-                # NO guardar en base de datos, solo en sesión - CAMPOS SIMPLIFICADOS
+                # Recopilar datos de multimedia dinámicos
+                multimedia_items = []
+                
+                # Primero agregar el item estático (campos principales del formulario)
+                static_url = form.cleaned_data.get('ingresar_enlace', '').strip()
+                static_titulo = form.cleaned_data.get('titulo_contenido', '').strip()
+                
+                if static_url or static_titulo:
+                    multimedia_items.append({
+                        'url': static_url,
+                        'titulo': static_titulo
+                    })
+                    print(f"📋 Multimedia estático: URL='{static_url}', Título='{static_titulo}'")
+                
+                # Luego agregar los items dinámicos
+                for i in range(1, cant_multimedia + 1):
+                    multimedia_data = {
+                        'url': request.POST.get(f'ingresar_enlace_{i}', '').strip(),
+                        'titulo': request.POST.get(f'titulo_contenido_{i}', '').strip()
+                    }
+                    
+                    # Solo agregar si al menos uno de los campos tiene contenido
+                    if multimedia_data['url'] or multimedia_data['titulo']:
+                        multimedia_items.append(multimedia_data)
+                        print(f"📋 Multimedia dinámico {i}: {multimedia_data}")
+                
+                print(f"📋 Total multimedia items: {len(multimedia_items)}")
+                
+                # NO guardar en base de datos, solo en sesión
                 form_data = {
                     'profesor': form.cleaned_data.get('profesor', ''),
                     'carrera': form.cleaned_data.get('carrera', ''),
                     'materia': form.cleaned_data.get('materia', ''),
                     'ingresar_enlace': form.cleaned_data.get('ingresar_enlace', ''),
                     'titulo_contenido': form.cleaned_data.get('titulo_contenido', ''),
+                    'cant_multimedia': cant_multimedia,
+                    'multimedia_items': multimedia_items,  # Lista de multimedia con sus datos
                 }
                 
                 # Guardar en sesión
@@ -1645,15 +1670,15 @@ def alta_multimedia(request):
                 import traceback
                 traceback.print_exc()
                 messages.error(request, f'Error al procesar el multimedia: {str(e)}')
-                return render(request, 'materiales/formularios_altas/alta_multimedia.html', {
-                    'form': form,
-                    'error': f'Error al procesar: {str(e)}'
-                })
+                return render(request, 'materiales/formularios_altas/alta_multimedia.html', {'form': form})
+        else:
+            print(f"❌ Formulario inválido: {form.errors}")
+            messages.error(request, 'Por favor corrige los errores en el formulario.')
+            return render(request, 'materiales/formularios_altas/alta_multimedia.html', {'form': form})
     else:
-        # Si es GET, mostrar formulario vacío
-        print("🔄 GET recibido en alta_multimedia, mostrando formulario")
-        form = MultimediaForm()
-        return render(request, 'materiales/formularios_altas/alta_multimedia.html', {'form': form})
+        # Si es GET, redirigir al formulario
+        print("🔄 GET recibido en alta_multimedia, redirigiendo a formulario")
+        return redirect('formulario_multimedia')
 
 def confirmar_alta_multimedia(request):
     """
@@ -1690,20 +1715,40 @@ def guardar_alta_multimedia(request):
             form_data = request.session['multimedia_data']
             print(f"📋 Datos de sesión: {form_data}")  # Debug
             
-            # Crear objeto Multimedia
-            multimedia = Multimedia(
-                estado='Disponible',
-                profesor=form_data.get('profesor', ''),
-                carrera=form_data.get('carrera', ''),
-                materia=form_data.get('materia', ''),
-                ingresar_enlace=form_data.get('ingresar_enlace', ''),
-                titulo_contenido=form_data.get('titulo_contenido', ''),
-                img=''  # Sin imagen por defecto
-            )
+            # Procesar multimedia dinámicos si existen
+            multimedia_items = form_data.get('multimedia_items', [])
             
-            # GUARDAR EN BASE DE DATOS
-            multimedia.save()
-            print(f"✅ Multimedia guardado en BD con ID: {multimedia.id_multimedia}")  # Debug
+            if multimedia_items:
+                # Si hay multimedia dinámicos, crear un registro para cada uno
+                multimedia_guardados = []
+                for item in multimedia_items:
+                    multimedia = Multimedia(
+                        estado='Disponible',
+                        profesor=form_data.get('profesor', ''),
+                        carrera=form_data.get('carrera', ''),
+                        materia=form_data.get('materia', ''),
+                        ingresar_enlace=item.get('url', ''),
+                        titulo_contenido=item.get('titulo', ''),
+                        img=''  # Sin imagen por defecto
+                    )
+                    multimedia.save()
+                    multimedia_guardados.append(multimedia)
+                    print(f"✅ Multimedia dinámico guardado: ID={multimedia.id_multimedia}, Título='{multimedia.titulo_contenido}', URL='{multimedia.ingresar_enlace}'")
+                
+                print(f"✅ Total multimedia dinámicos guardados: {len(multimedia_guardados)}")
+            else:
+                # Si no hay multimedia dinámicos, usar los campos estáticos
+                multimedia = Multimedia(
+                    estado='Disponible',
+                    profesor=form_data.get('profesor', ''),
+                    carrera=form_data.get('carrera', ''),
+                    materia=form_data.get('materia', ''),
+                    ingresar_enlace=form_data.get('ingresar_enlace', ''),
+                    titulo_contenido=form_data.get('titulo_contenido', ''),
+                    img=''  # Sin imagen por defecto
+                )
+                multimedia.save()
+                print(f"✅ Multimedia estático guardado en BD con ID: {multimedia.id_multimedia}")
             
             # Limpiar sesión
             del request.session['multimedia_data']
@@ -1760,22 +1805,107 @@ def confirmacion_alta_varios(request):
     print("🎯 Llegó a confirmacion_alta_varios")  # Debug
     
     if request.method == 'POST':
-        # Guardar los datos del formulario en la sesión
-        varios_data = {
-            'cant_ejemplares': request.POST.get('cant_ejemplares', ''),
-            'sede': request.POST.get('sede', ''),
-            'num_registro': request.POST.get('num_registro', ''),
-            'nombre_varios': request.POST.get('nombre_varios', ''),
-            'estado': 'Disponible',  # Valor por defecto
+        # Mapeo de sedes para mostrar nombres legibles
+        sede_mapping = {
+            'sede1': 'La Plata',
+            'sede2': 'Abasto'
         }
         
-        # Guardar en sesión
+        # Capturar datos básicos del formulario
+        tipo_varios = request.POST.get('tipo_varios', '')
+        cant_ejemplares = request.POST.get('cant_ejemplares', '')
+        sede_value = request.POST.get('sede_varios', '')
+        sede = sede_mapping.get(sede_value, sede_value)  # Convertir a nombre legible
+        num_registro = request.POST.get('num_registro', '')
+        nombre_varios = request.POST.get('nombre_varios', '')
+        estado = 'Disponible'  # Valor por defecto
+        
+        print(f"📋 Datos básicos capturados: tipo={tipo_varios}, cant={cant_ejemplares}, sede={sede}")  # Debug
+        
+        # Procesar campos dinámicos - similar a la lógica de mapas
+        tipos_varios = []
+        
+        # Iterar sobre todos los campos POST para encontrar los dinámicos
+        for key, value in request.POST.items():
+            if key.startswith('varios_') and '_registro' in key:
+                # Extraer índice del campo (ej: "varios_0_1_registro" -> "0_1")
+                idx = key.replace('varios_', '').replace('_registro', '')
+                
+                print(f"🔍 Procesando campo registro: {key} = {value}, idx = {idx}")  # Debug
+                
+                # Validar que el índice tenga el formato correcto
+                if '_' not in idx:
+                    continue
+                    
+                try:
+                    grupo_idx, ejemplar_idx = idx.split('_')
+                except ValueError:
+                    continue
+                
+                # Buscar o crear el grupo de tipo
+                grupo_encontrado = None
+                for grupo in tipos_varios:
+                    if grupo['grupo_idx'] == grupo_idx:
+                        grupo_encontrado = grupo
+                        break
+                
+                if not grupo_encontrado:
+                    grupo_encontrado = {
+                        'grupo_idx': grupo_idx,
+                        'tipo': tipo_varios,  # Usar el tipo básico capturado
+                        'ejemplares': []
+                    }
+                    tipos_varios.append(grupo_encontrado)
+                
+                # Agregar ejemplar al grupo
+                ejemplar = {
+                    'idx': idx,
+                    'registro': value,
+                    'denominacion': request.POST.get(f'varios_{idx}_denominacion', ''),
+                    'descripcion': request.POST.get(f'varios_{idx}_descripcion', '')
+                }
+                grupo_encontrado['ejemplares'].append(ejemplar)
+                
+                print(f"✅ Ejemplar agregado: {ejemplar}")  # Debug
+        
+        # Si no se encontraron ejemplares dinámicos, crear uno básico
+        if not tipos_varios:
+            print(f"🔧 No se encontraron ejemplares dinámicos, creando uno básico")  # Debug
+            tipos_varios.append({
+                'grupo_idx': '0',
+                'tipo': tipo_varios,
+                'ejemplares': [{
+                    'idx': '0_0',
+                    'registro': num_registro or '',
+                    'denominacion': nombre_varios or '',
+                    'descripcion': ''
+                }]
+            })
+        
+        # Calcular cantidad por tipo
+        for grupo in tipos_varios:
+            grupo['cantidad'] = len(grupo['ejemplares'])
+        
+        # Guardar datos en la sesión
+        varios_data = {
+            'tipo_varios': tipo_varios,
+            'cant_ejemplares': cant_ejemplares,
+            'sede': sede,
+            'num_registro': num_registro,
+            'nombre_varios': nombre_varios,
+            'estado': estado,
+            'tipos_varios': tipos_varios
+        }
+        
         request.session['varios_data'] = varios_data
-        print(f"📋 Datos guardados en sesión: {varios_data}")  # Debug
+        
+        print(f"📋 Datos de varios guardados en sesión: {varios_data}")  # Debug
+        print(f"🎯 tipos_varios final enviado al template: {tipos_varios}")  # Debug
         
         # Renderizar página con modal automático
         return render(request, 'materiales/formularios_altas/confirmaciones_alta/confirmacion_alta_varios.html', {
-            'form_data': varios_data
+            'form_data': varios_data,
+            'tipos_varios': tipos_varios
         })
     else:
         # Si no es POST, redirigir al formulario
@@ -2127,18 +2257,25 @@ def confirmacion_alta_notebook(request):
     if request.method == 'POST':
         # Obtener datos básicos del formulario
         cant_ejemplares = int(request.POST.get('cant_ejemplares', 1))
-        sede = request.POST.get('sede', '')
-        num_registro = request.POST.get('num_registro', '')
-        modelo_not = request.POST.get('modelo_not', '')
+        sede_raw = request.POST.get('sede', '')
         
-        # Crear lista de ejemplares
+        # Mapear sede a nombre legible
+        sede_mapping = {
+            'sede1': 'La Plata',
+            'sede2': 'Abasto'
+        }
+        sede = sede_mapping.get(sede_raw, sede_raw)
+        
+        # Crear lista de ejemplares procesando campos dinámicos
         ejemplares = []
-        for i in range(cant_ejemplares):
+        for i in range(1, cant_ejemplares + 1):
+            # Los campos dinámicos tienen formato n_registro_X, modelo_X
+            num_registro = request.POST.get(f'n_registro_{i}', '')
+            modelo = request.POST.get(f'modelo_{i}', '')
+            
             ejemplar = {
-                'sede': request.POST.get(f'sede_{i+1}', sede),
-                'num_registro': request.POST.get(f'num_registro_{i+1}', num_registro),
-                'modelo_not': request.POST.get(f'modelo_not_{i+1}', modelo_not),
-                'disponibilidad': 'Disponible'
+                'num_registro': num_registro,
+                'modelo': modelo,
             }
             ejemplares.append(ejemplar)
         
@@ -2146,8 +2283,6 @@ def confirmacion_alta_notebook(request):
         notebook_data = {
             'cant_ejemplares': cant_ejemplares,
             'sede': sede,
-            'num_registro': num_registro,
-            'modelo_not': modelo_not,
             'ejemplares': ejemplares,
             'estado': 'Disponible',  # Valor por defecto
         }
@@ -2287,13 +2422,35 @@ def confirmacion_alta_proyector(request):
     print("🎯 Llegó a confirmacion_alta_proyector")  # Debug
     
     if request.method == 'POST':
+        print(f"📋 Datos POST recibidos: {dict(request.POST)}")  # Debug
+        
+        # Mapeo de sede
+        sede_mapping = {
+            'sede1': 'La Plata',
+            'sede2': 'Abasto'
+        }
+        
+        sede_value = request.POST.get('sede', '')
+        sede_texto = sede_mapping.get(sede_value, sede_value)
+        
+        # Obtener cantidad de ejemplares
+        cant_ejemplares = int(request.POST.get('cant_ejemplares', 1))
+        
+        # Procesar ejemplares dinámicos
+        ejemplares = []
+        for i in range(1, cant_ejemplares + 1):
+            ejemplar = {
+                'num_registro': request.POST.get(f'n_registro_{i}', ''),
+                'modelo': request.POST.get(f'modelo_{i}', ''),
+                'sede': sede_texto,
+            }
+            ejemplares.append(ejemplar)
+        
         # Guardar los datos del formulario en la sesión
         proyector_data = {
-            'cant_ejemplares': request.POST.get('cant_ejemplares', ''),
-            'sede': request.POST.get('sede', ''),
-            'num_registro': request.POST.get('num_registro', ''),
-            'modelo_proy': request.POST.get('modelo_proy', ''),
-            'estado': 'Disponible',  # Valor por defecto
+            'cant_ejemplares': cant_ejemplares,
+            'sede': sede_texto,
+            'ejemplares': ejemplares,
         }
         
         # Guardar en sesión
@@ -2302,7 +2459,8 @@ def confirmacion_alta_proyector(request):
         
         # Renderizar página con modal automático
         return render(request, 'materiales/formularios_altas/confirmaciones_alta/confirmacion_alta_proyector.html', {
-            'form_data': proyector_data
+            'form_data': proyector_data,
+            'ejemplares': ejemplares
         })
     else:
         # Si no es POST, redirigir al formulario
