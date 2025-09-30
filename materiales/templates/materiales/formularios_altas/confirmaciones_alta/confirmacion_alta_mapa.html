@@ -1,349 +1,509 @@
 {% extends 'components/baseb.html' %}
 {% load static %}
 {% block extra_styles %}
-    <link rel="stylesheet" href="{% static 'css/main.css' %}">
-    <link rel="stylesheet" href="{% static 'css/style_form.css' %}">
-    <link rel="stylesheet" href="{% static 'css/botones.css' %}">
     <style>
-        /* Estilos del modal */
-        .modal-dialog.modal-lg {
-            max-width: 1300px;
+        body {
+            background-color: #f5f5f5;
         }
 
         .modal-content {
-            border-radius: 15px;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+            background: transparent;
+            box-shadow: inset 0px 0px 40px 10px rgba(0, 0, 0, 0.25);
+            border-radius: 0px 0px 10px 10px;
+            border: 3px solid #8B1D69;
         }
 
         .modal-header {
-            background-color: #f8f9fa;
-            border-bottom: 2px solid #dee2e6;
-            border-radius: 15px 15px 0 0;
-            padding: 1.5rem;
+            background-color: transparent;
+            color: #333;
+            border-bottom: none;
+            border-radius: 0px;
+            padding: 0.75rem 1rem;
         }
 
         .modal-title {
-            color: #007bff;
-            font-weight: bold;
-            font-size: 1.4rem;
+            color: #333;
+            font-weight: 600;
+            font-size: 1.1rem;
+            letter-spacing: 1px;
+        }
+
+        .btn-close {
+            filter: invert(1);
         }
 
         .modal-body {
-            padding: 1.5rem;
-            max-height: 70vh;
-            overflow-y: auto;
+            padding: 1rem;
+            background-color: transparent;
         }
 
-        .section-container {
-            background-color: #fff;
-            border-radius: 10px;
-            padding: 1.25rem;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            margin-bottom: 1.5rem;
-        }
-
-        .section-title {
-            color: #212529;
-            font-weight: 600;
+        .tipo-material-section {
+            background-color: #f8f9fa;
+            padding: 0.5rem 0.75rem;
+            border-radius: 4px;
             margin-bottom: 1rem;
-            font-size: 1.1rem;
-            text-transform: uppercase;
+            border-bottom: 2px solid #8B1D69;
         }
 
         .tipo-material-title {
-            color: #212529;
+            color: #000000;
             font-weight: 600;
-            margin-bottom: 1rem;
-            font-size: 1.2rem;
-            text-transform: uppercase;
-        }
-
-        .modal-body strong {
-            color: #25898D;
-            display: block;
-            margin-bottom: 0.3rem;
+            margin: 0;
             font-size: 0.9rem;
         }
 
-        .info-text {
-            margin-bottom: 0.5rem;
-            color: #212529;
-            font-size: 1rem;
-            padding: 0.5rem;
+        .text-primary {
+            color: #8B1D69 !important;
+            font-weight: 600;
+        }
+
+        .sede-section {
+            margin-bottom: 1rem;
+            border-bottom: 2px solid #8B1D69;
+            padding: 0.5rem 0.75rem;
+            border-radius: 4px;
             background-color: #f8f9fa;
-            border-radius: 5px;
+        }
+
+        .sede-text {
+            font-size: 0.8rem;
+            color: #666;
+            margin: 0 0 0.25rem 0;
+        }
+
+        .sede-value {
+            font-size: 0.9rem;
+            color: #8B1D69;
+            font-weight: 500;
+            margin: 0;
+        }
+
+        .sede-select {
+            display: none;
+            font-size: 0.9rem;
+            color: #8B1D69;
+            font-weight: 500;
+            border: 1px solid #8B1D69;
+            border-radius: 4px;
+            padding: 0.25rem 0.5rem;
+            background-color: #fff;
+        }
+
+        .separator-line {
+            height: 2px;
+            background-color: #8B1D69;
+            margin: 1rem 0;
+            border-radius: 1px;
+        }
+
+        .campos-info {
+            display: flex;
+            gap: 2rem;
+            border-bottom: 2px solid #8B1D69;
+            padding: 0.75rem;
+            border-radius: 4px;
+            background-color: #f8f9fa;
+            margin-bottom: 1rem;
+        }
+
+        .campo-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .campo-label {
+            font-size: 0.8rem;
+            color: #000000;
+            margin-bottom: 0.25rem;
+            font-weight: 600;
+        }
+
+        .campo-value {
+            font-size: 0.9rem;
+            color: #8B1D69;
+            font-weight: 500;
+        }
+
+        .campo-input {
+            display: none;
+            font-size: 0.9rem;
+            color: #8B1D69;
+            font-weight: 500;
+            border: 1px solid #8B1D69;
+            border-radius: 4px;
+            padding: 0.25rem 0.5rem;
+            background-color: #fff;
+        }
+
+        .section-title {
+            color: #000000;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            font-size: 1rem;
+            border-bottom: 2px solid #8B1D69;
+            padding-bottom: 0.5rem;
+            background-color: #f8f9fa;
+            padding: 0.5rem 0.75rem;
+            border-radius: 4px;
         }
 
         .ejemplar-info {
             background-color: #f8f9fa;
-            border-radius: 8px;
-            padding: 1rem;
+            border-radius: 4px;
+            padding: 0.75rem;
             margin-bottom: 1rem;
-            border-left: 4px solid #25898D;
+            border-bottom: 2px solid #8B1D69;
         }
 
         .ejemplar-info h6 {
-            color: #25898D;
-            margin-bottom: 1rem;
+            color: #000000;
+            margin-bottom: 0.75rem;
             font-weight: 600;
+            font-size: 0.9rem;
         }
 
         .modal-footer {
-            border-top: 2px solid #dee2e6;
-            padding: 1.25rem;
-            background-color: #f8f9fa;
-            border-radius: 0 0 15px 15px;
+            background-color: transparent;
+            border-top: none;
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
         .btn {
-            padding: 0.5rem 2rem;
-            font-weight: 500;
-        }
-
-        /* Estilos específicos para tipos de mapa */
-        .tipos-mapa-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-top: 10px;
-        }
-
-        .tipo-mapa-item {
-            background-color: #f0f8ff;
-            border: 1px solid #b8daff;
-            border-radius: 8px;
-            padding: 10px 15px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            min-width: 200px;
-        }
-
-        .tipo-mapa-cantidad {
-            background-color: #007bff;
-            color: white;
-            border-radius: 50%;
-            width: 25px;
-            height: 25px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            margin-left: 10px;
-        }
-
-        /* Nuevos estilos para ejemplares */
-        .ejemplar-card {
-            background-color: #f8f9fa;
-            border: 1px solid #dee2e6;
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 15px;
-            border-left: 4px solid #007bff;
-        }
-        
-        .ejemplar-header {
+            padding: 0.5rem 1.5rem;
             font-weight: 600;
-            color: #495057;
-            margin-bottom: 10px;
+            border-radius: 4px;
             font-size: 0.9rem;
-        }
-        
-        .ejemplar-field {
-            margin-bottom: 8px;
-        }
-        
-        .ejemplar-field strong {
-            color: #25898D;
-            font-size: 0.85rem;
-            display: inline-block;
             min-width: 100px;
         }
-        
-        .ejemplar-field span {
-            color: #212529;
-            font-size: 0.9rem;
+
+        .btn-outline-danger {
+            color: #dc3545;
+            border-color: #dc3545;
+            background-color: transparent;
         }
-        
-        .tipo-header {
-            background-color: #e3f2fd;
-            padding: 10px 15px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            border-left: 4px solid #2196f3;
+
+        .btn-outline-danger:hover {
+            color: #fff;
+            background-color: #dc3545;
+            border-color: #dc3545;
         }
-        
-        .tipo-title {
-            color: #1976d2;
-            font-weight: 600;
-            margin: 0;
-            font-size: 1.1rem;
+
+        .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+            color: #fff;
         }
-        
-        .cantidad-badge {
-            background-color: #2196f3;
-            color: white;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 500;
-            margin-left: 10px;
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+            border-color: #0056b3;
+        }
+
+        .loading-container {
+            text-align: center;
+            padding: 50px;
+        }
+
+        .loading-text {
+            color: #8B1D69;
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .modal-dialog {
+                margin: 0.5rem;
+            }
+            .modal-body {
+                padding: 0.75rem;
+            }
+            .campos-info {
+                flex-direction: column;
+                gap: 1rem;
+            }
         }
     </style>
 {% endblock %}
 
 {% block content %}
-<!-- Indicador de carga -->
-<div class="loading-container">
-    <div class="spinner"></div>
-</div>
-
-<!-- Modal de confirmación -->
-<div class="modal fade show" id="modalConfirmacionAltaMaterial" tabindex="-1" aria-labelledby="modalConfirmacionLabel" aria-hidden="true" data-bs-backdrop="static" style="display: block;">
-  <div class="modal-dialog modal-xl">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="modalConfirmacionLabel">CONFIRME LOS DATOS</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-      </div>
-      <div class="modal-body">
-        <div class="container-fluid">
-          <!-- Tipo de Material -->
-          <div class="section-container mb-4">
-            <h6 class="tipo-material-title">TIPO DE MATERIAL: <span id="confirmTipoMaterial" class="text-primary">MAPA</span></h6>
-          </div>
-
-          <!-- Información Principal -->
-          <div class="section-container mb-4">
-            <h6 class="section-title">Información General</h6>
-            <div class="row g-3">
-              <div class="col-md-6">
-                <strong>Sede:</strong>
-                <p id="confirmSede" class="info-text">{{ form_data.sede_texto|default:"Sin especificar" }}</p>
-              </div>
-
-            </div>
-          </div>
-
-          <!-- Detalle de Mapas por Tipo -->
-          <div class="section-container">
-            <h6 class="section-title">Detalle de Mapas</h6>
-            
-            {% if tipos_mapa %}
-              {% for tipo_grupo in tipos_mapa %}
-                <div class="tipo-header">
-                  <h6 class="tipo-title">
-                    {{ tipo_grupo.tipo|upper|default:"SIN TIPO" }}
-                  </h6>
-                </div>
-                
-                <div class="row">
-                  {% for ejemplar in tipo_grupo.ejemplares %}
-                    <div class="col-md-6 mb-3">
-                      <div class="ejemplar-card">
-                        <div class="ejemplar-header">Ejemplar {{ forloop.counter }}</div>
-                        
-                        <div class="ejemplar-field">
-                          <strong>N° Registro:</strong>
-                          <span>{{ ejemplar.n_registro|default:"Sin especificar" }}</span>
-                        </div>
-                        
-                        <div class="ejemplar-field">
-                          <strong>Denominación:</strong>
-                          <span>{{ ejemplar.denominacion|default:"Sin especificar" }}</span>
-                        </div>
-                        
-                        <div class="ejemplar-field">
-                          <strong>Descripción:</strong>
-                          <span>{{ ejemplar.descripcion|default:"Sin descripción" }}</span>
-                        </div>
-                      </div>
-                    </div>
-                  {% endfor %}
-                </div>
-                
-                {% if not forloop.last %}
-                  <hr class="my-4">
-                {% endif %}
-              {% endfor %}
-            {% else %}
-              <div class="alert alert-warning">
-                <i class="fas fa-exclamation-triangle"></i>
-                No se han especificado mapas para confirmar.
-              </div>
-            {% endif %}
-          </div>
-        </div>  
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" onclick="cancelarModal()">Cancelar</button>
-        <button type="button" class="btn btn-primary" onclick="confirmarMapa()">Confirmar</button>
-      </div>
+    <!-- Loading Page -->
+    <div id="loading-page" class="loading-container">
+        <div class="loading-text">Cargando...</div>
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Cargando...</span>
+        </div>
     </div>
-  </div>
-</div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="confirmacionModal" tabindex="-1" aria-labelledby="confirmacionModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confirmacionModalLabel">CONFIRME LOS DATOS</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Tipo de Material -->
+                    <div class="tipo-material-section">
+                        <p class="tipo-material-title">TIPO DE MATERIAL: <span class="text-primary">MAPA</span></p>
+                    </div>
+
+                    <!-- Sede -->
+                    <div class="sede-section">
+                        <p class="sede-text">Sede</p>
+                        <p class="sede-value" id="sede-display">{{ form_data.sede_texto|default:"Sin especificar" }}</p>
+                        <select class="sede-select" id="sede-select" name="sede">
+                            {% for sede in sedes %}
+                                <option value="{{ sede.id }}" {% if sede.id == sede_seleccionada %}selected{% endif %}>{{ sede.nombre }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+
+
+                    <!-- Información de Ejemplares -->
+                    <div class="section-title">Información de Ejemplares</div>
+                    
+                    {% if tipos_mapa %}
+                      {% for tipo_grupo in tipos_mapa %}
+                        <div class="ejemplar-info">
+                            <h6>{{ tipo_grupo.tipo|upper|default:"SIN TIPO" }} ({{ tipo_grupo.ejemplares|length }} ejemplar{{ tipo_grupo.ejemplares|length|pluralize:"es" }})</h6>
+                            {% for ejemplar in tipo_grupo.ejemplares %}
+                                <div class="campos-info" data-ejemplar-index="{{ forloop.counter }}">
+                                    <div class="campo-item">
+                                        <span class="campo-label">N° Registro</span>
+                                        <span class="campo-value" id="registroValue{{ forloop.counter }}">{{ ejemplar.n_registro|default:"Sin especificar" }}</span>
+                                        <input type="text" class="campo-input" id="registroInput{{ forloop.counter }}" value="{{ ejemplar.n_registro|default:'' }}">
+                                    </div>
+                                    <div class="campo-item">
+                                        <span class="campo-label">Denominación</span>
+                                        <span class="campo-value" id="denominacionValue{{ forloop.counter }}">{{ ejemplar.denominacion|default:"Sin especificar" }}</span>
+                                        <input type="text" class="campo-input" id="denominacionInput{{ forloop.counter }}" value="{{ ejemplar.denominacion|default:'' }}">
+                                    </div>
+                                    <div class="campo-item">
+                                        <span class="campo-label">Descripción</span>
+                                        <span class="campo-value" id="descripcionValue{{ forloop.counter }}">{{ ejemplar.descripcion|default:"Sin descripción" }}</span>
+                                        <input type="text" class="campo-input" id="descripcionInput{{ forloop.counter }}" value="{{ ejemplar.descripcion|default:'' }}">
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                      {% endfor %}
+                    {% else %}
+                      <div class="alert alert-warning">
+                          <i class="fas fa-exclamation-triangle"></i>
+                          No se han especificado mapas para confirmar.
+                      </div>
+                    {% endif %}
+
+                    <!-- Hidden inputs para el formulario -->
+                    <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+                    <input type="hidden" name="sede_id" value="{{ sede_seleccionada }}">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-danger btn-sm" id="btn-editar" onclick="editarCampos()">EDITAR</button>
+                    <button type="button" class="btn btn-primary btn-sm" id="btn-confirmar" onclick="confirmarMapa()">GUARDAR</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('🔍 DOM cargado, configurando modal...');
-    
-    // Ocultar el indicador de carga
-    document.querySelector('.loading-container').style.display = 'none';
-    
-    // Asegurar que el modal esté visible
-    var modalElement = document.getElementById('modalConfirmacionAltaMaterial');
-    
-    // Verificar si Bootstrap está disponible
-    if (typeof bootstrap !== 'undefined') {
-        // Usar Bootstrap para mostrar el modal
-        var modal = new bootstrap.Modal(modalElement, {
-            backdrop: 'static',
-            keyboard: false
-        });
+    // Variables globales para el modo de edición
+    let modoEdicion = false;
+    let valoresOriginales = {};
+
+    // Función para mostrar el modal
+    function mostrarModal() {
+        document.getElementById('loading-page').style.display = 'none';
+        const modal = new bootstrap.Modal(document.getElementById('confirmacionModal'));
         modal.show();
-        console.log('✅ Modal mostrado con Bootstrap');
-    } else {
-        // Fallback si Bootstrap no está disponible
-        modalElement.classList.add('show');
-        modalElement.style.display = 'block';
-        document.body.classList.add('modal-open');
-        console.log('✅ Modal mostrado con fallback');
     }
-    
-    console.log('📊 Datos del formulario:', {{ form_data|safe|default:"{}" }});
-    console.log('📊 Tipos de mapa:', {{ tipos_mapa|safe|default:"[]" }});
-});
 
-function confirmarMapa() {
-    console.log('🟢 Confirmando mapa...');
-    
-    // Crear un formulario invisible para enviar la confirmación
-    const form = document.createElement('form');
-    form.method = 'POST';
-    form.action = '{% url "guardar_alta_mapa" %}';
-    
-    // Agregar token CSRF
-    const csrfToken = document.createElement('input');
-    csrfToken.type = 'hidden';
-    csrfToken.name = 'csrfmiddlewaretoken';
-    csrfToken.value = '{{ csrf_token }}';
-    form.appendChild(csrfToken);
-    
-    // Agregar al DOM y enviar
-    document.body.appendChild(form);
-    form.submit();
-}
+    // Función para editar campos
+    function editarCampos() {
+        const btnEditar = document.getElementById('btn-editar');
+        
+        if (!modoEdicion) {
+            // Entrar en modo edición
+            console.log('✏️ Entrando en modo edición');
+            
+            // Guardar valores originales
+            valoresOriginales = {
+                sede: document.getElementById('sede-display').textContent
+            };
 
-function cancelarModal() {
-    console.log('🔴 Cancelando...');
-    // Redirigir de vuelta al formulario
-    window.location.href = '{% url "alta_materiales" %}';
-}
+            // Guardar valores originales de todos los ejemplares
+            const ejemplares = document.querySelectorAll('.campos-info[data-ejemplar-index]');
+            ejemplares.forEach((ejemplar, index) => {
+                const contador = ejemplar.getAttribute('data-ejemplar-index');
+                valoresOriginales[`registro${contador}`] = document.getElementById(`registroValue${contador}`).textContent;
+                valoresOriginales[`denominacion${contador}`] = document.getElementById(`denominacionValue${contador}`).textContent;
+                valoresOriginales[`descripcion${contador}`] = document.getElementById(`descripcionValue${contador}`).textContent;
+            });
 
-// Manejar cuando se cierra el modal con X
-document.getElementById('modalConfirmacionAltaMaterial').addEventListener('hidden.bs.modal', function () {
-    console.log('🔴 Modal cerrado, regresando al formulario...');
-    window.location.href = '{% url "alta_materiales" %}';
-});
+            // Ocultar elementos de solo lectura y mostrar campos editables
+            document.getElementById('sede-display').style.display = 'none';
+            document.getElementById('sede-select').style.display = 'block';
+
+            // Mostrar inputs para cada ejemplar
+            ejemplares.forEach((ejemplar, index) => {
+                const contador = ejemplar.getAttribute('data-ejemplar-index');
+                document.getElementById(`registroValue${contador}`).style.display = 'none';
+                document.getElementById(`registroInput${contador}`).style.display = 'block';
+                
+                document.getElementById(`denominacionValue${contador}`).style.display = 'none';
+                document.getElementById(`denominacionInput${contador}`).style.display = 'block';
+                
+                document.getElementById(`descripcionValue${contador}`).style.display = 'none';
+                document.getElementById(`descripcionInput${contador}`).style.display = 'block';
+            });
+
+            // Cambiar botón a "CANCELAR"
+            btnEditar.textContent = 'CANCELAR';
+            btnEditar.className = 'btn btn-secondary btn-sm';
+            
+            modoEdicion = true;
+        } else {
+            // Cancelar edición
+            console.log('❌ Cancelando edición');
+            
+            // Restaurar valores originales
+            document.getElementById('sede-display').textContent = valoresOriginales.sede;
+
+            // Restaurar valores originales de todos los ejemplares
+            const ejemplares = document.querySelectorAll('.campos-info[data-ejemplar-index]');
+            ejemplares.forEach((ejemplar, index) => {
+                const contador = ejemplar.getAttribute('data-ejemplar-index');
+                document.getElementById(`registroValue${contador}`).textContent = valoresOriginales[`registro${contador}`];
+                document.getElementById(`denominacionValue${contador}`).textContent = valoresOriginales[`denominacion${contador}`];
+                document.getElementById(`descripcionValue${contador}`).textContent = valoresOriginales[`descripcion${contador}`];
+            });
+
+            // Mostrar elementos de solo lectura y ocultar campos editables
+            document.getElementById('sede-display').style.display = 'block';
+            document.getElementById('sede-select').style.display = 'none';
+
+            // Ocultar inputs para cada ejemplar
+            ejemplares.forEach((ejemplar, index) => {
+                const contador = ejemplar.getAttribute('data-ejemplar-index');
+                document.getElementById(`registroValue${contador}`).style.display = 'block';
+                document.getElementById(`registroInput${contador}`).style.display = 'none';
+                
+                document.getElementById(`denominacionValue${contador}`).style.display = 'block';
+                document.getElementById(`denominacionInput${contador}`).style.display = 'none';
+                
+                document.getElementById(`descripcionValue${contador}`).style.display = 'block';
+                document.getElementById(`descripcionInput${contador}`).style.display = 'none';
+            });
+
+            // Restaurar valores en los inputs
+            document.getElementById('sede-select').value = valoresOriginales.sede;
+            ejemplares.forEach((ejemplar, index) => {
+                const contador = ejemplar.getAttribute('data-ejemplar-index');
+                document.getElementById(`registroInput${contador}`).value = valoresOriginales[`registro${contador}`];
+                document.getElementById(`denominacionInput${contador}`).value = valoresOriginales[`denominacion${contador}`];
+                document.getElementById(`descripcionInput${contador}`).value = valoresOriginales[`descripcion${contador}`];
+            });
+
+            // Cambiar botón a "EDITAR"
+            btnEditar.textContent = 'EDITAR';
+            btnEditar.className = 'btn btn-outline-danger btn-sm';
+            
+            modoEdicion = false;
+        }
+    }
+
+    // Función para confirmar el mapa
+    function confirmarMapa() {
+        console.log('✅ Usuario confirmó - enviando formulario');
+        
+        // Si estamos en modo edición, actualizar los valores antes de enviar
+        if (modoEdicion) {
+            // Actualizar sede
+            document.getElementById('sede-display').textContent = document.getElementById('sede-select').value;
+            
+            // Actualizar valores de cada ejemplar
+            const ejemplares = document.querySelectorAll('.campos-info[data-ejemplar-index]');
+            ejemplares.forEach((ejemplar, index) => {
+                const contador = ejemplar.getAttribute('data-ejemplar-index');
+                document.getElementById(`registroValue${contador}`).textContent = document.getElementById(`registroInput${contador}`).value;
+                document.getElementById(`denominacionValue${contador}`).textContent = document.getElementById(`denominacionInput${contador}`).value;
+                document.getElementById(`descripcionValue${contador}`).textContent = document.getElementById(`descripcionInput${contador}`).value;
+            });
+            
+            // Salir del modo edición
+            modoEdicion = false;
+        }
+        
+        // Crear formulario dinámico
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '{% url "confirmar_alta_mapa" %}';
+
+        // Agregar token CSRF
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        const csrfInput = document.createElement('input');
+        csrfInput.type = 'hidden';
+        csrfInput.name = 'csrfmiddlewaretoken';
+        csrfInput.value = csrfToken;
+        form.appendChild(csrfInput);
+
+        // Agregar datos del formulario (sede)
+        const sedeInput = document.createElement('input');
+        sedeInput.type = 'hidden';
+        sedeInput.name = 'sede';
+        sedeInput.value = document.getElementById('sede-display').textContent;
+        form.appendChild(sedeInput);
+
+        // Agregar datos de todos los ejemplares
+        const ejemplares = document.querySelectorAll('.campos-info[data-ejemplar-index]');
+        ejemplares.forEach((ejemplar, index) => {
+            const contador = ejemplar.getAttribute('data-ejemplar-index');
+            
+            // N° Registro
+            const registroInput = document.createElement('input');
+            registroInput.type = 'hidden';
+            registroInput.name = `ejemplares[${index}][n_registro]`;
+            registroInput.value = document.getElementById(`registroValue${contador}`).textContent;
+            form.appendChild(registroInput);
+            
+            // Denominación
+            const denominacionInput = document.createElement('input');
+            denominacionInput.type = 'hidden';
+            denominacionInput.name = `ejemplares[${index}][denominacion]`;
+            denominacionInput.value = document.getElementById(`denominacionValue${contador}`).textContent;
+            form.appendChild(denominacionInput);
+            
+            // Descripción
+            const descripcionInput = document.createElement('input');
+            descripcionInput.type = 'hidden';
+            descripcionInput.name = `ejemplares[${index}][descripcion]`;
+            descripcionInput.value = document.getElementById(`descripcionValue${contador}`).textContent;
+            form.appendChild(descripcionInput);
+        });
+
+        // Enviar formulario
+        document.body.appendChild(form);
+        form.submit();
+    }
+
+    // Función para cancelar modal
+     function cancelarModal() {
+         window.location.href = '{% url "alta_materiales" %}';
+     }
+
+     // Inicializar modal al cargar la página
+     document.addEventListener('DOMContentLoaded', function() {
+         setTimeout(mostrarModal, 1000);
+     });
+
+     // Manejar cierre del modal
+     document.getElementById('confirmacionModal').addEventListener('hidden.bs.modal', function () {
+         window.location.href = '{% url "alta_materiales" %}';
+     });
 </script>
 {% endblock %}
