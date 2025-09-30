@@ -1046,6 +1046,34 @@ window.prepararEnvioFormulario = function() {
             gruposTiposMultimedia: multimediaData
         });
     }
+    else if (tipoMaterial === 'varios') {
+        // Filtrar solo elementos dinámicos (excluir el primer elemento que es del formulario estático)
+        const elementosDinamicos = window.gruposTiposVariosNuevo && window.gruposTiposVariosNuevo.length > 1 
+            ? window.gruposTiposVariosNuevo.slice(1) 
+            : [];
+        
+        // Serializar los datos de elementos dinámicos únicamente
+        const gruposTiposVariosInput = document.getElementById('gruposTiposVariosNuevo');
+        if (gruposTiposVariosInput) {
+            gruposTiposVariosInput.value = JSON.stringify(elementosDinamicos);
+        }
+        
+        // Agregar campos ocultos para cada tipo de grupo dinámico
+        if (elementosDinamicos.length > 0) {
+            elementosDinamicos.forEach((grupo, idx) => {
+                const tipoInput = document.createElement('input');
+                tipoInput.type = 'hidden';
+                tipoInput.name = `tipo_grupo_${idx}`;
+                tipoInput.value = grupo.tipo;
+                document.getElementById('form_alta_material').appendChild(tipoInput);
+            });
+        }
+        
+        console.log('📤 Datos de varios preparados para envío:', {
+            gruposTiposVariosNuevo: elementosDinamicos,
+            sede: document.getElementById('sede-varios')?.value
+        });
+    }
 };
 </script>
 

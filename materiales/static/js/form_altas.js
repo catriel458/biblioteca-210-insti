@@ -866,14 +866,21 @@ window.renderizarTiposVariosNuevo = function() {
 
     let html = '';
     
-    window.gruposTiposVariosNuevo.forEach((grupo, index) => {
+    // Filtrar solo elementos dinámicos (excluir el primer elemento que es del formulario estático)
+    const elementosDinamicos = window.gruposTiposVariosNuevo && window.gruposTiposVariosNuevo.length > 1 
+        ? window.gruposTiposVariosNuevo.slice(1) 
+        : [];
+    
+    elementosDinamicos.forEach((grupo, index) => {
+        // Usar el índice original para mantener la consistencia con los datos
+        const originalIndex = index + 1;
         html += `
         <div class="card mb-3" style="border: 1px solid #dee2e6;">
             <div class="card-header d-flex justify-content-between align-items-center" style="background-color: #f8f9fa; padding: 0.75rem;">
                 <h6 class="mb-0" style="color: #495057;">
                     <strong>Tipo a registrar:</strong> ${grupo.tipo}
                 </h6>
-                <button type="button" class="btn btn-outline-danger btn-sm" onclick="eliminarGrupoTipoVariosNuevo(${index})">
+                <button type="button" class="btn btn-outline-danger btn-sm" onclick="eliminarGrupoTipoVariosNuevo(${originalIndex})">
                     <i class="fas fa-trash"></i> Eliminar
                 </button>
             </div>
@@ -887,14 +894,14 @@ window.renderizarTiposVariosNuevo = function() {
                                        class="form-control form-control-sm" 
                                        value="${grupo.cantidad}" 
                                        min="1" 
-                                       onchange="actualizarCantidadVariosNuevo(${index}, this.value)"
+                                       onchange="actualizarCantidadVariosNuevo(${originalIndex}, this.value)"
                                        style="max-width: 120px;">
                             </div>
                         </div>
                     </div>
                 </div>
                 
-                <div id="ejemplares-varios-nuevo-${index}">
+                <div id="ejemplares-varios-nuevo-${originalIndex}">
                     <!-- Los ejemplares se generarán aquí -->
                 </div>
             </div>
@@ -903,9 +910,10 @@ window.renderizarTiposVariosNuevo = function() {
 
     contenedor.innerHTML = html;
     
-    // Generar ejemplares para cada grupo
-    window.gruposTiposVariosNuevo.forEach((grupo, index) => {
-        generarEjemplaresVariosNuevo(index, grupo.cantidad);
+    // Generar ejemplares para cada grupo dinámico usando el índice original
+    elementosDinamicos.forEach((grupo, index) => {
+        const originalIndex = index + 1;
+        generarEjemplaresVariosNuevo(originalIndex, grupo.cantidad);
     });
 };
 

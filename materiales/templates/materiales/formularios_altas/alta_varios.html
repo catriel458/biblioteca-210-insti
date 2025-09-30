@@ -1,6 +1,9 @@
 {% load static %}
 
 <div data-block="content" data-form="varios">
+    <!-- Campo hidden para serializar los datos dinámicos -->
+    <input type="hidden" id="gruposTiposVariosNuevo" name="gruposTiposVariosNuevo" value="">
+    
     <div class="row mb-3">
         <div class="col-md-3">
             <label for="sede" style="font-size: 14px;">Sede: <span class="text-danger">*</span></label>
@@ -59,6 +62,11 @@
 <script src="{% static 'js/form_altas.js' %}"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // Inicializar gruposTiposVariosNuevo si no existe
+        if (!window.gruposTiposVariosNuevo) {
+            window.gruposTiposVariosNuevo = [];
+        }
+        
         // Inicializar renderizado para formulario de varios
         const containerVariosNuevo = document.getElementById('contenedor-tipos-varios-nuevo');
         if (containerVariosNuevo) {

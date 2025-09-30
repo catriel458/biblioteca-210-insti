@@ -184,6 +184,17 @@
             <h6 class="tipo-material-title">TIPO DE MATERIAL: <span id="confirmTipoMaterial" class="text-primary">NOTEBOOK</span></h6>
           </div>
 
+          <!-- Información General -->
+          <div class="section-container">
+            <h6 class="section-title">Información General</h6>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <strong>Sede:</strong>
+                <p class="info-text">{{ form_data.sede_texto|default:"Sin especificar" }}</p>
+              </div>
+            </div>
+          </div>
+
           <!-- Ejemplares -->
           <div class="section-container">
             <h6 class="section-title">Información de Ejemplares ({{ form_data.cant_ejemplares }} ejemplares)</h6>
@@ -192,15 +203,11 @@
               <div class="ejemplar-info">
                 <h6>Ejemplar #{{ forloop.counter }}</h6>
                 <div class="row g-3">
-                  <div class="col-md-4">
-                    <strong>Sede:</strong>
-                    <p class="info-text">{{ ejemplar.sede|default:"Sin especificar" }}</p>
-                  </div>
-                  <div class="col-md-4">
+                  <div class="col-md-6">
                     <strong>N° de Registro:</strong>
                     <p class="info-text">{{ ejemplar.num_registro|default:"Sin especificar" }}</p>
                   </div>
-                  <div class="col-md-4">
+                  <div class="col-md-6">
                     <strong>Modelo:</strong>
                     <p class="info-text">{{ ejemplar.modelo_not|default:"Sin especificar" }}</p>
                   </div>

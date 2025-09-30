@@ -1760,22 +1760,126 @@ def confirmacion_alta_varios(request):
     print("🎯 Llegó a confirmacion_alta_varios")  # Debug
     
     if request.method == 'POST':
-        # Guardar los datos del formulario en la sesión
-        varios_data = {
-            'cant_ejemplares': request.POST.get('cant_ejemplares', ''),
-            'sede': request.POST.get('sede', ''),
-            'num_registro': request.POST.get('num_registro', ''),
-            'nombre_varios': request.POST.get('nombre_varios', ''),
-            'estado': 'Disponible',  # Valor por defecto
+        # Obtener datos básicos
+        cant_ejemplares = request.POST.get('cant_ejemplares')
+        sede_varios = request.POST.get('sede_varios')
+        tipo_varios = request.POST.get('tipo_varios')
+        
+        # Mapeo de sede
+        sede_mapping = {
+            'sede1': 'La Plata',
+            'sede2': 'Abasto'
         }
+        sede_texto = sede_mapping.get(sede_varios, sede_varios)
+        
+        # CORREGIDO: Obtener los tipos de varios desde gruposTiposVariosNuevo JSON
+        tipos_varios = []
+        grupos_tipos_json = request.POST.get('gruposTiposVariosNuevo', '[]')
+        
+        print(f"🔍 gruposTiposVariosNuevo JSON recibido: '{grupos_tipos_json}'")  # Debug
+        
+        try:
+            grupos_tipos_data = json.loads(grupos_tipos_json) if grupos_tipos_json else []
+        except json.JSONDecodeError as e:
+            print(f"❌ Error al decodificar JSON de gruposTiposVariosNuevo: {e}")  # Debug
+            grupos_tipos_data = []
+        
+        print(f"📋 Grupos tipos data decodificados: {grupos_tipos_data}")  # Debug
+        
+        # APLICAR SLICE(1) PARA PROCESAR SOLO ELEMENTOS DINÁMICOS (excluir el primer elemento estático)
+        elementos_dinamicos = grupos_tipos_data[1:] if len(grupos_tipos_data) > 1 else []
+        print(f"🔄 Elementos dinámicos después de slice(1): {elementos_dinamicos}")  # Debug
+        
+        # Procesar cada grupo de tipos dinámicos
+        for grupo_idx, grupo_data in enumerate(elementos_dinamicos):
+            tipo_grupo = grupo_data.get('tipo', '')
+            cantidad_grupo = grupo_data.get('cantidad', 0)
+            
+            print(f"🔄 Procesando grupo {grupo_idx}: tipo='{tipo_grupo}', cantidad={cantidad_grupo}")  # Debug
+            
+            ejemplares = []
+            
+            # Buscar ejemplares dinámicos para este grupo
+            for ejemplar_idx in range(int(cantidad_grupo)):
+                # CORREGIR: Usar el índice original del array completo (grupo_idx + 1 porque aplicamos slice(1))
+                indice_original = grupo_idx + 1
+                registro_key = f'varios_{indice_original}_{ejemplar_idx}_registro'
+                denominacion_key = f'varios_{indice_original}_{ejemplar_idx}_denominacion'
+                descripcion_key = f'varios_{indice_original}_{ejemplar_idx}_descripcion'
+                
+                registro = request.POST.get(registro_key, '')
+                denominacion = request.POST.get(denominacion_key, '')
+                descripcion = request.POST.get(descripcion_key, '')
+                
+                print(f"  📝 Ejemplar {ejemplar_idx}: registro='{registro}', denominacion='{denominacion}', descripcion='{descripcion}' (índice original: {indice_original})")  # Debug
+                
+                if registro or denominacion or descripcion:
+                    ejemplares.append({
+                        'registro': registro,
+                        'denominacion': denominacion,
+                        'descripcion': descripcion,
+                        'sede': sede_texto,
+                        'disponibilidad': 'Disponible'
+                    })
+            
+            # Si no se encontraron ejemplares dinámicos, crear uno básico usando los datos de gruposTiposVariosNuevo
+            if not ejemplares and cantidad_grupo > 0:
+                print(f"  ⚠️ No se encontraron ejemplares dinámicos para grupo {grupo_idx}, creando básicos")  # Debug
+                # Usar los datos de gruposTiposVariosNuevo para crear los tipos
+                for i in range(int(cantidad_grupo)):
+                    ejemplares.append({
+                        'registro': '',
+                        'denominacion': '',
+                        'descripcion': '',
+                        'sede': sede_texto,
+                        'disponibilidad': 'Disponible'
+                    })
+            
+            if ejemplares:
+                tipos_varios.append({
+                    'tipo': tipo_grupo,
+                    'ejemplares': ejemplares
+                })
+        
+        # Fallback si no hay datos de gruposTiposVariosNuevo
+        if not tipos_varios and tipo_varios:
+            print("🔄 Fallback: usando datos básicos del formulario")  # Debug
+            ejemplares = []
+            for i in range(int(cant_ejemplares or 1)):
+                ejemplares.append({
+                    'registro': '',
+                    'denominacion': '',
+                    'descripcion': '',
+                    'sede': sede_texto,
+                    'disponibilidad': 'Disponible'
+                })
+            
+            tipos_varios.append({
+                'tipo': tipo_varios,
+                'ejemplares': ejemplares
+            })
+        
+        print(f"📤 Datos finales para template: {tipos_varios}")  # Debug
         
         # Guardar en sesión
-        request.session['varios_data'] = varios_data
-        print(f"📋 Datos guardados en sesión: {varios_data}")  # Debug
+        request.session['varios_data'] = {
+            'cant_ejemplares': cant_ejemplares,
+            'sede_varios': sede_varios,
+            'sede_texto': sede_texto,
+            'tipo_varios': tipo_varios,
+            'tipos_varios': tipos_varios
+        }
         
-        # Renderizar página con modal automático
+        # Preparar datos para el template
+        form_data = {
+            'cant_ejemplares': cant_ejemplares,
+            'sede_texto': sede_texto,
+            'tipo_varios': tipo_varios,
+            'tipos_varios': tipos_varios
+        }
+        
         return render(request, 'materiales/formularios_altas/confirmaciones_alta/confirmacion_alta_varios.html', {
-            'form_data': varios_data
+            'form_data': form_data
         })
     else:
         # Si no es POST, redirigir al formulario
@@ -2131,11 +2235,20 @@ def confirmacion_alta_notebook(request):
         num_registro = request.POST.get('num_registro', '')
         modelo_not = request.POST.get('modelo_not', '')
         
+        # Mapeo de valores de sede
+        sede_mapping = {
+            'sede1': 'La Plata',
+            'sede2': 'Abasto'
+        }
+        
         # Crear lista de ejemplares
         ejemplares = []
         for i in range(cant_ejemplares):
+            sede_value = request.POST.get(f'sede_{i+1}', sede)
+            sede_texto = sede_mapping.get(sede_value, sede_value)
+            
             ejemplar = {
-                'sede': request.POST.get(f'sede_{i+1}', sede),
+                'sede': sede_texto,  # Usar el nombre real de la sede
                 'num_registro': request.POST.get(f'num_registro_{i+1}', num_registro),
                 'modelo_not': request.POST.get(f'modelo_not_{i+1}', modelo_not),
                 'disponibilidad': 'Disponible'
@@ -2146,6 +2259,7 @@ def confirmacion_alta_notebook(request):
         notebook_data = {
             'cant_ejemplares': cant_ejemplares,
             'sede': sede,
+            'sede_texto': sede_mapping.get(sede, sede),  # Agregar el nombre legible de la sede
             'num_registro': num_registro,
             'modelo_not': modelo_not,
             'ejemplares': ejemplares,
@@ -2155,7 +2269,7 @@ def confirmacion_alta_notebook(request):
         # Guardar en sesión
         request.session['notebook_data'] = notebook_data
         print(f"📋 Datos guardados en sesión: {notebook_data}")  # Debug
-        
+
         # Renderizar página con modal automático
         return render(request, 'materiales/formularios_altas/confirmaciones_alta/confirmacion_alta_notebook.html', {
             'form_data': notebook_data,
@@ -2186,13 +2300,16 @@ def guardar_alta_notebook(request):
             notebooks_creados = []
             
             for ejemplar in ejemplares:
+                # Crear notebook con los campos correctos del modelo
                 notebook = Notebook.objects.create(
                     num_registro=ejemplar.get('num_registro'),
-                    modelo=ejemplar.get('modelo_not'),
+                    modelo_not=ejemplar.get('modelo_not'),  # Aseguramos usar modelo_not
                     sede=ejemplar.get('sede'),
-                    estado=ejemplar.get('disponibilidad', 'Disponible')
+                    estado=ejemplar.get('disponibilidad', 'Disponible'),
+                    marca=notebook_data.get('marca', 'Sin especificar')  # Usar marca si existe
                 )
                 notebooks_creados.append(notebook)
+                print(f"✅ Notebook guardada en BD con ID: {notebook.id_not}")  # Debug
             
             # Limpiar datos de sesión
             if 'notebook_data' in request.session:
@@ -2203,6 +2320,7 @@ def guardar_alta_notebook(request):
             return redirect('alta_materiales')
             
         except Exception as e:
+            print(f"❌ Error al guardar notebook: {str(e)}")  # Debug
             messages.error(request, f'Error al guardar el notebook: {str(e)}')
             return redirect('alta_materiales')
     else:
@@ -2219,52 +2337,6 @@ def cancelar_alta_notebook(request):
     
     messages.info(request, 'Se ha cancelado el registro del notebook.')
     return redirect('alta_materiales')
-
-def guardar_alta_notebook(request):
-    """
-    Vista para guardar definitivamente después de confirmar en el modal
-    """
-    print("💾 Llegó a guardar_alta_notebook")  # Debug
-    
-    if request.method == 'POST' and 'notebook_data' in request.session:
-        try:
-            # Obtener datos de la sesión
-            notebook_data = request.session['notebook_data']
-            print(f"📦 Datos a guardar: {notebook_data}")  # Debug
-            
-            # Crear la notebook en base de datos
-            notebook = Notebook(
-                estado=notebook_data.get('estado', 'Disponible'),
-                sede=notebook_data.get('sede', 'La Plata'),
-                cantidad=notebook_data.get('cantidad', '1'),
-                ubicacion=notebook_data.get('ubicacion', ''),
-                num_registro=notebook_data.get('num_registro', ''),
-                marca=notebook_data.get('marca', ''),
-                modelo=notebook_data.get('modelo_not', ''),  # Corregido para usar modelo_not
-                disponibilidad='Domicilio',  # Valor por defecto
-                observaciones='',  # Vacío
-            )
-            
-            # GUARDAR EN BASE DE DATOS
-            notebook.save()
-            print(f"✅ Notebook guardada en BD con ID: {notebook.id_notebook}")  # Debug
-            
-            # Limpiar sesión
-            if 'notebook_data' in request.session:
-                del request.session['notebook_data']
-                
-            # Mensaje de éxito
-            messages.success(request, f'Notebook registrada correctamente con ID: {notebook.id_notebook}')
-            return redirect('alta_materiales')
-            
-        except Exception as e:
-            print(f"❌ Error al guardar notebook: {str(e)}")  # Debug
-            messages.error(request, f'Error al guardar notebook: {str(e)}')
-            return redirect('alta_materiales')
-    else:
-        # Si no hay datos en la sesión o no es POST, redirigir al formulario
-        messages.error(request, 'No hay datos para guardar. Por favor, complete el formulario nuevamente.')
-        return redirect('alta_materiales')
 
 def cancelar_alta_notebook(request):
     """
@@ -2310,9 +2382,11 @@ def confirmacion_alta_proyector(request):
             ejemplares.append(ejemplar)
         
         # Guardar los datos del formulario en la sesión
+        sede_value = request.POST.get('sede', '')
         proyector_data = {
             'cant_ejemplares': cant_ejemplares,
-            'sede': request.POST.get('sede', ''),
+            'sede': sede_value,
+            'sede_texto': sede_mapping.get(sede_value, sede_value),  # Agregar el nombre legible de la sede
             'num_registro': request.POST.get('num_registro', ''),
             'modelo_proy': request.POST.get('modelo_proy', ''),
             'estado': 'Disponible',  # Valor por defecto
@@ -2320,6 +2394,7 @@ def confirmacion_alta_proyector(request):
         
         # Guardar en sesión
         request.session['proyector_data'] = proyector_data
+        request.session['ejemplares_proyector'] = ejemplares
         print(f"📋 Datos guardados en sesión: {proyector_data}")  # Debug
         print(f"📋 Ejemplares: {ejemplares}")  # Debug
         
@@ -2591,25 +2666,59 @@ def guardar_alta_proyector(request):
     if request.method == 'POST':
         # Recuperar datos de la sesión
         proyector_data = request.session.get('proyector_data', {})
+        ejemplares = request.session.get('ejemplares_proyector', [])
         
         if not proyector_data:
             messages.error(request, 'No se encontraron datos del proyector en la sesión.')
             return redirect('alta_materiales')
         
         try:
-            # Crear el proyector
-            proyector = Proyector.objects.create(
-                num_registro=proyector_data.get('num_registro'),
-                modelo=proyector_data.get('modelo_proy'),
-                sede=proyector_data.get('sede'),
-                estado=proyector_data.get('estado', 'Disponible')
-            )
+            # Guardar cada ejemplar como un proyector individual
+            proyectores_creados = []
+            
+            if ejemplares:
+                print(f"📋 Guardando {len(ejemplares)} ejemplares de proyectores")
+                
+                # Iterar sobre cada ejemplar y crear un proyector para cada uno
+                for i, ejemplar in enumerate(ejemplares):
+                    modelo_proy = ejemplar.get('modelo_proy')
+                    num_registro = ejemplar.get('num_registro')
+                    
+                    print(f"📊 Ejemplar {i+1}: sede={proyector_data.get('sede_texto')}, modelo={modelo_proy}, num_registro={num_registro}")
+                    
+                    # Crear el proyector para este ejemplar
+                    proyector = Proyector.objects.create(
+                        num_registro=num_registro,
+                        modelo_pro=modelo_proy,
+                        sede=proyector_data.get('sede_texto'),  # Usar el nombre legible de la sede
+                        estado=proyector_data.get('estado', 'Disponible')
+                    )
+                    proyectores_creados.append(proyector)
+                    print(f"✅ Proyector {i+1} creado con éxito: {proyector}")
+            else:
+                # Si no hay ejemplares, usar los datos generales
+                modelo_proy = proyector_data.get('modelo_proy')
+                num_registro = proyector_data.get('num_registro')
+                
+                print(f"📊 Datos a guardar: sede={proyector_data.get('sede_texto')}, modelo={modelo_proy}, num_registro={num_registro}")
+                proyector = Proyector.objects.create(
+                    num_registro=num_registro,
+                    modelo_pro=modelo_proy,
+                    sede=proyector_data.get('sede_texto'),  # Usar el nombre legible de la sede
+                    estado=proyector_data.get('estado', 'Disponible')
+                )
+                proyectores_creados.append(proyector)
+                print(f"✅ Proyector creado con éxito: {proyector}")
+                
+            print(f"✅ Total de proyectores creados: {len(proyectores_creados)}")  # Debug
             
             # Limpiar datos de sesión
             if 'proyector_data' in request.session:
                 del request.session['proyector_data']
+            if 'ejemplares_proyector' in request.session:
+                del request.session['ejemplares_proyector']
             
-            messages.success(request, f'Proyector registrado exitosamente con ID: {proyector.id}')
+            messages.success(request, f'Se han guardado {len(proyectores_creados)} proyector(es) correctamente.')
             return redirect('alta_materiales')
             
         except Exception as e:
