@@ -1,0 +1,349 @@
+{% extends 'components/baseb.html' %}
+{% load static %}
+{% block extra_styles %}
+    <link rel="stylesheet" href="{% static 'css/main.css' %}">
+    <link rel="stylesheet" href="{% static 'css/style_form.css' %}">
+    <link rel="stylesheet" href="{% static 'css/botones.css' %}">
+    <style>
+        /* Estilos del modal */
+        .modal-dialog.modal-lg {
+            max-width: 1300px;
+        }
+
+        .modal-content {
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        }
+
+        .modal-header {
+            background-color: #f8f9fa;
+            border-bottom: 2px solid #dee2e6;
+            border-radius: 15px 15px 0 0;
+            padding: 1.5rem;
+        }
+
+        .modal-title {
+            color: #007bff;
+            font-weight: bold;
+            font-size: 1.4rem;
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+
+        .section-container {
+            background-color: #fff;
+            border-radius: 10px;
+            padding: 1.25rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            margin-bottom: 1.5rem;
+        }
+
+        .section-title {
+            color: #212529;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+            text-transform: uppercase;
+        }
+
+        .tipo-material-title {
+            color: #212529;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+            text-transform: uppercase;
+        }
+
+        .modal-body strong {
+            color: #25898D;
+            display: block;
+            margin-bottom: 0.3rem;
+            font-size: 0.9rem;
+        }
+
+        .info-text {
+            margin-bottom: 0.5rem;
+            color: #212529;
+            font-size: 1rem;
+            padding: 0.5rem;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+        }
+
+        .ejemplar-info {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-left: 4px solid #25898D;
+        }
+
+        .ejemplar-info h6 {
+            color: #25898D;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .modal-footer {
+            border-top: 2px solid #dee2e6;
+            padding: 1.25rem;
+            background-color: #f8f9fa;
+            border-radius: 0 0 15px 15px;
+        }
+
+        .btn {
+            padding: 0.5rem 2rem;
+            font-weight: 500;
+        }
+
+        /* Estilos específicos para tipos de mapa */
+        .tipos-mapa-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .tipo-mapa-item {
+            background-color: #f0f8ff;
+            border: 1px solid #b8daff;
+            border-radius: 8px;
+            padding: 10px 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            min-width: 200px;
+        }
+
+        .tipo-mapa-cantidad {
+            background-color: #007bff;
+            color: white;
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+
+        /* Nuevos estilos para ejemplares */
+        .ejemplar-card {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-left: 4px solid #007bff;
+        }
+        
+        .ejemplar-header {
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+        }
+        
+        .ejemplar-field {
+            margin-bottom: 8px;
+        }
+        
+        .ejemplar-field strong {
+            color: #25898D;
+            font-size: 0.85rem;
+            display: inline-block;
+            min-width: 100px;
+        }
+        
+        .ejemplar-field span {
+            color: #212529;
+            font-size: 0.9rem;
+        }
+        
+        .tipo-header {
+            background-color: #e3f2fd;
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border-left: 4px solid #2196f3;
+        }
+        
+        .tipo-title {
+            color: #1976d2;
+            font-weight: 600;
+            margin: 0;
+            font-size: 1.1rem;
+        }
+        
+        .cantidad-badge {
+            background-color: #2196f3;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            margin-left: 10px;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+<!-- Indicador de carga -->
+<div class="loading-container">
+    <div class="spinner"></div>
+</div>
+
+<!-- Modal de confirmación -->
+<div class="modal fade show" id="modalConfirmacionAltaMaterial" tabindex="-1" aria-labelledby="modalConfirmacionLabel" aria-hidden="true" data-bs-backdrop="static" style="display: block;">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalConfirmacionLabel">CONFIRME LOS DATOS</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body">
+        <div class="container-fluid">
+          <!-- Tipo de Material -->
+          <div class="section-container mb-4">
+            <h6 class="tipo-material-title">TIPO DE MATERIAL: <span id="confirmTipoMaterial" class="text-primary">MAPA</span></h6>
+          </div>
+
+          <!-- Información Principal -->
+          <div class="section-container mb-4">
+            <h6 class="section-title">Información General</h6>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <strong>Sede:</strong>
+                <p id="confirmSede" class="info-text">{{ form_data.sede_texto|default:"Sin especificar" }}</p>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Detalle de Mapas por Tipo -->
+          <div class="section-container">
+            <h6 class="section-title">Detalle de Mapas</h6>
+            
+            {% if tipos_mapa %}
+              {% for tipo_grupo in tipos_mapa %}
+                <div class="tipo-header">
+                  <h6 class="tipo-title">
+                    {{ tipo_grupo.tipo|upper|default:"SIN TIPO" }}
+                  </h6>
+                </div>
+                
+                <div class="row">
+                  {% for ejemplar in tipo_grupo.ejemplares %}
+                    <div class="col-md-6 mb-3">
+                      <div class="ejemplar-card">
+                        <div class="ejemplar-header">Ejemplar {{ forloop.counter }}</div>
+                        
+                        <div class="ejemplar-field">
+                          <strong>N° Registro:</strong>
+                          <span>{{ ejemplar.n_registro|default:"Sin especificar" }}</span>
+                        </div>
+                        
+                        <div class="ejemplar-field">
+                          <strong>Denominación:</strong>
+                          <span>{{ ejemplar.denominacion|default:"Sin especificar" }}</span>
+                        </div>
+                        
+                        <div class="ejemplar-field">
+                          <strong>Descripción:</strong>
+                          <span>{{ ejemplar.descripcion|default:"Sin descripción" }}</span>
+                        </div>
+                      </div>
+                    </div>
+                  {% endfor %}
+                </div>
+                
+                {% if not forloop.last %}
+                  <hr class="my-4">
+                {% endif %}
+              {% endfor %}
+            {% else %}
+              <div class="alert alert-warning">
+                <i class="fas fa-exclamation-triangle"></i>
+                No se han especificado mapas para confirmar.
+              </div>
+            {% endif %}
+          </div>
+        </div>  
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="cancelarModal()">Cancelar</button>
+        <button type="button" class="btn btn-primary" onclick="confirmarMapa()">Confirmar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🔍 DOM cargado, configurando modal...');
+    
+    // Ocultar el indicador de carga
+    document.querySelector('.loading-container').style.display = 'none';
+    
+    // Asegurar que el modal esté visible
+    var modalElement = document.getElementById('modalConfirmacionAltaMaterial');
+    
+    // Verificar si Bootstrap está disponible
+    if (typeof bootstrap !== 'undefined') {
+        // Usar Bootstrap para mostrar el modal
+        var modal = new bootstrap.Modal(modalElement, {
+            backdrop: 'static',
+            keyboard: false
+        });
+        modal.show();
+        console.log('✅ Modal mostrado con Bootstrap');
+    } else {
+        // Fallback si Bootstrap no está disponible
+        modalElement.classList.add('show');
+        modalElement.style.display = 'block';
+        document.body.classList.add('modal-open');
+        console.log('✅ Modal mostrado con fallback');
+    }
+    
+    console.log('📊 Datos del formulario:', {{ form_data|safe|default:"{}" }});
+    console.log('📊 Tipos de mapa:', {{ tipos_mapa|safe|default:"[]" }});
+});
+
+function confirmarMapa() {
+    console.log('🟢 Confirmando mapa...');
+    
+    // Crear un formulario invisible para enviar la confirmación
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = '{% url "guardar_alta_mapa" %}';
+    
+    // Agregar token CSRF
+    const csrfToken = document.createElement('input');
+    csrfToken.type = 'hidden';
+    csrfToken.name = 'csrfmiddlewaretoken';
+    csrfToken.value = '{{ csrf_token }}';
+    form.appendChild(csrfToken);
+    
+    // Agregar al DOM y enviar
+    document.body.appendChild(form);
+    form.submit();
+}
+
+function cancelarModal() {
+    console.log('🔴 Cancelando...');
+    // Redirigir de vuelta al formulario
+    window.location.href = '{% url "alta_materiales" %}';
+}
+
+// Manejar cuando se cierra el modal con X
+document.getElementById('modalConfirmacionAltaMaterial').addEventListener('hidden.bs.modal', function () {
+    console.log('🔴 Modal cerrado, regresando al formulario...');
+    window.location.href = '{% url "alta_materiales" %}';
+});
+</script>
+{% endblock %}

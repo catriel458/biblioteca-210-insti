@@ -1,0 +1,40 @@
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/alta_proyector.css' %}">
+
+<form id="alta-proyector-form" method="POST">
+    {% csrf_token %}
+
+    <div data-block="content" data-form-type="proyector">
+
+        <!-- Fila: Cant. de ejemplares -->
+        <div class="row mb-3">
+            <div class="col-md-3">
+                <label for="cant_ejemplares" style="font-size: 14px;">Cant. de ejemplares</label>
+                <input type="number" class="form-control custom-input" id="cant_ejemplares" name="cant_ejemplares" min="1" value="1">
+            </div>
+
+            <div class="col-md-3">
+                <label for="sede" style="font-size: 14px;">Sede<span class="text-danger">*</span></label>
+                <select class="form-control custom-input" id="sede" name="sede" required>
+                <option value="">Aún sin seleccionar</option>
+                <option value="sede1">La Plata</option>
+                <option value="sede2">Abasto</option>
+                </select>
+            </div>    
+        </div>
+
+        <!-- Contenedor para ejemplares dinámicos -->
+        <div id="contenedor-ejemplares-proyector"></div>
+
+        <!-- Botones mejorados -->
+        <div class="row botones-container">
+            <div class="col-12 d-flex justify-content-end gap-3">
+                <button type="button" class="btn btn-outline-danger btn-cancelar" onclick="cancelarFormulario()">CANCELAR</button>
+                <button type="submit" class="btn btn-primary btn-guardar btn-save">GUARDAR</button>
+            </div>
+        </div>
+    </div>
+</form>
+
+<!-- Importación del JS dinámico de ejemplares -->
+<script src="{% static 'js/form_altas.js' %}"></script>

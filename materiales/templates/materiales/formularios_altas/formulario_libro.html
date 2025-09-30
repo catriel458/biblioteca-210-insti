@@ -1,0 +1,485 @@
+{% extends 'components/baseb.html' %}
+{% load static %}
+{% block navbar %}{% endblock %}
+{% block extra_styles %}
+    <link rel="stylesheet" href="{% static 'css/manual_modal.css' %}">
+    <link rel="stylesheet" href="{% static 'css/main.css' %}">
+    <link rel="stylesheet" href="{% static 'css/style_form.css' %}">
+    <link rel="stylesheet" href="{% static 'css/botones.css' %}">
+    <style>
+        .modal-lg {
+            max-width: 900px;
+        }
+
+        .modal-header {
+            background-color: #25898D;
+            color: white;
+            border-bottom: none;
+        }
+
+        .modal-header .btn-close {
+            background: none;
+            border: none;
+            color: white;
+            opacity: 0.8;
+        }
+
+        .modal-header .btn-close:hover {
+            opacity: 1;
+        }
+
+        .section-container {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #25898D;
+            margin-bottom: 15px;
+        }
+
+        .section-title {
+            color: #25898D;
+            font-weight: bold;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .tipo-material-title {
+            color: #25898D;
+            font-weight: bold;
+            text-align: center;
+            font-size: 1.2em;
+        }
+
+        .info-text {
+            background-color: white;
+            padding: 8px 12px;
+            border-radius: 4px;
+            min-height: 35px;
+            margin-bottom: 0;
+            border: 1px solid #e9ecef;
+            word-wrap: break-word;
+        }
+
+        .modal-footer .btn-primary {
+            background-color: #25898D;
+            border-color: #25898D;
+        }
+
+        .modal-footer .btn-primary:hover {
+            background-color: #1e7075;
+            border-color: #1e7075;
+        }
+
+        .modal-body {
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+
+       #id_sede {
+        padding:5px
+       }
+
+       #id_disponiblidad {
+        padding:5%
+       }
+
+    </style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    {% if success %}
+        <div class="alert alert-success">{{ success }}</div>
+    {% endif %}
+    {% if error %}
+        <div class="alert alert-danger">{{ error }}</div>
+    {% endif %}
+
+    <form id="form_alta_material" action="{% url 'alta_libro' %}" method="POST">
+        {% csrf_token %}
+
+        <!-- Campos principales -->
+        <!-- Número de Ejemplar (Cantidad de ejemplares) -->
+        <div class="row">
+            <div class="col-12 col-sm-6 col-lg-4 form-group mb-3">
+                <label for="cant_ejemplares" class="text-input" style="color:#25898D; font-size: 14px;">Cant. de ejemplares:</label>
+                <input type="number" name="cant_ejemplares" id="cant_ejemplares" class="form-control" min="1" max="10" value="1" required>
+                <small class="form-text text-muted">Seleccione la cantidad de ejemplares a registrar (máximo 10)</small>
+            </div>
+        </div>
+        
+        <!-- Título, Autor y Editorial en una fila -->
+        <div class="row">
+            <div class="col-12 col-sm-6 col-lg-4 form-group mb-3">
+                <label for="{{ form.titulo.id_for_label }}" class="text-input" style="color:#25898D;">Título:</label>
+                {{ form.titulo }}
+                {% if form.titulo.errors %}
+                    <div class="text-danger">{{ form.titulo.errors }}</div>
+                {% endif %}
+            </div>
+            <div class="col-12 col-sm-6 col-lg-4 form-group mb-3">
+                <label for="{{ form.autor.id_for_label }}" class="text-input" style="color:#25898D; font-size: 14px;">Autor<span class="text-danger">*</span>:</label>
+                {{ form.autor }}
+                {% if form.autor.errors %}
+                    <div class="text-danger">{{ form.autor.errors }}</div>
+                {% endif %}
+            </div>
+            <div class="col-12 col-sm-6 col-lg-4 form-group mb-3">
+                <label for="{{ form.editorial.id_for_label }}" class="text-input" style="color:#25898D; font-size: 14px;">Editorial:</label>
+                {{ form.editorial }}
+                {% if form.editorial.errors %}
+                    <div class="text-danger">{{ form.editorial.errors }}</div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Descripción en una fila completa -->
+        <div class="row">
+            <div class="col-12 form-group mb-3">
+                <label for="{{ form.descripcion.id_for_label }}" class="text-input" style="color:#25898D; font-size: 14px;">Descripción:</label>
+                {{ form.descripcion }}
+                {% if form.descripcion.errors %}
+                    <div class="text-danger">{{ form.descripcion.errors }}</div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Siglas Autor/Título y Clasificación CDU -->
+        <div class="row">
+            <div class="col-12 col-sm-6 col-lg-6 form-group mb-3">
+                <label for="{{ form.siglas_autor_titulo.id_for_label }}" class="text-input" style="color:#25898D; font-size: 14px;">Siglas de autor / título:</label>
+                {{ form.siglas_autor_titulo }}
+                {% if form.siglas_autor_titulo.errors %}
+                    <div class="text-danger">{{ form.siglas_autor_titulo.errors }}</div>
+                {% endif %}
+            </div>
+            <div class="col-12 col-sm-6 col-lg-6 form-group mb-3">
+                <label for="{{ form.clasificacion_cdu.id_for_label }}" class="text-input" style="color:#25898D; font-size: 14px;">Clasificación / CDU:</label>
+                {{ form.clasificacion_cdu }}
+                {% if form.clasificacion_cdu.errors %}
+                    <div class="text-danger">{{ form.clasificacion_cdu.errors }}</div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Etiquetas / palabras clave en una fila completa -->
+        <div class="row">
+            <div class="col-12 form-group mb-3">
+                <label for="{{ form.etiqueta_palabra_clave.id_for_label }}" class="text-input" style="color:#25898D; font-size: 14px;">Etiquetas / palabras clave:</label>
+                {{ form.etiqueta_palabra_clave }}
+                {% if form.etiqueta_palabra_clave.errors %}
+                    <div class="text-danger">{{ form.etiqueta_palabra_clave.errors }}</div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Contenedor para ejemplares dinámicos -->
+        <div id="contenedor-ejemplares-libro">
+            <!-- Los ejemplares se generarán dinámicamente aquí -->
+        </div>
+
+        <!-- Las observaciones ahora están en cada ejemplar -->
+
+        <!-- Botones -->
+        <div class="row">
+            <div class="col-12 d-flex justify-content-end gap-3">
+                <button type="reset" class="btn btn-outline-danger btn-sm">CANCELAR</button>
+                <button type="submit" class="btn btn-primary btn-sm">GUARDAR</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Modal de Confirmación de Alta de Material -->
+<div class="modal fade" id="modalConfirmacionAltaMaterial" tabindex="-1" aria-labelledby="modalConfirmacionLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalConfirmacionLabel">CONFIRME LOS DATOS</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body">
+        <div class="container-fluid">
+          <!-- Tipo de Material -->
+          <div class="section-container mb-4">
+            <h6 class="tipo-material-title">TIPO DE MATERIAL: <span id="confirmTipoMaterial" class="text-primary"></span></h6>
+          </div>
+
+          <!-- Información Principal -->
+          <div class="section-container mb-4">
+            <h6 class="section-title">Información Principal</h6>
+            <div class="row g-3">
+              <div class="col-md-4">
+                <strong>Título:</strong>
+                <p id="confirmTitulo" class="info-text"></p>
+              </div>
+              <div class="col-md-4">
+                <strong>Autor:</strong>
+                <p id="confirmAutor" class="info-text"></p>
+              </div>
+              <div class="col-md-4">
+                <strong>Editorial:</strong>
+                <p id="confirmEditorial" class="info-text"></p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Descripción -->
+          <div class="section-container mb-4">
+            <div class="row">
+              <div class="col-12">
+                <strong>Descripción:</strong>
+                <p id="confirmDescripcion" class="info-text"></p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Clasificación -->
+          <div class="section-container mb-4">
+            <h6 class="section-title">Clasificación</h6>
+            <div class="row g-3">
+              <div class="col-md-4">
+                <strong>Siglas Autor:</strong>
+                <p id="confirmSiglasAutor" class="info-text"></p>
+              </div>
+              <div class="col-md-4">
+                <strong>Clasificación / CDU:</strong>
+                <p id="confirmClasificacion" class="info-text"></p>
+              </div>
+              <div class="col-md-4">
+                <strong>Palabras Clave:</strong>
+                <p id="confirmPalabrasClave" class="info-text"></p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Ubicación y Disponibilidad -->
+          <div class="section-container mb-4">
+            <h6 class="section-title">Ubicación y Disponibilidad</h6>
+            <div class="row g-3">
+              <div class="col-md-4">
+                <strong>Sede:</strong>
+                <p id="confirmSede" class="info-text"></p>
+              </div>
+              <div class="col-md-4">
+                <strong>Disponibilidad:</strong>
+                <p id="confirmDisponibilidad" class="info-text"></p>
+              </div>
+              <div class="col-md-4">
+                <strong>Ejemplar N°:</strong>
+                <p id="confirmEjemplarNum" class="info-text"></p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Observaciones -->
+          <div class="section-container mb-4">
+            <h6 class="section-title">Observaciones</h6>
+            <div class="row">
+              <div class="col-12">
+                <p id="confirmObservaciones" class="info-text"></p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Imagen -->
+          <div class="section-container mb-4">
+            <h6 class="section-title">Imagen</h6>
+            <div class="row">
+              <div class="col-12">
+                <p id="confirmImagen" class="info-text"></p>
+              </div>
+            </div>
+          </div>
+        </div>  
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" id="btnCancelarModal">Cancelar</button>
+        <button type="button" class="btn btn-primary" id="btnConfirmarAltaMaterial">Confirmar</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<!-- Incluir el script centralizado de form_altas.js -->
+<script src="{% static 'js/form_altas.js' %}"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('✅ Script de libro cargado correctamente');
+    
+    const form = document.getElementById('form_alta_material');
+    const modalElement = document.getElementById('modalConfirmacionAltaMaterial');
+    
+    if (!form || !modalElement) {
+        console.error('❌ Elementos necesarios no encontrados');
+        return;
+    }
+    
+    // Verificar que Bootstrap está disponible
+    if (typeof bootstrap === 'undefined') {
+        console.error('❌ Bootstrap no está cargado');
+        alert('Error: Bootstrap no está cargado. Verifique que esté incluido en baseb.html');
+        return;
+    }
+    
+    console.log('✅ Todo está listo para libro');
+    
+    // Inicializar el modal
+    let modal;
+    try {
+        // Asegurarse de que el modal esté correctamente definido en el DOM
+        if (!modalElement) {
+            throw new Error('El elemento del modal no existe en el DOM');
+        }
+        
+        // Verificar si Bootstrap está disponible
+        if (typeof bootstrap === 'undefined' || !bootstrap.Modal) {
+            throw new Error('Bootstrap Modal no está disponible');
+        }
+        
+        // Inicializar el modal con opciones explícitas
+        modal = new bootstrap.Modal(modalElement, {
+            backdrop: 'static',
+            keyboard: false
+        });
+        console.log('✅ Modal inicializado correctamente');
+    } catch (error) {
+        console.error('❌ Error al inicializar el modal:', error);
+        alert('Error al inicializar el modal: ' + error.message);
+        return;
+    }
+    
+    // Interceptar el submit del formulario
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        console.log('🚀 Formulario interceptado - mostrando modal');
+        
+        try {
+            // Obtener valores del formulario
+            const titulo = form.querySelector('[name="titulo"]')?.value || 'Sin especificar';
+            const autor = form.querySelector('[name="autor"]')?.value || 'Sin especificar';
+            const editorial = form.querySelector('[name="editorial"]')?.value || 'Sin especificar';
+            const descripcion = form.querySelector('[name="descripcion"]')?.value || 'Sin especificar';
+            const siglas = form.querySelector('[name="siglas_autor_titulo"]')?.value || 'Sin especificar';
+            const clasificacion = form.querySelector('[name="clasificacion_cdu"]')?.value || 'Sin especificar';
+            const palabras = form.querySelector('[name="etiqueta_palabra_clave"]')?.value || 'Sin especificar';
+            const cantidadEjemplares = form.querySelector('[name="cant_ejemplares"]')?.value || '1';
+            const imagen = form.querySelector('[name="img"]')?.value || 'Sin imagen';
+            
+            // Llenar el modal con los datos generales
+            document.getElementById('confirmTipoMaterial').textContent = 'LIBRO';
+            document.getElementById('confirmTitulo').textContent = titulo;
+            document.getElementById('confirmAutor').textContent = autor;
+            document.getElementById('confirmEditorial').textContent = editorial;
+            document.getElementById('confirmDescripcion').textContent = descripcion;
+            document.getElementById('confirmSiglasAutor').textContent = siglas;
+            document.getElementById('confirmClasificacion').textContent = clasificacion;
+            document.getElementById('confirmPalabrasClave').textContent = palabras;
+            document.getElementById('confirmEjemplarNum').textContent = cantidadEjemplares;
+            document.getElementById('confirmImagen').textContent = imagen;
+            
+            // Recopilar información de ejemplares
+            let ejemplaresInfo = '';
+            const cantidad = parseInt(cantidadEjemplares) || 1;
+            
+            for (let i = 1; i <= cantidad; i++) {
+                const sedeSelect = form.querySelector(`[name="sede_${i}"]`);
+                const sede = sedeSelect ? sedeSelect.options[sedeSelect.selectedIndex]?.text || 'Sin especificar' : 'Sin especificar';
+                
+                const dispSelect = form.querySelector(`[name="disponibilidad_${i}"]`);
+                const disponibilidad = dispSelect ? dispSelect.options[dispSelect.selectedIndex]?.text || 'Sin especificar' : 'Sin especificar';
+                
+                const observaciones = form.querySelector(`[name="observaciones_${i}"]`)?.value || 'Sin observaciones';
+                
+                ejemplaresInfo += `<div class="mb-2 p-2" style="background-color: #f0f0f0; border-radius: 4px;">
+                    <strong>Ejemplar #${i}:</strong> 
+                    Sede: ${sede}, 
+                    Disponibilidad: ${disponibilidad}, 
+                    Observaciones: ${observaciones}
+                </div>`;
+            }
+            
+            // Actualizar la sección de observaciones con la información de ejemplares
+            document.getElementById('confirmObservaciones').innerHTML = ejemplaresInfo;
+            
+            // Verificar que el modal esté inicializado correctamente
+            if (!modal) {
+                console.error('❌ El modal no está inicializado');
+                try {
+                    // Intentar inicializar el modal nuevamente
+                    modal = new bootstrap.Modal(modalElement, {
+                        backdrop: 'static',
+                        keyboard: false
+                    });
+                } catch (initError) {
+                    console.error('❌ No se pudo inicializar el modal:', initError);
+                    alert('Error al inicializar el modal. Se enviará el formulario directamente.');
+                    form.submit();
+                    return;
+                }
+            }
+            
+            // Mostrar el modal usando jQuery si está disponible, o bootstrap directamente
+            try {
+                // Asegurarse de que el modal esté en el DOM
+                if (!document.body.contains(modalElement)) {
+                    throw new Error('El modal no está en el DOM');
+                }
+                
+                // Mostrar el modal
+                modal.show();
+                console.log('✅ Modal mostrado correctamente');
+                
+                // Verificar que el modal se muestre realmente
+                setTimeout(() => {
+                    if (!modalElement.classList.contains('show')) {
+                        console.warn('⚠️ El modal no se mostró después de 100ms, intentando forzar la visualización');
+                        modalElement.classList.add('show');
+                        modalElement.style.display = 'block';
+                        document.body.classList.add('modal-open');
+                    }
+                }, 100);
+            } catch (modalError) {
+                console.error('❌ Error al mostrar el modal:', modalError);
+                alert('Error al mostrar el modal de confirmación: ' + modalError.message + '. Se enviará el formulario directamente.');
+                form.submit();
+            }
+            
+        } catch (error) {
+            console.error('❌ Error al llenar el modal:', error);
+            alert('Error al mostrar la vista previa: ' + error.message + '. Se guardará directamente.');
+            form.submit();
+        }
+    });
+    
+    // Manejar el botón de confirmación
+    document.getElementById('btnConfirmarAltaMaterial').addEventListener('click', function() {
+        console.log('✅ Usuario confirmó - enviando formulario');
+        
+        // Remover el event listener para evitar bucle infinito
+        const newForm = form.cloneNode(true);
+        form.parentNode.replaceChild(newForm, form);
+        
+        // Ocultar el modal y luego enviar el formulario
+        modal.hide();
+        
+        // Esperar a que se cierre el modal y luego enviar
+        setTimeout(() => {
+            console.log('Enviando formulario después del timeout');
+            newForm.submit();
+        }, 500);
+    });
+    
+    // Manejar el botón de cancelar
+    document.getElementById('btnCancelarModal').addEventListener('click', function() {
+        console.log('❌ Usuario canceló - cerrando modal');
+        modal.hide();
+    });
+    
+    console.log('🎉 Todo configurado correctamente');
+});
+</script>
+{% endblock %}
