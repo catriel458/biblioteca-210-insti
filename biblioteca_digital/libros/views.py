@@ -248,7 +248,7 @@ def buscar_libros(request):
         estado='Disponible'
     ).values(
         'id_libro',  # IMPORTANTE: Asegúrate de que este campo esté incluido
-        'num_inventario',
+        # 'num_inventario',
         'titulo', 
         'autor', 
         'editorial', 

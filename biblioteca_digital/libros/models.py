@@ -139,7 +139,7 @@ class Libro(Inventario):
     sede = models.TextField(default='La Plata')
     disponibilidad = models.CharField(max_length=255, null=True, default="Disponible")
     observaciones = models.TextField(default='Esta es una observación')
-    img = models.URLField()
+    img = models.URLField(blank=True, null=True)
 
     def __str__(self):
         return f"{self.titulo} - {self.autor}"
