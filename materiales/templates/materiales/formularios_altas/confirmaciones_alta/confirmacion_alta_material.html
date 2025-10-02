@@ -234,8 +234,7 @@
           <!-- Línea separadora -->
           <div class="separator-line"></div>
           
-          <!-- Información Principal -->
-          <div class="section-title">Información Principal</div>
+          <!-- Primera fila: Título, Autor, Editorial, Clasificación/CDU, Siglas de autor/título -->
           <div class="campos-info">
             <div class="campo-item">
               <span class="campo-label">Título</span>
@@ -252,50 +251,41 @@
               <span class="campo-value" id="editorialValue">{{ form_data.editorial|default:"Sin especificar" }}</span>
               <input type="text" class="form-control campo-input" id="editorialInput" value="{{ form_data.editorial|default:'Sin especificar' }}" style="display: none;">
             </div>
-          </div>
-
-          <!-- Descripción -->
-          <div class="campos-info">
-            <div class="campo-item" style="width: 100%;">
-              <span class="campo-label">Descripción</span>
-              <span class="campo-value" id="descripcionValue">{{ form_data.descripcion|default:"Sin especificar" }}</span>
-              <textarea class="form-control campo-input" id="descripcionInput" style="display: none;">{{ form_data.descripcion|default:'Sin especificar' }}</textarea>
-            </div>
-          </div>
-
-          <!-- Clasificación -->
-          <div class="section-title">Clasificación</div>
-          <div class="campos-info">
-            <div class="campo-item">
-              <span class="campo-label">Siglas Autor</span>
-              <span class="campo-value" id="siglasValue">{{ form_data.siglas_autor_titulo|default:"Sin especificar" }}</span>
-              <input type="text" class="form-control campo-input" id="siglasInput" value="{{ form_data.siglas_autor_titulo|default:'Sin especificar' }}" style="display: none;">
-            </div>
             <div class="campo-item">
               <span class="campo-label">Clasificación / CDU</span>
               <span class="campo-value" id="cduValue">{{ form_data.clasificacion_cdu|default:"Sin especificar" }}</span>
               <input type="text" class="form-control campo-input" id="cduInput" value="{{ form_data.clasificacion_cdu|default:'Sin especificar' }}" style="display: none;">
             </div>
             <div class="campo-item">
-              <span class="campo-label">Palabras Clave</span>
+              <span class="campo-label">Siglas Autor / Título</span>
+              <span class="campo-value" id="siglasValue">{{ form_data.siglas_autor_titulo|default:"Sin especificar" }}</span>
+              <input type="text" class="form-control campo-input" id="siglasInput" value="{{ form_data.siglas_autor_titulo|default:'Sin especificar' }}" style="display: none;">
+            </div>
+          </div>
+
+          <!-- Segunda fila: Descripción, Etiquetas/palabras clave -->
+          <div class="campos-info">
+            <div class="campo-item" style="flex: 2;">
+              <span class="campo-label">Descripción</span>
+              <span class="campo-value" id="descripcionValue">{{ form_data.descripcion|default:"Sin especificar" }}</span>
+              <textarea class="form-control campo-input" id="descripcionInput" style="display: none;">{{ form_data.descripcion|default:'Sin especificar' }}</textarea>
+            </div>
+            <div class="campo-item" style="flex: 1;">
+              <span class="campo-label">Etiquetas / Palabras Clave</span>
               <span class="campo-value" id="palabrasValue">{{ form_data.etiqueta_palabra_clave|default:"Sin especificar" }}</span>
               <input type="text" class="form-control campo-input" id="palabrasInput" value="{{ form_data.etiqueta_palabra_clave|default:'Sin especificar' }}" style="display: none;">
             </div>
           </div>
 
-          <!-- Ejemplares -->
+          <!-- Tercera fila: Ejemplar N°, Disponibilidad, Sede, Observaciones -->
           <div class="section-title">Información de Ejemplares ({{ form_data.num_ejemplar }} ejemplares)</div>
           {% for ejemplar in ejemplares %}
           <div class="ejemplar-info">
             <h6>Ejemplar #{{ forloop.counter }}</h6>
             <div class="campos-info">
               <div class="campo-item">
-                <span class="campo-label">Sede</span>
-                <span class="campo-value" id="ejemplarSedeValue{{ forloop.counter }}">{{ ejemplar.sede|default:"La Plata" }}</span>
-                <select class="form-select campo-input" id="ejemplarSedeInput{{ forloop.counter }}" style="display: none;">
-                  <option value="La Plata" {% if ejemplar.sede == "La Plata" or not ejemplar.sede %}selected{% endif %}>La Plata</option>
-                  <option value="Abasto" {% if ejemplar.sede == "Abasto" %}selected{% endif %}>Abasto</option>
-                </select>
+                <span class="campo-label">Ejemplar N°</span>
+                <span class="campo-value" id="ejemplarNumValue{{ forloop.counter }}">{{ forloop.counter }}</span>
               </div>
               <div class="campo-item">
                 <span class="campo-label">Disponibilidad</span>
@@ -303,6 +293,14 @@
                 <select class="form-select campo-input" id="disponibilidadInput{{ forloop.counter }}" style="display: none;">
                   <option value="Aula" {% if ejemplar.disponibilidad == "Aula" or not ejemplar.disponibilidad %}selected{% endif %}>Aula</option>
                   <option value="Domicilio" {% if ejemplar.disponibilidad == "Domicilio" %}selected{% endif %}>Domicilio</option>
+                </select>
+              </div>
+              <div class="campo-item">
+                <span class="campo-label">Sede</span>
+                <span class="campo-value" id="ejemplarSedeValue{{ forloop.counter }}">{{ ejemplar.sede|default:"La Plata" }}</span>
+                <select class="form-select campo-input" id="ejemplarSedeInput{{ forloop.counter }}" style="display: none;">
+                  <option value="La Plata" {% if ejemplar.sede == "La Plata" or not ejemplar.sede %}selected{% endif %}>La Plata</option>
+                  <option value="Abasto" {% if ejemplar.sede == "Abasto" %}selected{% endif %}>Abasto</option>
                 </select>
               </div>
               <div class="campo-item">

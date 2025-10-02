@@ -203,78 +203,67 @@
             <h6 class="tipo-material-title">TIPO DE MATERIAL: <span id="confirmTipoMaterial" class="text-primary"></span></h6>
           </div>
 
-          <!-- Información Principal -->
+          <!-- Primera fila: Título, Autor, Editorial, Clasificación/CDU, Siglas de autor/título -->
           <div class="section-container mb-4">
-            <h6 class="section-title">Información Principal</h6>
             <div class="row g-3">
-              <div class="col-md-4">
+              <div class="col-md-2">
                 <strong>Título:</strong>
                 <p id="confirmTitulo" class="info-text"></p>
               </div>
-              <div class="col-md-4">
+              <div class="col-md-2">
                 <strong>Autor:</strong>
                 <p id="confirmAutor" class="info-text"></p>
               </div>
-              <div class="col-md-4">
+              <div class="col-md-2">
                 <strong>Editorial:</strong>
                 <p id="confirmEditorial" class="info-text"></p>
               </div>
-            </div>
-          </div>
-
-          <!-- Descripción -->
-          <div class="section-container mb-4">
-            <div class="row">
-              <div class="col-12">
-                <strong>Descripción:</strong>
-                <p id="confirmDescripcion" class="info-text"></p>
-              </div>
-            </div>
-          </div>
-
-          <!-- Clasificación -->
-          <div class="section-container mb-4">
-            <h6 class="section-title">Clasificación</h6>
-            <div class="row g-3">
-              <div class="col-md-4">
-                <strong>Siglas Autor:</strong>
-                <p id="confirmSiglasAutor" class="info-text"></p>
-              </div>
-              <div class="col-md-4">
+              <div class="col-md-3">
                 <strong>Clasificación / CDU:</strong>
                 <p id="confirmClasificacion" class="info-text"></p>
               </div>
-              <div class="col-md-4">
-                <strong>Palabras Clave:</strong>
+              <div class="col-md-3">
+                <strong>Siglas de autor / título:</strong>
+                <p id="confirmSiglasAutor" class="info-text"></p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Segunda fila: Descripción y Etiquetas/palabras clave -->
+          <div class="section-container mb-4">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <strong>Descripción:</strong>
+                <p id="confirmDescripcion" class="info-text"></p>
+              </div>
+              <div class="col-md-6">
+                <strong>Etiquetas / palabras clave:</strong>
                 <p id="confirmPalabrasClave" class="info-text"></p>
               </div>
             </div>
           </div>
 
-          <!-- Ubicación y Disponibilidad -->
+          <!-- Tercera fila: Ejemplar N°, N° de Inventario, Disponibilidad, Sede, Observaciones -->
           <div class="section-container mb-4">
-            <h6 class="section-title">Ubicación y Disponibilidad</h6>
             <div class="row g-3">
-              <div class="col-md-4">
-                <strong>Sede:</strong>
-                <p id="confirmSede" class="info-text"></p>
-              </div>
-              <div class="col-md-4">
-                <strong>Disponibilidad:</strong>
-                <p id="confirmDisponibilidad" class="info-text"></p>
-              </div>
-              <div class="col-md-4">
+              <div class="col-md-2">
                 <strong>Ejemplar N°:</strong>
                 <p id="confirmEjemplarNum" class="info-text"></p>
               </div>
-            </div>
-          </div>
-
-          <!-- Observaciones -->
-          <div class="section-container mb-4">
-            <h6 class="section-title">Observaciones</h6>
-            <div class="row">
-              <div class="col-12">
+              <div class="col-md-2">
+                <strong>N° de Inventario:</strong>
+                <p id="confirmInventario" class="info-text"></p>
+              </div>
+              <div class="col-md-3">
+                <strong>Disponibilidad:</strong>
+                <p id="confirmDisponibilidad" class="info-text"></p>
+              </div>
+              <div class="col-md-3">
+                <strong>Sede:</strong>
+                <p id="confirmSede" class="info-text"></p>
+              </div>
+              <div class="col-md-2">
+                <strong>Observaciones:</strong>
                 <p id="confirmObservaciones" class="info-text"></p>
               </div>
             </div>
@@ -474,6 +463,14 @@ document.addEventListener('DOMContentLoaded', function() {
             // Recopilar información de ejemplares
             let ejemplaresInfo = '';
             const cantidad = parseInt(cantidadEjemplares) || 1;
+            
+            // Mapear información de inventario (si existe)
+            // Línea 468 - CAMBIAR DE:
+            const inventario = form.querySelector('[name="inventario"]')?.value || 'Sin especificar';
+            
+            // A:
+            const inventario = form.querySelector('[name="inventario_ptr_id"]')?.value || 'Sin especificar';
+            document.getElementById('confirmInventario').textContent = inventario;
             
             for (let i = 1; i <= cantidad; i++) {
                 const sedeSelect = form.querySelector(`[name="sede_${i}"]`);
