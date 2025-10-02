@@ -111,7 +111,7 @@
         <!-- Título, Autor y Editorial en una fila -->
         <div class="row">
             <div class="col-12 col-sm-6 col-lg-4 form-group mb-3">
-                <label for="{{ form.titulo.id_for_label }}" class="text-input" style="color:#25898D;">Título:</label>
+                <label for="{{ form.titulo.id_for_label }}" class="text-input" style="color:#25898D;">Título<span class="text-danger">*</span>:</label>
                 {{ form.titulo }}
                 {% if form.titulo.errors %}
                     <div class="text-danger">{{ form.titulo.errors }}</div>
@@ -125,7 +125,7 @@
                 {% endif %}
             </div>
             <div class="col-12 col-sm-6 col-lg-4 form-group mb-3">
-                <label for="{{ form.editorial.id_for_label }}" class="text-input" style="color:#25898D; font-size: 14px;">Editorial:</label>
+                <label for="{{ form.editorial.id_for_label }}" class="text-input" style="color:#25898D; font-size: 14px;">Editorial<span class="text-danger">*</span>:</label>
                 {{ form.editorial }}
                 {% if form.editorial.errors %}
                     <div class="text-danger">{{ form.editorial.errors }}</div>
@@ -147,14 +147,14 @@
         <!-- Siglas Autor/Título y Clasificación CDU -->
         <div class="row">
             <div class="col-12 col-sm-6 col-lg-6 form-group mb-3">
-                <label for="{{ form.siglas_autor_titulo.id_for_label }}" class="text-input" style="color:#25898D; font-size: 14px;">Siglas de autor / título:</label>
+                <label for="{{ form.siglas_autor_titulo.id_for_label }}" class="text-input" style="color:#25898D; font-size: 14px;">Siglas de autor / título<span class="text-danger">*</span>:</label>
                 {{ form.siglas_autor_titulo }}
                 {% if form.siglas_autor_titulo.errors %}
                     <div class="text-danger">{{ form.siglas_autor_titulo.errors }}</div>
                 {% endif %}
             </div>
             <div class="col-12 col-sm-6 col-lg-6 form-group mb-3">
-                <label for="{{ form.clasificacion_cdu.id_for_label }}" class="text-input" style="color:#25898D; font-size: 14px;">Clasificación / CDU:</label>
+                <label for="{{ form.clasificacion_cdu.id_for_label }}" class="text-input" style="color:#25898D; font-size: 14px;">Clasificación / CDU<span class="text-danger">*</span>:</label>
                 {{ form.clasificacion_cdu }}
                 {% if form.clasificacion_cdu.errors %}
                     <div class="text-danger">{{ form.clasificacion_cdu.errors }}</div>
@@ -181,7 +181,7 @@
         <!-- Las observaciones ahora están en cada ejemplar -->
 
         <!-- Botones -->
-        <div class="row">
+        <div class="row" style="margin-bottom: 80px;">
             <div class="col-12 d-flex justify-content-end gap-3">
                 <button type="reset" class="btn btn-outline-danger btn-sm">CANCELAR</button>
                 <button type="submit" class="btn btn-primary btn-sm">GUARDAR</button>
@@ -354,8 +354,100 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Interceptar el submit del formulario
     form.addEventListener('submit', function(e) {
+        // Validación personalizada completa de todos los campos obligatorios
+        console.log('🔍 Iniciando validación personalizada...');
+        let primerCampoInvalido = null;
+        let hayErrores = false;
+        let erroresEncontrados = [];
+        
+        // Función para validar un campo
+        function validarCampo(campo, nombreCampo) {
+            if (!campo) {
+                console.warn(`⚠️ Campo ${nombreCampo} no encontrado en el DOM`);
+                return false;
+            }
+            
+            const valor = campo.value ? campo.value.trim() : '';
+            if (valor === '' || valor === null) {
+                hayErrores = true;
+                erroresEncontrados.push(nombreCampo);
+                if (!primerCampoInvalido) primerCampoInvalido = campo;
+                
+                // Aplicar estilos de error
+                campo.style.borderColor = '#dc3545';
+                campo.style.boxShadow = '0 0 0 0.2rem rgba(220, 53, 69, 0.25)';
+                campo.setCustomValidity(`Por favor complete el campo ${nombreCampo}`);
+                
+                console.log(`❌ Campo inválido: ${nombreCampo}`);
+                return false;
+            } else {
+                // Limpiar estilos de error
+                campo.style.borderColor = '';
+                campo.style.boxShadow = '';
+                campo.setCustomValidity('');
+                console.log(`✅ Campo válido: ${nombreCampo}`);
+                return true;
+            }
+        }
+        
+        // Validar campos principales obligatorios
+        console.log('🔍 Validando campos principales...');
+        const titulo = form.querySelector('[name="titulo"]');
+        const autor = form.querySelector('[name="autor"]');
+        const editorial = form.querySelector('[name="editorial"]');
+        const siglasAutorTitulo = form.querySelector('[name="siglas_autor_titulo"]');
+        const clasificacionCdu = form.querySelector('[name="clasificacion_cdu"]');
+        
+        validarCampo(titulo, 'Título');
+        validarCampo(autor, 'Autor');
+        validarCampo(editorial, 'Editorial');
+        validarCampo(siglasAutorTitulo, 'Siglas de autor / título');
+        validarCampo(clasificacionCdu, 'Clasificación / CDU');
+        
+        // Validar campos dinámicos de ejemplares
+        console.log('🔍 Validando campos dinámicos...');
+        const cantidadEjemplares = parseInt(form.querySelector('[name="cant_ejemplares"]')?.value) || 1;
+        console.log(`📊 Cantidad de ejemplares a validar: ${cantidadEjemplares}`);
+        
+        for (let i = 1; i <= cantidadEjemplares; i++) {
+            const sedeSelect = form.querySelector(`[name="sede_${i}"]`);
+            const dispSelect = form.querySelector(`[name="disponibilidad_${i}"]`);
+            
+            console.log(`🔍 Validando ejemplar ${i}:`, {
+                sede: sedeSelect ? sedeSelect.value : 'NO ENCONTRADO',
+                disponibilidad: dispSelect ? dispSelect.value : 'NO ENCONTRADO'
+            });
+            
+            validarCampo(sedeSelect, `Sede del ejemplar ${i}`);
+            validarCampo(dispSelect, `Disponibilidad del ejemplar ${i}`);
+        }
+        
+        // Si hay errores, mostrar el primer campo inválido y detener
+        if (hayErrores) {
+            console.log('❌ Formulario no válido. Errores encontrados:', erroresEncontrados);
+            
+            if (primerCampoInvalido) {
+                console.log('🎯 Enfocando primer campo inválido:', primerCampoInvalido.name);
+                primerCampoInvalido.focus();
+                
+                // Mostrar mensaje de error personalizado
+                const mensajeError = `Por favor complete los siguientes campos obligatorios: ${erroresEncontrados.join(', ')}`;
+                
+                // Usar reportValidity si está disponible, sino alert
+                if (primerCampoInvalido.reportValidity) {
+                    primerCampoInvalido.reportValidity();
+                } else {
+                    alert(mensajeError);
+                }
+            }
+            return;
+        }
+        
+        console.log('✅ Todos los campos son válidos, procediendo con el modal...');
+        
+        // Solo si el formulario es válido, prevenir el envío y mostrar el modal
         e.preventDefault();
-        console.log('🚀 Formulario interceptado - mostrando modal');
+        console.log('🚀 Formulario válido - mostrando modal de confirmación');
         
         try {
             // Obtener valores del formulario
@@ -479,6 +571,162 @@ document.addEventListener('DOMContentLoaded', function() {
         modal.hide();
     });
     
+    // Versión de diagnóstico de updateRowsMaterial (definida primero)
+    window.updateRowsMaterialDiagnostico = function(tipo) {
+        console.log('🔧 DIAGNÓSTICO: Iniciando updateRowsMaterial con tipo:', tipo);
+        
+        const cantidadInput = document.querySelector('input[name="cant_ejemplares"]');
+        console.log('🔧 DIAGNÓSTICO: Input cantidad encontrado:', !!cantidadInput);
+        console.log('🔧 DIAGNÓSTICO: Valor cantidad:', cantidadInput ? cantidadInput.value : 'N/A');
+        
+        const containerLibro = document.getElementById('contenedor-ejemplares-libro');
+        console.log('🔧 DIAGNÓSTICO: Contenedor libro encontrado:', !!containerLibro);
+        
+        const cantidad = parseInt(cantidadInput ? cantidadInput.value : 1) || 1;
+        console.log('🔧 DIAGNÓSTICO: Cantidad procesada:', cantidad);
+
+        // Limpiar contenedor
+        if (containerLibro) {
+            console.log('🔧 DIAGNÓSTICO: Limpiando contenedor...');
+            containerLibro.innerHTML = '';
+        }
+
+        for (let i = 1; i <= cantidad; i++) {
+            if (tipo === 'libro' && containerLibro) {
+                console.log(`🔧 DIAGNÓSTICO: Generando ejemplar ${i} para libro...`);
+                
+                // Usar template directo para garantizar funcionamiento
+                const templateDirecto = `
+                <div style="background: repeating-linear-gradient(to right, #8B1D69 0px, #8B1D69 10px, transparent 10px, transparent 30px); height: 3px; margin: 25px 0; width: 100%;"></div>
+                <div class="row mb-3">
+                    <div class="col-12">
+                        <h5 style="color:#25898D;">Ejemplar #${i}</h5>
+                    </div>
+                    <div class="col-12 col-sm-4 col-lg-4 form-group mb-3">
+                        <label class="text-input" style="color:#25898D; font-size: 14px;">Sede<span class="text-danger">*</span>:</label>
+                        <select name="sede_${i}" class="form-control" required>
+                            <option value="">Seleccione una sede</option>
+                            <option value="La Plata">La Plata</option>
+                            <option value="Abasto">Abasto</option>
+                        </select>
+                    </div>
+                    <div class="col-12 col-sm-4 col-lg-4 form-group mb-3">
+                        <label class="text-input" style="color:#25898D; font-size: 14px;">Disponibilidad<span class="text-danger">*</span>:</label>
+                        <select name="disponibilidad_${i}" class="form-control" required>
+                            <option value="">Seleccione disponibilidad</option>
+                            <option value="Aula">Aula</option>
+                            <option value="Domicilio">Domicilio</option>
+                        </select>
+                    </div>
+                    <div class="col-12 col-sm-4 col-lg-4 form-group mb-3">
+                        <label class="text-input" style="color:#25898D; font-size: 14px;">Observaciones:</label>
+                        <textarea name="observaciones_${i}" class="form-control" rows="2" placeholder="Observaciones sobre este ejemplar"></textarea>
+                    </div>
+                </div>`;
+                console.log(`🔧 DIAGNÓSTICO: Insertando template para ejemplar ${i}`);
+                containerLibro.insertAdjacentHTML('beforeend', templateDirecto);
+            }
+        }
+        
+        console.log('🔧 DIAGNÓSTICO: Proceso completado');
+        
+        // Verificar resultado
+        setTimeout(() => {
+            const ejemplarContainer = document.querySelector('#contenedor-ejemplares-libro');
+            if (ejemplarContainer) {
+                const sedeSelects = ejemplarContainer.querySelectorAll('select[name^="sede_"]');
+                const asteriscos = ejemplarContainer.querySelectorAll('.text-danger');
+                console.log(`🔧 DIAGNÓSTICO FINAL: ${sedeSelects.length} campos de sede, ${asteriscos.length} asteriscos rojos generados`);
+            }
+        }, 100);
+    };
+
+
+    // Función para generar campos dinámicos directamente
+    function generarCamposDinamicos() {
+        console.log('🚀 GENERANDO CAMPOS DINÁMICOS DIRECTAMENTE');
+        
+        const cantidadInput = document.querySelector('input[name="cant_ejemplares"]');
+        const contenedor = document.getElementById('contenedor-ejemplares-libro');
+        
+        if (!cantidadInput || !contenedor) {
+            console.error('❌ No se encontraron elementos necesarios');
+            console.log('Cantidad input:', !!cantidadInput);
+            console.log('Contenedor:', !!contenedor);
+            return;
+        }
+        
+        const cantidad = parseInt(cantidadInput.value) || 1;
+        console.log(`📊 Generando ${cantidad} ejemplares`);
+        
+        // Limpiar contenedor
+        contenedor.innerHTML = '';
+        
+        // Generar campos para cada ejemplar
+        for (let i = 1; i <= cantidad; i++) {
+            const ejemplarHTML = `
+                <div class="ejemplar-item border p-3 mb-3">
+                    <h5>Ejemplar ${i}</h5>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="sede_${i}">Sede <span class="text-danger">*</span></label>
+                                <select class="form-control" id="sede_${i}" name="sede_${i}" required>
+                                    <option value="">Seleccione una sede</option>
+                                    <option value="sede1">Sede 1</option>
+                                    <option value="sede2">Sede 2</option>
+                                    <option value="sede3">Sede 3</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="disponibilidad_${i}">Disponibilidad <span class="text-danger">*</span></label>
+                                <select class="form-control" id="disponibilidad_${i}" name="disponibilidad_${i}" required>
+                                    <option value="">Seleccione disponibilidad</option>
+                                    <option value="disponible">Disponible</option>
+                                    <option value="prestado">Prestado</option>
+                                    <option value="mantenimiento">En mantenimiento</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="observaciones_${i}">Observaciones</label>
+                        <textarea class="form-control" id="observaciones_${i}" name="observaciones_${i}" rows="2" placeholder="Observaciones adicionales (opcional)"></textarea>
+                    </div>
+                </div>
+            `;
+            contenedor.insertAdjacentHTML('beforeend', ejemplarHTML);
+        }
+        
+        console.log(`✅ Se generaron ${cantidad} ejemplares con asteriscos rojos`);
+        
+        // Verificar que se generaron correctamente
+        const asteriscos = contenedor.querySelectorAll('.text-danger');
+        const sedeSelects = contenedor.querySelectorAll('select[name*="sede"]');
+        const disponibilidadSelects = contenedor.querySelectorAll('select[name*="disponibilidad"]');
+        
+        console.log(`📊 Verificación - Asteriscos: ${asteriscos.length}, Sede: ${sedeSelects.length}, Disponibilidad: ${disponibilidadSelects.length}`);
+    }
+
+    // Agregar evento change al campo cantidad de ejemplares
+    const cantEjemplaresInput = document.querySelector('input[name="cant_ejemplares"]');
+    if (cantEjemplaresInput) {
+        cantEjemplaresInput.addEventListener('change', function() {
+            console.log('📝 Cantidad de ejemplares cambió a:', this.value);
+            console.log('🔧 Regenerando campos dinámicos...');
+            generarCamposDinamicos();
+        });
+        console.log('✅ Evento change agregado al campo cantidad');
+    } else {
+        console.error('❌ Campo cant_ejemplares no encontrado');
+    }
+
+    // Inicializar campos dinámicos
+    console.log('🔧 Inicializando campos dinámicos...');
+    generarCamposDinamicos();
+
     console.log('🎉 Todo configurado correctamente');
 });
 </script>

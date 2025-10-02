@@ -1,0 +1,23 @@
+/* Estilos específicos para el formulario de alta de proyector */
+
+/* Asegurar que solo el asterisco rojo sea visible y en negrita */
+.text-danger {
+    color: #dc3545 !important;
+    font-weight: bold !important;
+    display: inline !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+/* Estilo específico para asteriscos en labels */
+label .text-danger {
+    color: red !important;
+    font-weight: bold !important;
+    font-size: 16px !important;
+    display: inline !important;
+}
+
+/* Contenedor de ejemplares dinámicos */
+#contenedor-ejemplares-proyector {
+    margin-top: 20px;
+}

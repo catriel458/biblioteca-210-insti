@@ -21,8 +21,9 @@
       </div>
       <div class="col-md-5">
         <label for="materia" style="font-size: 14px;">Materia<span class="text-danger">*</span></label>
-        <input type="text" class="form-control" id="materia" name="materia" required 
-               placeholder="Aún sin seleccionar">
+        <select class="form-control" id="materia" name="materia" required disabled>
+          <option value="">Primero seleccione una carrera</option>
+        </select>
       </div>
     </div>
     
@@ -47,3 +48,111 @@
 
 <!-- Importación del JS dinámico de ejemplares -->
 <script src="{% static 'js/form_altas.js' %}"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const carreraSelect = document.getElementById('carrera');
+    const materiaSelect = document.getElementById('materia');
+    
+    // Materias por carrera
+    const materiasPorCarrera = {
+        'Educación Inicial': [
+            'Pedagogía', 'Psicología Educacional', 'Sociología de la Educación', 
+            'Historia y Política de la Educación Argentina', 'Filosofía de la Educación',
+            'Didáctica General', 'Curriculum y Didáctica del Nivel Inicial', 
+            'Juego y Desarrollo Infantil', 'Literatura Infantil', 'Matemática y su Didáctica',
+            'Ciencias Sociales y su Didáctica', 'Ciencias Naturales y su Didáctica',
+            'Lengua y su Didáctica', 'Educación Artística', 'Educación Física',
+            'Práctica Docente I', 'Práctica Docente II', 'Práctica Docente III', 'Práctica Docente IV'
+        ],
+        'Educación Primaria': [
+            'Pedagogía', 'Psicología Educacional', 'Sociología de la Educación',
+            'Historia y Política de la Educación Argentina', 'Filosofía de la Educación',
+            'Didáctica General', 'Curriculum y Didáctica del Nivel Primario',
+            'Matemática y su Didáctica I', 'Matemática y su Didáctica II',
+            'Lengua y su Didáctica I', 'Lengua y su Didáctica II',
+            'Ciencias Sociales y su Didáctica I', 'Ciencias Sociales y su Didáctica II',
+            'Ciencias Naturales y su Didáctica I', 'Ciencias Naturales y su Didáctica II',
+            'Educación Artística', 'Educación Física', 'Tecnologías de la Información',
+            'Práctica Docente I', 'Práctica Docente II', 'Práctica Docente III', 'Práctica Docente IV'
+        ],
+        'Geografía': [
+            'Pedagogía', 'Psicología Educacional', 'Sociología de la Educación',
+            'Historia y Política de la Educación Argentina', 'Filosofía de la Educación',
+            'Didáctica General', 'Didáctica de la Geografía',
+            'Geografía Física I', 'Geografía Física II', 'Geografía Humana I', 'Geografía Humana II',
+            'Geografía de América', 'Geografía de Argentina', 'Geografía Mundial',
+            'Cartografía', 'Climatología', 'Geomorfología', 'Biogeografía',
+            'Geografía Económica', 'Geografía Urbana y Rural', 'Epistemología de la Geografía',
+            'Práctica Docente I', 'Práctica Docente II', 'Práctica Docente III', 'Práctica Docente IV'
+        ],
+        'Ciencias Políticas': [
+            'Pedagogía', 'Psicología Educacional', 'Sociología de la Educación',
+            'Historia y Política de la Educación Argentina', 'Filosofía de la Educación',
+            'Didáctica General', 'Didáctica de las Ciencias Políticas',
+            'Teoría Política', 'Historia Política Argentina', 'Historia Política Mundial',
+            'Sistemas Políticos Comparados', 'Relaciones Internacionales', 'Derecho Constitucional',
+            'Sociología Política', 'Economía Política', 'Filosofía Política',
+            'Práctica Docente I', 'Práctica Docente II', 'Práctica Docente III', 'Práctica Docente IV'
+        ],
+        'Análisis de Sistemas': [
+            'Matemática', 'Algoritmos y Estructuras de Datos', 'Programación I', 'Programación II',
+            'Base de Datos I', 'Base de Datos II', 'Sistemas Operativos', 'Redes y Comunicaciones',
+            'Ingeniería de Software I', 'Ingeniería de Software II', 'Análisis de Sistemas',
+            'Diseño de Sistemas', 'Gestión de Proyectos', 'Seguridad Informática',
+            'Desarrollo Web', 'Programación Móvil', 'Inteligencia Artificial',
+            'Práctica Profesional I', 'Práctica Profesional II'
+        ]
+    };
+    
+    // Función para cargar materias según la carrera seleccionada
+    function cargarMaterias(carreraSeleccionada) {
+        console.log('📚 Carrera seleccionada:', carreraSeleccionada);
+        
+        // Limpiar opciones de materia
+        materiaSelect.innerHTML = '';
+        
+        if (carreraSeleccionada && materiasPorCarrera[carreraSeleccionada]) {
+            // Agregar opción vacía
+            const opcionVacia = document.createElement('option');
+            opcionVacia.value = '';
+            opcionVacia.textContent = 'Seleccione una materia';
+            materiaSelect.appendChild(opcionVacia);
+            
+            // Agregar materias de la carrera seleccionada
+            materiasPorCarrera[carreraSeleccionada].forEach(function(materia) {
+                const option = document.createElement('option');
+                option.value = materia;
+                option.textContent = materia;
+                materiaSelect.appendChild(option);
+            });
+            
+            materiaSelect.disabled = false;
+            console.log('✅ Materias cargadas:', materiasPorCarrera[carreraSeleccionada].length);
+        } else {
+            // No hay carrera seleccionada o no tiene materias
+            const opcionVacia = document.createElement('option');
+            opcionVacia.value = '';
+            opcionVacia.textContent = 'Primero seleccione una carrera';
+            materiaSelect.appendChild(opcionVacia);
+            materiaSelect.disabled = true;
+            console.log('⚠️ No hay materias para:', carreraSeleccionada);
+        }
+    }
+    
+    // Event listener para cambio de carrera
+    carreraSelect.addEventListener('change', function() {
+        cargarMaterias(this.value);
+    });
+    
+    // Inicializar estado de materia
+    materiaSelect.disabled = true;
+    
+    // Si ya hay una carrera seleccionada al cargar (por ejemplo, por validación de errores)
+    if (carreraSelect.value) {
+        cargarMaterias(carreraSelect.value);
+    }
+    
+    console.log('✅ Funcionalidad carrera-materia inicializada correctamente');
+});
+</script>

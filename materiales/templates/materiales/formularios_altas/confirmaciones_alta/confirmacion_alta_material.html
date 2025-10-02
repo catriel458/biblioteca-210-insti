@@ -231,16 +231,6 @@
             <h6 class="tipo-material-title">TIPO DE MATERIAL: <span id="confirmTipoMaterial" class="text-primary">LIBRO</span></h6>
           </div>
 
-          <!-- Sede -->
-          <div class="sede-section">
-            <p class="sede-text">Sede</p>
-            <p class="sede-value" id="sedeValue">{{ form_data.sede|default:"LA PLATA" }}</p>
-            <select class="form-select sede-select" id="sedeSelect" style="display: none;">
-              <option value="LA PLATA" {% if form_data.sede == "LA PLATA" or not form_data.sede %}selected{% endif %}>LA PLATA</option>
-              <option value="ABASTO" {% if form_data.sede == "ABASTO" %}selected{% endif %}>ABASTO</option>
-            </select>
-          </div>
-
           <!-- Línea separadora -->
           <div class="separator-line"></div>
           
@@ -301,16 +291,19 @@
             <div class="campos-info">
               <div class="campo-item">
                 <span class="campo-label">Sede</span>
-                <span class="campo-value" id="ejemplarSedeValue{{ forloop.counter }}">{{ ejemplar.sede|default:"Sin especificar" }}</span>
+                <span class="campo-value" id="ejemplarSedeValue{{ forloop.counter }}">{{ ejemplar.sede|default:"La Plata" }}</span>
                 <select class="form-select campo-input" id="ejemplarSedeInput{{ forloop.counter }}" style="display: none;">
-                  <option value="LA PLATA" {% if ejemplar.sede == "LA PLATA" or not ejemplar.sede %}selected{% endif %}>LA PLATA</option>
-                  <option value="ABASTO" {% if ejemplar.sede == "ABASTO" %}selected{% endif %}>ABASTO</option>
+                  <option value="La Plata" {% if ejemplar.sede == "La Plata" or not ejemplar.sede %}selected{% endif %}>La Plata</option>
+                  <option value="Abasto" {% if ejemplar.sede == "Abasto" %}selected{% endif %}>Abasto</option>
                 </select>
               </div>
               <div class="campo-item">
                 <span class="campo-label">Disponibilidad</span>
-                <span class="campo-value" id="disponibilidadValue{{ forloop.counter }}">{{ ejemplar.disponibilidad|default:"Sin especificar" }}</span>
-                <input type="text" class="form-control campo-input" id="disponibilidadInput{{ forloop.counter }}" value="{{ ejemplar.disponibilidad|default:'Sin especificar' }}" style="display: none;">
+                <span class="campo-value" id="disponibilidadValue{{ forloop.counter }}">{{ ejemplar.disponibilidad|default:"Aula" }}</span>
+                <select class="form-select campo-input" id="disponibilidadInput{{ forloop.counter }}" style="display: none;">
+                  <option value="Aula" {% if ejemplar.disponibilidad == "Aula" or not ejemplar.disponibilidad %}selected{% endif %}>Aula</option>
+                  <option value="Domicilio" {% if ejemplar.disponibilidad == "Domicilio" %}selected{% endif %}>Domicilio</option>
+                </select>
               </div>
               <div class="campo-item">
                 <span class="campo-label">Observaciones</span>
@@ -375,7 +368,6 @@ function editarCampos() {
     if (!modoEdicion) {
         // Guardar valores originales
         valoresOriginales = {
-            sede: document.getElementById('sedeValue').textContent,
             titulo: document.getElementById('tituloValue').textContent,
             autor: document.getElementById('autorValue').textContent,
             editorial: document.getElementById('editorialValue').textContent,
@@ -385,10 +377,16 @@ function editarCampos() {
             palabras: document.getElementById('palabrasValue').textContent
         };
         
-        // Mostrar inputs y ocultar valores
-        document.getElementById('sedeValue').style.display = 'none';
-        document.getElementById('sedeSelect').style.display = 'block';
+        // Guardar valores originales de ejemplares
+        const ejemplares = document.querySelectorAll('.ejemplar-info');
+        ejemplares.forEach((ejemplar, index) => {
+            const contador = index + 1;
+            valoresOriginales[`ejemplarSede${contador}`] = document.getElementById(`ejemplarSedeValue${contador}`).textContent;
+            valoresOriginales[`disponibilidad${contador}`] = document.getElementById(`disponibilidadValue${contador}`).textContent;
+            valoresOriginales[`observaciones${contador}`] = document.getElementById(`observacionesValue${contador}`).textContent;
+        });
         
+        // Mostrar inputs y ocultar valores
         document.getElementById('tituloValue').style.display = 'none';
         document.getElementById('tituloInput').style.display = 'block';
         
@@ -410,14 +408,26 @@ function editarCampos() {
         document.getElementById('palabrasValue').style.display = 'none';
         document.getElementById('palabrasInput').style.display = 'block';
         
+        // Mostrar inputs de ejemplares y ocultar valores
+        ejemplares.forEach((ejemplar, index) => {
+            const contador = index + 1;
+            document.getElementById(`ejemplarSedeValue${contador}`).style.display = 'none';
+            document.getElementById(`ejemplarSedeInput${contador}`).style.display = 'block';
+            
+            document.getElementById(`disponibilidadValue${contador}`).style.display = 'none';
+            document.getElementById(`disponibilidadInput${contador}`).style.display = 'block';
+            
+            document.getElementById(`observacionesValue${contador}`).style.display = 'none';
+            document.getElementById(`observacionesInput${contador}`).style.display = 'block';
+        });
+        
         // Cambiar botón a "CANCELAR"
         btnEditar.textContent = 'CANCELAR';
-        btnEditar.className = 'btn btn-outline-danger btn-sm';
+        btnEditar.className = 'btn btn-secondary btn-sm';
         
         modoEdicion = true;
     } else {
         // Restaurar valores originales
-        document.getElementById('sedeValue').textContent = valoresOriginales.sede;
         document.getElementById('tituloValue').textContent = valoresOriginales.titulo;
         document.getElementById('autorValue').textContent = valoresOriginales.autor;
         document.getElementById('editorialValue').textContent = valoresOriginales.editorial;
@@ -426,10 +436,16 @@ function editarCampos() {
         document.getElementById('cduValue').textContent = valoresOriginales.cdu;
         document.getElementById('palabrasValue').textContent = valoresOriginales.palabras;
         
-        // Ocultar inputs y mostrar valores
-        document.getElementById('sedeValue').style.display = 'block';
-        document.getElementById('sedeSelect').style.display = 'none';
+        // Restaurar valores de ejemplares
+        const ejemplares = document.querySelectorAll('.ejemplar-info');
+        ejemplares.forEach((ejemplar, index) => {
+            const contador = index + 1;
+            document.getElementById(`ejemplarSedeValue${contador}`).textContent = valoresOriginales[`ejemplarSede${contador}`];
+            document.getElementById(`disponibilidadValue${contador}`).textContent = valoresOriginales[`disponibilidad${contador}`];
+            document.getElementById(`observacionesValue${contador}`).textContent = valoresOriginales[`observaciones${contador}`];
+        });
         
+        // Ocultar inputs y mostrar valores
         document.getElementById('tituloValue').style.display = 'block';
         document.getElementById('tituloInput').style.display = 'none';
         
@@ -451,8 +467,20 @@ function editarCampos() {
         document.getElementById('palabrasValue').style.display = 'block';
         document.getElementById('palabrasInput').style.display = 'none';
         
+        // Ocultar inputs de ejemplares y mostrar valores
+        ejemplares.forEach((ejemplar, index) => {
+            const contador = index + 1;
+            document.getElementById(`ejemplarSedeValue${contador}`).style.display = 'block';
+            document.getElementById(`ejemplarSedeInput${contador}`).style.display = 'none';
+            
+            document.getElementById(`disponibilidadValue${contador}`).style.display = 'block';
+            document.getElementById(`disponibilidadInput${contador}`).style.display = 'none';
+            
+            document.getElementById(`observacionesValue${contador}`).style.display = 'block';
+            document.getElementById(`observacionesInput${contador}`).style.display = 'none';
+        });
+        
         // Restaurar valores en los inputs
-        document.getElementById('sedeSelect').value = valoresOriginales.sede;
         document.getElementById('tituloInput').value = valoresOriginales.titulo;
         document.getElementById('autorInput').value = valoresOriginales.autor;
         document.getElementById('editorialInput').value = valoresOriginales.editorial;
@@ -460,6 +488,14 @@ function editarCampos() {
         document.getElementById('siglasInput').value = valoresOriginales.siglas;
         document.getElementById('cduInput').value = valoresOriginales.cdu;
         document.getElementById('palabrasInput').value = valoresOriginales.palabras;
+        
+        // Restaurar valores en los inputs de ejemplares
+        ejemplares.forEach((ejemplar, index) => {
+            const contador = index + 1;
+            document.getElementById(`ejemplarSedeInput${contador}`).value = valoresOriginales[`ejemplarSede${contador}`];
+            document.getElementById(`disponibilidadInput${contador}`).value = valoresOriginales[`disponibilidad${contador}`];
+            document.getElementById(`observacionesInput${contador}`).value = valoresOriginales[`observaciones${contador}`];
+        });
         
         // Cambiar botón a "EDITAR"
         btnEditar.textContent = 'EDITAR';
@@ -473,25 +509,37 @@ function editarCampos() {
 function confirmarLibro() {
     console.log('✅ Usuario confirmó - enviando formulario');
     
+    // Recopilar datos actuales (editados o no)
+    const datosFormulario = {
+        titulo: modoEdicion ? document.getElementById('tituloInput').value : document.getElementById('tituloValue').textContent,
+        autor: modoEdicion ? document.getElementById('autorInput').value : document.getElementById('autorValue').textContent,
+        editorial: modoEdicion ? document.getElementById('editorialInput').value : document.getElementById('editorialValue').textContent,
+        descripcion: modoEdicion ? document.getElementById('descripcionInput').value : document.getElementById('descripcionValue').textContent,
+        siglas_autor_titulo: modoEdicion ? document.getElementById('siglasInput').value : document.getElementById('siglasValue').textContent,
+        clasificacion_cdu: modoEdicion ? document.getElementById('cduInput').value : document.getElementById('cduValue').textContent,
+        etiqueta_palabra_clave: modoEdicion ? document.getElementById('palabrasInput').value : document.getElementById('palabrasValue').textContent,
+        ejemplares: []
+    };
+    
+    // Recopilar datos de ejemplares
+    const ejemplares = document.querySelectorAll('.ejemplar-info');
+    ejemplares.forEach((ejemplar, index) => {
+        const contador = index + 1;
+        const ejemplarData = {
+            numero: contador,
+            sede: modoEdicion ? document.getElementById(`ejemplarSedeInput${contador}`).value : document.getElementById(`ejemplarSedeValue${contador}`).textContent,
+            disponibilidad: modoEdicion ? document.getElementById(`disponibilidadInput${contador}`).value : document.getElementById(`disponibilidadValue${contador}`).textContent,
+            observaciones: modoEdicion ? document.getElementById(`observacionesInput${contador}`).value : document.getElementById(`observacionesValue${contador}`).textContent
+        };
+        datosFormulario.ejemplares.push(ejemplarData);
+    });
+    
+    console.log('📋 Datos recopilados:', datosFormulario);
+    
     // Cerrar el modal
     const modalElement = document.getElementById('modalConfirmacionAltaMaterial');
     const modalInstance = bootstrap.Modal.getInstance(modalElement);
     modalInstance.hide();
-    
-    // Si estamos en modo edición, actualizar los valores antes de enviar
-    if (modoEdicion) {
-        // Actualizar sede
-        document.getElementById('sedeValue').textContent = document.getElementById('sedeSelect').value;
-        
-        // Actualizar valores principales
-        document.getElementById('tituloValue').textContent = document.getElementById('tituloInput').value;
-        document.getElementById('autorValue').textContent = document.getElementById('autorInput').value;
-        document.getElementById('editorialValue').textContent = document.getElementById('editorialInput').value;
-        document.getElementById('descripcionValue').textContent = document.getElementById('descripcionInput').value;
-        document.getElementById('siglasValue').textContent = document.getElementById('siglasInput').value;
-        document.getElementById('cduValue').textContent = document.getElementById('cduInput').value;
-        document.getElementById('palabrasValue').textContent = document.getElementById('palabrasInput').value;
-    }
     
     // Crear un formulario invisible para enviar la confirmación
     const form = document.createElement('form');
@@ -504,6 +552,24 @@ function confirmarLibro() {
     csrfToken.name = 'csrfmiddlewaretoken';
     csrfToken.value = '{{ csrf_token }}';
     form.appendChild(csrfToken);
+    
+    // Agregar datos del formulario como campos ocultos
+    Object.keys(datosFormulario).forEach(key => {
+        if (key === 'ejemplares') {
+            // Enviar ejemplares como JSON
+            const ejemplaresInput = document.createElement('input');
+            ejemplaresInput.type = 'hidden';
+            ejemplaresInput.name = 'ejemplares_data';
+            ejemplaresInput.value = JSON.stringify(datosFormulario.ejemplares);
+            form.appendChild(ejemplaresInput);
+        } else {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = key;
+            input.value = datosFormulario[key];
+            form.appendChild(input);
+        }
+    });
     
     // Agregar al DOM y enviar
     document.body.appendChild(form);

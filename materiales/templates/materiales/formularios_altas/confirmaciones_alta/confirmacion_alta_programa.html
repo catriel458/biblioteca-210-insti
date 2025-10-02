@@ -211,6 +211,7 @@
 {% endblock %}
 
 {% block content %}
+{% csrf_token %}
 <div class="loading-container">
     <div class="loading-text">
         <i class="fas fa-spinner fa-spin"></i> Procesando datos del programa...
@@ -251,12 +252,22 @@
             <div class="campo-item">
               <span class="campo-label">Carrera</span>
               <span class="campo-value" id="carreraValue">{{ form_data.carrera|default:"Sin especificar" }}</span>
-              <input type="text" class="form-control campo-input" id="carreraInput" value="{{ form_data.carrera|default:'Sin especificar' }}" style="display: none;">
+              <select class="form-control campo-input" id="carreraInput" style="display: none;">
+                <option value="">Aún sin seleccionar</option>
+                <option value="Análisis de Sistemas" {% if form_data.carrera == "Análisis de Sistemas" %}selected{% endif %}>Tecnicatura Superior en Análisis de Sistemas</option>
+                <option value="Ciencias Políticas" {% if form_data.carrera == "Ciencias Políticas" %}selected{% endif %}>Profesorado de Educación Secundaria en Ciencias Políticas</option>
+                <option value="Geografía" {% if form_data.carrera == "Geografía" %}selected{% endif %}>Profesorado de Educación Secundaria en Geografía</option>
+                <option value="Educación Inicial" {% if form_data.carrera == "Educación Inicial" %}selected{% endif %}>Profesorado de Educación Inicial</option>
+                <option value="Educación Primaria" {% if form_data.carrera == "Educación Primaria" %}selected{% endif %}>Profesorado de Educación Primaria</option>
+                <option value="Otra" {% if form_data.carrera == "Otra" %}selected{% endif %}>Otra carrera</option>
+              </select>
             </div>
             <div class="campo-item">
               <span class="campo-label">Materia</span>
               <span class="campo-value" id="materiaValue">{{ form_data.materia|default:"Sin especificar" }}</span>
-              <input type="text" class="form-control campo-input" id="materiaInput" value="{{ form_data.materia|default:'Sin especificar' }}" style="display: none;">
+              <select class="form-control campo-input" id="materiaSelect" style="display: none;">
+                <option value="">Seleccione una materia</option>
+              </select>
             </div>
           </div>
 
@@ -282,7 +293,7 @@
       </div>
       <div class="modal-footer">
           <button type="button" class="btn btn-outline-danger btn-sm" id="btnEditar" onclick="editarCampos()">EDITAR</button>
-          <button type="button" class="btn btn-primary btn-sm" id="btnConfirmarAltaMaterial" onclick="confirmarPrograma()">CONFIRMAR</button>
+          <button type="button" class="btn btn-primary btn-sm" id="btnConfirmarAltaMaterial" onclick="confirmarPrograma()">GUARDAR</button>
         </div>
     </div>
   </div>
@@ -316,8 +327,102 @@ document.addEventListener('DOMContentLoaded', function() {
     }, 500);
 });
 
+// Materias por carrera para el dropdown
+const materiasPorCarrera = {
+    'Educación Inicial': [
+        'Pedagogía', 'Psicología Educacional', 'Sociología de la Educación', 
+        'Historia y Política de la Educación Argentina', 'Filosofía de la Educación',
+        'Didáctica General', 'Curriculum y Didáctica del Nivel Inicial', 
+        'Juego y Desarrollo Infantil', 'Literatura Infantil', 'Matemática y su Didáctica',
+        'Ciencias Sociales y su Didáctica', 'Ciencias Naturales y su Didáctica',
+        'Lengua y su Didáctica', 'Educación Artística', 'Educación Física',
+        'Práctica Docente I', 'Práctica Docente II', 'Práctica Docente III', 'Práctica Docente IV'
+    ],
+    'Educación Primaria': [
+        'Pedagogía', 'Psicología Educacional', 'Sociología de la Educación',
+        'Historia y Política de la Educación Argentina', 'Filosofía de la Educación',
+        'Didáctica General', 'Curriculum y Didáctica del Nivel Primario',
+        'Matemática y su Didáctica I', 'Matemática y su Didáctica II',
+        'Lengua y su Didáctica I', 'Lengua y su Didáctica II',
+        'Ciencias Sociales y su Didáctica I', 'Ciencias Sociales y su Didáctica II',
+        'Ciencias Naturales y su Didáctica I', 'Ciencias Naturales y su Didáctica II',
+        'Educación Artística', 'Educación Física', 'Tecnologías de la Información',
+        'Práctica Docente I', 'Práctica Docente II', 'Práctica Docente III', 'Práctica Docente IV'
+    ],
+    'Geografía': [
+        'Pedagogía', 'Psicología Educacional', 'Sociología de la Educación',
+        'Historia y Política de la Educación Argentina', 'Filosofía de la Educación',
+        'Didáctica General', 'Didáctica de la Geografía',
+        'Geografía Física I', 'Geografía Física II', 'Geografía Humana I', 'Geografía Humana II',
+        'Geografía de América', 'Geografía de Argentina', 'Geografía Mundial',
+        'Cartografía', 'Climatología', 'Geomorfología', 'Biogeografía',
+        'Geografía Económica', 'Geografía Urbana y Rural', 'Epistemología de la Geografía',
+        'Práctica Docente I', 'Práctica Docente II', 'Práctica Docente III', 'Práctica Docente IV'
+    ],
+    'Ciencias Políticas': [
+        'Pedagogía', 'Psicología Educacional', 'Sociología de la Educación',
+        'Historia y Política de la Educación Argentina', 'Filosofía de la Educación',
+        'Didáctica General', 'Didáctica de las Ciencias Políticas',
+        'Teoría Política', 'Historia Política Argentina', 'Historia Política Mundial',
+        'Sistemas Políticos Comparados', 'Relaciones Internacionales', 'Derecho Constitucional',
+        'Sociología Política', 'Economía Política', 'Filosofía Política',
+        'Práctica Docente I', 'Práctica Docente II', 'Práctica Docente III', 'Práctica Docente IV'
+    ],
+    'Análisis de Sistemas': [
+        'Matemática', 'Algoritmos y Estructuras de Datos', 'Programación I', 'Programación II',
+        'Base de Datos I', 'Base de Datos II', 'Sistemas Operativos', 'Redes y Comunicaciones',
+        'Ingeniería de Software I', 'Ingeniería de Software II', 'Análisis de Sistemas',
+        'Diseño de Sistemas', 'Gestión de Proyectos', 'Seguridad Informática',
+        'Desarrollo Web', 'Programación Móvil', 'Inteligencia Artificial',
+        'Práctica Profesional I', 'Práctica Profesional II'
+    ]
+};
+
+// Función para cargar materias en el dropdown según la carrera seleccionada
+function cargarMateriasEnDropdown(carreraSeleccionada, materiaSelect, materiaActual = '') {
+    console.log('📚 Cargando materias para carrera:', carreraSeleccionada);
+    
+    // Limpiar opciones de materia
+    materiaSelect.innerHTML = '';
+    
+    if (carreraSeleccionada && materiasPorCarrera[carreraSeleccionada]) {
+        // Agregar opción vacía
+        const opcionVacia = document.createElement('option');
+        opcionVacia.value = '';
+        opcionVacia.textContent = 'Seleccione una materia';
+        materiaSelect.appendChild(opcionVacia);
+        
+        // Agregar materias de la carrera seleccionada
+        materiasPorCarrera[carreraSeleccionada].forEach(function(materia) {
+            const option = document.createElement('option');
+            option.value = materia;
+            option.textContent = materia;
+            // Seleccionar la materia actual si coincide
+            if (materia === materiaActual) {
+                option.selected = true;
+            }
+            materiaSelect.appendChild(option);
+        });
+        
+        console.log('✅ Materias cargadas:', materiasPorCarrera[carreraSeleccionada].length);
+    } else {
+        // No hay carrera seleccionada o no tiene materias
+        const opcionVacia = document.createElement('option');
+        opcionVacia.value = '';
+        opcionVacia.textContent = 'Primero seleccione una carrera';
+        materiaSelect.appendChild(opcionVacia);
+        console.log('⚠️ No hay materias para:', carreraSeleccionada);
+    }
+}
+
 function confirmarPrograma() {
     console.log('🟢 Confirmando programa...');
+    
+    // Cerrar el modal
+    const modal = bootstrap.Modal.getInstance(document.getElementById('modalConfirmacionAltaMaterial'));
+    if (modal) {
+        modal.hide();
+    }
     
     // Obtener valores de los campos (ya sea de los inputs o de los spans) con validaciones null-safe
     const profesorInput = document.getElementById('profesorInput');
@@ -328,21 +433,37 @@ function confirmarPrograma() {
     
     const carreraInput = document.getElementById('carreraInput');
     const carreraValue = document.getElementById('carreraValue');
-    const carrera = (carreraInput && carreraInput.style.display !== 'none') 
+    let carrera = (carreraInput && carreraInput.style.display !== 'none') 
       ? carreraInput.value 
       : (carreraValue ? carreraValue.textContent : 'Sin especificar');
     
-    const materiaInput = document.getElementById('materiaInput');
+    // Si se seleccionó una carrera del dropdown, actualizar el texto mostrado
+    if (carreraInput && carreraInput.style.display !== 'none' && carreraInput.value) {
+        const selectedOption = carreraInput.options[carreraInput.selectedIndex];
+        if (selectedOption && carreraValue) {
+            carreraValue.textContent = selectedOption.text;
+        }
+    }
+    
+    const materiaSelect = document.getElementById('materiaSelect');
     const materiaValue = document.getElementById('materiaValue');
-    const materia = (materiaInput && materiaInput.style.display !== 'none') 
-      ? materiaInput.value 
+    const materia = (materiaSelect && materiaSelect.style.display !== 'none') 
+      ? materiaSelect.value 
       : (materiaValue ? materiaValue.textContent : 'Sin especificar');
     
     const enlaceInput = document.getElementById('enlaceInput');
     const enlaceValue = document.getElementById('enlaceValue');
-    const enlace = (enlaceInput && enlaceInput.style.display !== 'none') 
+    let enlace = (enlaceInput && enlaceInput.style.display !== 'none') 
       ? enlaceInput.value 
       : (enlaceValue ? enlaceValue.textContent : 'Sin especificar');
+    
+    // Limpiar el enlace si contiene HTML
+    if (enlace && enlace.includes('<a href=')) {
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = enlace;
+        const linkElement = tempDiv.querySelector('a');
+        enlace = linkElement ? linkElement.href : 'Sin especificar';
+    }
     
     const cicloLectivoInput = document.getElementById('cicloLectivoInput');
     const cicloLectivoValue = document.getElementById('cicloLectivoValue');
@@ -352,7 +473,7 @@ function confirmarPrograma() {
     
     // Actualizar los valores mostrados con validaciones
     if (profesorValue) profesorValue.textContent = profesor;
-    if (carreraValue) carreraValue.textContent = carrera;
+    // Para carrera, ya se actualizó arriba si se seleccionó del dropdown
     if (materiaValue) materiaValue.textContent = materia;
     if (cicloLectivoValue) cicloLectivoValue.textContent = cicloLectivo;
     
@@ -366,9 +487,43 @@ function confirmarPrograma() {
       }
     }
     
-    // Redirigir directamente a alta_materiales
-    console.log('✅ Programa confirmado, redirigiendo a alta_materiales...');
-    window.location.href = '{% url "alta_materiales" %}';
+    // Crear formulario para enviar datos al backend
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = '{% url "guardar_programa_confirmado" %}';
+    
+    // Agregar token CSRF
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
+    if (csrfToken) {
+        const csrfInput = document.createElement('input');
+        csrfInput.type = 'hidden';
+        csrfInput.name = 'csrfmiddlewaretoken';
+        csrfInput.value = csrfToken.value;
+        form.appendChild(csrfInput);
+    }
+    
+    // Agregar campos editados como inputs ocultos
+    const campos = [
+        { name: 'profesor', value: profesor },
+        { name: 'carrera', value: carrera },
+        { name: 'materia', value: materia },
+        { name: 'ingresar_enlace', value: enlace },
+        { name: 'ciclo_lectivo', value: cicloLectivo },
+        { name: 'sede', value: 'LA PLATA' } // Valor fijo de sede
+    ];
+    
+    campos.forEach(campo => {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = campo.name;
+        input.value = campo.value;
+        form.appendChild(input);
+    });
+    
+    // Agregar formulario al DOM y enviarlo
+    document.body.appendChild(form);
+    console.log('📤 Enviando datos del programa al backend:', campos);
+    form.submit();
   }
 
 function editarCampos() {
@@ -396,14 +551,19 @@ function editarCampos() {
             carreraValue.style.display = 'inline';
             carreraInput.style.display = 'none';
             carreraInput.value = carreraInput.getAttribute('data-original') || '';
+            // Actualizar el texto mostrado con la opción seleccionada
+            const selectedOption = carreraInput.options[carreraInput.selectedIndex];
+            if (selectedOption) {
+                carreraValue.textContent = selectedOption.text;
+            }
         }
         
         const materiaValue = document.getElementById('materiaValue');
-        const materiaInput = document.getElementById('materiaInput');
-        if (materiaValue && materiaInput) {
+        const materiaSelect = document.getElementById('materiaSelect');
+        if (materiaValue && materiaSelect) {
             materiaValue.style.display = 'inline';
-            materiaInput.style.display = 'none';
-            materiaInput.value = materiaInput.getAttribute('data-original') || '';
+            materiaSelect.style.display = 'none';
+            materiaSelect.value = materiaSelect.getAttribute('data-original') || '';
         }
         
         const enlaceValue = document.getElementById('enlaceValue');
@@ -439,15 +599,29 @@ function editarCampos() {
         if (carreraInput && carreraValue) {
             carreraInput.setAttribute('data-original', carreraInput.value);
             carreraValue.style.display = 'none';
-            carreraInput.style.display = 'inline';
+            carreraInput.style.display = 'block';
+            
+            // Cargar materias según la carrera seleccionada
+            const materiaSelect = document.getElementById('materiaSelect');
+            const materiaValue = document.getElementById('materiaValue');
+            if (materiaSelect && materiaValue) {
+                const carreraSeleccionada = carreraInput.value;
+                const materiaActual = materiaValue.textContent.trim();
+                cargarMateriasEnDropdown(carreraSeleccionada, materiaSelect, materiaActual);
+                
+                // Agregar listener para cambios en carrera
+                carreraInput.addEventListener('change', function() {
+                    cargarMateriasEnDropdown(this.value, materiaSelect);
+                });
+            }
         }
         
-        const materiaInput = document.getElementById('materiaInput');
+        const materiaSelect = document.getElementById('materiaSelect');
         const materiaValue = document.getElementById('materiaValue');
-        if (materiaInput && materiaValue) {
-            materiaInput.setAttribute('data-original', materiaInput.value);
+        if (materiaSelect && materiaValue) {
+            materiaSelect.setAttribute('data-original', materiaSelect.value);
             materiaValue.style.display = 'none';
-            materiaInput.style.display = 'inline';
+            materiaSelect.style.display = 'block';
         }
         
         const enlaceInput = document.getElementById('enlaceInput');

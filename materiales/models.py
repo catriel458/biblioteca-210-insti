@@ -102,8 +102,8 @@ class Libro(Inventario):
     titulo = models.CharField(max_length=255)
     autor = models.CharField(max_length=255)
     editorial = models.CharField(max_length=255)
-    clasificacion_cdu = models.CharField(max_length=255, null=False, default='Sin clasificar')
-    siglas_autor_titulo = models.CharField(max_length=255, null=False, default='ABC')
+    clasificacion_cdu = models.CharField(max_length=255, null=False)
+    siglas_autor_titulo = models.CharField(max_length=255, null=False)
     #num_inventario = models.IntegerField(null=False, default=1) 
     etiqueta_palabra_clave = models.TextField(default='Roma,Historia,Clasica')
     sede = models.TextField(default='La Plata')
@@ -139,14 +139,15 @@ class Multimedia(Inventario):
     materia = models.CharField(max_length=255)
     ingresar_enlace = models.URLField(max_length=500, blank=True, null=True, help_text="Ingrese la URL del contenido multimedia")
     titulo_contenido = models.CharField(max_length=255)
+    sede = models.TextField(default='La Plata')  # Agregar campo sede
     
     def __str__(self):
         return f"id_multi: {self.id_multi}, profesor: {self.profesor}, carrera: {self.carrera}, contenido: {self.titulo_contenido}, materia: {self.materia}"
 
 class Notebook(Inventario):
     id_not = models.AutoField(primary_key=True)
-    sede = models.TextField(default='La Plata')
-    num_registro = models.CharField(max_length=255, default='1')
+    sede = models.TextField()
+    num_registro = models.CharField(max_length=255)
     modelo_not = models.CharField(max_length=255)
     marca = models.CharField(max_length=255, default='Sin especificar')
     
@@ -167,9 +168,10 @@ class Proyector(Inventario):
 class Varios(Inventario):
     id_varios = models.AutoField(primary_key=True)
     tipo = models.CharField(max_length=255)
+    sede = models.CharField(max_length=255, default='La Plata')
 
     def __str__(self):
-        return f"id: {self.id_varios}, tipo: {self.tipo}"
+        return f"id: {self.id_varios}, tipo: {self.tipo}, sede: {self.sede}"
 
 
 # CUARTO: Modelo de Préstamos (DESPUÉS del Usuario y Libro)
@@ -233,7 +235,7 @@ class Programa(Inventario):
     carrera = models.CharField(max_length=255) 
     materia = models.CharField(max_length=255)
     ingresar_enlace = models.URLField(max_length=500, blank=True, null=True, help_text="Ingrese la URL del programa")
-    ciclo_lectivo = models.CharField(max_length=4, default='2024')  # Para año
+    ciclo_lectivo = models.CharField(max_length=4)  # Para año
     sede = models.CharField(max_length=255, default='La Plata')
     disponibilidad = models.CharField(max_length=255, default='Disponible')
     observaciones = models.TextField(blank=True, null=True)

@@ -1303,30 +1303,60 @@ def confirmar_alta_libro(request):
 def guardar_libro_confirmado(request):
     """
     Vista para guardar definitivamente después de confirmar en el modal
-    Actualizada para manejar múltiples ejemplares
+    Actualizada para manejar múltiples ejemplares y datos editados
     """
     print("💾 Llegó a guardar_libro_confirmado")  # Debug
     
-    if request.method == 'POST' and 'libro_data' in request.session:
+    if request.method == 'POST':
         try:
-            # Obtener datos de la sesión
-            libro_data = request.session['libro_data']
-            print(f"📦 Datos a guardar: {libro_data}")  # Debug
+            # Verificar si hay datos editados en el POST
+            if any(key in request.POST for key in ['titulo', 'autor', 'editorial', 'ejemplares_data']):
+                print("📝 Procesando datos editados desde el frontend")  # Debug
+                
+                # Obtener datos editados del POST
+                titulo = request.POST.get('titulo', '')
+                autor = request.POST.get('autor', '')
+                editorial = request.POST.get('editorial', '')
+                descripcion = request.POST.get('descripcion', '')
+                siglas_autor_titulo = request.POST.get('siglas_autor_titulo', '')
+                clasificacion_cdu = request.POST.get('clasificacion_cdu', '')
+                etiqueta_palabra_clave = request.POST.get('etiqueta_palabra_clave', '')
+                
+                # Obtener datos de ejemplares editados
+                ejemplares_json = request.POST.get('ejemplares_data', '[]')
+                ejemplares = json.loads(ejemplares_json)
+                
+                # Obtener imagen de la sesión si existe
+                libro_data_session = request.session.get('libro_data', {})
+                img_url = libro_data_session.get('img', '') or ''
+                
+                print(f"📦 Datos editados a guardar: titulo={titulo}, autor={autor}, ejemplares={len(ejemplares)}")  # Debug
+                
+            elif 'libro_data' in request.session:
+                print("📦 Procesando datos originales de la sesión")  # Debug
+                
+                # Obtener datos de la sesión (datos originales)
+                libro_data = request.session['libro_data']
+                print(f"📦 Datos a guardar: {libro_data}")  # Debug
+                
+                # Obtener datos comunes para todos los ejemplares
+                titulo = libro_data.get('titulo', '')
+                autor = libro_data.get('autor', '')
+                editorial = libro_data.get('editorial', '')
+                descripcion = libro_data.get('descripcion', '')
+                siglas_autor_titulo = libro_data.get('siglas_autor_titulo', '')
+                clasificacion_cdu = libro_data.get('clasificacion_cdu', '')
+                etiqueta_palabra_clave = libro_data.get('etiqueta_palabra_clave', '')
+                img_url = libro_data.get('img', '') or ''
+                
+                # Obtener la lista de ejemplares
+                ejemplares = libro_data.get('ejemplares', [])
+            else:
+                print("❌ No hay datos para procesar")  # Debug
+                messages.error(request, 'No hay datos para guardar.')
+                return redirect('formulario_libro')
             
-            # Obtener datos comunes para todos los ejemplares
-            titulo = libro_data.get('titulo', '')
-            autor = libro_data.get('autor', '')
-            editorial = libro_data.get('editorial', '')
-            descripcion = libro_data.get('descripcion', '')
-            siglas_autor_titulo = libro_data.get('siglas_autor_titulo', '')
-            clasificacion_cdu = libro_data.get('clasificacion_cdu', '')
-            etiqueta_palabra_clave = libro_data.get('etiqueta_palabra_clave', '')
-            img_url = libro_data.get('img', '') or ''
-            
-            # Obtener la lista de ejemplares
-            ejemplares = libro_data.get('ejemplares', [])
-            num_ejemplares = libro_data.get('num_ejemplar', 1)
-            
+            num_ejemplares = len(ejemplares)
             libros_guardados = []
             
             # Crear un libro por cada ejemplar
@@ -1344,7 +1374,7 @@ def guardar_libro_confirmado(request):
                     sede=ejemplar_data.get('sede', ''),
                     disponibilidad=ejemplar_data.get('disponibilidad', ''),
                     observaciones=ejemplar_data.get('observaciones', ''),
-                    num_ejemplar=i + 1,  # Número de ejemplar (1, 2, 3, ...)
+                    num_ejemplar=ejemplar_data.get('numero', i + 1),  # Número de ejemplar
                     img=img_url  # Misma imagen para todos los ejemplares
                 )
                 
@@ -1623,7 +1653,7 @@ def alta_multimedia(request):
                 img_url = form.cleaned_data.get('img', '').strip()
                 print(f"📷 URL de imagen recibida: '{img_url}'")
                 
-                # NO guardar en base de datos, solo en sesión - CAMPOS SIMPLIFICADOS
+                # Procesar datos básicos del formulario
                 form_data = {
                     'profesor': form.cleaned_data.get('profesor', ''),
                     'carrera': form.cleaned_data.get('carrera', ''),
@@ -1631,6 +1661,48 @@ def alta_multimedia(request):
                     'ingresar_enlace': form.cleaned_data.get('ingresar_enlace', ''),
                     'titulo_contenido': form.cleaned_data.get('titulo_contenido', ''),
                 }
+                
+                # Procesar datos dinámicos de multimedia
+                multimedia_list = []
+                
+                # Agregar el elemento principal (del formulario básico)
+                if form_data['titulo_contenido'] or form_data['ingresar_enlace']:
+                    multimedia_list.append({
+                        'titulo_contenido': form_data['titulo_contenido'],
+                        'ingresar_enlace': form_data['ingresar_enlace'],
+                        'tipo': 'Principal'
+                    })
+                
+                # Procesar elementos dinámicos
+                grupos_multimedia_json = request.POST.get('gruposMultimedia', '[]')
+                print(f"📦 Datos dinámicos recibidos: {grupos_multimedia_json}")
+                
+                try:
+                    grupos_multimedia = json.loads(grupos_multimedia_json)
+                    print(f"📦 Grupos multimedia parseados: {grupos_multimedia}")
+                    
+                    for i, grupo in enumerate(grupos_multimedia):
+                        titulo_key = f'titulo_contenido_{i}'
+                        enlace_key = f'ingresar_enlace_{i}'
+                        
+                        titulo = request.POST.get(titulo_key, '').strip()
+                        enlace = request.POST.get(enlace_key, '').strip()
+                        
+                        print(f"📋 Procesando grupo {i}: titulo='{titulo}', enlace='{enlace}'")
+                        
+                        if titulo or enlace:
+                            multimedia_list.append({
+                                'titulo_contenido': titulo,
+                                'ingresar_enlace': enlace,
+                                'tipo': 'Adicional'
+                            })
+                            
+                except json.JSONDecodeError as e:
+                    print(f"❌ Error al parsear JSON de grupos multimedia: {e}")
+                
+                # Agregar la lista de multimedia a form_data
+                form_data['multimedia_list'] = multimedia_list
+                print(f"📦 Lista final de multimedia: {multimedia_list}")
                 
                 # Guardar en sesión
                 request.session['multimedia_data'] = form_data
@@ -1657,23 +1729,35 @@ def alta_multimedia(request):
 
 def confirmar_alta_multimedia(request):
     """
-    Vista para mostrar el modal de confirmación para multimedia
+    Vista para mostrar el modal de confirmación de alta de multimedia
     """
-    print("🎯 Llegó a confirmar_alta_multimedia")  # Debug
-    
-    # Verificar que existan datos en la sesión
-    if 'multimedia_data' not in request.session:
-        print("❌ No hay datos en sesión")  # Debug
-        messages.error(request, 'No hay datos para confirmar. Por favor, complete el formulario nuevamente.')
-        return redirect('formulario_multimedia')
+    print("🎯 Llegó a confirmar_alta_multimedia")
     
     # Obtener datos de la sesión
-    form_data = request.session['multimedia_data']
-    print(f"📋 Datos de sesión: {form_data}")  # Debug
+    multimedia_data = request.session.get('multimedia_data', {})
+    print(f"📋 Datos de sesión: {multimedia_data}")
     
-    # Renderizar página con modal automático
+    if not multimedia_data:
+        print("❌ No hay datos de multimedia en sesión")
+        messages.error(request, 'No se encontraron datos del multimedia. Por favor, completa el formulario nuevamente.')
+        return redirect('formulario_multimedia')
+    
+    # Limpiar valores None para evitar problemas en JavaScript
+    def clean_none_values(data):
+        if isinstance(data, dict):
+            return {k: clean_none_values(v) for k, v in data.items()}
+        elif isinstance(data, list):
+            return [clean_none_values(item) for item in data]
+        elif data is None:
+            return ""
+        else:
+            return data
+    
+    cleaned_data = clean_none_values(multimedia_data)
+    print(f"📋 Datos limpiados: {cleaned_data}")
+    
     return render(request, 'materiales/formularios_altas/confirmaciones_alta/confirmacion_alta_multimedia.html', {
-        'form_data': form_data
+        'form_data': cleaned_data
     })
 
 def guardar_alta_multimedia(request):
@@ -1690,7 +1774,7 @@ def guardar_alta_multimedia(request):
             form_data = request.session['multimedia_data']
             print(f"📋 Datos de sesión: {form_data}")  # Debug
             
-            # Crear objeto Multimedia
+            # Crear objeto Multimedia con todos los campos necesarios
             multimedia = Multimedia(
                 estado='Disponible',
                 profesor=form_data.get('profesor', ''),
@@ -1698,12 +1782,12 @@ def guardar_alta_multimedia(request):
                 materia=form_data.get('materia', ''),
                 ingresar_enlace=form_data.get('ingresar_enlace', ''),
                 titulo_contenido=form_data.get('titulo_contenido', ''),
-                img=''  # Sin imagen por defecto
+                sede='La Plata'  # Agregar campo sede con valor por defecto
             )
             
             # GUARDAR EN BASE DE DATOS
             multimedia.save()
-            print(f"✅ Multimedia guardado en BD con ID: {multimedia.id_multimedia}")  # Debug
+            print(f"✅ Multimedia guardado en BD con ID: {multimedia.id_multi}")  # Debug
             
             # Limpiar sesión
             del request.session['multimedia_data']
@@ -1909,36 +1993,51 @@ def guardar_alta_varios(request):
         
         if varios_data:
             try:
-                # Crear el objeto Varios
-                varios = Varios()
-                varios.nombre_varios = varios_data.get('nombre_varios', '')
-                varios.sede = varios_data.get('sede', '')
-                varios.num_registro = varios_data.get('num_registro', '')
-                varios.estado = varios_data.get('estado', 'Disponible')
-                varios.save()
+                # Obtener los tipos de varios de la sesión
+                tipos_varios = varios_data.get('tipos_varios', [])
                 
-                # Crear ejemplares
-                cant_ejemplares = int(varios_data.get('cant_ejemplares', 1))
-                for _ in range(cant_ejemplares):
-                    ejemplar = EjemplarVarios()
-                    ejemplar.varios = varios
-                    ejemplar.save()
+                if not tipos_varios:
+                    messages.error(request, 'No se encontraron tipos de materiales para guardar.')
+                    return redirect('alta_materiales')
                 
-                # Limpiar sesión
-                del request.session['varios_data']
+                materiales_creados = []
                 
-                messages.success(request, f'Material varios "{varios.nombre_varios}" registrado exitosamente con {cant_ejemplares} ejemplar(es).')
+                # Crear un registro Varios por cada tipo y ejemplar
+                for tipo_data in tipos_varios:
+                    tipo = tipo_data.get('tipo', '')
+                    ejemplares = tipo_data.get('ejemplares', [])
+                    
+                    for ejemplar in ejemplares:
+                        # Crear el objeto Varios con los campos correctos del modelo
+                        varios = Varios(
+                            tipo=tipo,
+                            estado='Disponible',
+                            descripcion=ejemplar.get('descripcion', ''),
+                            num_ejemplar=1,  # Cada registro es un ejemplar
+                            sede=ejemplar.get('sede', 'La Plata')  # Usar el campo sede del ejemplar
+                        )
+                        varios.save()
+                        materiales_creados.append(varios)
+                        print(f"✅ Material varios creado: {varios}")  # Debug
+                
+                # Limpiar la sesión
+                if 'varios_data' in request.session:
+                    del request.session['varios_data']
+                
+                messages.success(request, f'Se han guardado exitosamente {len(materiales_creados)} materiales varios.')
                 return redirect('alta_materiales')
-            
+                
             except Exception as e:
-                messages.error(request, f'Error al guardar el material varios: {str(e)}')
+                print(f"❌ Error al guardar varios: {e}")  # Debug
+                messages.error(request, f'Error al guardar los materiales: {str(e)}')
                 return redirect('alta_materiales')
         else:
             messages.error(request, 'No se encontraron datos para guardar. Por favor, complete el formulario nuevamente.')
             return redirect('alta_materiales')
-    else:
-        messages.error(request, 'Método no permitido.')
-        return redirect('alta_materiales')
+    
+    # Si no es POST, redirigir
+    return redirect('alta_materiales')
+
 
 # Actualizar la vista de préstamos solicitados para mostrar solo los del usuario actual
 @login_required
@@ -2156,13 +2255,32 @@ def guardar_programa_confirmado(request):
     """
     print("💾 Llegó a guardar_programa_confirmado")  # Debug
     
-    if request.method == 'POST' and 'programa_data' in request.session:
+    if request.method == 'POST':
         try:
-            # Obtener datos de la sesión
-            programa_data = request.session['programa_data']
-            print(f"📦 Datos a guardar: {programa_data}")  # Debug
+            # Verificar si hay datos editados enviados por POST
+            if 'profesor' in request.POST:
+                # Datos editados enviados desde el frontend
+                print("📝 Procesando datos editados desde POST")
+                programa_data = {
+                    'profesor': request.POST.get('profesor', ''),
+                    'carrera': request.POST.get('carrera', ''),
+                    'materia': request.POST.get('materia', ''),
+                    'ingresar_enlace': request.POST.get('ingresar_enlace', ''),
+                    'ciclo_lectivo': request.POST.get('ciclo_lectivo', ''),
+                    'sede': request.POST.get('sede', 'LA PLATA')
+                }
+                print(f"📦 Datos editados a guardar: {programa_data}")
+            elif 'programa_data' in request.session:
+                # Datos originales de la sesión
+                print("📦 Procesando datos originales desde sesión")
+                programa_data = request.session['programa_data']
+                print(f"📦 Datos originales a guardar: {programa_data}")
+            else:
+                print("❌ No hay datos para guardar")
+                messages.error(request, 'No hay datos para guardar.')
+                return redirect('formulario_programa')
             
-            # Crear el programa en base de datos - CAMPOS SIMPLIFICADOS
+            # Crear el programa en base de datos
             programa = Programa(
                 estado='Disponible',
                 profesor=programa_data.get('profesor', ''),
@@ -2170,13 +2288,13 @@ def guardar_programa_confirmado(request):
                 materia=programa_data.get('materia', ''),
                 ingresar_enlace=programa_data.get('ingresar_enlace', ''),
                 ciclo_lectivo=programa_data.get('ciclo_lectivo', ''),
+                sede=programa_data.get('sede', 'LA PLATA'),
                 # Valores por defecto para campos no incluidos en el formulario
-                sede='La Plata',  # Valor por defecto
                 disponibilidad='Domicilio',  # Valor por defecto
                 descripcion='',  # Vacío
                 observaciones='',  # Vacío
-                num_ejemplar=1,  # Valor por defecto
-                img=''  # Vacío
+                num_ejemplar=1  # Valor por defecto
+                # REMOVIDO: img=''  # Este campo no existe en el modelo Programa
             )
             
             # GUARDAR EN BASE DE DATOS
@@ -2184,8 +2302,9 @@ def guardar_programa_confirmado(request):
             print(f"✅ Programa guardado en BD con ID: {programa.id_programa}")  # Debug
             print(f"📷 URL de imagen guardada: '{programa.img}'")  # Debug
             
-            # Limpiar sesión
-            del request.session['programa_data']
+            # Limpiar sesión si existe
+            if 'programa_data' in request.session:
+                del request.session['programa_data']
             
             messages.success(request, f'✅ Programa "{programa.materia}" registrado exitosamente.')
             return redirect('alta_materiales')
@@ -2197,8 +2316,8 @@ def guardar_programa_confirmado(request):
             messages.error(request, f'❌ Error al guardar el programa: {str(e)}')
             return redirect('formulario_programa')
     else:
-        print("❌ No hay datos o método incorrecto")  # Debug
-        messages.error(request, 'No hay datos para guardar.')
+        print("❌ Método incorrecto")  # Debug
+        messages.error(request, 'Método no permitido.')
         return redirect('formulario_programa')
 
 def cancelar_alta_programa(request):
@@ -2558,14 +2677,101 @@ def confirmacion_alta_mapa(request):
         print(f"📋 Datos de mapa guardados en sesión: {mapa_data}")  # Debug
         print(f"🎯 tipos_mapa final enviado al template: {tipos_mapa}")  # Debug
         
-        # Renderizar página con modal automático
+        # Renderizar la página de confirmación con los datos procesados
         return render(request, 'materiales/formularios_altas/confirmaciones_alta/confirmacion_alta_mapa.html', {
-            'form_data': mapa_data,
-            'tipos_mapa': tipos_mapa
+            'mapa_data': mapa_data,
+            'tipos_mapa': tipos_mapa,
+            'form_data': {
+                'sede_texto': sede_texto
+            }
         })
     else:
         # Si no es POST, redirigir al formulario
         messages.error(request, 'Método no permitido. Por favor, complete el formulario correctamente.')
+        return redirect('alta_materiales')
+
+def confirmar_mapa_final(request):
+    """
+    Vista para procesar la confirmación final del mapa desde el modal
+    """
+    print("🎯 Llegó a confirmar_mapa_final")  # Debug
+    
+    if request.method == 'POST':
+        try:
+            # Obtener la sede del formulario
+            sede = request.POST.get('sede', 'LA PLATA')
+            print(f"📍 Sede recibida: {sede}")
+            
+            # Obtener los datos de los ejemplares del formulario
+            ejemplares_data = []
+            index = 0
+            
+            # Extraer datos de ejemplares del POST
+            while f'ejemplares[{index}][n_registro]' in request.POST:
+                ejemplar = {
+                    'n_registro': request.POST.get(f'ejemplares[{index}][n_registro]', ''),
+                    'denominacion': request.POST.get(f'ejemplares[{index}][denominacion]', ''),
+                    'descripcion': request.POST.get(f'ejemplares[{index}][descripcion]', ''),
+                    'tipo': request.POST.get(f'ejemplares[{index}][tipo]', 'GENERAL')
+                }
+                ejemplares_data.append(ejemplar)
+                print(f"📝 Ejemplar {index + 1}: {ejemplar}")
+                index += 1
+            
+            # Si no hay ejemplares en el formato esperado, intentar obtener de la sesión
+            if not ejemplares_data and 'mapa_data' in request.session:
+                mapa_data = request.session.get('mapa_data', {})
+                tipos_mapa = mapa_data.get('tipos_mapa', [])
+                
+                for tipo_grupo in tipos_mapa:
+                    tipo = tipo_grupo.get('tipo', 'GENERAL')
+                    ejemplares = tipo_grupo.get('ejemplares', [])
+                    
+                    for ejemplar in ejemplares:
+                        ejemplar_data = {
+                            'n_registro': ejemplar.get('n_registro', ''),
+                            'denominacion': ejemplar.get('denominacion', ''),
+                            'descripcion': ejemplar.get('descripcion', ''),
+                            'tipo': tipo
+                        }
+                        ejemplares_data.append(ejemplar_data)
+                        print(f"📝 Ejemplar de sesión: {ejemplar_data}")
+            
+            # Guardar cada ejemplar en la base de datos
+            mapas_creados = []
+            for ejemplar in ejemplares_data:
+                # Crear el registro en la tabla Mapas con el mapeo correcto
+                mapa = Mapas.objects.create(
+                    # Campos heredados de Inventario
+                    estado='Disponible',
+                    descripcion=ejemplar.get('descripcion', ''),  # descripcion -> descripcion
+                    num_ejemplar=1,
+                    # Campos específicos de Mapas
+                    sede=sede,                                    # sede -> sede
+                    tipo=ejemplar.get('tipo', 'GENERAL'),        # tipo -> tipo
+                    num_registro=ejemplar.get('n_registro', ''), # n_registro -> num_registro
+                    denominacion=ejemplar.get('denominacion', '') # denominacion -> denominacion
+                )
+                mapas_creados.append(mapa)
+                print(f"✅ Mapa guardado: ID={mapa.id_mapa}, Sede={mapa.sede}, Tipo={mapa.tipo}, Registro={mapa.num_registro}, Denominación={mapa.denominacion}")
+            
+            # Limpiar datos de sesión
+            if 'mapa_data' in request.session:
+                del request.session['mapa_data']
+                print("🧹 Datos de sesión limpiados")
+            
+            # Mensaje de éxito
+            cantidad_total = len(mapas_creados)
+            messages.success(request, f'✅ Se han registrado exitosamente {cantidad_total} mapa(s) en la base de datos.')
+            return redirect('alta_materiales')
+            
+        except Exception as e:
+            print(f"❌ Error al guardar mapas: {str(e)}")
+            messages.error(request, f'Error al guardar los mapas: {str(e)}')
+            return redirect('alta_materiales')
+    else:
+        # Si no es POST, redirigir al formulario
+        messages.error(request, 'Método no permitido.')
         return redirect('alta_materiales')
 
 def guardar_alta_mapa(request):

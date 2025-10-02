@@ -24,6 +24,7 @@ urlpatterns = [
     path('mapas/', views.mapas_view, name='mapas'),
     path('alta-mapa/', views.alta_mapa, name='alta_mapa'),
     path('confirmar-alta-mapa/', views.confirmacion_alta_mapa, name='confirmar_alta_mapa'),
+    path('confirmar-mapa-final/', views.confirmar_mapa_final, name='confirmar_mapa_final'),
     path('guardar-alta-mapa/', views.guardar_alta_mapa, name='guardar_alta_mapa'),
     path('cancelar-alta-mapa/', views.cancelar_alta_mapa, name='cancelar_alta_mapa'),
     path('baja-mapa/', views.baja_mapa, name='baja_mapa'),

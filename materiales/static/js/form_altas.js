@@ -656,6 +656,7 @@ function plantillaEjemplarElemento(idx, tipo = "") {
 // === EJEMPLARES DINÁMICOS GENERALES (Solo Proyector) ===
 // Genera el HTML de un ejemplar según el tipo de material
 function plantillaEjemplarMaterial(idx, tipo) {
+    console.log('🔧 GENERANDO PLANTILLA:', idx, tipo);
     if (tipo === 'proyector') {
         return `
         <!-- Línea punteada -->
@@ -673,12 +674,12 @@ function plantillaEjemplarMaterial(idx, tipo) {
         "></div>
         <div class="row mb-2">
             <div class="col-md-3">
-                <label for="num_registro_${idx}" style="font-size: 14px;">N° de registro:</label>
+                <label for="num_registro_${idx}" style="font-size: 14px;">N° de registro<span style="color: #dc3545; font-weight: bold; font-size: 16px;">*</span>:</label>
                 <input type="text" class="form-control" id="num_registro_${idx}" name="num_registro_${idx}" required placeholder="N° de registro...">
             </div>
             <div class="col-md-3">
                 <label for="modelo_proy_${idx}" style="font-size: 14px;">Modelo:</label>
-                <input type="text" class="form-control" id="modelo_proy_${idx}" name="modelo_proy_${idx}" required placeholder="Modelo..." />
+                <input type="text" class="form-control" id="modelo_proy_${idx}" name="modelo_proy_${idx}" placeholder="Modelo..." />
             </div>
         </div>`;
     } else if (tipo === 'notebook') {
@@ -698,12 +699,12 @@ function plantillaEjemplarMaterial(idx, tipo) {
         "></div>
         <div class="row mb-2">
             <div class="col-md-3">
-                <label for="num_registro_${idx}" style="font-size: 14px;">N° de registro:</label>
+                <label for="num_registro_${idx}" style="font-size: 14px;">N° de registro<span style="color: #dc3545; font-weight: bold; font-size: 16px;">*</span>:</label>
                 <input type="text" class="form-control" id="num_registro_${idx}" name="num_registro_${idx}" required placeholder="N° de registro...">
             </div>
             <div class="col-md-3">
                 <label for="modelo_not_${idx}" style="font-size: 14px;">Modelo:</label>
-                <input type="text" class="form-control" id="modelo_not_${idx}" name="modelo_not_${idx}" required placeholder="Modelo..." />
+                <input type="text" class="form-control" id="modelo_not_${idx}" name="modelo_not_${idx}" placeholder="Modelo..." />
             </div>
         </div>`;
     } else if (tipo === 'libro') {
@@ -726,16 +727,16 @@ function plantillaEjemplarMaterial(idx, tipo) {
                 <h5 style="color:#25898D;">Ejemplar #${idx}</h5>
             </div>
             <div class="col-12 col-sm-4 col-lg-4 form-group mb-3">
-                <label class="text-input" style="color:#25898D; font-size: 14px;">Sede:</label>
-                <select name="sede_${idx}" class="form-control">
+                <label class="text-input" style="color:#25898D; font-size: 14px;">Sede<span class="text-danger">*</span>:</label>
+                <select name="sede_${idx}" class="form-control" required>
                     <option value="">Seleccione una sede</option>
                     <option value="La Plata">La Plata</option>
                     <option value="Abasto">Abasto</option>
                 </select>
             </div>
             <div class="col-12 col-sm-4 col-lg-4 form-group mb-3">
-                <label class="text-input" style="color:#25898D; font-size: 14px;">Disponibilidad:</label>
-                <select name="disponibilidad_${idx}" class="form-control">
+                <label class="text-input" style="color:#25898D; font-size: 14px;">Disponibilidad<span class="text-danger">*</span>:</label>
+                <select name="disponibilidad_${idx}" class="form-control" required>
                     <option value="">Seleccione disponibilidad</option>
                     <option value="Aula">Aula</option>
                     <option value="Domicilio">Domicilio</option>
@@ -752,11 +753,13 @@ function plantillaEjemplarMaterial(idx, tipo) {
 
 // Generador dinámico de ejemplares para proyector, notebook y libro
 window.updateRowsMaterial = function(tipo) {
+    console.log('🔧 UPDATE ROWS MATERIAL LLAMADO - Tipo:', tipo);
     const cantidadInput = document.querySelector('input[name="cant_ejemplares"]');
     const containerProyector = document.getElementById('contenedor-ejemplares-proyector');
     const containerNotebook = document.getElementById('contenedor-ejemplares-notebook');
     const containerLibro = document.getElementById('contenedor-ejemplares-libro');
     const cantidad = parseInt(cantidadInput ? cantidadInput.value : 1) || 1;
+    console.log('📊 DATOS:', {cantidadInput, cantidad, containerProyector, containerNotebook, containerLibro});
 
     // Limpiar contenedores
     if (containerProyector) containerProyector.innerHTML = '';
@@ -764,10 +767,8 @@ window.updateRowsMaterial = function(tipo) {
     if (containerLibro) containerLibro.innerHTML = '';
 
     for (let i = 1; i <= cantidad; i++) {
-        // PROYECTOR: No generar campos dinámicos, solo usar campos estáticos
         if (tipo === 'proyector' && containerProyector) {
-            // No hacer nada - los proyectores solo usan campos estáticos
-            // El contenedor permanece vacío intencionalmente
+            containerProyector.insertAdjacentHTML('beforeend', plantillaEjemplarMaterial(i, 'proyector'));
         } else if (tipo === 'notebook' && containerNotebook) {
             containerNotebook.insertAdjacentHTML('beforeend', plantillaEjemplarMaterial(i, 'notebook'));
         } else if (tipo === 'libro' && containerLibro) {
@@ -784,15 +785,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const containerMapa = document.getElementById('contenedor-ejemplares-mapa');
     const containerLibro = document.getElementById('contenedor-ejemplares-libro');
     
-    let tipo = '';
-    if (containerProyector) tipo = 'proyector';
-    else if (containerNotebook) tipo = 'notebook';
-    else if (containerLibro) tipo = 'libro';
-    
-    if (inputCantidad && tipo) {
-        inputCantidad.addEventListener('input', function() { window.updateRowsMaterial(tipo); });
-        window.updateRowsMaterial(tipo);
-    }
+    // Código eliminado - se maneja específicamente más abajo para cada tipo
     
     // Inicializar renderizado para formulario de mapa
     if (containerMapa) {
@@ -818,15 +811,24 @@ document.addEventListener('DOMContentLoaded', function () {
     const contenedorEjemplaresProyector = document.getElementById('contenedor-ejemplares-proyector');
     
     if (cantEjemplaresProyector && contenedorEjemplaresProyector) {
+        console.log('🎯 ELEMENTOS ENCONTRADOS PARA PROYECTOR:', cantEjemplaresProyector, contenedorEjemplaresProyector);
+        
         // Event listener para cambios dinámicos
         cantEjemplaresProyector.addEventListener('input', function() {
+            console.log('📝 EVENT INPUT PROYECTOR - Valor:', this.value);
             window.updateRowsMaterial('proyector');
         });
         
         cantEjemplaresProyector.addEventListener('change', function() {
+            console.log('🔄 EVENT CHANGE PROYECTOR - Valor:', this.value);
             window.updateRowsMaterial('proyector');
         });
+        
+        // Inicializar campos al cargar la página
+        console.log('🚀 INICIALIZANDO PROYECTOR...');
+        window.updateRowsMaterial('proyector');
     }
+    // Los elementos del proyector solo existen cuando se carga dinámicamente el formulario
     
     // Configurar evento dinámico para notebooks
     const cantEjemplaresNotebook = document.getElementById('cant_ejemplares');
@@ -841,6 +843,9 @@ document.addEventListener('DOMContentLoaded', function () {
         cantEjemplaresNotebook.addEventListener('change', function() {
             window.updateRowsMaterial('notebook');
         });
+        
+        // Inicializar campos al cargar la página
+        window.updateRowsMaterial('notebook');
     }
     
     // Inicializar renderizado para formulario de varios (nueva implementación)
@@ -1093,7 +1098,7 @@ function generarEjemplaresProyector(grupoIndex, cantidad) {
         html += `
         <div class="row mb-2" style="border-left: 3px solid #28a745; padding-left: 10px; margin-left: 5px;">
             <div class="col-md-1">
-                <label class="form-label small"><strong>N° Regis.</strong></label>
+                <label class="form-label small"><strong>N° Regis.<span class="text-danger">*</span></strong></label>
                 <input type="text" 
                        class="form-control form-control-sm" 
                        name="proyector_${grupoIndex}_${i}_registro" 

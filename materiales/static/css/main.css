@@ -141,6 +141,8 @@ input:focus, textarea:focus, select:focus {
 /* Estilo específico para el select de tipo de material */
 #tipo_material {
     background-color: var(--tipo-material-bg) !important;
+    min-width: 250px !important;
+    width: auto !important;
 }
 .separador-punteado {
     border-bottom: 4px dashed var(--input-border);

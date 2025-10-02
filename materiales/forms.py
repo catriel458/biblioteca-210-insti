@@ -17,12 +17,12 @@ class LibroForm(forms.ModelForm):
         ]
         
         widgets = {
-            'titulo': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese el título del libro'}),
-            'autor': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese el autor del libro'}),
-            'editorial': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese la editorial'}),
+            'titulo': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese el título del libro', 'required': True}),
+            'autor': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese el autor del libro', 'required': True}),
+            'editorial': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese la editorial', 'required': True}),
             'descripcion': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Ingrese una descripción del libro'}),
-            'siglas_autor_titulo': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese las siglas del autor y título'}),
-            'clasificacion_cdu': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese la clasificación CDU'}),
+            'siglas_autor_titulo': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese las siglas del autor y título', 'required': True}),
+            'clasificacion_cdu': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese la clasificación CDU', 'required': True}),
             'etiqueta_palabra_clave': forms.Textarea(attrs={'class': 'form-control', 'rows': 2, 'placeholder': 'Ingrese palabras clave separadas por comas'}),
             'img': forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'URL de la imagen del libro'}),
         }
@@ -30,16 +30,17 @@ class LibroForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         
+        # Hacer campos obligatorios
+        self.fields['titulo'].required = True
+        self.fields['autor'].required = True
+        self.fields['editorial'].required = True
+        self.fields['siglas_autor_titulo'].required = True
+        self.fields['clasificacion_cdu'].required = True
+        
         # Hacer campos opcionales
         self.fields['img'].required = False
         self.fields['img'].help_text = 'Ingrese la URL completa de la imagen del libro'
-        self.fields['autor'].required = False
-        self.fields['editorial'].required = False
         self.fields['descripcion'].required = False
-        self.fields['siglas_autor_titulo'].required = False
-        self.fields['siglas_autor_titulo'].initial = ''
-        self.fields['clasificacion_cdu'].required = False
-        self.fields['clasificacion_cdu'].initial = ''
         self.fields['etiqueta_palabra_clave'].required = False
         self.fields['etiqueta_palabra_clave'].initial = ''
         
@@ -189,7 +190,6 @@ class NotebookForm(forms.ModelForm):
         
         widgets = {
             'sede': forms.Select(attrs={'class': 'form-control'}, choices=[
-                ('', 'Seleccione una sede'),
                 ('La Plata', 'La Plata'),
                 ('Abasto', 'Abasto'),
             ]),
@@ -198,6 +198,12 @@ class NotebookForm(forms.ModelForm):
             'marca': forms.TextInput(attrs={'class': 'form-control'}),
             'num_ejemplar': forms.NumberInput(attrs={'class': 'form-control', 'min': 1}),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Hacer campos explícitamente requeridos
+        self.fields['sede'].required = True
+        self.fields['num_registro'].required = True
 
 class ProyectorForm(forms.ModelForm):
     class Meta:
@@ -441,8 +447,11 @@ class ProgramaForm(forms.ModelForm):
         # Configurar materia como select vacío inicialmente
         self.fields['materia'].widget.choices = [('', 'Primero seleccione una carrera')]
         
-        # Configurar campos opcionales/requeridos
-        self.fields['ingresar_enlace'].required = False
+        # Configurar campos como requeridos
+        self.fields['profesor'].required = True
+        self.fields['carrera'].required = True
+        self.fields['materia'].required = True
+        self.fields['ingresar_enlace'].required = True
+        self.fields['ciclo_lectivo'].required = True
         
-        # Valores iniciales
-        self.fields['ciclo_lectivo'].initial = '2025'
+        # Valor inicial eliminado para permitir validación mandatoria correcta
