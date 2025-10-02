@@ -723,28 +723,37 @@ function plantillaEjemplarMaterial(idx, tipo) {
             width: 100%;
         "></div>
         <div class="row mb-3">
-            <div class="col-12">
-                <h5 style="color:#25898D;">Ejemplar #${idx}</h5>
+            <div class="col-12 col-sm-3 col-lg-3">
+                <div class="form-group mb-3">
+                    <label class="text-input" style="color:#25898D; font-size: 14px;">Ejemplar N°:</label>
+                    <input type="text" class="form-control" value="${idx}" readonly style="background-color: white !important; cursor: default;">
+                </div>
             </div>
-            <div class="col-12 col-sm-4 col-lg-4 form-group mb-3">
-                <label class="text-input" style="color:#25898D; font-size: 14px;">Sede<span class="text-danger">*</span>:</label>
-                <select name="sede_${idx}" class="form-control" required>
-                    <option value="">Seleccione una sede</option>
-                    <option value="La Plata">La Plata</option>
-                    <option value="Abasto">Abasto</option>
-                </select>
-            </div>
-            <div class="col-12 col-sm-4 col-lg-4 form-group mb-3">
-                <label class="text-input" style="color:#25898D; font-size: 14px;">Disponibilidad<span class="text-danger">*</span>:</label>
-                <select name="disponibilidad_${idx}" class="form-control" required>
-                    <option value="">Seleccione disponibilidad</option>
-                    <option value="Aula">Aula</option>
-                    <option value="Domicilio">Domicilio</option>
-                </select>
-            </div>
-            <div class="col-12 col-sm-4 col-lg-4 form-group mb-3">
-                <label class="text-input" style="color:#25898D; font-size: 14px;">Observaciones:</label>
-                <textarea name="observaciones_${idx}" class="form-control" rows="2" placeholder="Observaciones sobre este ejemplar"></textarea>
+            <div class="col-12 col-sm-9 col-lg-9">
+                <div class="row">
+                    <div class="col-12 col-sm-4 col-lg-4">
+                        <div class="form-group mb-3">
+                            <label class="text-input" style="color:#25898D; font-size: 14px;">Sede<span class="text-danger">*</span>:</label>
+                            <select name="sede_${idx}" class="form-control" required style="width: 100%;">
+                                <option value="">Seleccione una sede</option>
+                                <option value="La Plata">La Plata</option>
+                                <option value="Abasto">Abasto</option>
+                            </select>
+                        </div>
+                        <div class="form-group mb-3">
+                            <label class="text-input" style="color:#25898D; font-size: 14px;">Disponibilidad<span class="text-danger">*</span>:</label>
+                            <select name="disponibilidad_${idx}" class="form-control" required style="width: 100%;">
+                                <option value="">Seleccione disponibilidad</option>
+                                <option value="Aula">Aula</option>
+                                <option value="Domicilio">Domicilio</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-12 col-sm-8 col-lg-8 form-group mb-3">
+                        <label class="text-input" style="color:#25898D; font-size: 14px;">Observaciones:</label>
+                        <textarea name="observaciones_${idx}" class="form-control" rows="2" placeholder="Observaciones sobre este ejemplar"></textarea>
+                    </div>
+                </div>
             </div>
         </div>`;
     }
