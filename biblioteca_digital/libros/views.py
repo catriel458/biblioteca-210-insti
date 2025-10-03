@@ -1334,12 +1334,21 @@ def login_view(request):
     
     return render(request, 'libros/login.html', {'form': form})
 
+# En views.py, modifica registro_view temporalmente
 def registro_view(request):
+    # TEMPORAL: Hacer que el primer usuario sea bibliotecaria
+    primer_usuario = Usuario.objects.count() == 0
+    
     if request.method == 'POST':
         form = RegistroForm(request.POST)
         if form.is_valid():
-            user = form.save()
-            messages.success(request, 'Cuenta creada exitosamente. Ya puedes iniciar sesión.')
+            user = form.save(commit=False)
+            if primer_usuario:
+                user.perfil = 'bibliotecaria'
+                user.is_staff = True
+                user.is_superuser = True
+            user.save()
+            messages.success(request, 'Cuenta creada exitosamente.')
             return redirect('login')
     else:
         form = RegistroForm()
