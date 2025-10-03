@@ -46,6 +46,8 @@ import time
 import datetime
 from django.conf import settings
 
+from io import StringIO
+
 # Variables globales para control de thread
 ultima_verificacion = None
 thread_verificacion = None
