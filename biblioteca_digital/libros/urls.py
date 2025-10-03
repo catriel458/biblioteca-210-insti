@@ -102,9 +102,12 @@ urlpatterns = [
     # Exportar excel
     path('exportar-bajas-excel/', views.exportar_bajas_excel, name='exportar_bajas_excel'),
 
-    path('crear-admin-temp/', views.crear_admin_temporal, name='crear_admin_temp'),
+    # Urls para migracion de slqlite a postgre y crear superusuario desde render 
+    # (localmente es aplicar un migrate pero el cortafuegos de la pc del trabajo me lo impedia, estas lineas tiene que estar comentadas)
 
-    path('ejecutar-migraciones/', views.ejecutar_migraciones, name='ejecutar_migraciones'),
+    # path('crear-admin-temp/', views.crear_admin_temporal, name='crear_admin_temp'),
+
+    # path('ejecutar-migraciones/', views.ejecutar_migraciones, name='ejecutar_migraciones'),
 
 
 ]
