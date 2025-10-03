@@ -248,9 +248,9 @@ window.renderizarTiposMapa = function() {
     html += '<thead><tr><th></th><th></th></tr></thead><tbody>';
     window.gruposTiposMapa.forEach((g, idx) => {
         html += `<tr>
-            <td><span class="form-control" style="width:180px;height:39px;display:inline-block;vertical-align:middle;border-bottom:2px solid #81123b;">${g.tipo}</span></td>
+            <td><span class="form-control form-control-sm" style="display:inline-block;vertical-align:middle;border-bottom:2px solid #81123b;">${g.tipo}</span></td>
             <td>
-                <input type='number' id='cant-mapa-${idx}' name='cant-mapa-${idx}' class='form-control form-control-sm input-cant-mapa' data-idx='${idx}' value='${g.cantidad}' min='1' max='5' style='width:70px;display:inline-block;vertical-align:middle;'>
+                <input type='number' id='cant-mapa-${idx}' name='cant-mapa-${idx}' class='form-control form-control-sm input-cant-mapa' data-idx='${idx}' value='${g.cantidad}' min='1' max='5' style='display:inline-block;vertical-align:middle;'>
             </td>
             <td style="vertical-align:middle; text-align:center;">
                 <button type='button' class='boton-eliminar btn-eliminar-tipo-mapa' data-idx='${idx}' title='Eliminar tipo'>×</button>
@@ -636,17 +636,17 @@ function renderizarGruposTiposElemento() {
 function plantillaEjemplarElemento(idx, tipo = "") {
     return `
     <div class="row mb-3">
-            <div class="col-md-2">
+            <div class="col-md-3">
                 <label for="n_registro_${idx}" style="font-size: 14px;">N° de registro: <span style="color: red;">*</span></label>
-                <input type="text" class="form-control" id="n_registro_${idx}" name="n_registro_${idx}" required />
+                <input type="text" class="form-control form-control-sm" id="n_registro_${idx}" name="n_registro_${idx}" required />
             </div>
-            <div class="col-md-2">
+            <div class="col-md-3">
                 <label for="denominacion_${idx}" style="font-size: 14px;">Denominación: <span style="color: red;">*</span></label>
-                <input type="text" class="form-control" id="denominacion_${idx}" name="denominacion_${idx}" required />
+                <input type="text" class="form-control form-control-sm" id="denominacion_${idx}" name="denominacion_${idx}" required />
             </div>
-            <div class="col-md-6">
+            <div class="col-md-3">
                 <label for="descripcion_${idx}" style="font-size: 14px;">Descripción:</label>
-                <textarea class="form-control textarea-wrapper" id="descripcion_${idx}" rows="3" name="descripcion_${idx}"></textarea>
+                <textarea class="form-control form-control-sm textarea-wrapper" id="descripcion_${idx}" rows="2" name="descripcion_${idx}"></textarea>
             </div>
         </div>
     `;
@@ -725,7 +725,7 @@ function plantillaEjemplarMaterial(idx, tipo) {
         <div class="row mb-3">
             <div class="col-12 col-sm-3 col-lg-3">
                 <div class="form-group mb-3">
-                    <label class="text-input" style="color:#25898D; font-size: 14px;">Ejemplar N°:</label>
+                    <label style="font-size: 14px;">Ejemplar N°:</label>
                     <input type="text" class="form-control" value="${idx}" readonly style="background-color: white !important; cursor: default;">
                 </div>
             </div>
@@ -733,7 +733,7 @@ function plantillaEjemplarMaterial(idx, tipo) {
                 <div class="row">
                     <div class="col-12 col-sm-4 col-lg-4">
                         <div class="form-group mb-3">
-                            <label class="text-input" style="color:#25898D; font-size: 14px;">Sede<span class="text-danger">*</span>:</label>
+                            <label style="font-size: 14px;">Sede<span class="text-danger">*</span>:</label>
                             <select name="sede_${idx}" class="form-control" required style="width: 100%;">
                                 <option value="">Seleccione una sede</option>
                                 <option value="La Plata">La Plata</option>
@@ -741,7 +741,7 @@ function plantillaEjemplarMaterial(idx, tipo) {
                             </select>
                         </div>
                         <div class="form-group mb-3">
-                            <label class="text-input" style="color:#25898D; font-size: 14px;">Disponibilidad<span class="text-danger">*</span>:</label>
+                            <label style="font-size: 14px;">Disponibilidad<span class="text-danger">*</span>:</label>
                             <select name="disponibilidad_${idx}" class="form-control" required style="width: 100%;">
                                 <option value="">Seleccione disponibilidad</option>
                                 <option value="Aula">Aula</option>
@@ -750,7 +750,7 @@ function plantillaEjemplarMaterial(idx, tipo) {
                         </div>
                     </div>
                     <div class="col-12 col-sm-8 col-lg-8 form-group mb-3">
-                        <label class="text-input" style="color:#25898D; font-size: 14px;">Observaciones:</label>
+                        <label style="font-size: 14px;">Observaciones:</label>
                         <textarea name="observaciones_${idx}" class="form-control" rows="2" placeholder="Observaciones sobre este ejemplar"></textarea>
                     </div>
                 </div>
@@ -1273,7 +1273,7 @@ function generarEjemplaresMultimedia() {
                 Ejemplar ${index + 1}
             </legend>
             <div class="row">
-                <div class="col-md-2">
+                <div class="col-md-3">
                     <label for="multimedia_${index}_url" class="form-label small">Ingresar enlace (URL)</label>
                     <div class="input-group">
                         <input type="url" 
@@ -1284,7 +1284,7 @@ function generarEjemplaresMultimedia() {
                                placeholder="URL del contenido multimedia">
                     </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-6">
                     <label for="multimedia_${index}_titulo" class="form-label small">Título del contenido <span class="text-danger">*</span></label>
                     <input type="text" 
                            class="form-control form-control-sm" 

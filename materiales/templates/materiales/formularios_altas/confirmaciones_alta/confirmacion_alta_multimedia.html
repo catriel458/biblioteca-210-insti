@@ -7,7 +7,7 @@
         }
 
         .modal-dialog.modal-lg {
-            max-width: 900px;
+            max-width: 1350px;
         }
 
         .modal-content {
@@ -230,49 +230,64 @@
             </div>
 
             <!-- Información Principal -->
-            <div class="section-title">Información del Multimedia</div>
-            
-            <div class="campos-info">
-              <div class="campo-item">
-                <span class="campo-label">Profesor/a</span>
-                <span class="campo-value">{{ form_data.profesor|default:"Sin especificar" }}</span>
-              </div>
-              <div class="campo-item">
-                <span class="campo-label">Carrera</span>
-                <span class="campo-value">{{ form_data.carrera|default:"Sin especificar" }}</span>
-              </div>
-            </div>
-
-            <div class="campos-info">
-              <div class="campo-item">
-                <span class="campo-label">Materia</span>
-                <span class="campo-value">{{ form_data.materia|default:"Sin especificar" }}</span>
-              </div>
-              <div class="campo-item">
-                <span class="campo-label">Total de Contenidos</span>
-                <span class="campo-value">{{ form_data.multimedia_list|length|default:"1" }}</span>
-              </div>
+            <div class="section-container">
+                <div class="section-title">Información del Multimedia</div>
+                
+                <!-- Primera fila: Profesor, Carrera, Materia -->
+                <div class="campos-info">
+                  <div class="campo-item">
+                    <span class="campo-label">Profesor/a</span>
+                    <span id="profesorValue" class="campo-value">{{ form_data.profesor|default:"Sin especificar" }}</span>
+                    <input type="text" id="profesorInput" class="form-control form-control-sm" value="{{ form_data.profesor|default:"" }}" style="display: none;">
+                  </div>
+                  <div class="campo-item">
+                    <span class="campo-label">Carrera</span>
+                    <span id="carreraValue" class="campo-value">{{ form_data.carrera|default:"Sin especificar" }}</span>
+                    <select id="carreraInput" class="form-control form-control-sm" style="display: none;">
+                      <option value="">Seleccione una carrera</option>
+                      <option value="carrera1" {% if form_data.carrera == "carrera1" %}selected{% endif %}>Carrera 1</option>
+                      <option value="carrera2" {% if form_data.carrera == "carrera2" %}selected{% endif %}>Carrera 2</option>
+                    </select>
+                  </div>
+                  <div class="campo-item">
+                    <span class="campo-label">Materia</span>
+                    <span id="materiaValue" class="campo-value">{{ form_data.materia|default:"Sin especificar" }}</span>
+                    <select id="materiaInput" class="form-control form-control-sm" style="display: none;">
+                      <option value="">Seleccione una materia</option>
+                      <option value="materia1" {% if form_data.materia == "materia1" %}selected{% endif %}>Materia 1</option>
+                      <option value="materia2" {% if form_data.materia == "materia2" %}selected{% endif %}>Materia 2</option>
+                    </select>
+                  </div>
+                </div>
             </div>
 
             <!-- Lista de Multimedia -->
-            <div class="section-title">Contenidos Multimedia</div>
             {% if form_data.multimedia_list %}
                 {% for multimedia in form_data.multimedia_list %}
                 <div class="ejemplar-info">
                     <h6>{{ multimedia.tipo }} - {{ forloop.counter }}</h6>
-                    <div class="campos-info">
-                        <div class="campo-item">
-                            <span class="campo-label">Título del Contenido</span>
-                            <span class="campo-value">{{ multimedia.titulo_contenido|default:"Sin especificar" }}</span>
+                    <!-- Segunda fila: Título del Contenido y Enlace -->
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div class="campo-item">
+                                <span class="campo-label">Título del Contenido</span>
+                                <span id="tituloValue{{ forloop.counter }}" class="campo-value">{{ multimedia.titulo_contenido|default:"Sin especificar" }}</span>
+                                <input type="text" id="tituloInput{{ forloop.counter }}" class="form-control form-control-sm" value="{{ multimedia.titulo_contenido|default:"" }}" style="display: none;">
+                            </div>
                         </div>
-                        {% if multimedia.ingresar_enlace %}
-                        <div class="campo-item">
-                            <span class="campo-label">Enlace</span>
-                            <span class="campo-value">
-                                <a href="{{ multimedia.ingresar_enlace }}" target="_blank" style="color: #8B1D69;">{{ multimedia.ingresar_enlace }}</a>
-                            </span>
+                        <div class="col-md-6">
+                            <div class="campo-item">
+                                <span class="campo-label">Ingresar enlace (URL)</span>
+                                <span id="enlaceValue{{ forloop.counter }}" class="campo-value">
+                                    {% if multimedia.ingresar_enlace %}
+                                        <a href="{{ multimedia.ingresar_enlace }}" target="_blank" style="color: #8B1D69;">{{ multimedia.ingresar_enlace }}</a>
+                                    {% else %}
+                                        Sin especificar
+                                    {% endif %}
+                                </span>
+                                <input type="url" id="enlaceInput{{ forloop.counter }}" class="form-control form-control-sm" value="{{ multimedia.ingresar_enlace|default:"" }}" style="display: none;">
+                            </div>
                         </div>
-                        {% endif %}
                     </div>
                 </div>
                 {% endfor %}
@@ -280,32 +295,35 @@
                 <!-- Fallback para datos básicos -->
                 <div class="ejemplar-info">
                     <h6>Principal - 1</h6>
-                    <div class="campos-info">
-                        <div class="campo-item">
-                            <span class="campo-label">Título del Contenido</span>
-                            <span class="campo-value">{{ form_data.titulo_contenido|default:"Sin especificar" }}</span>
+                    <!-- Segunda fila: Título del Contenido y Enlace -->
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div class="campo-item">
+                                <span class="campo-label">Título del Contenido</span>
+                                <span id="tituloValue1" class="campo-value">{{ form_data.titulo_contenido|default:"Sin especificar" }}</span>
+                                <input type="text" id="tituloInput1" class="form-control form-control-sm" value="{{ form_data.titulo_contenido|default:"" }}" style="display: none;">
+                            </div>
                         </div>
-                        {% if form_data.ingresar_enlace %}
-                        <div class="campo-item">
-                            <span class="campo-label">Enlace</span>
-                            <span class="campo-value">
-                                <a href="{{ form_data.ingresar_enlace }}" target="_blank" style="color: #8B1D69;">{{ form_data.ingresar_enlace }}</a>
-                            </span>
+                        <div class="col-md-6">
+                            <div class="campo-item">
+                                <span class="campo-label">Ingresar enlace (URL)</span>
+                                <span id="enlaceValue1" class="campo-value">
+                                    {% if form_data.ingresar_enlace %}
+                                        <a href="{{ form_data.ingresar_enlace }}" target="_blank" style="color: #8B1D69;">{{ form_data.ingresar_enlace }}</a>
+                                    {% else %}
+                                        Sin especificar
+                                    {% endif %}
+                                </span>
+                                <input type="url" id="enlaceInput1" class="form-control form-control-sm" value="{{ form_data.ingresar_enlace|default:"" }}" style="display: none;">
+                            </div>
                         </div>
-                        {% endif %}
                     </div>
                 </div>
             {% endif %}
 
-            <!-- Resumen -->
-            <div class="section-title">Resumen</div>
-            <div class="ejemplar-info">
-              <p><strong>Estado:</strong> <span class="info-text">El multimedia será registrado como disponible</span></p>
-              <p><strong>Sede:</strong> <span class="info-text">La Plata (por defecto)</span></p>
-            </div>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-outline-danger btn-sm" onclick="cancelarModal()">CANCELAR</button>
+            <button type="button" class="btn btn-outline-danger btn-sm" id="btnEditar" onclick="editarCamposMultimedia()">EDITAR</button>
             <button type="button" class="btn btn-primary btn-sm" id="btnConfirmarAltaMaterial" onclick="confirmarMultimedia()">GUARDAR</button>
           </div>
         </div>
@@ -473,5 +491,155 @@ function debugModal() {
 
 // Hacer disponible la función de debug globalmente
 window.debugModal = debugModal;
+
+// Variables para almacenar valores originales
+let valoresOriginales = {};
+let modoEdicion = false;
+
+// Función para editar campos de multimedia
+function editarCamposMultimedia() {
+    const btnEditar = document.getElementById('btnEditar');
+    
+    if (!modoEdicion) {
+        // Guardar valores originales
+        valoresOriginales = {
+            profesor: document.getElementById('profesorValue').textContent,
+            carrera: document.getElementById('carreraValue').textContent,
+            materia: document.getElementById('materiaValue').textContent
+        };
+        
+        // Guardar valores originales de contenidos multimedia
+        const contenidos = document.querySelectorAll('.ejemplar-info');
+        contenidos.forEach((contenido, index) => {
+            const contador = index + 1;
+            const tituloElement = document.getElementById(`tituloValue${contador}`);
+            const enlaceElement = document.getElementById(`enlaceValue${contador}`);
+            
+            if (tituloElement) {
+                valoresOriginales[`titulo${contador}`] = tituloElement.textContent;
+            }
+            if (enlaceElement) {
+                const enlaceLink = enlaceElement.querySelector('a');
+                valoresOriginales[`enlace${contador}`] = enlaceLink ? enlaceLink.href : '';
+            }
+        });
+        
+        // Mostrar inputs y ocultar valores - Información principal
+        document.getElementById('profesorValue').style.display = 'none';
+        document.getElementById('profesorInput').style.display = 'block';
+        
+        document.getElementById('carreraValue').style.display = 'none';
+        document.getElementById('carreraInput').style.display = 'block';
+        
+        document.getElementById('materiaValue').style.display = 'none';
+        document.getElementById('materiaInput').style.display = 'block';
+        
+        // Mostrar inputs de contenidos multimedia y ocultar valores
+        const contenidos2 = document.querySelectorAll('.ejemplar-info');
+        contenidos2.forEach((contenido, index) => {
+            const contador = index + 1;
+            const tituloValue = document.getElementById(`tituloValue${contador}`);
+            const tituloInput = document.getElementById(`tituloInput${contador}`);
+            const enlaceValue = document.getElementById(`enlaceValue${contador}`);
+            const enlaceInput = document.getElementById(`enlaceInput${contador}`);
+            
+            if (tituloValue && tituloInput) {
+                tituloValue.style.display = 'none';
+                tituloInput.style.display = 'block';
+            }
+            
+            if (enlaceValue && enlaceInput) {
+                enlaceValue.style.display = 'none';
+                enlaceInput.style.display = 'block';
+            }
+        });
+        
+        // Cambiar botón a "CANCELAR"
+        btnEditar.textContent = 'CANCELAR';
+        btnEditar.className = 'btn btn-secondary btn-sm';
+        
+        modoEdicion = true;
+    } else {
+        // Restaurar valores originales
+        document.getElementById('profesorValue').textContent = valoresOriginales.profesor;
+        document.getElementById('carreraValue').textContent = valoresOriginales.carrera;
+        document.getElementById('materiaValue').textContent = valoresOriginales.materia;
+        
+        // Restaurar valores de contenidos multimedia
+        const contenidos = document.querySelectorAll('.ejemplar-info');
+        contenidos.forEach((contenido, index) => {
+            const contador = index + 1;
+            const tituloValue = document.getElementById(`tituloValue${contador}`);
+            const enlaceValue = document.getElementById(`enlaceValue${contador}`);
+            
+            if (tituloValue && valoresOriginales[`titulo${contador}`]) {
+                tituloValue.textContent = valoresOriginales[`titulo${contador}`];
+            }
+            if (enlaceValue && valoresOriginales[`enlace${contador}`]) {
+                const enlaceLink = enlaceValue.querySelector('a');
+                if (enlaceLink) {
+                    enlaceLink.href = valoresOriginales[`enlace${contador}`];
+                    enlaceLink.textContent = valoresOriginales[`enlace${contador}`];
+                }
+            }
+        });
+        
+        // Ocultar inputs y mostrar valores - Información principal
+        document.getElementById('profesorValue').style.display = 'block';
+        document.getElementById('profesorInput').style.display = 'none';
+        
+        document.getElementById('carreraValue').style.display = 'block';
+        document.getElementById('carreraInput').style.display = 'none';
+        
+        document.getElementById('materiaValue').style.display = 'block';
+        document.getElementById('materiaInput').style.display = 'none';
+        
+        // Ocultar inputs de contenidos multimedia y mostrar valores
+        const contenidos2 = document.querySelectorAll('.ejemplar-info');
+        contenidos2.forEach((contenido, index) => {
+            const contador = index + 1;
+            const tituloValue = document.getElementById(`tituloValue${contador}`);
+            const tituloInput = document.getElementById(`tituloInput${contador}`);
+            const enlaceValue = document.getElementById(`enlaceValue${contador}`);
+            const enlaceInput = document.getElementById(`enlaceInput${contador}`);
+            
+            if (tituloValue && tituloInput) {
+                tituloValue.style.display = 'block';
+                tituloInput.style.display = 'none';
+            }
+            
+            if (enlaceValue && enlaceInput) {
+                enlaceValue.style.display = 'block';
+                enlaceInput.style.display = 'none';
+            }
+        });
+        
+        // Restaurar valores en los inputs
+        document.getElementById('profesorInput').value = valoresOriginales.profesor;
+        document.getElementById('carreraInput').value = valoresOriginales.carrera;
+        document.getElementById('materiaInput').value = valoresOriginales.materia;
+        
+        // Restaurar valores en los inputs de contenidos
+        const contenidos3 = document.querySelectorAll('.ejemplar-info');
+        contenidos3.forEach((contenido, index) => {
+            const contador = index + 1;
+            const tituloInput = document.getElementById(`tituloInput${contador}`);
+            const enlaceInput = document.getElementById(`enlaceInput${contador}`);
+            
+            if (tituloInput && valoresOriginales[`titulo${contador}`]) {
+                tituloInput.value = valoresOriginales[`titulo${contador}`];
+            }
+            if (enlaceInput && valoresOriginales[`enlace${contador}`]) {
+                enlaceInput.value = valoresOriginales[`enlace${contador}`];
+            }
+        });
+        
+        // Cambiar botón a "EDITAR"
+        btnEditar.textContent = 'EDITAR';
+        btnEditar.className = 'btn btn-outline-danger btn-sm';
+        
+        modoEdicion = false;
+    }
+}
 </script>
 {% endblock %}

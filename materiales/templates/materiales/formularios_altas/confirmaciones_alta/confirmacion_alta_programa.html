@@ -5,6 +5,10 @@
 
 {% block extra_styles %}
     <style>
+        .modal-dialog.modal-lg {
+            max-width: 1350px;
+        }
+
         body {
             background-color: #f5f5f5;
         }
@@ -648,7 +652,7 @@ function editarCampos() {
 // Manejar cuando se cierra el modal con X
 document.getElementById('modalConfirmacionAltaMaterial').addEventListener('hidden.bs.modal', function () {
     console.log('🔴 Modal cerrado, regresando al formulario...');
-    window.location.href = '{% url "alta_programa" %}';
+    window.location.href = '/alta/';
 });
 </script>
 {% endblock %}

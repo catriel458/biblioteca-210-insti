@@ -7,7 +7,7 @@
         }
 
         .modal-dialog.modal-lg {
-            max-width: 900px;
+            max-width: 1350px;
         }
 
         .modal-content {
@@ -247,21 +247,23 @@
             <div class="tipo-material-section">
                 <p class="tipo-material-title">TIPO DE MATERIAL: <span class="text-primary">VARIOS</span></p>
             </div>
-
-            <!-- Información General -->
-            <div class="section-title">Información General</div>
             
+            <!-- Primera fila: Solo Sede -->
             <div class="campos-info">
-              <div class="campo-item">
-                <span class="campo-label">Tipo de Material</span>
-                <span class="campo-value">{{ form_data.tipo_varios|default:"Sin especificar" }}</span>
-              </div>
               <div class="campo-item">
                 <span class="campo-label">Sede</span>
                 <span class="campo-value">{{ form_data.sede_texto|default:"Sin especificar" }}</span>
               </div>
+            </div>
+            
+            <!-- Segunda fila: Tipo a Registrar y Cant. de Ejemplares -->
+            <div class="campos-info">
               <div class="campo-item">
-                <span class="campo-label">Cantidad Total de Ejemplares</span>
+                <span class="campo-label">Tipo a Registrar</span>
+                <span class="campo-value">{{ form_data.tipo_varios|default:"Sin especificar" }}</span>
+              </div>
+              <div class="campo-item">
+                <span class="campo-label">Cant. de Ejemplares</span>
                 <span class="campo-value">{{ form_data.cant_ejemplares|default:"1" }}</span>
               </div>
             </div>
@@ -285,16 +287,11 @@
               </div>
             </div>
 
-            <!-- Resumen -->
-            <div class="section-title">Resumen</div>
-            <div class="ejemplar-info">
-              <p><strong>Estado:</strong> <span class="info-text">Los materiales varios serán registrados como disponibles</span></p>
-              <p><strong>Sede:</strong> <span class="info-text">{{ form_data.sede_texto|default:"La Plata (por defecto)" }}</span></p>
-            </div>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-outline-danger btn-sm" onclick="cancelarModal()">CANCELAR</button>
-            <button type="button" class="btn btn-primary btn-sm" id="btnConfirmarAltaMaterial" onclick="confirmarVarios()">GUARDAR</button>
+            <button type="button" class="btn btn-outline-danger btn-sm" id="btnEditar" onclick="habilitarEdicion()">EDITAR</button>
+            <button type="button" class="btn btn-primary btn-sm" id="btnGuardar" style="display: none;" onclick="confirmarVarios()">GUARDAR</button>
+            <button type="button" class="btn btn-primary btn-sm" id="btnConfirmarAltaMaterial" onclick="confirmarVarios()">CONFIRMAR</button>
           </div>
         </div>
       </div>
@@ -303,6 +300,9 @@
 
 {% block extra_scripts %}
 <script>
+let modoEdicion = false;
+let valoresOriginales = {};
+
 document.addEventListener('DOMContentLoaded', function() {
     console.log('🚀 Página de confirmación VARIOS cargada');
     console.log('📋 Datos recibidos:', {
@@ -330,6 +330,46 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('✅ Modal de VARIOS mostrado automáticamente');
     }, 500);
 });
+
+function habilitarEdicion() {
+    console.log('✏️ Habilitando edición de campos para VARIOS');
+    
+    // Guardar valores originales antes de habilitar la edición
+    guardarValoresOriginales();
+    
+    // Obtener todos los campos del modal
+    const camposModal = document.querySelectorAll('#modalConfirmacionAltaMaterial input, #modalConfirmacionAltaMaterial select');
+    
+    // Habilitar todos los campos
+    camposModal.forEach(campo => {
+        campo.removeAttribute('disabled');
+        campo.removeAttribute('readonly');
+    });
+
+    // Convertir los spans de valores en inputs editables
+    const camposValor = document.querySelectorAll('.campo-value');
+    camposValor.forEach(span => {
+        const valorOriginal = span.textContent;
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.value = valorOriginal;
+        input.className = 'form-control';
+        span.parentNode.replaceChild(input, span);
+    });
+
+    // Cambiar visibilidad de botones
+    document.getElementById('btnEditar').style.display = 'none';
+    document.getElementById('btnGuardar').style.display = 'inline-block';
+    document.getElementById('btnConfirmarAltaMaterial').style.display = 'none';
+}
+
+function guardarValoresOriginales() {
+    valoresOriginales = {
+        sede: document.querySelector('.campo-value:nth-child(1)').textContent,
+        tipo: document.querySelector('.campo-value:nth-child(2)').textContent,
+        cantidad: document.querySelector('.campo-value:nth-child(3)').textContent
+    };
+}
 
 function poblarElementosDinamicos() {
     const tiposVarios = {{ form_data.tipos_varios|safe|default:"[]" }};

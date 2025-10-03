@@ -7,7 +7,7 @@
     <div class="row mb-3">
         <div class="col-md-3">
             <label for="sede" style="font-size: 14px;">Sede: <span class="text-danger">*</span></label>
-            <select class="form-control custom-input" id="sede-varios" name="sede_varios" required>
+            <select class="form-control form-control-sm" id="sede-varios" name="sede_varios" required>
                 <option value="">Seleccione una sede</option>
                 <option value="sede1">La Plata</option>
                 <option value="sede2">Abasto</option>
@@ -16,24 +16,29 @@
         
         <div class="col-md-3">
             <label for="tipo-varios" style="font-size: 14px;">Tipo a registrar <span class="text-danger">*</span></label>
-            <input type="text" class="form-control custom-input" id="tipo-varios" name="tipo_varios" required>
+            <input type="text" class="form-control form-control-sm" id="tipo-varios" name="tipo_varios" required>
         </div>
         
         <div class="col-md-3">
             <label for="cant_ejemplares" style="font-size: 14px;">Cant. de ejemplares <span class="text-danger">*</span></label>
-            <input type="number" class="form-control custom-input" id="cant_ejemplares" name="cant_ejemplares" min="1" value="1" required>
-        </div>
-        
-        <div class="col-md-1 d-flex align-items-end">
-            <button type="button" class="boton-mas" id="btn-agregar-varios" title="Agregar otro tipo de material">
-                +
-            </button>
+            <input type="number" class="form-control form-control-sm" id="cant_ejemplares" name="cant_ejemplares" min="1" value="1" required>
         </div>
     </div>
 
     <!-- Contenedor para elementos dinámicos -->
     <div id="contenedor-tipos-varios-dinamicos" class="mb-3">
         <!-- Los nuevos grupos de tipo y cantidad se agregarán aquí -->
+    </div>
+
+    <!-- Fila separada para el botón + -->
+    <div class="row mb-3">
+        <div class="col-md-3"></div> <!-- Espacio vacío para alinear con "Sede" -->
+        <div class="col-md-1"></div> <!-- Espacio adicional -->
+        <div class="col-md-1 d-flex justify-content-center align-items-start">
+            <button type="button" class="boton-mas" id="btn-agregar-varios" title="Agregar otro tipo de material">
+                +
+            </button>
+        </div>
     </div>
 
     <div class="row mb-3">

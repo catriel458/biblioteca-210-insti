@@ -38,22 +38,28 @@
                 <input type="url" class="form-control form-control-sm" id="ingresar_enlace" name="ingresar_enlace" placeholder="URL del contenido multimedia">
             </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-6">
             <label for="titulo_contenido" style="font-size: 14px;">Titulo del contenido <span class="text-danger">*</span></label>
             <input type="text" class="form-control form-control-sm" id="titulo_contenido" name="titulo_contenido" required>
         </div>
-        <div class="col-md-1 d-flex align-items-end">
+    </div>
+    
+    <!-- Input hidden para almacenar los grupos de multimedia -->
+    <input type="hidden" id="gruposMultimedia" name="gruposMultimedia" value="">
+    
+    <!-- Contenedor para mostrar resumen de multimedia agregados (ANTES del botón +) -->
+    <div class="row">
+        <div class="col-12">
+            <div id="contenedor-tipos-multimedia"></div>
+        </div>
+    </div>
+    
+    <!-- Nueva fila para el botón + centrado con el campo URL (DESPUÉS de los campos dinámicos) -->
+    <div class="row mb-4">
+        <div class="col-md-3 d-flex justify-content-center">
             <button type="button" class="boton-mas" id="btn-agregar-multimedia" title="Agregar otro contenido multimedia">
                 +
             </button>
-        </div>
-        
-        <!-- Input hidden para almacenar los grupos de multimedia -->
-        <input type="hidden" id="gruposMultimedia" name="gruposMultimedia" value="">
-        
-        <!-- Contenedor para mostrar resumen de multimedia agregados -->
-        <div class="col-12 mt-3">
-            <div id="contenedor-tipos-multimedia"></div>
         </div>
     </div>
 

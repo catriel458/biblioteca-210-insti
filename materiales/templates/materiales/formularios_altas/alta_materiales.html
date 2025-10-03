@@ -756,7 +756,7 @@ function initNotebookDynamicFunctionality() {
         const grupoHTML = `
             <div class="grupo-multimedia mb-3" data-index="${index}">
                 <div class="row">
-                    <div class="col-md-2">
+                    <div class="col-md-3">
                         <label for="ingresar_enlace_${index}" style="font-size: 14px;">Ingresar enlace (URL)</label>
                         <div class="input-group">
                             <input type="url" class="form-control form-control-sm" 
@@ -765,7 +765,7 @@ function initNotebookDynamicFunctionality() {
                                    placeholder="URL del contenido multimedia">
                         </div>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-6">
                         <label for="titulo_contenido_${index}" style="font-size: 14px;">Titulo del contenido <span class="text-danger">*</span></label>
                         <input type="text" class="form-control form-control-sm" 
                                id="titulo_contenido_${index}" 
@@ -896,6 +896,7 @@ function initNotebookDynamicFunctionality() {
         const grupoHTML = `
             <div class="grupo-varios mb-3" data-index="${index}">
                 <div class="row">
+                    <div class="col-md-3"></div> <!-- Espacio vacío para alinear con "Sede" -->
                     <div class="col-md-3">
                         <label for="tipo_varios_${index}" style="font-size: 14px;">Tipo a registrar <span class="text-danger">*</span></label>
                         <input type="text" class="form-control form-control-sm" 

@@ -83,6 +83,12 @@
         padding:5%
        }
 
+        /* Asegurar que solo el asterisco rojo sea visible y en negrita */
+        .text-danger {
+            color: #dc3545 !important;
+            font-weight: bold !important;
+        }
+
     </style>
 {% endblock %}
 
@@ -101,31 +107,30 @@
         <!-- Campos principales -->
         <!-- Número de Ejemplar (Cantidad de ejemplares) -->
         <div class="row">
-            <div class="col-12 col-sm-6 col-lg-4 form-group mb-3">
-                <label for="cant_ejemplares" class="text-input" style="color:#25898D; font-size: 14px;">Cant. de ejemplares:</label>
+            <div class="col-12 col-sm-6 col-lg-2 form-group mb-3">
+                <label for="cant_ejemplares" style="font-size: 14px;">Cant. de ejemplares:</label>
                 <input type="number" name="cant_ejemplares" id="cant_ejemplares" class="form-control" min="1" max="10" value="1" required>
-                <small class="form-text text-muted">Seleccione la cantidad de ejemplares a registrar (máximo 10)</small>
             </div>
         </div>
         
         <!-- Título, Autor y Editorial en una fila -->
         <div class="row">
-            <div class="col-12 col-sm-6 col-lg-4 form-group mb-3">
-                <label for="{{ form.titulo.id_for_label }}" class="text-input" style="color:#25898D;">Título<span class="text-danger">*</span>:</label>
+            <div class="col-12 col-sm-6 col-lg-6 form-group mb-3">
+                <label for="{{ form.titulo.id_for_label }}" style="font-size: 14px;">Título<span class="text-danger">*</span>:</label>
                 {{ form.titulo }}
                 {% if form.titulo.errors %}
                     <div class="text-danger">{{ form.titulo.errors }}</div>
                 {% endif %}
             </div>
-            <div class="col-12 col-sm-6 col-lg-4 form-group mb-3">
-                <label for="{{ form.autor.id_for_label }}" class="text-input" style="color:#25898D; font-size: 14px;">Autor<span class="text-danger">*</span>:</label>
+            <div class="col-12 col-sm-6 col-lg-3 form-group mb-3">
+                <label for="{{ form.autor.id_for_label }}" style="font-size: 14px;">Autor<span class="text-danger">*</span>:</label>
                 {{ form.autor }}
                 {% if form.autor.errors %}
                     <div class="text-danger">{{ form.autor.errors }}</div>
                 {% endif %}
             </div>
-            <div class="col-12 col-sm-6 col-lg-4 form-group mb-3">
-                <label for="{{ form.editorial.id_for_label }}" class="text-input" style="color:#25898D; font-size: 14px;">Editorial<span class="text-danger">*</span>:</label>
+            <div class="col-12 col-sm-6 col-lg-3 form-group mb-3">
+                <label for="{{ form.editorial.id_for_label }}" style="font-size: 14px;">Editorial<span class="text-danger">*</span>:</label>
                 {{ form.editorial }}
                 {% if form.editorial.errors %}
                     <div class="text-danger">{{ form.editorial.errors }}</div>
@@ -136,7 +141,7 @@
         <!-- Descripción y campos apilados -->
         <div class="row">
             <div class="col-12 col-sm-6 col-lg-6 form-group mb-3">
-                <label for="{{ form.descripcion.id_for_label }}" class="text-input" style="color:#25898D; font-size: 14px;">Descripción:</label>
+                <label for="{{ form.descripcion.id_for_label }}" style="font-size: 14px;">Descripción:</label>
                 {{ form.descripcion }}
                 {% if form.descripcion.errors %}
                     <div class="text-danger">{{ form.descripcion.errors }}</div>
@@ -144,14 +149,14 @@
             </div>
             <div class="col-12 col-sm-6 col-lg-6">
                 <div class="form-group mb-3">
-                    <label for="{{ form.siglas_autor_titulo.id_for_label }}" class="text-input" style="color:#25898D; font-size: 14px;">Siglas de autor / título<span class="text-danger">*</span>:</label>
+                    <label for="{{ form.siglas_autor_titulo.id_for_label }}" style="font-size: 14px;">Siglas de autor / título<span class="text-danger">*</span>:</label>
                     {{ form.siglas_autor_titulo }}
                     {% if form.siglas_autor_titulo.errors %}
                         <div class="text-danger">{{ form.siglas_autor_titulo.errors }}</div>
                     {% endif %}
                 </div>
                 <div class="form-group mb-3">
-                    <label for="{{ form.clasificacion_cdu.id_for_label }}" class="text-input" style="color:#25898D; font-size: 14px;">Clasificación / CDU<span class="text-danger">*</span>:</label>
+                    <label for="{{ form.clasificacion_cdu.id_for_label }}" style="font-size: 14px;">Clasificación / CDU<span class="text-danger">*</span>:</label>
                     {{ form.clasificacion_cdu }}
                     {% if form.clasificacion_cdu.errors %}
                         <div class="text-danger">{{ form.clasificacion_cdu.errors }}</div>
@@ -163,7 +168,7 @@
         <!-- Etiquetas / palabras clave en una fila completa -->
         <div class="row">
             <div class="col-12 form-group mb-3">
-                <label for="{{ form.etiqueta_palabra_clave.id_for_label }}" class="text-input" style="color:#25898D; font-size: 14px;">Etiquetas / palabras clave:</label>
+                <label for="{{ form.etiqueta_palabra_clave.id_for_label }}" style="font-size: 14px;">Etiquetas / palabras clave:</label>
                 <textarea name="etiqueta_palabra_clave" class="form-control" rows="1" placeholder="Ingrese palabras clave separadas por comas" style="height: calc(1.5em + 0.75rem + 2px) !important; min-height: calc(1.5em + 0.75rem + 2px) !important; max-height: calc(1.5em + 0.75rem + 2px) !important; resize: none !important; line-height: 1.5 !important; padding: 0.375rem 0.75rem !important;"></textarea>
                 {% if form.etiqueta_palabra_clave.errors %}
                     <div class="text-danger">{{ form.etiqueta_palabra_clave.errors }}</div>
@@ -595,11 +600,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div style="background: repeating-linear-gradient(to right, #8B1D69 0px, #8B1D69 10px, transparent 10px, transparent 30px); height: 3px; margin: 25px 0; width: 100%;"></div>
                 <div class="row mb-3">
                     <div class="col-12">
-                        <h5 style="color:#25898D;">Ejemplar #${i}</h5>
+                        <h5 style="color:black;">Ejemplar #${i}</h5>
                     </div>
                     <div class="col-12 col-sm-6 col-lg-6">
                         <div class="form-group mb-3">
-                            <label class="text-input" style="color:#25898D; font-size: 14px;">Sede<span class="text-danger">*</span>:</label>
+                            <label class="text-input" style="color:black; font-size: 14px;">Sede<span class="text-danger">*</span>:</label>
                             <select name="sede_${i}" class="form-control" required>
                                 <option value="">Seleccione una sede</option>
                                 <option value="La Plata">La Plata</option>
@@ -607,7 +612,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             </select>
                         </div>
                         <div class="form-group mb-3">
-                            <label class="text-input" style="color:#25898D; font-size: 14px;">Disponibilidad<span class="text-danger">*</span>:</label>
+                            <label class="text-input" style="color:black; font-size: 14px;">Disponibilidad<span class="text-danger">*</span>:</label>
                             <select name="disponibilidad_${i}" class="form-control" required>
                                 <option value="">Seleccione disponibilidad</option>
                                 <option value="Aula">Aula</option>
@@ -616,7 +621,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         </div>
                     </div>
                     <div class="col-12 col-sm-6 col-lg-6 form-group mb-3">
-                        <label class="text-input" style="color:#25898D; font-size: 14px;">Observaciones:</label>
+                        <label class="text-input" style="color:black; font-size: 14px;">Observaciones:</label>
                         <textarea name="observaciones_${i}" class="form-control" rows="2" placeholder="Observaciones sobre este ejemplar"></textarea>
                     </div>
                 </div>`;

@@ -79,9 +79,11 @@
         padding:5px
        }
 
-       #id_disponibilidad {
-        padding:5px
-       }
+        /* Asegurar que solo el asterisco rojo sea visible y en negrita */
+        .text-danger {
+            color: #dc3545 !important;
+            font-weight: bold !important;
+        }
     </style>
 {% endblock %}
 
@@ -100,21 +102,21 @@
         <!-- CAMPOS SIMPLIFICADOS - SOLO LOS NECESARIOS -->
         <div class="row">
             <div class="col-md-3 form-group mb-3">
-                <label for="{{ form.profesor.id_for_label }}" class="text-input" style="color:#25898D; font-size: 14px;">Profesor/a: <span style="color: red;">*</span></label>
+                <label for="{{ form.profesor.id_for_label }}" style="font-size: 14px;">Profesor/a: <span class="text-danger">*</span></label>
                 {{ form.profesor }}
                 {% if form.profesor.errors %}
                     <div class="text-danger">{{ form.profesor.errors }}</div>
                 {% endif %}
             </div>
             <div class="col-md-3 form-group mb-3">
-                <label for="{{ form.carrera.id_for_label }}" class="text-input" style="color:#25898D; font-size: 14px;">Carrera: <span style="color: red;">*</span></label>
+                <label for="{{ form.carrera.id_for_label }}" style="font-size: 14px;">Carrera: <span class="text-danger">*</span></label>
                 {{ form.carrera }}
                 {% if form.carrera.errors %}
                     <div class="text-danger">{{ form.carrera.errors }}</div>
                 {% endif %}
             </div>
             <div class="col-md-3 form-group mb-3">
-                <label for="{{ form.materia.id_for_label }}" class="text-input" style="color:#25898D; font-size: 14px;">Materia: <span style="color: red;">*</span></label>
+                <label for="{{ form.materia.id_for_label }}" style="font-size: 14px;">Materia: <span class="text-danger">*</span></label>
                 {{ form.materia }}
                 {% if form.materia.errors %}
                     <div class="text-danger">{{ form.materia.errors }}</div>
@@ -124,14 +126,14 @@
 
         <div class="row">
             <div class="col-md-3 form-group mb-3">
-                <label for="{{ form.ingresar_enlace.id_for_label }}" class="text-input" style="color:#25898D; font-size: 14px;">Enlace (URL): <span style="color: red;">*</span></label>
+                <label for="{{ form.ingresar_enlace.id_for_label }}" style="font-size: 14px;">Enlace (URL): <span class="text-danger">*</span></label>
                 {{ form.ingresar_enlace }}
                 {% if form.ingresar_enlace.errors %}
                     <div class="text-danger">{{ form.ingresar_enlace.errors }}</div>
                 {% endif %}
             </div>
             <div class="col-md-3 form-group mb-3">
-                <label for="{{ form.ciclo_lectivo.id_for_label }}" class="text-input" style="color:#25898D; font-size: 14px;">Ciclo Lectivo: <span style="color: red;">*</span></label>
+                <label for="{{ form.ciclo_lectivo.id_for_label }}" style="font-size: 14px;">Ciclo Lectivo: <span class="text-danger">*</span></label>
                 {{ form.ciclo_lectivo }}
                 {% if form.ciclo_lectivo.errors %}
                     <div class="text-danger">{{ form.ciclo_lectivo.errors }}</div>
