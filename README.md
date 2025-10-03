@@ -1,11 +1,14 @@
 # Biblioteca 210 📚
 
+Actualización 3-10-25
+
 Este proyecto es parte del Instituto Educativo 210 y cuenta con dos ramas: `front` (frontend) y `back` (backend). Está construido con Django y utiliza Pillow para el manejo de imágenes.
 
 ## 🌟 Características
 
 - **Rama `front`**: Contiene el frontend de la aplicación.
 - **Rama `back`**: Contiene el backend, construido con Django.
+- **Rama `main`**: Contiene la App principal del proyecto, deployada en Vercel. No modificar esta rama porque se cae producción. Solo mergear a Main cuando los cambios esten testeados probados
 
 ## 📥 Instrucciones para la instalación
 
