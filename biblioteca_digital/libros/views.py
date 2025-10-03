@@ -48,6 +48,7 @@ from django.conf import settings
 
 from io import StringIO
 from django.core.management import call_command
+from django.views.decorators.csrf import csrf_exempt
 
 
 # Variables globales para control de thread
@@ -2439,19 +2440,40 @@ def exportar_bajas_excel(request):
         return redirect('registro_de_bajas')
     
 
+@csrf_exempt
 def crear_admin_temporal(request):
-    if Usuario.objects.filter(perfil='bibliotecaria').exists():
-        return HttpResponse("Ya existe una bibliotecaria.")
+    """Vista temporal para crear admin - ELIMINAR DESPUÉS"""
+    from django.db import connection
+    
+    # Verificar si hay tablas
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT to_regclass('public.libros_usuario')")
+            tabla_existe = cursor.fetchone()[0] is not None
+    except:
+        return HttpResponse("Error: No se pudo verificar las tablas. Ejecuta primero /libros/ejecutar-migraciones/")
+    
+    if not tabla_existe:
+        return HttpResponse("Error: Las tablas no existen. Ve a <a href='/libros/ejecutar-migraciones/'>/libros/ejecutar-migraciones/</a>")
+    
+    try:
+        if Usuario.objects.filter(perfil='bibliotecaria').exists():
+            return HttpResponse("Ya existe una bibliotecaria.")
+    except:
+        pass
     
     if request.method == 'POST':
-        usuario = Usuario.objects.create_superuser(
-            dni=request.POST['dni'],
-            password=request.POST['password'],
-            nombre=request.POST['nombre'],
-            apellido=request.POST['apellido'],
-            email=request.POST['email']
-        )
-        return HttpResponse(f"✅ Admin creado: {usuario.dni}. ELIMINA esta vista ahora del código.")
+        try:
+            usuario = Usuario.objects.create_superuser(
+                dni=request.POST['dni'],
+                password=request.POST['password'],
+                nombre=request.POST['nombre'],
+                apellido=request.POST['apellido'],
+                email=request.POST['email']
+            )
+            return HttpResponse(f"✅ Admin creado: {usuario.dni}. ELIMINA estas vistas del código ahora.")
+        except Exception as e:
+            return HttpResponse(f"❌ Error: {e}")
     
     return HttpResponse('''
         <form method="post">
