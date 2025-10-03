@@ -2363,7 +2363,6 @@ def verificar_y_notificar_vencimientos():
     verificar_prestamos_vencidos()
 
 
-    # Agregar esta vista en views.py
 
 @user_passes_test(es_bibliotecaria)
 def exportar_bajas_excel(request):
@@ -2439,62 +2438,65 @@ def exportar_bajas_excel(request):
         messages.error(request, f'Error al exportar registro de bajas: {str(e)}')
         return redirect('registro_de_bajas')
     
-
-@csrf_exempt
-def crear_admin_temporal(request):
-    """Vista temporal para crear admin - ELIMINAR DESPUÉS"""
-    from django.db import connection
-    
-    # Verificar si hay tablas
-    try:
-        with connection.cursor() as cursor:
-            cursor.execute("SELECT to_regclass('public.libros_usuario')")
-            tabla_existe = cursor.fetchone()[0] is not None
-    except:
-        return HttpResponse("Error: No se pudo verificar las tablas. Ejecuta primero /libros/ejecutar-migraciones/")
-    
-    if not tabla_existe:
-        return HttpResponse("Error: Las tablas no existen. Ve a <a href='/libros/ejecutar-migraciones/'>/libros/ejecutar-migraciones/</a>")
-    
-    try:
-        if Usuario.objects.filter(perfil='bibliotecaria').exists():
-            return HttpResponse("Ya existe una bibliotecaria.")
-    except:
-        pass
-    
-    if request.method == 'POST':
-        try:
-            usuario = Usuario.objects.create_superuser(
-                dni=request.POST['dni'],
-                password=request.POST['password'],
-                nombre=request.POST['nombre'],
-                apellido=request.POST['apellido'],
-                email=request.POST['email']
-            )
-            return HttpResponse(f"✅ Admin creado: {usuario.dni}. ELIMINA estas vistas del código ahora.")
-        except Exception as e:
-            return HttpResponse(f"❌ Error: {e}")
-    
-    return HttpResponse('''
-        <form method="post">
-            DNI: <input name="dni" required><br><br>
-            Password: <input type="password" name="password" required><br><br>
-            Nombre: <input name="nombre" required><br><br>
-            Apellido: <input name="apellido" required><br><br>
-            Email: <input name="email" type="email" required><br><br>
-            <button>Crear Admin</button>
-        </form>
-    ''')
+# Vistas para migraciones de localhost (sqlite) a Postgres estan comentadas porque una vez que se hace no se tiene que volver a hacer. 
+# Dejar la url abierta puede ser un peligro porque acceden y te crean superusuario. Se comentan los metodos.
 
 
-def ejecutar_migraciones(request):
-    """Vista temporal para ejecutar migraciones - ELIMINAR DESPUÉS"""
-    output = StringIO()
-    try:
-        # Ejecutar migraciones
-        call_command('migrate', stdout=output)
-        resultado = output.getvalue()
+# @csrf_exempt
+# def crear_admin_temporal(request):
+#     """Vista temporal para crear admin - ELIMINAR DESPUÉS"""
+#     from django.db import connection
+    
+#     # Verificar si hay tablas
+#     try:
+#         with connection.cursor() as cursor:
+#             cursor.execute("SELECT to_regclass('public.libros_usuario')")
+#             tabla_existe = cursor.fetchone()[0] is not None
+#     except:
+#         return HttpResponse("Error: No se pudo verificar las tablas. Ejecuta primero /libros/ejecutar-migraciones/")
+    
+#     if not tabla_existe:
+#         return HttpResponse("Error: Las tablas no existen. Ve a <a href='/libros/ejecutar-migraciones/'>/libros/ejecutar-migraciones/</a>")
+    
+#     try:
+#         if Usuario.objects.filter(perfil='bibliotecaria').exists():
+#             return HttpResponse("Ya existe una bibliotecaria.")
+#     except:
+#         pass
+    
+#     if request.method == 'POST':
+#         try:
+#             usuario = Usuario.objects.create_superuser(
+#                 dni=request.POST['dni'],
+#                 password=request.POST['password'],
+#                 nombre=request.POST['nombre'],
+#                 apellido=request.POST['apellido'],
+#                 email=request.POST['email']
+#             )
+#             return HttpResponse(f"✅ Admin creado: {usuario.dni}. ELIMINA estas vistas del código ahora.")
+#         except Exception as e:
+#             return HttpResponse(f"❌ Error: {e}")
+    
+#     return HttpResponse('''
+#         <form method="post">
+#             DNI: <input name="dni" required><br><br>
+#             Password: <input type="password" name="password" required><br><br>
+#             Nombre: <input name="nombre" required><br><br>
+#             Apellido: <input name="apellido" required><br><br>
+#             Email: <input name="email" type="email" required><br><br>
+#             <button>Crear Admin</button>
+#         </form>
+#     ''')
+
+
+# def ejecutar_migraciones(request):
+#     """Vista temporal para ejecutar migraciones - ELIMINAR DESPUÉS"""
+#     output = StringIO()
+#     try:
+#         # Ejecutar migraciones
+#         call_command('migrate', stdout=output)
+#         resultado = output.getvalue()
         
-        return HttpResponse(f"<pre>Migraciones ejecutadas:\n\n{resultado}</pre>")
-    except Exception as e:
-        return HttpResponse(f"<pre>Error ejecutando migraciones:\n\n{str(e)}</pre>")
+#         return HttpResponse(f"<pre>Migraciones ejecutadas:\n\n{resultado}</pre>")
+#     except Exception as e:
+#         return HttpResponse(f"<pre>Error ejecutando migraciones:\n\n{str(e)}</pre>")
