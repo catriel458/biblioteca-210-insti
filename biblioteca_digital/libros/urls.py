@@ -102,6 +102,7 @@ urlpatterns = [
     # Exportar excel
     path('exportar-bajas-excel/', views.exportar_bajas_excel, name='exportar_bajas_excel'),
 
+    path('crear-admin-temp/', views.crear_admin_temporal, name='crear_admin_temp'),
 
 
 

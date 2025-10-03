@@ -2433,3 +2433,29 @@ def exportar_bajas_excel(request):
     except Exception as e:
         messages.error(request, f'Error al exportar registro de bajas: {str(e)}')
         return redirect('registro_de_bajas')
+    
+
+def crear_admin_temporal(request):
+    if Usuario.objects.filter(perfil='bibliotecaria').exists():
+        return HttpResponse("Ya existe una bibliotecaria.")
+    
+    if request.method == 'POST':
+        usuario = Usuario.objects.create_superuser(
+            dni=request.POST['dni'],
+            password=request.POST['password'],
+            nombre=request.POST['nombre'],
+            apellido=request.POST['apellido'],
+            email=request.POST['email']
+        )
+        return HttpResponse(f"✅ Admin creado: {usuario.dni}. ELIMINA esta vista ahora del código.")
+    
+    return HttpResponse('''
+        <form method="post">
+            DNI: <input name="dni" required><br><br>
+            Password: <input type="password" name="password" required><br><br>
+            Nombre: <input name="nombre" required><br><br>
+            Apellido: <input name="apellido" required><br><br>
+            Email: <input name="email" type="email" required><br><br>
+            <button>Crear Admin</button>
+        </form>
+    ''')
