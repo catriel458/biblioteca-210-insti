@@ -1,8 +1,9 @@
 asgiref==3.7.2
-Django==4.2.6
+Django==5.1
 django-extensions==3.2.3
-django-messages==0.6.0
-Pillow==8.4.0
+Pillow==10.0.0
 sqlparse==0.4.4
 typing_extensions==4.6.3
 tzdata==2023.3
+whitenoise==6.6.0
+openpyxl==3.1.2
