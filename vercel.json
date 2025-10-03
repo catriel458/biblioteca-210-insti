@@ -18,7 +18,7 @@
 
     {
 
-        "src":"/.(*)",
+        "src":"/(.*)",
         "dest": "biblioteca_digital/biblioteca_digital/wsgi.py"
 
     }
