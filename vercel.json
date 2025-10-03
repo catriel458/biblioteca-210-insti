@@ -4,7 +4,7 @@
     "builds": [
 
         {
-            "src":"biblioteca_digital/biblioteca_digital/wsgi.py",
+            "src":"biblioteca_digital/wsgi.py",
             "use":"@vercel/python",
             "config": { "maxLambdaSize": "15mb"}
 
@@ -19,7 +19,7 @@
     {
 
         "src":"/(.*)",
-        "dest": "biblioteca_digital/biblioteca_digital/wsgi.py"
+        "dest": "biblioteca_digital/wsgi.py"
 
     }
 
