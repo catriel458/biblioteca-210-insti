@@ -2459,3 +2459,16 @@ def crear_admin_temporal(request):
             <button>Crear Admin</button>
         </form>
     ''')
+
+
+def ejecutar_migraciones(request):
+    """Vista temporal para ejecutar migraciones - ELIMINAR DESPUÉS"""
+    output = StringIO()
+    try:
+        # Ejecutar migraciones
+        call_command('migrate', stdout=output)
+        resultado = output.getvalue()
+        
+        return HttpResponse(f"<pre>Migraciones ejecutadas:\n\n{resultado}</pre>")
+    except Exception as e:
+        return HttpResponse(f"<pre>Error ejecutando migraciones:\n\n{str(e)}</pre>")

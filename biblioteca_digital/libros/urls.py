@@ -104,6 +104,7 @@ urlpatterns = [
 
     path('crear-admin-temp/', views.crear_admin_temporal, name='crear_admin_temp'),
 
+    path('ejecutar-migraciones/', views.ejecutar_migraciones, name='ejecutar_migraciones'),
 
 
 ]
