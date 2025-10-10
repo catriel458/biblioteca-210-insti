@@ -29,12 +29,18 @@
         <!-- Botones mejorados -->
         <div class="row botones-container">
             <div class="col-12 d-flex justify-content-end gap-3">
-                <button type="button" class="btn btn-outline-danger btn-cancelar" onclick="cancelarFormulario()">CANCELAR</button>
+                <button type="button" class="btn btn-outline-danger btn-cancelar" id="btn-cancelar-form">CANCELAR</button>
                 <button type="submit" class="btn btn-primary btn-guardar btn-save">GUARDAR</button>
             </div>
         </div>
     </div>
 </form>
 
+<!-- Incluir el sistema de mensajes de Django -->
+{% include 'modals/alertas/django_messages.html' %}
+
 <!-- Importación del JS dinámico de ejemplares -->
 <script src="{% static 'js/form_altas.js' %}"></script>
+
+<!-- Importación del JS para el modal de vaciar campos -->
+<script src="{% static 'js/vaciar_campos.js' %}"></script>
