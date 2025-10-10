@@ -1,59 +1,54 @@
-// vaciar_campos.js
 
-document.addEventListener('DOMContentLoaded', function() {
-    const btnCancelar = document.getElementById('btn-cancelar-form');
-    const formulario = document.getElementById('alta-proyector-form');
+// Función principal que se llama al hacer clic en CANCELAR
+function cancelarFormulario() {
+    console.log('Función cancelarFormulario llamada');
+    mostrarModalAlerta();
+}
+
+// Función para mostrar el modal de alerta
+function mostrarModalAlerta() {
     const modalAlerta = document.getElementById('modal-vaciar-campos');
     const backdrop = document.getElementById('modal-backdrop');
-    const btnCancelarModal = document.getElementById('btn-cancelar-vaciar');
-    const btnConfirmarModal = document.getElementById('btn-confirmar-vaciar');
     
-    // Verificar que todos los elementos existen
-    if (!btnCancelar || !formulario || !modalAlerta || !backdrop) {
-        console.error('Error: No se encontraron todos los elementos necesarios');
-        return;
-    }
-    
-    // Mostrar alerta al hacer clic en CANCELAR del formulario
-    btnCancelar.addEventListener('click', function(e) {
-        e.preventDefault();
-        mostrarAlerta();
-    });
-    
-    // Ocultar alerta al hacer clic en CANCELAR del modal
-    btnCancelarModal.addEventListener('click', function() {
-        ocultarAlerta();
-    });
-    
-    // Vaciar campos al hacer clic en CONFIRMAR del modal
-    btnConfirmarModal.addEventListener('click', function() {
-        vaciarCamposFormulario();
-        ocultarAlerta();
-        // Opcional: redirigir o mostrar mensaje de confirmación
-        // window.location.href = '/ruta-deseada/';
-    });
-    
-    // Cerrar modal al hacer clic en el backdrop
-    backdrop.addEventListener('click', function() {
-        ocultarAlerta();
-    });
-    
-    // Función para mostrar la alerta
-    function mostrarAlerta() {
+    if (modalAlerta && backdrop) {
         modalAlerta.style.display = 'flex';
         backdrop.style.display = 'block';
         document.body.style.overflow = 'hidden'; // Prevenir scroll
+    } else {
+        console.error('Error: No se encontraron los elementos del modal');
     }
+}
+
+// Función para ocultar el modal de alerta
+function ocultarModalAlerta() {
+    const modalAlerta = document.getElementById('modal-vaciar-campos');
+    const backdrop = document.getElementById('modal-backdrop');
     
-    // Función para ocultar la alerta
-    function ocultarAlerta() {
+    if (modalAlerta && backdrop) {
         modalAlerta.style.display = 'none';
         backdrop.style.display = 'none';
         document.body.style.overflow = ''; // Restaurar scroll
     }
+}
+
+// Función para el botón CANCELAR del modal
+function cancelarModal() {
+    alert('Operación cancelada. Los datos se mantienen.');
+    ocultarModalAlerta();
+}
+
+// Función para el botón CONFIRMAR del modal
+function confirmarVaciarCampos() {
+    alert('Campos vaciados correctamente.');
+    vaciarCamposFormulario();
+    ocultarModalAlerta();
+}
+
+// Función para vaciar todos los campos del formulario
+function vaciarCamposFormulario() {
+    const formulario = document.getElementById('alta-proyector-form');
     
-    // Función para vaciar todos los campos del formulario
-    function vaciarCamposFormulario() {
+    if (formulario) {
         // Resetear el formulario completo
         formulario.reset();
         
@@ -100,5 +95,27 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         console.log('Formulario vaciado correctamente');
+    }
+}
+
+// Event listeners que se ejecutan cuando se carga el DOM
+document.addEventListener('DOMContentLoaded', function() {
+    const btnCancelarModal = document.getElementById('btn-cancelar-vaciar');
+    const btnConfirmarModal = document.getElementById('btn-confirmar-vaciar');
+    const backdrop = document.getElementById('modal-backdrop');
+    
+    // Event listener para el botón CANCELAR del modal
+    if (btnCancelarModal) {
+        btnCancelarModal.addEventListener('click', cancelarModal);
+    }
+    
+    // Event listener para el botón CONFIRMAR del modal
+    if (btnConfirmarModal) {
+        btnConfirmarModal.addEventListener('click', confirmarVaciarCampos);
+    }
+    
+    // Cerrar modal al hacer clic en el backdrop
+    if (backdrop) {
+        backdrop.addEventListener('click', ocultarModalAlerta);
     }
 });

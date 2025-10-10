@@ -340,6 +340,13 @@ document.addEventListener("DOMContentLoaded", function () {
                 })
                 .then(html => {
                     formularioEspecifico.innerHTML = html;
+
+                    // cargo script alertas
+                    const script = document.createElement('script');
+                    script.src = "{% static 'js/alertas.js' %}";
+                    document.body.appendChild(script);
+
+
                     buttonsContainer.style.display = 'flex';
                     // No mostrar carga masiva ni URL para proyector
                     if (uploadSimple) uploadSimple.style.display = 'none';
