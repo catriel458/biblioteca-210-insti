@@ -2406,7 +2406,7 @@ def guardar_alta_notebook(request):
     print("💾 Guardando notebook confirmado")  # Debug
     
     if request.method == 'POST':
-        # Recuperar datos de la sesión
+        # Recuperar datos de la sesión como base
         notebook_data = request.session.get('notebook_data', {})
         
         if not notebook_data:
@@ -2414,18 +2414,40 @@ def guardar_alta_notebook(request):
             return redirect('alta_materiales')
         
         try:
-            # Crear múltiples notebooks según la cantidad de ejemplares
-            ejemplares = notebook_data.get('ejemplares', [])
+            # NUEVO: Procesar datos editados del modal si existen
+            sede_editada = request.POST.get('sede')
+            
+            # Crear lista de ejemplares actualizada
+            ejemplares_actualizados = []
+            ejemplares_originales = notebook_data.get('ejemplares', [])
+            
+            for i, ejemplar_original in enumerate(ejemplares_originales):
+                # Buscar datos editados para este ejemplar
+                num_registro_editado = request.POST.get(f'ejemplares[{i}][num_registro]')
+                modelo_editado = request.POST.get(f'ejemplares[{i}][modelo_not]')
+                
+                # Crear ejemplar actualizado con datos editados o originales
+                ejemplar_actualizado = {
+                    'sede': sede_editada if sede_editada else ejemplar_original.get('sede'),
+                    'num_registro': num_registro_editado if num_registro_editado else ejemplar_original.get('num_registro'),
+                    'modelo_not': modelo_editado if modelo_editado else ejemplar_original.get('modelo_not'),
+                    'disponibilidad': ejemplar_original.get('disponibilidad', 'Disponible')
+                }
+                ejemplares_actualizados.append(ejemplar_actualizado)
+                
+                print(f"📝 Ejemplar {i+1} actualizado: {ejemplar_actualizado}")  # Debug
+            
+            # Crear múltiples notebooks con los datos actualizados
             notebooks_creados = []
             
-            for ejemplar in ejemplares:
+            for ejemplar in ejemplares_actualizados:
                 # Crear notebook con los campos correctos del modelo
                 notebook = Notebook.objects.create(
                     num_registro=ejemplar.get('num_registro'),
-                    modelo_not=ejemplar.get('modelo_not'),  # Aseguramos usar modelo_not
+                    modelo_not=ejemplar.get('modelo_not'),
                     sede=ejemplar.get('sede'),
                     estado=ejemplar.get('disponibilidad', 'Disponible'),
-                    marca=notebook_data.get('marca', 'Sin especificar')  # Usar marca si existe
+                    marca=notebook_data.get('marca', 'Sin especificar')
                 )
                 notebooks_creados.append(notebook)
                 print(f"✅ Notebook guardada en BD con ID: {notebook.id_not}")  # Debug
@@ -2870,51 +2892,60 @@ def guardar_alta_proyector(request):
     print("💾 Guardando proyector confirmado")  # Debug
     
     if request.method == 'POST':
-        # Recuperar datos de la sesión
+        # Recuperar datos de la sesión como base
         proyector_data = request.session.get('proyector_data', {})
-        ejemplares = request.session.get('ejemplares_proyector', [])
+        ejemplares_originales = request.session.get('ejemplares_proyector', [])
         
         if not proyector_data:
             messages.error(request, 'No se encontraron datos del proyector en la sesión.')
             return redirect('alta_materiales')
         
         try:
-            # Guardar cada ejemplar como un proyector individual
+            # NUEVO: Procesar datos editados del modal si existen
+            sede_editada = request.POST.get('sede')
+            
+            # Crear lista de ejemplares actualizada
+            ejemplares_actualizados = []
+            
+            if ejemplares_originales:
+                # Si hay ejemplares múltiples, procesarlos
+                for i, ejemplar_original in enumerate(ejemplares_originales):
+                    # Buscar datos editados para este ejemplar
+                    num_registro_editado = request.POST.get(f'ejemplares[{i}][num_registro]')
+                    modelo_editado = request.POST.get(f'ejemplares[{i}][modelo_proy]')
+                    
+                    # Crear ejemplar actualizado con datos editados o originales
+                    ejemplar_actualizado = {
+                        'sede': sede_editada if sede_editada else ejemplar_original.get('sede'),
+                        'num_registro': num_registro_editado if num_registro_editado else ejemplar_original.get('num_registro'),
+                        'modelo_proy': modelo_editado if modelo_editado else ejemplar_original.get('modelo_proy'),
+                    }
+                    ejemplares_actualizados.append(ejemplar_actualizado)
+                    
+                    print(f"📝 Ejemplar {i+1} actualizado: {ejemplar_actualizado}")  # Debug
+            else:
+                # Si no hay ejemplares múltiples, usar datos generales
+                ejemplar_unico = {
+                    'sede': sede_editada if sede_editada else proyector_data.get('sede_texto'),
+                    'num_registro': request.POST.get('ejemplares[0][num_registro]') or proyector_data.get('num_registro'),
+                    'modelo_proy': request.POST.get('ejemplares[0][modelo_proy]') or proyector_data.get('modelo_proy'),
+                }
+                ejemplares_actualizados.append(ejemplar_unico)
+                print(f"📝 Ejemplar único actualizado: {ejemplar_unico}")  # Debug
+            
+            # Crear múltiples proyectores con los datos actualizados
             proyectores_creados = []
             
-            if ejemplares:
-                print(f"📋 Guardando {len(ejemplares)} ejemplares de proyectores")
-                
-                # Iterar sobre cada ejemplar y crear un proyector para cada uno
-                for i, ejemplar in enumerate(ejemplares):
-                    modelo_proy = ejemplar.get('modelo_proy')
-                    num_registro = ejemplar.get('num_registro')
-                    
-                    print(f"📊 Ejemplar {i+1}: sede={proyector_data.get('sede_texto')}, modelo={modelo_proy}, num_registro={num_registro}")
-                    
-                    # Crear el proyector para este ejemplar
-                    proyector = Proyector.objects.create(
-                        num_registro=num_registro,
-                        modelo_pro=modelo_proy,
-                        sede=proyector_data.get('sede_texto'),  # Usar el nombre legible de la sede
-                        estado=proyector_data.get('estado', 'Disponible')
-                    )
-                    proyectores_creados.append(proyector)
-                    print(f"✅ Proyector {i+1} creado con éxito: {proyector}")
-            else:
-                # Si no hay ejemplares, usar los datos generales
-                modelo_proy = proyector_data.get('modelo_proy')
-                num_registro = proyector_data.get('num_registro')
-                
-                print(f"📊 Datos a guardar: sede={proyector_data.get('sede_texto')}, modelo={modelo_proy}, num_registro={num_registro}")
+            for i, ejemplar in enumerate(ejemplares_actualizados):
+                # Crear el proyector para este ejemplar
                 proyector = Proyector.objects.create(
-                    num_registro=num_registro,
-                    modelo_pro=modelo_proy,
-                    sede=proyector_data.get('sede_texto'),  # Usar el nombre legible de la sede
+                    num_registro=ejemplar.get('num_registro'),
+                    modelo_pro=ejemplar.get('modelo_proy'),
+                    sede=ejemplar.get('sede'),
                     estado=proyector_data.get('estado', 'Disponible')
                 )
                 proyectores_creados.append(proyector)
-                print(f"✅ Proyector creado con éxito: {proyector}")
+                print(f"✅ Proyector {i+1} creado con éxito: {proyector}")
                 
             print(f"✅ Total de proyectores creados: {len(proyectores_creados)}")  # Debug
             
@@ -2928,6 +2959,7 @@ def guardar_alta_proyector(request):
             return redirect('alta_materiales')
             
         except Exception as e:
+            print(f"❌ Error al guardar proyector: {str(e)}")  # Debug
             messages.error(request, f'Error al guardar el proyector: {str(e)}')
             return redirect('alta_materiales')
     else:
