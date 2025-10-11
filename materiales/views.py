@@ -483,7 +483,7 @@ def editar_mapa(request, mapa_id):
     else:
         form = MapaForm(instance=mapa)
 
-    return render(request, 'libros/editar_mapa.html', {'form': form, 'mapa': mapa})
+    return render(request, 'materiales/formularios_editar/editar_mapa.html', {'form': form, 'mapa': mapa})
 
 # Vista para mostrar elementos multimedia (por implementar):
 
@@ -541,11 +541,11 @@ def editar_multimedia(request, multi_id):
         form = MultimediaForm(request.POST, instance=multimedia)
         if form.is_valid():
             form.save()
-            return redirect('multimedia')
+            return redirect('modificacion_materiales')
     else:
         form = MultimediaForm(instance=multimedia)
 
-    return render(request, 'libros/editar_multimedia.html', {'form': form, 'mapa': multimedia})
+    return render(request, 'materiales/formularios_editar/editar_multimedia.html', {'form': form, 'multimedia': multimedia})
 
 # Notebook
 
@@ -601,11 +601,11 @@ def editar_notebook(request, not_id):
         form = NotebookForm(request.POST, instance=notebook)
         if form.is_valid():
             form.save()
-            return redirect('notebook')
+            return redirect('modificacion_materiales')
     else:
         form = NotebookForm(instance=notebook)
 
-    return render(request, 'libros/editar_notebook.html', {'form': form, 'notebook': notebook})
+    return render(request, 'materiales/formularios_editar/editar_notebook.html', {'form': form, 'notebook': notebook})
 
 # Proyector
 
@@ -661,11 +661,11 @@ def editar_proyector(request, proyector_id):
         form = ProyectorForm(request.POST, instance=proyector)
         if form.is_valid():
             form.save()
-            return redirect('proyector')
+            return redirect('modificacion_materiales')
     else:
         form = ProyectorForm(instance=proyector)
 
-    return render(request, 'libros/editar_proyector.html', {'form': form, 'proyector': proyector})
+    return render(request, 'materiales/formularios_editar/editar_proyector.html', {'form': form, 'proyector': proyector})
 
 
 # Varios
@@ -722,11 +722,11 @@ def editar_varios(request, varios_id):
         form = VariosForm(request.POST, instance=varios)
         if form.is_valid():
             form.save()
-            return redirect('varios')
+            return redirect('modificacion_materiales')
     else:
         form = VariosForm(instance=varios)
 
-    return render(request, 'libros/editar_varios.html', {'form': form, 'varios': varios})
+    return render(request, 'materiales/formularios_editar/editar_varios.html', {'form': form, 'varios': varios})
 
 
 # Vista para registro de bajas 
@@ -1420,13 +1420,25 @@ def cancelar_alta_libro(request):
 def modificacion_materiales(request):
     """
     Vista para mostrar la página de modificación de materiales
-    Muestra todos los libros disponibles para modificar
+    Muestra todos los materiales disponibles para modificar
     """
-    # Obtener todos los libros (disponibles y no disponibles)
+    # Obtener todos los materiales (disponibles y no disponibles)
     libros = Libro.objects.all().order_by('-id_libro')
+    mapas = Mapas.objects.all().order_by('-id_mapa')
+    multimedia = Multimedia.objects.all().order_by('-id_multi')
+    notebooks = Notebook.objects.all().order_by('-id_not')
+    proyectores = Proyector.objects.all().order_by('-id_proyector')
+    varios = Varios.objects.all().order_by('-id_varios')
+    programas = Programa.objects.all().order_by('-id_programa')
     
     return render(request, 'materiales/formularios_editar/modificacion_materiales.html', {
-        'libros': libros
+        'libros': libros,
+        'mapas': mapas,
+        'multimedia': multimedia,
+        'notebooks': notebooks,
+        'proyectores': proyectores,
+        'varios': varios,
+        'programas': programas
     })
 
 
@@ -1544,26 +1556,110 @@ def obtener_informe_baja(request):
 def ver_detalles_material(request, libro_id):
     """Vista para obtener detalles completos del material"""
     try:
-        libro = get_object_or_404(Libro, id_libro=libro_id)
+        # Obtener el tipo de material desde los parámetros de consulta
+        tipo = request.GET.get('tipo', 'libro')
         
-        detalles = {
-            'titulo': libro.titulo,
-            'autor': libro.autor,
-            'editorial': libro.editorial,
-            #'num_inventario': libro.num_inventario,
-            'clasificacion_cdu': libro.clasificacion_cdu,
-            'siglas_autor_titulo': libro.siglas_autor_titulo,
-            'sede': libro.sede,
-            'disponibilidad': libro.disponibilidad,
-            'estado': libro.estado,
-            'descripcion': libro.descripcion,
-            'etiqueta_palabra_clave': libro.etiqueta_palabra_clave,
-            'observaciones': libro.observaciones,
-            'num_ejemplar': libro.num_ejemplar,
-            'img': libro.img if libro.img else None,
-            'imagen_rota': libro.imagen_rota.url if libro.imagen_rota else None,
-            'motivo_baja': libro.motivo_baja if libro.motivo_baja else None,
-        }
+        if tipo == 'libro':
+            material = get_object_or_404(Libro, id_libro=libro_id)
+            detalles = {
+                'detalle_num_inventario': material.num_ejemplar,
+                'detalle_titulo': material.titulo,
+                'detalle_autor': material.autor,
+                'detalle_editorial': material.editorial,
+                'detalle_cdu': material.clasificacion_cdu,
+                'detalle_siglas': material.siglas_autor_titulo,
+                'detalle_sede': material.sede,
+                'detalle_disponibilidad': material.disponibilidad,
+                'detalle_estado': material.estado,
+                'detalle_descripcion': material.descripcion,
+                'detalle_observaciones': material.observaciones,
+                'detalle_imagen': material.img if material.img else None,
+                'detalle_etiquetas': material.etiqueta_palabra_clave.split(',') if material.etiqueta_palabra_clave else [],
+            }
+            
+        elif tipo == 'mapa':
+            material = get_object_or_404(Mapas, id_mapa=libro_id)
+            detalles = {
+                'detalle_mapa_id': material.id_mapa,
+                'detalle_mapa_num_registro': material.num_registro,
+                'detalle_mapa_tipo': material.tipo,
+                'detalle_mapa_sede': material.sede,
+                'detalle_mapa_denominacion': material.denominacion,
+                'detalle_mapa_estado': 'Activo',
+            }
+            
+        elif tipo == 'programa':
+            material = get_object_or_404(Programa, id_programa=libro_id)
+            detalles = {
+                'detalle_programa_id': material.id_programa,
+                'detalle_programa_profesor': material.profesor,
+                'detalle_programa_carrera': material.carrera,
+                'detalle_programa_materia': material.materia,
+                'detalle_programa_enlace': material.ingresar_enlace,
+                'detalle_programa_ciclo': material.ciclo_lectivo,
+                'detalle_programa_sede': material.sede,
+                'detalle_programa_disponibilidad': material.disponibilidad,
+                'detalle_programa_observaciones': material.observaciones,
+                'detalle_programa_img': material.img if material.img else None,
+                'detalle_programa_num_registro': 'N/A',
+                'detalle_programa_denominacion': f"{material.materia} - {material.carrera}",
+            }
+            
+        elif tipo == 'multimedia':
+            material = get_object_or_404(Multimedia, id_multi=libro_id)
+            detalles = {
+                'detalle_multimedia_id': material.id_multi,
+                'detalle_multimedia_profesor': material.profesor,
+                'detalle_multimedia_carrera': material.carrera,
+                'detalle_multimedia_materia': material.materia,
+                'detalle_multimedia_enlace': material.ingresar_enlace,
+                'detalle_multimedia_titulo_contenido': material.titulo_contenido,
+                'detalle_multimedia_num_registro': 'N/A',
+                'detalle_multimedia_sede': 'N/A',
+                'detalle_multimedia_denominacion': material.titulo_contenido,
+                'detalle_multimedia_estado': 'Activo',
+            }
+            
+        elif tipo == 'notebook':
+            material = get_object_or_404(Notebook, id_not=libro_id)
+            detalles = {
+                'detalle_notebook_id': material.id_not,
+                'detalle_notebook_num_registro': material.num_registro,
+                'detalle_notebook_sede': material.sede,
+                'detalle_notebook_modelo': material.modelo_not,
+                'detalle_notebook_marca': material.marca,
+                'detalle_notebook_estado': material.estado,
+                'detalle_notebook_denominacion': f"{material.marca} {material.modelo_not}",
+            }
+            
+        elif tipo == 'proyector':
+            material = get_object_or_404(Proyector, id_proyector=libro_id)
+            detalles = {
+                'detalle_proyector_id': material.id_proyector,
+                'detalle_proyector_num_registro': material.num_registro,
+                'detalle_proyector_sede': material.sede,
+                'detalle_proyector_modelo': material.modelo_pro,
+                'detalle_proyector_marca': 'N/A',
+                'detalle_proyector_estado': material.estado,
+                'detalle_proyector_denominacion': f"Proyector {material.modelo_pro}",
+            }
+            
+        elif tipo == 'varios':
+            material = get_object_or_404(Varios, id_varios=libro_id)
+            detalles = {
+                'detalle_varios_id': material.id_varios,
+                'detalle_varios_tipo': material.tipo,
+                'detalle_varios_sede': material.sede,
+                'detalle_varios_num_registro': 'N/A',
+                'detalle_varios_denominacion': f"Material varios - {material.tipo}",
+                'detalle_varios_estado': 'Activo',
+            }
+            
+        else:
+            return JsonResponse({
+                'success': False,
+                'error': f'Tipo de material no válido: {tipo}'
+            }, status=400)
         
         return JsonResponse({
             'success': True,
@@ -2987,3 +3083,23 @@ def cancelar_alta_mapa(request):
     
     messages.info(request, 'Se ha cancelado el registro del mapa.')
     return redirect('alta_materiales')
+
+def editar_programa(request, programa_id):
+    """
+    Vista para editar un programa existente
+    """
+    programa = get_object_or_404(Programa, id=programa_id)
+    
+    if request.method == 'POST':
+        form = ProgramaForm(request.POST, instance=programa)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f'Programa "{programa.nombre}" actualizado correctamente.')
+            return redirect('modificacion_materiales')
+    else:
+        form = ProgramaForm(instance=programa)
+    
+    return render(request, 'materiales/formularios_editar/editar_programa.html', {
+        'form': form,
+        'programa': programa
+    })

@@ -1,7 +1,7 @@
 {% extends 'components/baseb.html' %}
 {% load static %}
 
-{% block title %}Editar Mapa | Biblioteca Digital{% endblock %}
+{% block title %}Editar Programa | Biblioteca Digital{% endblock %}
 
 {% block extra_styles %}
 <link rel="stylesheet" href="{% static 'css/modificacion_material.css' %}">
@@ -310,50 +310,80 @@
 
 {% block content %}
 <div class="page-header">
-    <h1 class="page-title">Editar Mapa</h1>
-    <p class="subtitle">{{ mapa.tipo }}</p>
+    <h1 class="page-title">Editar Programa</h1>
+    <p class="subtitle">{{ programa.materia }}</p>
 </div>
 
 <div class="form-container">
     <!-- Formulario real (oculto) que se enviará -->
     <form id="realForm" method="post" enctype="multipart/form-data" style="display: none;">
         {% csrf_token %}
-        {% for field in form %}
-            {% if field.name != 'img' %}
-                {{ field }}
-            {% endif %}
-        {% endfor %}
-        <input type="hidden" name="img" id="real_img" value="{{ mapa.img|default:'' }}">
+        <input type="text" id="real_profesor" name="profesor" value="{{ programa.profesor }}">
+        <input type="text" id="real_carrera" name="carrera" value="{{ programa.carrera }}">
+        <input type="text" id="real_materia" name="materia" value="{{ programa.materia }}">
+        <input type="url" id="real_ingresar_enlace" name="ingresar_enlace" value="{{ programa.ingresar_enlace }}">
+        <input type="text" id="real_ciclo_lectivo" name="ciclo_lectivo" value="{{ programa.ciclo_lectivo }}">
+        <input type="text" id="real_sede" name="sede" value="{{ programa.sede }}">
+        <select id="real_disponibilidad" name="disponibilidad">
+            <option value="Disponible" {% if programa.disponibilidad == 'Disponible' %}selected{% endif %}>Disponible</option>
+            <option value="No disponible" {% if programa.disponibilidad == 'No disponible' %}selected{% endif %}>No disponible</option>
+        </select>
+        <textarea id="real_observaciones" name="observaciones">{{ programa.observaciones }}</textarea>
+        <input type="url" id="real_img" name="img" value="{{ programa.img }}">
     </form>
 
     <!-- Formulario visual para el usuario -->
     <div class="form-card">
         <div class="form-grid">
-            {% for field in form %}
-            {% if field.name != 'img' %}
-            <div class="form-group {% if field.field.required %}required{% endif %} {% if field.name == 'descripcion' or field.name == 'observaciones' %}full-width{% endif %}">
-                <label for="visual_{{ field.name }}" {% if field.field.required %}class="required"{% endif %}>{{ field.label }}</label>
-                {% if field.field.widget.input_type == 'textarea' %}
-                <textarea id="visual_{{ field.name }}" class="{% if field.name == 'descripcion' or field.name == 'observaciones' %}textarea-large{% endif %}">{{ field.value|default:'' }}</textarea>
-                {% elif field.field.widget.input_type == 'select' %}
-                <select id="visual_{{ field.name }}">
-                    {% for option in field.field.choices %}
-                    <option value="{{ option.0 }}" {% if field.value == option.0 %}selected{% endif %}>{{ option.1 }}</option>
-                    {% endfor %}
-                </select>
-                {% else %}
-                <input type="{{ field.field.widget.input_type }}" id="visual_{{ field.name }}" value="{{ field.value|default:'' }}" {% if field.field.required %}required{% endif %}>
-                {% endif %}
+            <div class="form-group">
+                <label for="profesor" class="required">Profesor</label>
+                <input type="text" id="profesor" value="{{ programa.profesor }}" required>
             </div>
-            {% endif %}
-            {% endfor %}
+            
+            <div class="form-group">
+                <label for="carrera" class="required">Carrera</label>
+                <input type="text" id="carrera" value="{{ programa.carrera }}" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="materia" class="required">Materia</label>
+                <input type="text" id="materia" value="{{ programa.materia }}" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="ingresar_enlace">Enlace del programa</label>
+                <input type="url" id="ingresar_enlace" value="{{ programa.ingresar_enlace }}">
+            </div>
+            
+            <div class="form-group">
+                <label for="ciclo_lectivo" class="required">Ciclo Lectivo</label>
+                <input type="text" id="ciclo_lectivo" value="{{ programa.ciclo_lectivo }}" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="sede" class="required">Sede</label>
+                <input type="text" id="sede" value="{{ programa.sede }}" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="disponibilidad" class="required">Disponibilidad</label>
+                <select id="disponibilidad">
+                    <option value="Disponible" {% if programa.disponibilidad == 'Disponible' %}selected{% endif %}>Disponible</option>
+                    <option value="No disponible" {% if programa.disponibilidad == 'No disponible' %}selected{% endif %}>No disponible</option>
+                </select>
+            </div>
+            
+            <div class="form-group full-width">
+                <label for="observaciones">Observaciones</label>
+                <textarea id="observaciones" class="textarea-large">{{ programa.observaciones }}</textarea>
+            </div>
             
             <!-- Sección de imagen -->
             <div class="image-section">
                 <div class="image-upload">
                     <label for="imageUrl">URL de la imagen</label>
                     <div class="upload-container">
-                        <input type="url" id="imageUrl" class="url-input" value="{{ mapa.img|default:'' }}">
+                        <input type="url" id="imageUrl" class="url-input" value="{{ programa.img }}">
                         <button type="button" id="linkBtn" class="upload-button">
                             <i class="fas fa-link"></i> Enlace
                         </button>
@@ -366,7 +396,7 @@
                     </div>
                 </div>
                 <div class="image-preview">
-                    <img id="imagePreview" src="{{ mapa.img|default:'https://via.placeholder.com/120x160/95a5a6/ffffff?text=Sin+Imagen' }}" alt="Vista previa">
+                    <img id="imagePreview" src="{{ programa.img|default:'https://via.placeholder.com/120x160/95a5a6/ffffff?text=Sin+Imagen' }}" alt="Vista previa">
                 </div>
             </div>
             
@@ -384,53 +414,54 @@
 {% block extra_scripts %}
 <!-- Script simplificado para guardar directamente -->
 <script>
-// Función simplificada para guardar directamente sin modal
-function guardarDirectamente() {
-    // Copiar datos al formulario real
-    copiarDatosAlFormularioReal();
-    
-    // Enviar formulario
-    document.getElementById('realForm').submit();
-}
-
-// Copiar datos del formulario visual al formulario real
-function copiarDatosAlFormularioReal() {
-    // Obtener referencia al formulario real
-    const form = document.getElementById('realForm');
-    
-    // Mapeo de campos visuales a campos reales para mapas
-    const camposMapeados = {
-        'id_mapa': 'visual_id_mapa',
-        'tipo': 'visual_tipo',
-        'descripcion': 'visual_descripcion',
-        'num_ejemplar': 'visual_num_ejemplar'
-    };
-    
-    // Copiar valores de campos visuales a campos reales
-    for (const [campoReal, campoVisual] of Object.entries(camposMapeados)) {
-        const campoVisualElement = document.getElementById(campoVisual);
-        const campoRealElement = form.querySelector(`[name="${campoReal}"]`);
+    // Función simplificada para guardar directamente sin modal
+    function guardarDirectamente() {
+        // Copiar datos al formulario real
+        copiarDatosAlFormularioReal();
         
-        if (campoVisualElement && campoRealElement) {
-            campoRealElement.value = campoVisualElement.value;
-        }
+        // Enviar formulario
+        document.getElementById('realForm').submit();
     }
     
-    // Manejar imagen especialmente
-    const imageUrlInput = document.getElementById('imageUrl');
-    const imageFileInput = document.getElementById('imageFile');
-    const realImgInput = document.getElementById('real_img');
-    
-    if (imageUrlInput && imageUrlInput.value.trim()) {
-        // Si hay URL de imagen
-        realImgInput.value = imageUrlInput.value.trim();
-    } else if (imageFileInput && imageFileInput.files.length > 0) {
-        // Si hay archivo seleccionado, necesitaríamos manejar la subida
-        // Por ahora, mantener el valor actual
-        console.log('Archivo seleccionado para subir');
+    // Copiar datos del formulario visual al formulario real
+    function copiarDatosAlFormularioReal() {
+        document.getElementById('real_profesor').value = document.getElementById('profesor').value;
+        document.getElementById('real_carrera').value = document.getElementById('carrera').value;
+        document.getElementById('real_materia').value = document.getElementById('materia').value;
+        document.getElementById('real_ingresar_enlace').value = document.getElementById('ingresar_enlace').value;
+        document.getElementById('real_ciclo_lectivo').value = document.getElementById('ciclo_lectivo').value;
+        document.getElementById('real_sede').value = document.getElementById('sede').value;
+        document.getElementById('real_disponibilidad').value = document.getElementById('disponibilidad').value;
+        document.getElementById('real_observaciones').value = document.getElementById('observaciones').value;
+        document.getElementById('real_img').value = document.getElementById('imageUrl').value;
     }
     
-    console.log('✅ Datos copiados al formulario real');
-}
+    // Manejar la carga de imágenes
+    document.addEventListener('DOMContentLoaded', function() {
+        const imageFile = document.getElementById('imageFile');
+        const imageUrl = document.getElementById('imageUrl');
+        const imagePreview = document.getElementById('imagePreview');
+        
+        // Actualizar vista previa cuando se cambia la URL
+        imageUrl.addEventListener('change', function() {
+            if (imageUrl.value) {
+                imagePreview.src = imageUrl.value;
+            } else {
+                imagePreview.src = 'https://via.placeholder.com/120x160/95a5a6/ffffff?text=Sin+Imagen';
+            }
+        });
+        
+        // Actualizar vista previa cuando se sube un archivo
+        imageFile.addEventListener('change', function() {
+            if (imageFile.files && imageFile.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    imagePreview.src = e.target.result;
+                    imageUrl.value = 'Archivo local: ' + imageFile.files[0].name;
+                };
+                reader.readAsDataURL(imageFile.files[0]);
+            }
+        });
+    });
 </script>
 {% endblock %}

@@ -116,13 +116,14 @@ urlpatterns = [
 
 
      # URLs para programas
-    # URLs para programas - AGREGAR ESTAS LÍNEAS
+    # URLs de programas
     path('programas/', views.lista_programas, name='lista_programas'),
     path('formulario/programa/', views.formulario_programa, name='formulario_programa'),
     path('alta-programa/', views.alta_programa, name='alta_programa'),
     path('confirmar-alta-programa/', views.confirmar_alta_programa, name='confirmar_alta_programa'),
     path('guardar-programa-confirmado/', views.guardar_programa_confirmado, name='guardar_programa_confirmado'),
     path('cancelar-alta-programa/', views.cancelar_alta_programa, name='cancelar_alta_programa'),
+    path('editar-programa/<int:programa_id>/', views.editar_programa, name='editar_programa'),
 
 ]
 
