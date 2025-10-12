@@ -1,0 +1,12 @@
+/* Estilos específicos para el formulario de alta de notebook */
+
+/* Asegurar que solo el asterisco rojo sea visible y en negrita */
+.text-danger {
+    color: #dc3545 !important;
+    font-weight: bold !important;
+}
+
+/* Contenedor de ejemplares dinámicos */
+#contenedor-ejemplares-notebook {
+    margin-top: 20px;
+}

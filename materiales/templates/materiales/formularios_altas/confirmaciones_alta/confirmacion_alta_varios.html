@@ -1,0 +1,450 @@
+{% extends 'components/baseb.html' %}
+{% load static %}
+{% block extra_styles %}
+    <style>
+        body {
+            background-color: #f5f5f5;
+        }
+
+        .modal-dialog.modal-lg {
+            max-width: 1350px;
+        }
+
+        .modal-content {
+            background: transparent;
+            box-shadow: inset 0px 0px 40px 10px rgba(0, 0, 0, 0.25);
+            border-radius: 0px 0px 10px 10px;
+            border: 3px solid #8B1D69;
+        }
+
+        .modal-header {
+            background-color: transparent;
+            color: #333;
+            border-bottom: none;
+            border-radius: 0px;
+            padding: 0.75rem 1rem;
+        }
+
+        .modal-title {
+            color: #333;
+            font-weight: 600;
+            font-size: 1.1rem;
+            letter-spacing: 1px;
+        }
+
+        .btn-close {
+            filter: invert(1);
+        }
+
+        .modal-body {
+            padding: 1rem;
+            background-color: transparent;
+        }
+
+        .tipo-material-section {
+            background-color: #f8f9fa;
+            padding: 0.5rem 0.75rem;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+            border-bottom: 2px solid #8B1D69;
+        }
+
+        .tipo-material-title {
+            color: #000000;
+            font-weight: 600;
+            margin: 0;
+            font-size: 0.9rem;
+        }
+
+        .text-primary {
+            color: #8B1D69 !important;
+            font-weight: 600;
+        }
+
+        .section-title {
+            color: #000000;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            font-size: 1rem;
+            border-bottom: 2px solid #8B1D69;
+            padding-bottom: 0.5rem;
+            background-color: #f8f9fa;
+            padding: 0.5rem 0.75rem;
+            border-radius: 4px;
+        }
+
+        .section-container {
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            padding: 0.75rem;
+            margin-bottom: 1rem;
+            border-bottom: 2px solid #8B1D69;
+        }
+
+        .campos-info {
+            display: flex;
+            gap: 2rem;
+            border-bottom: 2px solid #8B1D69;
+            padding: 0.75rem;
+            border-radius: 4px;
+            background-color: #f8f9fa;
+            margin-bottom: 1rem;
+        }
+
+        .campo-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .campo-label {
+            font-size: 0.8rem;
+            color: #000000;
+            margin-bottom: 0.25rem;
+            font-weight: 600;
+        }
+
+        .campo-value {
+            font-size: 0.9rem;
+            color: #8B1D69;
+            font-weight: 500;
+        }
+
+        .info-text {
+            margin-bottom: 0.5rem;
+            color: #8B1D69;
+            font-size: 0.9rem;
+            font-weight: 500;
+            padding: 0.25rem 0;
+        }
+
+        .modal-body strong {
+            color: #000000;
+            display: block;
+            margin-bottom: 0.25rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .ejemplar-info {
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            padding: 0.75rem;
+            margin-bottom: 1rem;
+            border-bottom: 2px solid #8B1D69;
+        }
+
+        .ejemplar-info h6 {
+            color: #000000;
+            margin-bottom: 0.75rem;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .table-responsive {
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            padding: 0.75rem;
+            border-bottom: 2px solid #8B1D69;
+        }
+
+        .table {
+            margin-bottom: 0;
+        }
+
+        .table-dark {
+            background-color: #8B1D69;
+        }
+
+        .table-striped tbody tr:nth-of-type(odd) {
+            background-color: rgba(139, 29, 105, 0.05);
+        }
+
+        .modal-footer {
+            background-color: transparent;
+            border-top: none;
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 0.5rem 1.5rem;
+            font-weight: 600;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            min-width: 100px;
+        }
+
+        .btn-outline-danger {
+            color: #dc3545;
+            border-color: #dc3545;
+            background-color: transparent;
+        }
+
+        .btn-outline-danger:hover {
+            color: #fff;
+            background-color: #dc3545;
+            border-color: #dc3545;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+            border-color: #0056b3;
+        }
+
+        .loading-container {
+            text-align: center;
+            padding: 50px;
+        }
+
+        .loading-text {
+            color: #8B1D69;
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .modal-dialog {
+                margin: 0.5rem;
+            }
+            .modal-body {
+                padding: 0.75rem;
+            }
+            .campos-info {
+                flex-direction: column;
+                gap: 1rem;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <!-- Loading Page -->
+    <div id="loading-page" class="loading-container">
+        <div class="loading-text">Cargando...</div>
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Cargando...</span>
+        </div>
+    </div>
+
+    <!-- Modal de Confirmación de Alta de Varios -->
+    <div class="modal fade" id="modalConfirmacionAltaMaterial" tabindex="-1" aria-labelledby="modalConfirmacionLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="modalConfirmacionLabel">CONFIRME LOS DATOS</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <!-- Tipo de Material -->
+            <div class="tipo-material-section">
+                <p class="tipo-material-title">TIPO DE MATERIAL: <span class="text-primary">VARIOS</span></p>
+            </div>
+            
+            <!-- Primera fila: Solo Sede -->
+            <div class="campos-info">
+              <div class="campo-item">
+                <span class="campo-label">Sede</span>
+                <span class="campo-value">{{ form_data.sede_texto|default:"Sin especificar" }}</span>
+              </div>
+            </div>
+            
+            <!-- Segunda fila: Tipo a Registrar y Cant. de Ejemplares -->
+            <div class="campos-info">
+              <div class="campo-item">
+                <span class="campo-label">Tipo a Registrar</span>
+                <span class="campo-value">{{ form_data.tipo_varios|default:"Sin especificar" }}</span>
+              </div>
+              <div class="campo-item">
+                <span class="campo-label">Cant. de Ejemplares</span>
+                <span class="campo-value">{{ form_data.cant_ejemplares|default:"1" }}</span>
+              </div>
+            </div>
+
+            <!-- Elementos Dinámicos -->
+            <div id="seccionElementosDinamicos" style="display: none;">
+              <div class="section-title">Elementos Agregados</div>
+              <div class="table-responsive">
+                <table class="table table-striped table-sm">
+                  <thead class="table-dark">
+                    <tr>
+                      <th>Sede</th>
+                      <th>Tipo de Material</th>
+                      <th>Cantidad de Ejemplares</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tablaElementosDinamicos">
+                    <!-- Los elementos dinámicos se agregarán aquí via JavaScript -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline-danger btn-sm" id="btnEditar" onclick="habilitarEdicion()">EDITAR</button>
+            <button type="button" class="btn btn-primary btn-sm" id="btnGuardar" style="display: none;" onclick="confirmarVarios()">GUARDAR</button>
+            <button type="button" class="btn btn-primary btn-sm" id="btnConfirmarAltaMaterial" onclick="confirmarVarios()">CONFIRMAR</button>
+          </div>
+        </div>
+      </div>
+    </div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+let modoEdicion = false;
+let valoresOriginales = {};
+
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🚀 Página de confirmación VARIOS cargada');
+    console.log('📋 Datos recibidos:', {
+        tipo: '{{ form_data.tipo_varios|escapejs }}',
+        cantidad: '{{ form_data.cant_ejemplares|escapejs }}',
+        tipos_varios: {{ form_data.tipos_varios|safe|default:"[]" }}
+    });
+    
+    // Verificar que Bootstrap está disponible
+    if (typeof bootstrap === 'undefined') {
+        alert('❌ Bootstrap no está cargado');
+        return;
+    }
+    
+    // Poblar la tabla de elementos dinámicos
+    poblarElementosDinamicos();
+    
+    // Mostrar el modal automáticamente después de un pequeño delay
+    setTimeout(function() {
+        const modal = new bootstrap.Modal(document.getElementById('modalConfirmacionAltaMaterial'), {
+            backdrop: 'static',  // No se cierra haciendo clic fuera
+            keyboard: false      // No se cierra con ESC
+        });
+        modal.show();
+        console.log('✅ Modal de VARIOS mostrado automáticamente');
+    }, 500);
+});
+
+function habilitarEdicion() {
+    console.log('✏️ Habilitando edición de campos para VARIOS');
+    
+    // Guardar valores originales antes de habilitar la edición
+    guardarValoresOriginales();
+    
+    // Obtener todos los campos del modal
+    const camposModal = document.querySelectorAll('#modalConfirmacionAltaMaterial input, #modalConfirmacionAltaMaterial select');
+    
+    // Habilitar todos los campos
+    camposModal.forEach(campo => {
+        campo.removeAttribute('disabled');
+        campo.removeAttribute('readonly');
+    });
+
+    // Convertir los spans de valores en inputs editables
+    const camposValor = document.querySelectorAll('.campo-value');
+    camposValor.forEach(span => {
+        const valorOriginal = span.textContent;
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.value = valorOriginal;
+        input.className = 'form-control';
+        span.parentNode.replaceChild(input, span);
+    });
+
+    // Cambiar visibilidad de botones
+    document.getElementById('btnEditar').style.display = 'none';
+    document.getElementById('btnGuardar').style.display = 'inline-block';
+    document.getElementById('btnConfirmarAltaMaterial').style.display = 'none';
+}
+
+function guardarValoresOriginales() {
+    valoresOriginales = {
+        sede: document.querySelector('.campo-value:nth-child(1)').textContent,
+        tipo: document.querySelector('.campo-value:nth-child(2)').textContent,
+        cantidad: document.querySelector('.campo-value:nth-child(3)').textContent
+    };
+}
+
+function poblarElementosDinamicos() {
+    const tiposVarios = {{ form_data.tipos_varios|safe|default:"[]" }};
+    const tablaBody = document.getElementById('tablaElementosDinamicos');
+    const seccionElementos = document.getElementById('seccionElementosDinamicos');
+    
+    if (!tablaBody || !seccionElementos) return;
+    
+    // Limpiar tabla
+    tablaBody.innerHTML = '';
+    
+    console.log('🔍 Estructura de tipos_varios:', tiposVarios);
+    
+    // Filtrar solo los elementos dinámicos (excluir el primer elemento que es el estático)
+    const elementosDinamicos = tiposVarios.length > 1 ? tiposVarios.slice(1) : [];
+    
+    if (elementosDinamicos && elementosDinamicos.length > 0) {
+        // Mostrar la sección
+        seccionElementos.style.display = 'block';
+        
+        // Agregar cada elemento dinámico a la tabla
+        elementosDinamicos.forEach(function(elemento) {
+            // La estructura es: { tipo: "...", ejemplares: [...] }
+            const cantidadEjemplares = elemento.ejemplares ? elemento.ejemplares.length : 1;
+            const sedeTexto = elemento.ejemplares && elemento.ejemplares.length > 0 
+                ? elemento.ejemplares[0].sede 
+                : '{{ form_data.sede_texto|escapejs }}';
+            
+            const fila = document.createElement('tr');
+            fila.innerHTML = `
+                <td>${sedeTexto || 'Sin especificar'}</td>
+                <td>${elemento.tipo || 'Sin especificar'}</td>
+                <td>${cantidadEjemplares}</td>
+            `;
+            tablaBody.appendChild(fila);
+        });
+        
+        console.log('✅ Elementos dinámicos agregados a la tabla:', elementosDinamicos);
+    } else {
+        // Ocultar la sección si no hay elementos dinámicos
+        seccionElementos.style.display = 'none';
+        console.log('ℹ️ No hay elementos dinámicos para mostrar');
+    }
+}
+
+function confirmarVarios() {
+    console.log('🟢 Confirmando material varios...');
+    
+    // Crear un formulario invisible para enviar la confirmación
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = '{% url "guardar_alta_varios" %}';
+    
+    // Agregar token CSRF
+    const csrfToken = document.createElement('input');
+    csrfToken.type = 'hidden';
+    csrfToken.name = 'csrfmiddlewaretoken';
+    csrfToken.value = '{{ csrf_token }}';
+    form.appendChild(csrfToken);
+    
+    // Agregar al DOM y enviar
+    document.body.appendChild(form);
+    form.submit();
+}
+
+function cancelarModal() {
+    console.log('🔴 Cancelando material varios...');
+    // Redirigir de vuelta al formulario de alta
+    window.location.href = '{% url "cancelar_alta_varios" %}';
+}
+
+// Manejar cuando se cierra el modal con X
+document.getElementById('modalConfirmacionAltaMaterial').addEventListener('hidden.bs.modal', function () {
+    console.log('🔴 Modal cerrado, regresando al formulario...');
+    window.location.href = '{% url "alta_materiales" %}';
+});
+</script>
+{% endblock %}

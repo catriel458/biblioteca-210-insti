@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Bajas de Libros</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+        li {
+            background: #fff;
+            margin: 10px 0;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            text-align: left;
+        }
+        h2 {
+            margin: 0;
+            color: #d32f2f;
+        }
+        p {
+            margin: 5px 0;
+            color: #555;
+        }
+        .no-disponibles {
+            color: #888;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Libros No Disponibles</h1>
+        <div>
+            {% if libros_no_disponibles %}
+                <ul>
+                    {% for libro in libros_no_disponibles %}
+                        <li>
+                            <h2>{{ libro.titulo }}</h2>
+                            <p><strong>Autor:</strong> {{ libro.autor }}</p>
+                            <p><strong>Editorial:</strong> {{ libro.editorial }}</p>
+                            <p><strong>Edición:</strong> {{ libro.edicion }}</p>
+                            <p><strong>Estado:</strong> {{ libro.estado }}</p>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p class="no-disponibles">No hay libros no disponibles actualmente.</p>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

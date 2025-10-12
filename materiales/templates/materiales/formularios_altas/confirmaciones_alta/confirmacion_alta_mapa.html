@@ -1,0 +1,612 @@
+{% extends 'components/baseb.html' %}
+{% load static %}
+{% block extra_styles %}
+    <style>
+        body {
+            background-color: #f5f5f5;
+        }
+
+        .modal-dialog.modal-lg {
+            max-width: 1350px;
+        }
+
+        .modal-content {
+            background: transparent;
+            box-shadow: inset 0px 0px 40px 10px rgba(0, 0, 0, 0.25);
+            border-radius: 0px 0px 10px 10px;
+            border: 3px solid #8B1D69;
+        }
+
+        .modal-header {
+            background-color: transparent;
+            color: #333;
+            border-bottom: none;
+            border-radius: 0px;
+            padding: 0.75rem 1rem;
+        }
+
+        .modal-title {
+            color: #333;
+            font-weight: 600;
+            font-size: 1.1rem;
+            letter-spacing: 1px;
+        }
+
+        .btn-close {
+            filter: invert(1);
+        }
+
+        .modal-body {
+            padding: 1rem;
+            background-color: transparent;
+        }
+
+        .tipo-material-section {
+            background-color: #f8f9fa;
+            padding: 0.5rem 0.75rem;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+            border-bottom: 2px solid #8B1D69;
+        }
+
+        .tipo-material-title {
+            color: #000000;
+            font-weight: 600;
+            margin: 0;
+            font-size: 0.9rem;
+        }
+
+        .text-primary {
+            color: #8B1D69 !important;
+            font-weight: 600;
+        }
+
+        .sede-section {
+            margin-bottom: 1rem;
+            border-bottom: 2px solid #8B1D69;
+            padding: 0.5rem 0.75rem;
+            border-radius: 4px;
+            background-color: #f8f9fa;
+        }
+
+        .sede-text {
+            font-size: 0.8rem;
+            color: #666;
+            margin: 0 0 0.25rem 0;
+        }
+
+        .sede-value {
+            font-size: 0.9rem;
+            color: #8B1D69;
+            font-weight: 500;
+            margin: 0;
+        }
+
+        .sede-select {
+            display: none;
+            font-size: 0.9rem;
+            color: #8B1D69;
+            font-weight: 500;
+            border: 1px solid #8B1D69;
+            border-radius: 4px;
+            padding: 0.25rem 0.5rem;
+            background-color: #fff;
+        }
+
+        .separator-line {
+            height: 2px;
+            background-color: #8B1D69;
+            margin: 1rem 0;
+            border-radius: 1px;
+        }
+
+        .campos-info {
+            display: flex;
+            gap: 2rem;
+            border-bottom: 2px solid #8B1D69;
+            padding: 0.75rem;
+            border-radius: 4px;
+            background-color: #f8f9fa;
+            margin-bottom: 1rem;
+        }
+
+        .campo-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .campo-label {
+            font-size: 0.8rem;
+            color: #000000;
+            margin-bottom: 0.25rem;
+            font-weight: 600;
+        }
+
+        .campo-value {
+            font-size: 0.9rem;
+            color: #8B1D69;
+            font-weight: 500;
+        }
+
+        .campo-input {
+            display: none;
+            font-size: 0.9rem;
+            color: #8B1D69;
+            font-weight: 500;
+            border: 1px solid #8B1D69;
+            border-radius: 4px;
+            padding: 0.25rem 0.5rem;
+            background-color: #fff;
+        }
+
+        .section-title {
+            color: #000000;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            font-size: 1rem;
+            border-bottom: 2px solid #8B1D69;
+            padding-bottom: 0.5rem;
+            background-color: #f8f9fa;
+            padding: 0.5rem 0.75rem;
+            border-radius: 4px;
+        }
+
+        .ejemplar-info {
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            padding: 0.75rem;
+            margin-bottom: 1rem;
+            border-bottom: 2px solid #8B1D69;
+        }
+
+        .ejemplar-info h6 {
+            color: #000000;
+            margin-bottom: 0.75rem;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .modal-footer {
+            background-color: transparent;
+            border-top: none;
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 0.5rem 1.5rem;
+            font-weight: 600;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            min-width: 100px;
+        }
+
+        .btn-outline-danger {
+            color: #dc3545;
+            border-color: #dc3545;
+            background-color: transparent;
+        }
+
+        .btn-outline-danger:hover {
+            color: #fff;
+            background-color: #dc3545;
+            border-color: #dc3545;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+            border-color: #0056b3;
+        }
+
+        .loading-container {
+            text-align: center;
+            padding: 50px;
+        }
+
+        .loading-text {
+            color: #8B1D69;
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .modal-dialog {
+                margin: 0.5rem;
+            }
+            .modal-body {
+                padding: 0.75rem;
+            }
+            .campos-info {
+                flex-direction: column;
+                gap: 1rem;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <!-- Loading Page -->
+    <div id="loading-page" class="loading-container">
+        <div class="loading-text">Cargando...</div>
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Cargando...</span>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="modalConfirmacionAltaMaterial" tabindex="-1" aria-labelledby="modalConfirmacionLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalConfirmacionLabel">CONFIRME LOS DATOS</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Tipo de Material -->
+                    <div class="tipo-material-section">
+                        <p class="tipo-material-title">TIPO DE MATERIAL: <span class="text-primary">MAPA</span></p>
+                    </div>
+
+                    <!-- Sede -->
+                    <div class="sede-section">
+                        <p class="sede-text">Sede</p>
+                        <p class="sede-value" id="sede-display">{{ form_data.sede_texto|default:"Sin especificar" }}</p>
+                        <select class="sede-select" id="sede-select" name="sede">
+                            <option value="LA PLATA" {% if form_data.sede_texto == "LA PLATA" or not form_data.sede_texto %}selected{% endif %}>LA PLATA</option>
+                            <option value="ABASTO" {% if form_data.sede_texto == "ABASTO" %}selected{% endif %}>ABASTO</option>
+                        </select>
+                    </div>
+
+
+
+                    <!-- Información de Ejemplares -->
+                    <div class="section-title">Información de Ejemplares</div>
+                    
+                    {% if tipos_mapa %}
+                      {% for tipo_grupo in tipos_mapa %}
+                        <div class="ejemplar-info">
+                            <h6>{{ tipo_grupo.tipo|upper|default:"SIN TIPO" }} ({{ tipo_grupo.ejemplares|length }} ejemplar{{ tipo_grupo.ejemplares|length|pluralize:"es" }})</h6>
+                            {% for ejemplar in tipo_grupo.ejemplares %}
+                                {% with unique_id=forloop.parentloop.counter|add:forloop.counter|add:forloop.counter0 %}
+                                <div class="campos-info" data-ejemplar-index="{{ unique_id }}">
+                                    <div class="campo-item">
+                                        <span class="campo-label">N° Registro</span>
+                                        <span class="campo-value" id="registroValue{{ unique_id }}">{{ ejemplar.n_registro|default:"Sin especificar" }}</span>
+                                        <input type="text" class="campo-input" id="registroInput{{ unique_id }}" value="{{ ejemplar.n_registro|default:'' }}">
+                                    </div>
+                                    <div class="campo-item">
+                                        <span class="campo-label">Denominación</span>
+                                        <span class="campo-value" id="denominacionValue{{ unique_id }}">{{ ejemplar.denominacion|default:"Sin especificar" }}</span>
+                                        <input type="text" class="campo-input" id="denominacionInput{{ unique_id }}" value="{{ ejemplar.denominacion|default:'' }}">
+                                    </div>
+                                    <div class="campo-item">
+                                        <span class="campo-label">Descripción</span>
+                                        <span class="campo-value" id="descripcionValue{{ unique_id }}">{{ ejemplar.descripcion|default:"Sin descripción" }}</span>
+                                        <input type="text" class="campo-input" id="descripcionInput{{ unique_id }}" value="{{ ejemplar.descripcion|default:'' }}">
+                                    </div>
+                                </div>
+                                {% endwith %}
+                            {% endfor %}
+                        </div>
+                      {% endfor %}
+                    {% else %}
+                      <div class="alert alert-warning">
+                          <i class="fas fa-exclamation-triangle"></i>
+                          No se han especificado mapas para confirmar.
+                      </div>
+                    {% endif %}
+
+                    <!-- Hidden inputs para el formulario -->
+                    <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+                    <input type="hidden" name="sede_id" value="{{ sede_seleccionada }}">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-danger btn-sm" id="btn-editar" onclick="editarCampos()">EDITAR</button>
+                    <button type="button" class="btn btn-primary btn-sm" id="btnConfirmarAltaMaterial" onclick="confirmarMapa()">GUARDAR</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script>
+    // Variables globales para el modo de edición
+    let modoEdicion = false;
+    let valoresOriginales = {};
+
+    // Función para mostrar el modal
+    function mostrarModal() {
+        console.log('🔵 INICIO mostrarModal()');
+        console.log('🔍 DOM antes de mostrar modal:', document.querySelectorAll('.modal-content').length, 'elementos modal-content');
+        
+        document.getElementById('loading-page').style.display = 'none';
+        if (typeof bootstrap !== 'undefined') {
+            const modalElement = document.getElementById('modalConfirmacionAltaMaterial');
+            console.log('🔍 Modal element encontrado:', modalElement ? 'SÍ' : 'NO');
+            
+            const modal = new bootstrap.Modal(modalElement, {
+                backdrop: 'static',
+                keyboard: false
+            });
+            console.log('🔍 Modal instance creada:', modal);
+            
+            modal.show();
+            console.log('🔍 Modal.show() ejecutado');
+            
+            // Verificar DOM después de show
+            setTimeout(() => {
+                console.log('🔍 DOM después de mostrar modal:', document.querySelectorAll('.modal-content').length, 'elementos modal-content');
+            }, 100);
+        } else {
+            console.error('Bootstrap no está disponible');
+        }
+        console.log('🔵 FIN mostrarModal()');
+    }
+
+    // Función para editar campos
+    function editarCampos() {
+        const btnEditar = document.getElementById('btn-editar');
+        
+        if (!modoEdicion) {
+            // Entrar en modo edición
+            console.log('✏️ Entrando en modo edición');
+            
+            // Guardar valores originales
+            valoresOriginales = {
+                sede: document.getElementById('sede-display').textContent
+            };
+
+            // Guardar valores originales de todos los ejemplares
+            const ejemplares = document.querySelectorAll('.campos-info[data-ejemplar-index]');
+            ejemplares.forEach((ejemplar, index) => {
+                const contador = ejemplar.getAttribute('data-ejemplar-index');
+                valoresOriginales[`registro${contador}`] = document.getElementById(`registroValue${contador}`).textContent;
+                valoresOriginales[`denominacion${contador}`] = document.getElementById(`denominacionValue${contador}`).textContent;
+                valoresOriginales[`descripcion${contador}`] = document.getElementById(`descripcionValue${contador}`).textContent;
+            });
+
+            // Ocultar elementos de solo lectura y mostrar campos editables
+            document.getElementById('sede-display').style.display = 'none';
+            document.getElementById('sede-select').style.display = 'block';
+
+            // Mostrar inputs para cada ejemplar
+            ejemplares.forEach((ejemplar, index) => {
+                const contador = ejemplar.getAttribute('data-ejemplar-index');
+                document.getElementById(`registroValue${contador}`).style.display = 'none';
+                document.getElementById(`registroInput${contador}`).style.display = 'block';
+                
+                document.getElementById(`denominacionValue${contador}`).style.display = 'none';
+                document.getElementById(`denominacionInput${contador}`).style.display = 'block';
+                
+                document.getElementById(`descripcionValue${contador}`).style.display = 'none';
+                document.getElementById(`descripcionInput${contador}`).style.display = 'block';
+            });
+
+            // Cambiar botón a "CANCELAR"
+            btnEditar.textContent = 'CANCELAR';
+            btnEditar.className = 'btn btn-secondary btn-sm';
+            
+            modoEdicion = true;
+        } else {
+            // Cancelar edición
+            console.log('❌ Cancelando edición');
+            
+            // Restaurar valores originales
+            document.getElementById('sede-display').textContent = valoresOriginales.sede;
+
+            // Restaurar valores originales de todos los ejemplares
+            const ejemplares = document.querySelectorAll('.campos-info[data-ejemplar-index]');
+            ejemplares.forEach((ejemplar, index) => {
+                const contador = ejemplar.getAttribute('data-ejemplar-index');
+                document.getElementById(`registroValue${contador}`).textContent = valoresOriginales[`registro${contador}`];
+                document.getElementById(`denominacionValue${contador}`).textContent = valoresOriginales[`denominacion${contador}`];
+                document.getElementById(`descripcionValue${contador}`).textContent = valoresOriginales[`descripcion${contador}`];
+            });
+
+            // Mostrar elementos de solo lectura y ocultar campos editables
+            document.getElementById('sede-display').style.display = 'block';
+            document.getElementById('sede-select').style.display = 'none';
+
+            // Ocultar inputs para cada ejemplar
+            ejemplares.forEach((ejemplar, index) => {
+                const contador = ejemplar.getAttribute('data-ejemplar-index');
+                document.getElementById(`registroValue${contador}`).style.display = 'block';
+                document.getElementById(`registroInput${contador}`).style.display = 'none';
+                
+                document.getElementById(`denominacionValue${contador}`).style.display = 'block';
+                document.getElementById(`denominacionInput${contador}`).style.display = 'none';
+                
+                document.getElementById(`descripcionValue${contador}`).style.display = 'block';
+                document.getElementById(`descripcionInput${contador}`).style.display = 'none';
+            });
+
+            // Restaurar valores en los inputs
+            document.getElementById('sede-select').value = valoresOriginales.sede;
+            ejemplares.forEach((ejemplar, index) => {
+                const contador = ejemplar.getAttribute('data-ejemplar-index');
+                document.getElementById(`registroInput${contador}`).value = valoresOriginales[`registro${contador}`];
+                document.getElementById(`denominacionInput${contador}`).value = valoresOriginales[`denominacion${contador}`];
+                document.getElementById(`descripcionInput${contador}`).value = valoresOriginales[`descripcion${contador}`];
+            });
+
+            // Cambiar botón a "EDITAR"
+            btnEditar.textContent = 'EDITAR';
+            btnEditar.className = 'btn btn-outline-danger btn-sm';
+            
+            modoEdicion = false;
+        }
+    }
+
+    // Función para confirmar el mapa
+function confirmarMapa() {
+    console.log('🟢 INICIO confirmarMapa()');
+    console.log('🔍 DOM al inicio de confirmarMapa:', document.querySelectorAll('.modal-content').length, 'elementos modal-content');
+    
+    // Si estamos en modo edición, actualizar los valores antes de enviar
+    if (modoEdicion) {
+        console.log('📝 Modo edición activo - actualizando valores');
+        // Actualizar sede
+        const sedeSelect = document.getElementById('sede-select');
+        const sedeValue = document.getElementById('sede-display');
+        sedeValue.textContent = sedeSelect.value;
+        
+        // Actualizar valores de cada ejemplar
+        const ejemplares = document.querySelectorAll('.campos-info');
+        ejemplares.forEach((ejemplar, index) => {
+            const contador = ejemplar.getAttribute('data-ejemplar-index');
+            const registroInput = document.getElementById(`registroInput${contador}`);
+            const denominacionInput = document.getElementById(`denominacionInput${contador}`);
+            const descripcionInput = document.getElementById(`descripcionInput${contador}`);
+            
+            document.getElementById(`registroValue${contador}`).textContent = registroInput.value || 'Sin especificar';
+            document.getElementById(`denominacionValue${contador}`).textContent = denominacionInput.value || 'Sin especificar';
+            document.getElementById(`descripcionValue${contador}`).textContent = descripcionInput.value || 'Sin especificar';
+        });
+        console.log('🔍 DOM después de actualizar valores:', document.querySelectorAll('.modal-content').length, 'elementos modal-content');
+    }
+    
+    console.log('📋 Creando formulario dinámico...');
+    // Crear un formulario dinámicamente
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = '{% url "confirmar_mapa_final" %}';
+    
+    console.log('🔍 DOM después de crear form:', document.querySelectorAll('.modal-content').length, 'elementos modal-content');
+    
+    // Agregar el token CSRF
+    const csrfInput = document.createElement('input');
+    csrfInput.type = 'hidden';
+    csrfInput.name = 'csrfmiddlewaretoken';
+    csrfInput.value = '{{ csrf_token }}';
+    form.appendChild(csrfInput);
+    
+    // Agregar la sede seleccionada
+    const sedeInput = document.createElement('input');
+    sedeInput.type = 'hidden';
+    sedeInput.name = 'sede';
+    sedeInput.value = document.getElementById('sede-display').textContent;
+    form.appendChild(sedeInput);
+    
+    console.log('🔍 DOM después de agregar inputs básicos:', document.querySelectorAll('.modal-content').length, 'elementos modal-content');
+    
+    // Agregar los valores de cada ejemplar
+    const ejemplares = document.querySelectorAll('.campos-info');
+    console.log('📊 Procesando', ejemplares.length, 'ejemplares');
+    
+    ejemplares.forEach((ejemplar, index) => {
+        const contador = ejemplar.getAttribute('data-ejemplar-index');
+        console.log(`📝 Procesando ejemplar ${index + 1} (contador: ${contador})`);
+        
+        // Obtener el tipo del ejemplar desde el elemento padre
+        const ejemplarInfo = ejemplar.closest('.ejemplar-info');
+        const tipoHeader = ejemplarInfo ? ejemplarInfo.querySelector('h6') : null;
+        let tipo = 'GENERAL';
+        
+        if (tipoHeader) {
+            const tipoText = tipoHeader.textContent.trim();
+            // Extraer el tipo antes del paréntesis (ej: "FISICO (1 ejemplar)" -> "FISICO")
+            const tipoMatch = tipoText.match(/^([A-Z-]+)/);
+            if (tipoMatch) {
+                tipo = tipoMatch[1];
+            }
+        }
+        
+        const registroInput = document.createElement('input');
+        registroInput.type = 'hidden';
+        registroInput.name = `ejemplares[${index}][n_registro]`;
+        registroInput.value = document.getElementById(`registroValue${contador}`).textContent;
+        form.appendChild(registroInput);
+        
+        const denominacionInput = document.createElement('input');
+        denominacionInput.type = 'hidden';
+        denominacionInput.name = `ejemplares[${index}][denominacion]`;
+        denominacionInput.value = document.getElementById(`denominacionValue${contador}`).textContent;
+        form.appendChild(denominacionInput);
+        
+        const descripcionInput = document.createElement('input');
+        descripcionInput.type = 'hidden';
+        descripcionInput.name = `ejemplares[${index}][descripcion]`;
+        descripcionInput.value = document.getElementById(`descripcionValue${contador}`).textContent;
+        form.appendChild(descripcionInput);
+        
+        // Agregar el tipo del ejemplar
+        const tipoInput = document.createElement('input');
+        tipoInput.type = 'hidden';
+        tipoInput.name = `ejemplares[${index}][tipo]`;
+        tipoInput.value = tipo;
+        form.appendChild(tipoInput);
+        
+        console.log(`📝 Datos del ejemplar ${index + 1}: Tipo=${tipo}, Registro=${registroInput.value}, Denominación=${denominacionInput.value}, Descripción=${descripcionInput.value}`);
+        console.log('🔍 DOM después de procesar ejemplar', index + 1, ':', document.querySelectorAll('.modal-content').length, 'elementos modal-content');
+    });
+    
+    console.log('📤 Agregando formulario al DOM y enviando...');
+    console.log('🔍 DOM antes de appendChild:', document.querySelectorAll('.modal-content').length, 'elementos modal-content');
+    
+    // Agregar el formulario al documento y enviarlo
+    document.body.appendChild(form);
+    console.log('🔍 DOM después de appendChild:', document.querySelectorAll('.modal-content').length, 'elementos modal-content');
+    
+    console.log('🚀 Ejecutando form.submit()...');
+    form.submit();
+    console.log('🔍 DOM después de form.submit():', document.querySelectorAll('.modal-content').length, 'elementos modal-content');
+    
+    console.log('🟢 FIN confirmarMapa()');
+}
+
+    // Función para cancelar modal
+     function cancelarModal() {
+         window.location.href = '{% url "alta_materiales" %}';
+     }
+
+     // Inicializar modal al cargar la página
+     document.addEventListener('DOMContentLoaded', function() {
+         console.log('🟡 DOMContentLoaded ejecutado');
+         console.log('🔍 DOM inicial:', document.querySelectorAll('.modal-content').length, 'elementos modal-content');
+         
+         // Agregar observer para detectar cambios en el DOM
+         const observer = new MutationObserver(function(mutations) {
+             mutations.forEach(function(mutation) {
+                 if (mutation.type === 'childList') {
+                     mutation.addedNodes.forEach(function(node) {
+                         if (node.nodeType === 1) { // Element node
+                             if (node.classList && node.classList.contains('modal-content')) {
+                                 console.log('🚨 NUEVO MODAL-CONTENT DETECTADO:', node);
+                                 console.log('🚨 Stack trace:', new Error().stack);
+                             }
+                             // También verificar elementos hijos
+                             const modalContents = node.querySelectorAll && node.querySelectorAll('.modal-content');
+                             if (modalContents && modalContents.length > 0) {
+                                 console.log('🚨 NUEVOS MODAL-CONTENT EN NODO AGREGADO:', modalContents.length);
+                                 console.log('🚨 Stack trace:', new Error().stack);
+                             }
+                         }
+                     });
+                 }
+             });
+         });
+         
+         // Observar cambios en todo el documento
+         observer.observe(document.body, {
+             childList: true,
+             subtree: true
+         });
+         
+         setTimeout(mostrarModal, 1000);
+     });
+
+// Manejar cuando se cierra el modal con X
+document.getElementById('modalConfirmacionAltaMaterial').addEventListener('hidden.bs.modal', function () {
+    console.log('🔴 EVENT LISTENER: Modal cerrado, regresando al formulario...');
+    console.log('🔍 DOM en event listener:', document.querySelectorAll('.modal-content').length, 'elementos modal-content');
+    window.location.href = '{% url "alta_materiales" %}';
+});
+</script>
+{% endblock %}

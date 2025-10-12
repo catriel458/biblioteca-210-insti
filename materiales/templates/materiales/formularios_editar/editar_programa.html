@@ -1,0 +1,467 @@
+{% extends 'components/baseb.html' %}
+{% load static %}
+
+{% block title %}Editar Programa | Biblioteca Digital{% endblock %}
+
+{% block extra_styles %}
+<link rel="stylesheet" href="{% static 'css/modificacion_material.css' %}">
+<link rel="stylesheet" href="{% static 'css/style_form.css' %}">
+<link rel="stylesheet" href="{% static 'css/manual_modal.css' %}">
+<link rel="stylesheet" href="{% static 'css/main.css' %}">
+<link rel="stylesheet" href="{% static 'css/botones.css' %}">
+<style>
+    .page-header {
+        background: linear-gradient(135deg, #e8f4f8, #f0f8ff);
+        padding: 2rem 0;
+        text-align: center;
+        border-bottom: 1px solid #e0e6ed;
+        background-image: 
+            radial-gradient(circle at 20% 50%, rgba(78, 205, 196, 0.1) 0%, transparent 50%),
+            radial-gradient(circle at 80% 20%, rgba(123, 104, 238, 0.1) 0%, transparent 50%),
+            radial-gradient(circle at 40% 80%, rgba(78, 205, 196, 0.05) 0%, transparent 50%);
+        background-size: 400px 400px, 300px 300px, 500px 500px;
+        background-position: 0% 50%, 100% 0%, 50% 100%;
+        background-repeat: no-repeat;
+    }
+
+    .page-title {
+        color: #4ECDC4;
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin: 0 0 0.5rem 0;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .subtitle {
+        color: #7B68EE;
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin: 0;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .form-container {
+        max-width: 900px;
+        margin: 2rem auto;
+        padding: 0 2rem;
+    }
+
+    .form-card {
+        background: white;
+        padding: 3rem;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        border: 1px solid #e0e6ed;
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group.full-width {
+        grid-column: 1 / -1;
+    }
+
+    .form-group label {
+        display: block;
+        font-weight: 600;
+        color: #2d3748;
+        margin-bottom: 0.8rem;
+        font-size: 14px;
+    }
+
+    .required::after {
+        content: " *";
+        color: #e53e3e;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        width: 100%;
+        padding: 12px 16px;
+        border: 2px solid #e0e6ed;
+        border-radius: 8px;
+        font-size: 14px;
+        transition: all 0.3s ease;
+        background: white;
+        color: #2d3748;
+        box-sizing: border-box;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+        outline: none;
+        border-color: #4ECDC4;
+        box-shadow: 0 0 0 3px rgba(78, 205, 196, 0.1);
+    }
+
+    .form-group textarea {
+        min-height: 100px;
+        resize: vertical;
+    }
+
+    .textarea-large {
+        min-height: 120px;
+    }
+
+    /* Sección de imagen */
+    .image-section {
+        grid-column: 1 / -1;
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 2rem;
+        align-items: start;
+        background: #f8fafc;
+        padding: 2rem;
+        border-radius: 8px;
+        border: 1px solid #e0e6ed;
+        margin-top: 1rem;
+    }
+
+    .image-upload {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .upload-container {
+        display: flex;
+        gap: 1rem;
+        align-items: stretch;
+    }
+
+    .upload-button {
+        background: #4ECDC4;
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        min-width: 150px;
+        font-size: 14px;
+    }
+
+    .upload-button:hover {
+        background: #44C3B8;
+        transform: translateY(-2px);
+    }
+
+    .url-input {
+        flex: 1;
+        padding: 12px 16px;
+        border: 2px solid #e0e6ed;
+        border-radius: 8px;
+        font-size: 14px;
+        background: white;
+    }
+
+    .url-input:focus {
+        outline: none;
+        border-color: #4ECDC4;
+        box-shadow: 0 0 0 3px rgba(78, 205, 196, 0.1);
+    }
+
+    .image-preview {
+        text-align: center;
+    }
+
+    .image-preview img {
+        max-width: 120px;
+        max-height: 160px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        border: 2px solid #e0e6ed;
+    }
+
+    /* Botones de acción */
+    .action-buttons {
+        grid-column: 1 / -1;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 2rem;
+        gap: 1rem;
+    }
+
+    .btn-primary {
+        background: #7B68EE;
+        color: white;
+        border: none;
+        padding: 12px 32px;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 14px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .btn-primary:hover {
+        background: #6A5ACD;
+        transform: translateY(-2px);
+    }
+
+    .btn-secondary {
+        background: white;
+        color: #2d3748;
+        border: 2px solid #e0e6ed;
+        padding: 12px 32px;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 14px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .btn-secondary:hover {
+        background: #f8fafc;
+        border-color: #cbd5e0;
+    }
+
+    /* Modal de confirmación */
+    .modal-backdrop {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 1000;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .modal-content {
+        background: white;
+        border-radius: 12px;
+        width: 90%;
+        max-width: 500px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        overflow: hidden;
+    }
+
+    .modal-header {
+        background: #4ECDC4;
+        color: white;
+        padding: 1.5rem;
+        text-align: center;
+    }
+
+    .modal-header h3 {
+        margin: 0;
+        font-size: 1.5rem;
+        font-weight: 600;
+    }
+
+    .modal-body {
+        padding: 2rem;
+    }
+
+    .modal-footer {
+        padding: 1.5rem;
+        display: flex;
+        justify-content: space-between;
+        background: #f8fafc;
+        border-top: 1px solid #e0e6ed;
+    }
+
+    /* Media queries */
+    @media (max-width: 768px) {
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .form-card {
+            padding: 2rem;
+        }
+        
+        .image-section {
+            grid-template-columns: 1fr;
+        }
+        
+        .image-preview {
+            margin-top: 1rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">Editar Programa</h1>
+    <p class="subtitle">{{ programa.materia }}</p>
+</div>
+
+<div class="form-container">
+    <!-- Formulario real (oculto) que se enviará -->
+    <form id="realForm" method="post" enctype="multipart/form-data" style="display: none;">
+        {% csrf_token %}
+        <input type="text" id="real_profesor" name="profesor" value="{{ programa.profesor }}">
+        <input type="text" id="real_carrera" name="carrera" value="{{ programa.carrera }}">
+        <input type="text" id="real_materia" name="materia" value="{{ programa.materia }}">
+        <input type="url" id="real_ingresar_enlace" name="ingresar_enlace" value="{{ programa.ingresar_enlace }}">
+        <input type="text" id="real_ciclo_lectivo" name="ciclo_lectivo" value="{{ programa.ciclo_lectivo }}">
+        <input type="text" id="real_sede" name="sede" value="{{ programa.sede }}">
+        <select id="real_disponibilidad" name="disponibilidad">
+            <option value="Disponible" {% if programa.disponibilidad == 'Disponible' %}selected{% endif %}>Disponible</option>
+            <option value="No disponible" {% if programa.disponibilidad == 'No disponible' %}selected{% endif %}>No disponible</option>
+        </select>
+        <textarea id="real_observaciones" name="observaciones">{{ programa.observaciones }}</textarea>
+        <input type="url" id="real_img" name="img" value="{{ programa.img }}">
+    </form>
+
+    <!-- Formulario visual para el usuario -->
+    <div class="form-card">
+        <div class="form-grid">
+            <div class="form-group">
+                <label for="profesor" class="required">Profesor</label>
+                <input type="text" id="profesor" value="{{ programa.profesor }}" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="carrera" class="required">Carrera</label>
+                <input type="text" id="carrera" value="{{ programa.carrera }}" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="materia" class="required">Materia</label>
+                <input type="text" id="materia" value="{{ programa.materia }}" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="ingresar_enlace">Enlace del programa</label>
+                <input type="url" id="ingresar_enlace" value="{{ programa.ingresar_enlace }}">
+            </div>
+            
+            <div class="form-group">
+                <label for="ciclo_lectivo" class="required">Ciclo Lectivo</label>
+                <input type="text" id="ciclo_lectivo" value="{{ programa.ciclo_lectivo }}" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="sede" class="required">Sede</label>
+                <input type="text" id="sede" value="{{ programa.sede }}" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="disponibilidad" class="required">Disponibilidad</label>
+                <select id="disponibilidad">
+                    <option value="Disponible" {% if programa.disponibilidad == 'Disponible' %}selected{% endif %}>Disponible</option>
+                    <option value="No disponible" {% if programa.disponibilidad == 'No disponible' %}selected{% endif %}>No disponible</option>
+                </select>
+            </div>
+            
+            <div class="form-group full-width">
+                <label for="observaciones">Observaciones</label>
+                <textarea id="observaciones" class="textarea-large">{{ programa.observaciones }}</textarea>
+            </div>
+            
+            <!-- Sección de imagen -->
+            <div class="image-section">
+                <div class="image-upload">
+                    <label for="imageUrl">URL de la imagen</label>
+                    <div class="upload-container">
+                        <input type="url" id="imageUrl" class="url-input" value="{{ programa.img }}">
+                        <button type="button" id="linkBtn" class="upload-button">
+                            <i class="fas fa-link"></i> Enlace
+                        </button>
+                    </div>
+                    <div class="upload-container">
+                        <input type="file" id="imageFile" style="display: none;">
+                        <button type="button" id="fileBtn" class="upload-button" onclick="document.getElementById('imageFile').click()">
+                            <i class="fas fa-upload"></i> Subir archivo
+                        </button>
+                    </div>
+                </div>
+                <div class="image-preview">
+                    <img id="imagePreview" src="{{ programa.img|default:'https://via.placeholder.com/120x160/95a5a6/ffffff?text=Sin+Imagen' }}" alt="Vista previa">
+                </div>
+            </div>
+            
+            <!-- Botones de acción -->
+            <div class="action-buttons">
+                <button type="button" class="btn-secondary" onclick="window.location.href='{% url 'modificacion_materiales' %}'">Cancelar</button>
+                <button type="button" class="btn-primary" onclick="guardarDirectamente()">Guardar cambios</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<!-- Script simplificado para guardar directamente -->
+<script>
+    // Función simplificada para guardar directamente sin modal
+    function guardarDirectamente() {
+        // Copiar datos al formulario real
+        copiarDatosAlFormularioReal();
+        
+        // Enviar formulario
+        document.getElementById('realForm').submit();
+    }
+    
+    // Copiar datos del formulario visual al formulario real
+    function copiarDatosAlFormularioReal() {
+        document.getElementById('real_profesor').value = document.getElementById('profesor').value;
+        document.getElementById('real_carrera').value = document.getElementById('carrera').value;
+        document.getElementById('real_materia').value = document.getElementById('materia').value;
+        document.getElementById('real_ingresar_enlace').value = document.getElementById('ingresar_enlace').value;
+        document.getElementById('real_ciclo_lectivo').value = document.getElementById('ciclo_lectivo').value;
+        document.getElementById('real_sede').value = document.getElementById('sede').value;
+        document.getElementById('real_disponibilidad').value = document.getElementById('disponibilidad').value;
+        document.getElementById('real_observaciones').value = document.getElementById('observaciones').value;
+        document.getElementById('real_img').value = document.getElementById('imageUrl').value;
+    }
+    
+    // Manejar la carga de imágenes
+    document.addEventListener('DOMContentLoaded', function() {
+        const imageFile = document.getElementById('imageFile');
+        const imageUrl = document.getElementById('imageUrl');
+        const imagePreview = document.getElementById('imagePreview');
+        
+        // Actualizar vista previa cuando se cambia la URL
+        imageUrl.addEventListener('change', function() {
+            if (imageUrl.value) {
+                imagePreview.src = imageUrl.value;
+            } else {
+                imagePreview.src = 'https://via.placeholder.com/120x160/95a5a6/ffffff?text=Sin+Imagen';
+            }
+        });
+        
+        // Actualizar vista previa cuando se sube un archivo
+        imageFile.addEventListener('change', function() {
+            if (imageFile.files && imageFile.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    imagePreview.src = e.target.result;
+                    imageUrl.value = 'Archivo local: ' + imageFile.files[0].name;
+                };
+                reader.readAsDataURL(imageFile.files[0]);
+            }
+        });
+    });
+</script>
+{% endblock %}

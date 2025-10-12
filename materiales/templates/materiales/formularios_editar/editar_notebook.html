@@ -1,0 +1,253 @@
+{% extends 'components/baseb.html' %}
+{% load static %}
+
+{% block title %}Editar Notebook | Biblioteca Digital{% endblock %}
+
+{% block extra_styles %}
+<link rel="stylesheet" href="{% static 'css/modificacion_material.css' %}">
+<link rel="stylesheet" href="{% static 'css/style_form.css' %}">
+<link rel="stylesheet" href="{% static 'css/manual_modal.css' %}">
+<link rel="stylesheet" href="{% static 'css/main.css' %}">
+<link rel="stylesheet" href="{% static 'css/botones.css' %}">
+<style>
+    .page-header {
+        background: linear-gradient(135deg, #e8f4f8, #f0f8ff);
+        padding: 1.5rem 0;
+        text-align: center;
+        border-bottom: 1px solid #e0e6ed;
+        background-image: 
+            radial-gradient(circle at 20% 50%, rgba(78, 205, 196, 0.1) 0%, transparent 50%),
+            radial-gradient(circle at 80% 20%, rgba(123, 104, 238, 0.1) 0%, transparent 50%),
+            radial-gradient(circle at 40% 80%, rgba(78, 205, 196, 0.05) 0%, transparent 50%);
+        background-size: 400px 400px, 300px 300px, 500px 500px;
+        background-position: 0% 50%, 100% 0%, 50% 100%;
+        background-repeat: no-repeat;
+    }
+
+    .page-title {
+        color: #4ECDC4;
+        font-size: 2rem;
+        font-weight: 700;
+        margin: 0 0 0.3rem 0;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .subtitle {
+        color: #7B68EE;
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin: 0;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .form-container {
+        max-width: 900px;
+        margin: 1.5rem auto;
+        padding: 0 2rem;
+    }
+
+    .form-card {
+        background: white;
+        padding: 2.5rem;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        border: 1px solid #e0e6ed;
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group.full-width {
+        grid-column: 1 / -1;
+    }
+
+    .form-group label {
+        display: block;
+        font-weight: 600;
+        color: #2d3748;
+        margin-bottom: 0.8rem;
+        font-size: 14px;
+    }
+
+    .required::after {
+        content: " *";
+        color: #e53e3e;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        width: 100%;
+        padding: 12px 16px;
+        border: 2px solid #e0e6ed;
+        border-radius: 8px;
+        font-size: 14px;
+        transition: all 0.3s ease;
+        background: white;
+        color: #2d3748;
+        box-sizing: border-box;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+        outline: none;
+        border-color: #4ECDC4;
+        box-shadow: 0 0 0 3px rgba(78, 205, 196, 0.1);
+    }
+
+    .form-group input:hover,
+    .form-group select:hover,
+    .form-group textarea:hover {
+        border-color: #7B68EE;
+    }
+
+    .form-group textarea {
+        resize: vertical;
+        min-height: 100px;
+    }
+
+    .button-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 3rem;
+        padding-top: 2rem;
+        border-top: 1px solid #e0e6ed;
+    }
+
+    .btn {
+        display: inline-block;
+        font-family: 'Roboto', sans-serif;
+        cursor: pointer;
+        border: none;
+        outline: none;
+        text-decoration: none;
+    }
+
+    .btn-guardar {
+        background: #4285F4;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        padding: 8px 16px;
+        font-size: 13px;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+    }
+
+    .btn-guardar:hover {
+        background: #3367D6;
+        color: white;
+        text-decoration: none;
+    }
+
+    .btn-cancelar {
+        background: none;
+        color: #d93025;
+        border: none;
+        padding: 8px 16px;
+        font-size: 13px;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        cursor: pointer;
+        text-decoration: none;
+        transition: color 0.2s ease;
+    }
+
+    .btn-cancelar:hover {
+        background: none;
+        color: #b52d20;
+        text-decoration: none;
+    }
+
+    @media (max-width: 768px) {
+        .form-grid {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+        
+        .form-container {
+            padding: 0 1rem;
+        }
+        
+        .form-card {
+            padding: 2rem;
+        }
+        
+        .page-title {
+            font-size: 2rem;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+        }
+        
+        .button-container {
+            flex-direction: column;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">Biblioteca Digital</h1>
+    <h2 class="subtitle">Editar Notebook</h2>
+</div>
+
+<div class="form-container">
+    <div class="form-card">
+        <form method="POST" class="form-grid">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="id_num_registro" class="required">Número de Registro</label>
+                {{ form.num_registro }}
+            </div>
+            
+            <div class="form-group">
+                <label for="id_modelo_not" class="required">Modelo</label>
+                {{ form.modelo_not }}
+            </div>
+            
+            <div class="form-group">
+                <label for="id_marca" class="required">Marca</label>
+                {{ form.marca }}
+            </div>
+            
+            <div class="form-group">
+                <label for="id_sede" class="required">Sede</label>
+                {{ form.sede }}
+            </div>
+            
+            <div class="form-group full-width">
+                <label for="id_estado" class="required">Estado</label>
+                {{ form.estado }}
+            </div>
+            
+            <div class="form-group full-width">
+                <div class="button-container">
+                    <a href="{% url 'modificacion_materiales' %}" class="btn btn-cancelar">Cancelar</a>
+                    <button type="submit" class="btn btn-guardar">Guardar Cambios</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,645 @@
+{% extends 'components/baseb.html' %}
+{% load static %}
+{% block extra_styles %}
+    <style>
+        body {
+            background-color: #f5f5f5;
+        }
+
+        .modal-dialog.modal-lg {
+            max-width: 1350px;
+        }
+
+        .modal-content {
+            background: transparent;
+            box-shadow: inset 0px 0px 40px 10px rgba(0, 0, 0, 0.25);
+            border-radius: 0px 0px 10px 10px;
+            border: 3px solid #8B1D69;
+        }
+
+        .modal-header {
+            background-color: transparent;
+            color: #333;
+            border-bottom: none;
+            border-radius: 0px;
+            padding: 0.75rem 1rem;
+        }
+
+        .modal-title {
+            color: #333;
+            font-weight: 600;
+            font-size: 1.1rem;
+            letter-spacing: 1px;
+        }
+
+        .btn-close {
+            filter: invert(1);
+        }
+
+        .modal-body {
+            padding: 1rem;
+            background-color: transparent;
+        }
+
+        .tipo-material-section {
+            background-color: #f8f9fa;
+            padding: 0.5rem 0.75rem;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+            border-bottom: 2px solid #8B1D69;
+        }
+
+        .tipo-material-title {
+            color: #000000;
+            font-weight: 600;
+            margin: 0;
+            font-size: 0.9rem;
+        }
+
+        .text-primary {
+            color: #8B1D69 !important;
+            font-weight: 600;
+        }
+
+        .section-title {
+            color: #000000;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            font-size: 1rem;
+            border-bottom: 2px solid #8B1D69;
+            padding-bottom: 0.5rem;
+            background-color: #f8f9fa;
+            padding: 0.5rem 0.75rem;
+            border-radius: 4px;
+        }
+
+        .section-container {
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            padding: 0.75rem;
+            margin-bottom: 1rem;
+            border-bottom: 2px solid #8B1D69;
+        }
+
+        .campos-info {
+            display: flex;
+            gap: 2rem;
+            border-bottom: 2px solid #8B1D69;
+            padding: 0.75rem;
+            border-radius: 4px;
+            background-color: #f8f9fa;
+            margin-bottom: 1rem;
+        }
+
+        .campo-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .campo-label {
+            font-size: 0.8rem;
+            color: #000000;
+            margin-bottom: 0.25rem;
+            font-weight: 600;
+        }
+
+        .campo-value {
+            font-size: 0.9rem;
+            color: #8B1D69;
+            font-weight: 500;
+        }
+
+        .info-text {
+            margin-bottom: 0.5rem;
+            color: #8B1D69;
+            font-size: 0.9rem;
+            font-weight: 500;
+            padding: 0.25rem 0;
+        }
+
+        .modal-body strong {
+            color: #000000;
+            display: block;
+            margin-bottom: 0.25rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .ejemplar-info {
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            padding: 0.75rem;
+            margin-bottom: 1rem;
+            border-bottom: 2px solid #8B1D69;
+        }
+
+        .ejemplar-info h6 {
+            color: #000000;
+            margin-bottom: 0.75rem;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .modal-footer {
+            background-color: transparent;
+            border-top: none;
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 0.5rem 1.5rem;
+            font-weight: 600;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            min-width: 100px;
+        }
+
+        .btn-outline-danger {
+            color: #dc3545;
+            border-color: #dc3545;
+            background-color: transparent;
+        }
+
+        .btn-outline-danger:hover {
+            color: #fff;
+            background-color: #dc3545;
+            border-color: #dc3545;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+            border-color: #0056b3;
+        }
+
+        .loading-container {
+            text-align: center;
+            padding: 50px;
+        }
+
+        .loading-text {
+            color: #8B1D69;
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .modal-dialog {
+                margin: 0.5rem;
+            }
+            .modal-body {
+                padding: 0.75rem;
+            }
+            .campos-info {
+                flex-direction: column;
+                gap: 1rem;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <!-- Loading Page -->
+    <div id="loading-page" class="loading-container">
+        <div class="loading-text">Cargando...</div>
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Cargando...</span>
+        </div>
+    </div>
+
+    <!-- Modal de Confirmación de Alta de Multimedia -->
+    <div class="modal fade" id="modalConfirmacionAltaMaterial" tabindex="-1" aria-labelledby="modalConfirmacionLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="modalConfirmacionLabel">CONFIRME LOS DATOS</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <!-- Tipo de Material -->
+            <div class="tipo-material-section">
+                <p class="tipo-material-title">TIPO DE MATERIAL: <span class="text-primary">MULTIMEDIA</span></p>
+            </div>
+
+            <!-- Información Principal -->
+            <div class="section-container">
+                <div class="section-title">Información del Multimedia</div>
+                
+                <!-- Primera fila: Profesor, Carrera, Materia -->
+                <div class="campos-info">
+                  <div class="campo-item">
+                    <span class="campo-label">Profesor/a</span>
+                    <span id="profesorValue" class="campo-value">{{ form_data.profesor|default:"Sin especificar" }}</span>
+                    <input type="text" id="profesorInput" class="form-control form-control-sm" value="{{ form_data.profesor|default:"" }}" style="display: none;">
+                  </div>
+                  <div class="campo-item">
+                    <span class="campo-label">Carrera</span>
+                    <span id="carreraValue" class="campo-value">{{ form_data.carrera|default:"Sin especificar" }}</span>
+                    <select id="carreraInput" class="form-control form-control-sm" style="display: none;">
+                      <option value="">Seleccione una carrera</option>
+                      <option value="carrera1" {% if form_data.carrera == "carrera1" %}selected{% endif %}>Carrera 1</option>
+                      <option value="carrera2" {% if form_data.carrera == "carrera2" %}selected{% endif %}>Carrera 2</option>
+                    </select>
+                  </div>
+                  <div class="campo-item">
+                    <span class="campo-label">Materia</span>
+                    <span id="materiaValue" class="campo-value">{{ form_data.materia|default:"Sin especificar" }}</span>
+                    <select id="materiaInput" class="form-control form-control-sm" style="display: none;">
+                      <option value="">Seleccione una materia</option>
+                      <option value="materia1" {% if form_data.materia == "materia1" %}selected{% endif %}>Materia 1</option>
+                      <option value="materia2" {% if form_data.materia == "materia2" %}selected{% endif %}>Materia 2</option>
+                    </select>
+                  </div>
+                </div>
+            </div>
+
+            <!-- Lista de Multimedia -->
+            {% if form_data.multimedia_list %}
+                {% for multimedia in form_data.multimedia_list %}
+                <div class="ejemplar-info">
+                    <h6>{{ multimedia.tipo }} - {{ forloop.counter }}</h6>
+                    <!-- Segunda fila: Título del Contenido y Enlace -->
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div class="campo-item">
+                                <span class="campo-label">Título del Contenido</span>
+                                <span id="tituloValue{{ forloop.counter }}" class="campo-value">{{ multimedia.titulo_contenido|default:"Sin especificar" }}</span>
+                                <input type="text" id="tituloInput{{ forloop.counter }}" class="form-control form-control-sm" value="{{ multimedia.titulo_contenido|default:"" }}" style="display: none;">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="campo-item">
+                                <span class="campo-label">Ingresar enlace (URL)</span>
+                                <span id="enlaceValue{{ forloop.counter }}" class="campo-value">
+                                    {% if multimedia.ingresar_enlace %}
+                                        <a href="{{ multimedia.ingresar_enlace }}" target="_blank" style="color: #8B1D69;">{{ multimedia.ingresar_enlace }}</a>
+                                    {% else %}
+                                        Sin especificar
+                                    {% endif %}
+                                </span>
+                                <input type="url" id="enlaceInput{{ forloop.counter }}" class="form-control form-control-sm" value="{{ multimedia.ingresar_enlace|default:"" }}" style="display: none;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <!-- Fallback para datos básicos -->
+                <div class="ejemplar-info">
+                    <h6>Principal - 1</h6>
+                    <!-- Segunda fila: Título del Contenido y Enlace -->
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div class="campo-item">
+                                <span class="campo-label">Título del Contenido</span>
+                                <span id="tituloValue1" class="campo-value">{{ form_data.titulo_contenido|default:"Sin especificar" }}</span>
+                                <input type="text" id="tituloInput1" class="form-control form-control-sm" value="{{ form_data.titulo_contenido|default:"" }}" style="display: none;">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="campo-item">
+                                <span class="campo-label">Ingresar enlace (URL)</span>
+                                <span id="enlaceValue1" class="campo-value">
+                                    {% if form_data.ingresar_enlace %}
+                                        <a href="{{ form_data.ingresar_enlace }}" target="_blank" style="color: #8B1D69;">{{ form_data.ingresar_enlace }}</a>
+                                    {% else %}
+                                        Sin especificar
+                                    {% endif %}
+                                </span>
+                                <input type="url" id="enlaceInput1" class="form-control form-control-sm" value="{{ form_data.ingresar_enlace|default:"" }}" style="display: none;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline-danger btn-sm" id="btnEditar" onclick="editarCamposMultimedia()">EDITAR</button>
+            <button type="button" class="btn btn-primary btn-sm" id="btnConfirmarAltaMaterial" onclick="confirmarMultimedia()">GUARDAR</button>
+          </div>
+        </div>
+      </div>
+    </div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+// Variables globales para debugging
+let modalInstance = null;
+let isModalShown = false;
+
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🚀 Página de confirmación MULTIMEDIA cargada');
+    console.log('📋 Datos recibidos:', {
+        profesor: '{{ form_data.profesor|escapejs }}',
+        carrera: '{{ form_data.carrera|escapejs }}',
+        materia: '{{ form_data.materia|escapejs }}',
+        titulo_contenido: '{{ form_data.titulo_contenido|escapejs }}',
+        ingresar_enlace: {% if form_data.ingresar_enlace %}'{{ form_data.ingresar_enlace|escapejs }}'{% else %}null{% endif %},
+        multimedia_list: {% if form_data.multimedia_list %}{{ form_data.multimedia_list|safe }}{% else %}[]{% endif %}
+    });
+    
+    // Verificar que Bootstrap está disponible
+    if (typeof bootstrap === 'undefined') {
+        console.error('❌ Bootstrap no está cargado');
+        alert('Error: Bootstrap no está disponible. Por favor, recarga la página.');
+        return;
+    }
+    
+    // Verificar que el modal existe
+    const modalElement = document.getElementById('modalConfirmacionAltaMaterial');
+    if (!modalElement) {
+        console.error('❌ Modal no encontrado');
+        alert('Error: Modal no encontrado. Por favor, recarga la página.');
+        return;
+    }
+    
+    // Ocultar loading page
+    const loadingPage = document.getElementById('loading-page');
+    if (loadingPage) {
+        loadingPage.style.display = 'none';
+    }
+    
+    // Mostrar el modal automáticamente después de un pequeño delay
+    setTimeout(function() {
+        try {
+            modalInstance = new bootstrap.Modal(modalElement, {
+                backdrop: 'static',  // No se cierra haciendo clic fuera
+                keyboard: false      // No se cierra con ESC
+            });
+            
+            modalInstance.show();
+            isModalShown = true;
+            console.log('✅ Modal de MULTIMEDIA mostrado automáticamente');
+            
+            // Agregar event listener para cuando se muestre el modal
+            modalElement.addEventListener('shown.bs.modal', function () {
+                console.log('✅ Modal completamente mostrado');
+            });
+            
+        } catch (error) {
+            console.error('❌ Error al mostrar modal:', error);
+            alert('Error al mostrar el modal: ' + error.message);
+        }
+    }, 100); // Reducido el delay para mejor UX
+});
+
+function confirmarMultimedia() {
+    console.log('🟢 Iniciando confirmación de multimedia...');
+    
+    try {
+        // Deshabilitar botón para evitar doble envío
+        const btnConfirmar = document.getElementById('btnConfirmarAltaMaterial');
+        if (btnConfirmar) {
+            btnConfirmar.disabled = true;
+            btnConfirmar.innerHTML = 'Guardando...';
+        }
+        
+        // Crear un formulario invisible para enviar la confirmación
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '{% url "guardar_alta_multimedia" %}';
+        form.style.display = 'none';
+        
+        // Agregar token CSRF
+        const csrfToken = document.createElement('input');
+        csrfToken.type = 'hidden';
+        csrfToken.name = 'csrfmiddlewaretoken';
+        csrfToken.value = '{{ csrf_token }}';
+        form.appendChild(csrfToken);
+        
+        // Agregar campo de confirmación
+        const confirmInput = document.createElement('input');
+        confirmInput.type = 'hidden';
+        confirmInput.name = 'confirmar';
+        confirmInput.value = 'true';
+        form.appendChild(confirmInput);
+        
+        // Agregar al DOM y enviar
+        document.body.appendChild(form);
+        console.log('📤 Enviando formulario de confirmación...');
+        form.submit();
+        
+    } catch (error) {
+        console.error('❌ Error al confirmar multimedia:', error);
+        alert('Error al confirmar: ' + error.message);
+        
+        // Rehabilitar botón en caso de error
+        const btnConfirmar = document.getElementById('btnConfirmarAltaMaterial');
+        if (btnConfirmar) {
+            btnConfirmar.disabled = false;
+            btnConfirmar.innerHTML = 'GUARDAR';
+        }
+    }
+}
+
+function cancelarModal() {
+    console.log('🔴 Cancelando multimedia...');
+    
+    try {
+        // Cerrar modal si está abierto
+        if (modalInstance && isModalShown) {
+            modalInstance.hide();
+        }
+        
+        // Redirigir después de un pequeño delay
+        setTimeout(function() {
+            window.location.href = '{% url "cancelar_alta_multimedia" %}';
+        }, 300);
+        
+    } catch (error) {
+        console.error('❌ Error al cancelar:', error);
+        // Redirigir directamente en caso de error
+        window.location.href = '{% url "cancelar_alta_multimedia" %}';
+    }
+}
+
+// Manejar cuando se cierra el modal con X
+document.addEventListener('DOMContentLoaded', function() {
+    const modalElement = document.getElementById('modalConfirmacionAltaMaterial');
+    if (modalElement) {
+        modalElement.addEventListener('hidden.bs.modal', function () {
+            console.log('🔴 Modal cerrado, regresando al formulario...');
+            isModalShown = false;
+            
+            // Redirigir después de un pequeño delay
+            setTimeout(function() {
+                window.location.href = '{% url "cancelar_alta_multimedia" %}';
+            }, 100);
+        });
+    }
+});
+
+// Función de debugging para verificar estado
+function debugModal() {
+    console.log('🔍 Estado del modal:', {
+        modalInstance: modalInstance,
+        isModalShown: isModalShown,
+        bootstrapAvailable: typeof bootstrap !== 'undefined',
+        modalElement: document.getElementById('modalConfirmacionAltaMaterial')
+    });
+}
+
+// Hacer disponible la función de debug globalmente
+window.debugModal = debugModal;
+
+// Variables para almacenar valores originales
+let valoresOriginales = {};
+let modoEdicion = false;
+
+// Función para editar campos de multimedia
+function editarCamposMultimedia() {
+    const btnEditar = document.getElementById('btnEditar');
+    
+    if (!modoEdicion) {
+        // Guardar valores originales
+        valoresOriginales = {
+            profesor: document.getElementById('profesorValue').textContent,
+            carrera: document.getElementById('carreraValue').textContent,
+            materia: document.getElementById('materiaValue').textContent
+        };
+        
+        // Guardar valores originales de contenidos multimedia
+        const contenidos = document.querySelectorAll('.ejemplar-info');
+        contenidos.forEach((contenido, index) => {
+            const contador = index + 1;
+            const tituloElement = document.getElementById(`tituloValue${contador}`);
+            const enlaceElement = document.getElementById(`enlaceValue${contador}`);
+            
+            if (tituloElement) {
+                valoresOriginales[`titulo${contador}`] = tituloElement.textContent;
+            }
+            if (enlaceElement) {
+                const enlaceLink = enlaceElement.querySelector('a');
+                valoresOriginales[`enlace${contador}`] = enlaceLink ? enlaceLink.href : '';
+            }
+        });
+        
+        // Mostrar inputs y ocultar valores - Información principal
+        document.getElementById('profesorValue').style.display = 'none';
+        document.getElementById('profesorInput').style.display = 'block';
+        
+        document.getElementById('carreraValue').style.display = 'none';
+        document.getElementById('carreraInput').style.display = 'block';
+        
+        document.getElementById('materiaValue').style.display = 'none';
+        document.getElementById('materiaInput').style.display = 'block';
+        
+        // Mostrar inputs de contenidos multimedia y ocultar valores
+        const contenidos2 = document.querySelectorAll('.ejemplar-info');
+        contenidos2.forEach((contenido, index) => {
+            const contador = index + 1;
+            const tituloValue = document.getElementById(`tituloValue${contador}`);
+            const tituloInput = document.getElementById(`tituloInput${contador}`);
+            const enlaceValue = document.getElementById(`enlaceValue${contador}`);
+            const enlaceInput = document.getElementById(`enlaceInput${contador}`);
+            
+            if (tituloValue && tituloInput) {
+                tituloValue.style.display = 'none';
+                tituloInput.style.display = 'block';
+            }
+            
+            if (enlaceValue && enlaceInput) {
+                enlaceValue.style.display = 'none';
+                enlaceInput.style.display = 'block';
+            }
+        });
+        
+        // Cambiar botón a "CANCELAR"
+        btnEditar.textContent = 'CANCELAR';
+        btnEditar.className = 'btn btn-secondary btn-sm';
+        
+        modoEdicion = true;
+    } else {
+        // Restaurar valores originales
+        document.getElementById('profesorValue').textContent = valoresOriginales.profesor;
+        document.getElementById('carreraValue').textContent = valoresOriginales.carrera;
+        document.getElementById('materiaValue').textContent = valoresOriginales.materia;
+        
+        // Restaurar valores de contenidos multimedia
+        const contenidos = document.querySelectorAll('.ejemplar-info');
+        contenidos.forEach((contenido, index) => {
+            const contador = index + 1;
+            const tituloValue = document.getElementById(`tituloValue${contador}`);
+            const enlaceValue = document.getElementById(`enlaceValue${contador}`);
+            
+            if (tituloValue && valoresOriginales[`titulo${contador}`]) {
+                tituloValue.textContent = valoresOriginales[`titulo${contador}`];
+            }
+            if (enlaceValue && valoresOriginales[`enlace${contador}`]) {
+                const enlaceLink = enlaceValue.querySelector('a');
+                if (enlaceLink) {
+                    enlaceLink.href = valoresOriginales[`enlace${contador}`];
+                    enlaceLink.textContent = valoresOriginales[`enlace${contador}`];
+                }
+            }
+        });
+        
+        // Ocultar inputs y mostrar valores - Información principal
+        document.getElementById('profesorValue').style.display = 'block';
+        document.getElementById('profesorInput').style.display = 'none';
+        
+        document.getElementById('carreraValue').style.display = 'block';
+        document.getElementById('carreraInput').style.display = 'none';
+        
+        document.getElementById('materiaValue').style.display = 'block';
+        document.getElementById('materiaInput').style.display = 'none';
+        
+        // Ocultar inputs de contenidos multimedia y mostrar valores
+        const contenidos2 = document.querySelectorAll('.ejemplar-info');
+        contenidos2.forEach((contenido, index) => {
+            const contador = index + 1;
+            const tituloValue = document.getElementById(`tituloValue${contador}`);
+            const tituloInput = document.getElementById(`tituloInput${contador}`);
+            const enlaceValue = document.getElementById(`enlaceValue${contador}`);
+            const enlaceInput = document.getElementById(`enlaceInput${contador}`);
+            
+            if (tituloValue && tituloInput) {
+                tituloValue.style.display = 'block';
+                tituloInput.style.display = 'none';
+            }
+            
+            if (enlaceValue && enlaceInput) {
+                enlaceValue.style.display = 'block';
+                enlaceInput.style.display = 'none';
+            }
+        });
+        
+        // Restaurar valores en los inputs
+        document.getElementById('profesorInput').value = valoresOriginales.profesor;
+        document.getElementById('carreraInput').value = valoresOriginales.carrera;
+        document.getElementById('materiaInput').value = valoresOriginales.materia;
+        
+        // Restaurar valores en los inputs de contenidos
+        const contenidos3 = document.querySelectorAll('.ejemplar-info');
+        contenidos3.forEach((contenido, index) => {
+            const contador = index + 1;
+            const tituloInput = document.getElementById(`tituloInput${contador}`);
+            const enlaceInput = document.getElementById(`enlaceInput${contador}`);
+            
+            if (tituloInput && valoresOriginales[`titulo${contador}`]) {
+                tituloInput.value = valoresOriginales[`titulo${contador}`];
+            }
+            if (enlaceInput && valoresOriginales[`enlace${contador}`]) {
+                enlaceInput.value = valoresOriginales[`enlace${contador}`];
+            }
+        });
+        
+        // Cambiar botón a "EDITAR"
+        btnEditar.textContent = 'EDITAR';
+        btnEditar.className = 'btn btn-outline-danger btn-sm';
+        
+        modoEdicion = false;
+    }
+}
+</script>
+{% endblock %}
