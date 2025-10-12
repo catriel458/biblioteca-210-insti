@@ -429,17 +429,23 @@ def baja_mapa(request):
         motivo_baja = request.POST.get('motivo_baja')
         imagen_rota = request.FILES.get('imagen_rota')
 
-        # Lógica para actualizar el estado del mapa
+        # Obtener el mapa
         mapa = get_object_or_404(Mapas, id_mapa=mapa_id)
+        
+        # Cambiar estado
         mapa.estado = 'No disponible'
         mapa.motivo_baja = motivo_baja
+        
+        # Guardar imagen en el campo imagen_rota del modelo
         if imagen_rota:
             mapa.imagen_rota = imagen_rota
+        
         mapa.save()
 
-        return redirect('mapas')
+        messages.success(request, f'Mapa "{mapa.tipo}" dado de baja exitosamente.')
+        return redirect('modificacion_materiales')
 
-    return redirect('mapas')
+    return redirect('modificacion_materiales')
 
 # Vista para dar de alta un mapa:
 
@@ -483,7 +489,7 @@ def editar_mapa(request, mapa_id):
     else:
         form = MapaForm(instance=mapa)
 
-    return render(request, 'libros/editar_mapa.html', {'form': form, 'mapa': mapa})
+    return render(request, 'materiales/formularios_editar/editar_mapa.html', {'form': form, 'mapa': mapa})
 
 # Vista para mostrar elementos multimedia (por implementar):
 
@@ -503,7 +509,7 @@ def baja_multimedia(request):
         motivo_baja = request.POST.get('motivo_baja')
         imagen_rota = request.FILES.get('imagen_rota')
 
-        # Lógica para actualizar el estado del mapa
+        # Lógica para actualizar el estado del multimedia
         multimedia = get_object_or_404(Multimedia, id_multi=multi_id)
         multimedia.estado = 'No disponible'
         multimedia.motivo_baja = motivo_baja
@@ -511,9 +517,10 @@ def baja_multimedia(request):
             multimedia.imagen_rota = imagen_rota
         multimedia.save()
 
-        return redirect('multimedia')
+        messages.success(request, f'Multimedia "{multimedia.titulo_contenido}" dado de baja correctamente.')
+        return redirect('modificacion_materiales')
 
-    return redirect('multimedia')
+    return redirect('modificacion_materiales')
 
 # Vista para dar de alta un mapa:
 
@@ -541,11 +548,11 @@ def editar_multimedia(request, multi_id):
         form = MultimediaForm(request.POST, instance=multimedia)
         if form.is_valid():
             form.save()
-            return redirect('multimedia')
+            return redirect('modificacion_materiales')
     else:
         form = MultimediaForm(instance=multimedia)
 
-    return render(request, 'libros/editar_multimedia.html', {'form': form, 'mapa': multimedia})
+    return render(request, 'materiales/formularios_editar/editar_multimedia.html', {'form': form, 'multimedia': multimedia})
 
 # Notebook
 
@@ -601,11 +608,11 @@ def editar_notebook(request, not_id):
         form = NotebookForm(request.POST, instance=notebook)
         if form.is_valid():
             form.save()
-            return redirect('notebook')
+            return redirect('modificacion_materiales')
     else:
         form = NotebookForm(instance=notebook)
 
-    return render(request, 'libros/editar_notebook.html', {'form': form, 'notebook': notebook})
+    return render(request, 'materiales/formularios_editar/editar_notebook.html', {'form': form, 'notebook': notebook})
 
 # Proyector
 
@@ -661,11 +668,11 @@ def editar_proyector(request, proyector_id):
         form = ProyectorForm(request.POST, instance=proyector)
         if form.is_valid():
             form.save()
-            return redirect('proyector')
+            return redirect('modificacion_materiales')
     else:
         form = ProyectorForm(instance=proyector)
 
-    return render(request, 'libros/editar_proyector.html', {'form': form, 'proyector': proyector})
+    return render(request, 'materiales/formularios_editar/editar_proyector.html', {'form': form, 'proyector': proyector})
 
 
 # Varios
@@ -722,11 +729,11 @@ def editar_varios(request, varios_id):
         form = VariosForm(request.POST, instance=varios)
         if form.is_valid():
             form.save()
-            return redirect('varios')
+            return redirect('modificacion_materiales')
     else:
         form = VariosForm(instance=varios)
 
-    return render(request, 'libros/editar_varios.html', {'form': form, 'varios': varios})
+    return render(request, 'materiales/formularios_editar/editar_varios.html', {'form': form, 'varios': varios})
 
 
 # Vista para registro de bajas 
@@ -1420,13 +1427,25 @@ def cancelar_alta_libro(request):
 def modificacion_materiales(request):
     """
     Vista para mostrar la página de modificación de materiales
-    Muestra todos los libros disponibles para modificar
+    Muestra todos los materiales disponibles para modificar
     """
-    # Obtener todos los libros (disponibles y no disponibles)
+    # Obtener todos los materiales (disponibles y no disponibles)
     libros = Libro.objects.all().order_by('-id_libro')
+    mapas = Mapas.objects.all().order_by('-id_mapa')
+    multimedia = Multimedia.objects.all().order_by('-id_multi')
+    notebooks = Notebook.objects.all().order_by('-id_not')
+    proyectores = Proyector.objects.all().order_by('-id_proyector')
+    varios = Varios.objects.all().order_by('-id_varios')
+    programas = Programa.objects.all().order_by('-id_programa')
     
     return render(request, 'materiales/formularios_editar/modificacion_materiales.html', {
-        'libros': libros
+        'libros': libros,
+        'mapas': mapas,
+        'multimedia': multimedia,
+        'notebooks': notebooks,
+        'proyectores': proyectores,
+        'varios': varios,
+        'programas': programas
     })
 
 
@@ -1485,6 +1504,242 @@ def dar_alta_libro(request):
             'success': False,
             'error': f'Error interno: {str(e)}'
         }, status=500)
+@require_POST
+def obtener_informe_baja_mapa(request):
+    """Vista para obtener el informe de baja de un mapa específico"""
+    try:
+        data = json.loads(request.body)
+        mapa_id = data.get('mapa_id')
+        
+        print(f"🗺️ Obteniendo informe de baja para mapa ID: {mapa_id}")
+        
+        # Obtener el mapa - CORREGIDO: usar id_mapa en lugar de id
+        mapa = get_object_or_404(Mapas, id_mapa=mapa_id)
+        
+        # Verificar que el mapa esté dado de baja
+        if mapa.estado != 'No disponible':
+            return JsonResponse({
+                'success': False,
+                'error': 'El mapa no está dado de baja'
+            }, status=400)
+        
+        # Construir URL de la imagen si existe
+        imagen_baja_url = None
+        if mapa.imagen_rota:
+            imagen_baja_url = request.build_absolute_uri(mapa.imagen_rota.url)
+        
+        # Obtener los datos reales de la baja desde el modelo
+        informe_data = {
+            'motivo': mapa.motivo_baja if mapa.motivo_baja else 'Motivo no registrado',
+            'fecha_baja': '30/10/2024',  # Puedes agregar este campo al modelo si lo necesitas
+            'imagen_baja': imagen_baja_url,  # URL completa o None
+            'usuario_baja': 'Admin',  # Puedes agregar este campo al modelo si lo necesitas
+            'descripcion': mapa.descripcion if mapa.descripcion else '',
+        }
+        
+        print(f"📋 Datos del informe de mapa enviados: {informe_data}")
+        
+        return JsonResponse({
+            'success': True,
+            'informe': informe_data
+        })
+        
+    except Exception as e:
+        print(f"❌ Error en obtener_informe_baja_mapa: {e}")
+        import traceback
+        traceback.print_exc()
+        return JsonResponse({
+            'success': False,
+            'error': f'Error: {str(e)}'
+        }, status=500)
+
+@require_POST
+def dar_alta_mapa(request):
+    """Vista para dar de alta un mapa (cambiar estado a disponible)"""
+    try:
+        mapa_id = request.POST.get('mapa_id')
+        sede = request.POST.get('sede', 'LA PLATA')
+        observaciones = request.POST.get('observaciones', '')
+        
+        if not mapa_id:
+            return JsonResponse({
+                'success': False, 
+                'error': 'ID de mapa requerido'
+            }, status=400)
+        
+        # Obtener el mapa
+        mapa = get_object_or_404(Mapas, id_mapa=mapa_id)
+        
+        # Verificar que esté dado de baja
+        if mapa.estado != 'No disponible':
+            return JsonResponse({
+                'success': False, 
+                'error': 'El mapa no está dado de baja'
+            }, status=400)
+        
+        # Actualizar el mapa
+        mapa.estado = 'Disponible'
+        mapa.sede = sede
+        
+        # Agregar observaciones si las hay
+        if observaciones:
+            mapa.descripcion = observaciones  # Usar descripcion para observaciones en mapas
+        
+        # Limpiar motivo de baja al reactivar
+        mapa.motivo_baja = ''
+        # NO borrar la imagen_rota - mantenerla como historial
+        
+        mapa.save()
+        
+        print(f"✅ Mapa '{mapa.tipo}' dado de alta - Sede: {sede}")
+        
+        return JsonResponse({
+            'success': True,
+            'message': f'Mapa "{mapa.tipo}" dado de alta correctamente',
+            'mapa_id': mapa_id,
+            'nuevo_estado': 'Disponible'
+        })
+    
+    except Exception as e:
+        print(f"❌ Error al dar de alta mapa: {str(e)}")
+        return JsonResponse({
+            'success': False, 
+            'error': f'Error interno del servidor: {str(e)}'
+        }, status=500)
+
+# ===== FUNCIONES PARA MULTIMEDIA =====
+
+@login_required
+@require_POST
+def obtener_informe_baja_multimedia(request):
+    """
+    Vista para obtener información de baja de un multimedia específico
+    """
+    print(f"🔍 DEBUG: Usuario autenticado: {request.user.is_authenticated}")
+    print(f"🔍 DEBUG: Usuario: {request.user}")
+    print(f"🔍 DEBUG: Método de request: {request.method}")
+    print(f"🔍 DEBUG: POST data: {request.POST}")
+    
+    try:
+        multimedia_id = request.POST.get('multimedia_id')
+        print(f"🔍 DEBUG: multimedia_id recibido: {multimedia_id}")
+        
+        if not multimedia_id:
+            print("❌ DEBUG: No se recibió multimedia_id")
+            return JsonResponse({
+                'success': False, 
+                'error': 'ID de multimedia requerido'
+            }, status=400)
+        
+        # Obtener el multimedia
+        multimedia = get_object_or_404(Multimedia, id_multi=multimedia_id)
+        print(f"🔍 DEBUG: Multimedia encontrado: {multimedia.titulo_contenido}, Estado: {multimedia.estado}")
+        
+        # Verificar que esté dado de baja
+        if multimedia.estado != 'No disponible':
+            print(f"❌ DEBUG: Multimedia no está dado de baja. Estado actual: {multimedia.estado}")
+            return JsonResponse({
+                'success': False, 
+                'error': 'El multimedia no está dado de baja'
+            }, status=400)
+        
+        # Preparar datos del informe
+        informe_data = {
+            'titulo_contenido': multimedia.titulo_contenido or 'Sin título',
+            'profesor': multimedia.profesor or 'Sin especificar',
+            'carrera': multimedia.carrera or 'Sin especificar',
+            'materia': multimedia.materia or 'Sin especificar',
+            'motivo_baja': multimedia.motivo_baja or 'Sin motivo especificado',
+            'fecha_baja': '15/01/2025',  # Fecha hardcodeada como en los otros casos
+            'usuario_baja': 'Admin Sistema',  # Usuario hardcodeado
+            'enlace': multimedia.ingresar_enlace or 'Sin enlace',
+            'sede': multimedia.sede or 'Sin especificar'
+        }
+        
+        # Agregar URL de imagen si existe
+        if hasattr(multimedia, 'imagen_rota') and multimedia.imagen_rota:
+            informe_data['imagen_url'] = multimedia.imagen_rota.url
+        
+        print(f"✅ DEBUG: Enviando respuesta exitosa con datos: {informe_data}")
+        return JsonResponse({
+            'success': True,
+            'informe': informe_data
+        })
+        
+    except Exception as e:
+        print(f"❌ Error al obtener informe de baja multimedia: {str(e)}")
+        import traceback
+        print(f"❌ Traceback completo: {traceback.format_exc()}")
+        return JsonResponse({
+            'success': False, 
+            'error': f'Error al cargar: {str(e)}'
+        }, status=500)
+
+@login_required
+@require_POST
+def dar_alta_multimedia(request):
+    """
+    Vista para reactivar un multimedia dado de baja
+    """
+    try:
+        multimedia_id = request.POST.get('multimedia_id')
+        sede = request.POST.get('sede', 'LA PLATA')
+        observaciones = request.POST.get('observaciones', '')
+        
+        if not multimedia_id:
+            return JsonResponse({
+                'success': False, 
+                'error': 'ID de multimedia requerido'
+            }, status=400)
+        
+        # Obtener el multimedia
+        multimedia = get_object_or_404(Multimedia, id_multi=multimedia_id)
+        
+        # Verificar que esté dado de baja
+        if multimedia.estado != 'No disponible':
+            return JsonResponse({
+                'success': False, 
+                'error': 'El multimedia no está dado de baja'
+            }, status=400)
+        
+        # Actualizar el multimedia
+        multimedia.estado = 'Disponible'
+        multimedia.sede = sede
+        
+        # Agregar observaciones si las hay (usar un campo apropiado)
+        if observaciones:
+            # Para multimedia, podemos usar el campo profesor para observaciones adicionales
+            multimedia.profesor = f"{multimedia.profesor} - {observaciones}" if multimedia.profesor else observaciones
+        
+        # Limpiar motivo de baja al reactivar
+        multimedia.motivo_baja = ''
+        # NO borrar la imagen_rota - mantenerla como historial
+        
+        multimedia.save()
+        
+        print(f"✅ Multimedia '{multimedia.titulo_contenido}' dado de alta - Sede: {sede}")
+        
+        return JsonResponse({
+            'success': True,
+            'message': f'Multimedia "{multimedia.titulo_contenido}" dado de alta correctamente',
+            'multimedia_id': multimedia_id,
+            'nuevo_estado': 'Disponible'
+        })
+    
+    except Exception as e:
+        print(f"❌ Error al dar de alta multimedia: {str(e)}")
+        return JsonResponse({
+            'success': False, 
+            'error': f'Error interno del servidor: {str(e)}'
+        }, status=500)
+        
+    except Exception as e:
+        print(f"❌ Error en dar_alta_mapa: {e}")
+        return JsonResponse({
+            'success': False,
+            'error': f'Error interno: {str(e)}'
+        }, status=500)
+
 @require_POST  
 
 def obtener_informe_baja(request):
@@ -1544,26 +1799,110 @@ def obtener_informe_baja(request):
 def ver_detalles_material(request, libro_id):
     """Vista para obtener detalles completos del material"""
     try:
-        libro = get_object_or_404(Libro, id_libro=libro_id)
+        # Obtener el tipo de material desde los parámetros de consulta
+        tipo = request.GET.get('tipo', 'libro')
         
-        detalles = {
-            'titulo': libro.titulo,
-            'autor': libro.autor,
-            'editorial': libro.editorial,
-            #'num_inventario': libro.num_inventario,
-            'clasificacion_cdu': libro.clasificacion_cdu,
-            'siglas_autor_titulo': libro.siglas_autor_titulo,
-            'sede': libro.sede,
-            'disponibilidad': libro.disponibilidad,
-            'estado': libro.estado,
-            'descripcion': libro.descripcion,
-            'etiqueta_palabra_clave': libro.etiqueta_palabra_clave,
-            'observaciones': libro.observaciones,
-            'num_ejemplar': libro.num_ejemplar,
-            'img': libro.img if libro.img else None,
-            'imagen_rota': libro.imagen_rota.url if libro.imagen_rota else None,
-            'motivo_baja': libro.motivo_baja if libro.motivo_baja else None,
-        }
+        if tipo == 'libro':
+            material = get_object_or_404(Libro, id_libro=libro_id)
+            detalles = {
+                'detalle_num_inventario': material.num_ejemplar,
+                'detalle_titulo': material.titulo,
+                'detalle_autor': material.autor,
+                'detalle_editorial': material.editorial,
+                'detalle_cdu': material.clasificacion_cdu,
+                'detalle_siglas': material.siglas_autor_titulo,
+                'detalle_sede': material.sede,
+                'detalle_disponibilidad': material.disponibilidad,
+                'detalle_estado': material.estado,
+                'detalle_descripcion': material.descripcion,
+                'detalle_observaciones': material.observaciones,
+                'detalle_imagen': material.img if material.img else None,
+                'detalle_etiquetas': material.etiqueta_palabra_clave.split(',') if material.etiqueta_palabra_clave else [],
+            }
+            
+        elif tipo == 'mapa':
+            material = get_object_or_404(Mapas, id_mapa=libro_id)
+            detalles = {
+                'detalle_mapa_id': material.id_mapa,
+                'detalle_mapa_num_registro': material.num_registro,
+                'detalle_mapa_tipo': material.tipo,
+                'detalle_mapa_sede': material.sede,
+                'detalle_mapa_denominacion': material.denominacion,
+                'detalle_mapa_estado': 'Activo',
+            }
+            
+        elif tipo == 'programa':
+            material = get_object_or_404(Programa, id_programa=libro_id)
+            detalles = {
+                'detalle_programa_id': material.id_programa,
+                'detalle_programa_profesor': material.profesor,
+                'detalle_programa_carrera': material.carrera,
+                'detalle_programa_materia': material.materia,
+                'detalle_programa_enlace': material.ingresar_enlace,
+                'detalle_programa_ciclo': material.ciclo_lectivo,
+                'detalle_programa_sede': material.sede,
+                'detalle_programa_disponibilidad': material.disponibilidad,
+                'detalle_programa_observaciones': material.observaciones,
+                'detalle_programa_img': material.img if material.img else None,
+                'detalle_programa_num_registro': 'N/A',
+                'detalle_programa_denominacion': f"{material.materia} - {material.carrera}",
+            }
+            
+        elif tipo == 'multimedia':
+            material = get_object_or_404(Multimedia, id_multi=libro_id)
+            detalles = {
+                'detalle_multimedia_id': material.id_multi,
+                'detalle_multimedia_profesor': material.profesor,
+                'detalle_multimedia_carrera': material.carrera,
+                'detalle_multimedia_materia': material.materia,
+                'detalle_multimedia_enlace': material.ingresar_enlace,
+                'detalle_multimedia_titulo_contenido': material.titulo_contenido,
+                'detalle_multimedia_num_registro': 'N/A',
+                'detalle_multimedia_sede': 'N/A',
+                'detalle_multimedia_denominacion': material.titulo_contenido,
+                'detalle_multimedia_estado': 'Activo',
+            }
+            
+        elif tipo == 'notebook':
+            material = get_object_or_404(Notebook, id_not=libro_id)
+            detalles = {
+                'detalle_notebook_id': material.id_not,
+                'detalle_notebook_num_registro': material.num_registro,
+                'detalle_notebook_sede': material.sede,
+                'detalle_notebook_modelo': material.modelo_not,
+                'detalle_notebook_marca': material.marca,
+                'detalle_notebook_estado': material.estado,
+                'detalle_notebook_denominacion': f"{material.marca} {material.modelo_not}",
+            }
+            
+        elif tipo == 'proyector':
+            material = get_object_or_404(Proyector, id_proyector=libro_id)
+            detalles = {
+                'detalle_proyector_id': material.id_proyector,
+                'detalle_proyector_num_registro': material.num_registro,
+                'detalle_proyector_sede': material.sede,
+                'detalle_proyector_modelo': material.modelo_pro,
+                'detalle_proyector_marca': 'N/A',
+                'detalle_proyector_estado': material.estado,
+                'detalle_proyector_denominacion': f"Proyector {material.modelo_pro}",
+            }
+            
+        elif tipo == 'varios':
+            material = get_object_or_404(Varios, id_varios=libro_id)
+            detalles = {
+                'detalle_varios_id': material.id_varios,
+                'detalle_varios_tipo': material.tipo,
+                'detalle_varios_sede': material.sede,
+                'detalle_varios_num_registro': 'N/A',
+                'detalle_varios_denominacion': f"Material varios - {material.tipo}",
+                'detalle_varios_estado': 'Activo',
+            }
+            
+        else:
+            return JsonResponse({
+                'success': False,
+                'error': f'Tipo de material no válido: {tipo}'
+            }, status=400)
         
         return JsonResponse({
             'success': True,
@@ -2518,7 +2857,7 @@ def confirmacion_alta_proyector(request):
             ejemplar = {
                 'sede': sede_texto,  # Usar el nombre real de la sede
                 'num_registro': request.POST.get(f'num_registro_{i}', ''),
-                'modelo_proy': request.POST.get(f'modelo_proy_{i}', ''),
+                'modelo_pro': request.POST.get(f'modelo_pro_{i}', ''),
             }
             ejemplares.append(ejemplar)
         
@@ -2529,7 +2868,7 @@ def confirmacion_alta_proyector(request):
             'sede': sede_value,
             'sede_texto': sede_mapping.get(sede_value, sede_value),  # Agregar el nombre legible de la sede
             'num_registro': request.POST.get('num_registro', ''),
-            'modelo_proy': request.POST.get('modelo_proy', ''),
+            'modelo_pro': request.POST.get('modelo_pro', ''),
             'estado': 'Disponible',  # Valor por defecto
         }
         
@@ -2912,13 +3251,13 @@ def guardar_alta_proyector(request):
                 for i, ejemplar_original in enumerate(ejemplares_originales):
                     # Buscar datos editados para este ejemplar
                     num_registro_editado = request.POST.get(f'ejemplares[{i}][num_registro]')
-                    modelo_editado = request.POST.get(f'ejemplares[{i}][modelo_proy]')
+                    modelo_editado = request.POST.get(f'ejemplares[{i}][modelo_pro]')
                     
                     # Crear ejemplar actualizado con datos editados o originales
                     ejemplar_actualizado = {
                         'sede': sede_editada if sede_editada else ejemplar_original.get('sede'),
                         'num_registro': num_registro_editado if num_registro_editado else ejemplar_original.get('num_registro'),
-                        'modelo_proy': modelo_editado if modelo_editado else ejemplar_original.get('modelo_proy'),
+                        'modelo_pro': modelo_editado if modelo_editado else ejemplar_original.get('modelo_pro'),
                     }
                     ejemplares_actualizados.append(ejemplar_actualizado)
                     
@@ -2928,7 +3267,7 @@ def guardar_alta_proyector(request):
                 ejemplar_unico = {
                     'sede': sede_editada if sede_editada else proyector_data.get('sede_texto'),
                     'num_registro': request.POST.get('ejemplares[0][num_registro]') or proyector_data.get('num_registro'),
-                    'modelo_proy': request.POST.get('ejemplares[0][modelo_proy]') or proyector_data.get('modelo_proy'),
+                    'modelo_pro': request.POST.get('ejemplares[0][modelo_pro]') or proyector_data.get('modelo_pro'),
                 }
                 ejemplares_actualizados.append(ejemplar_unico)
                 print(f"📝 Ejemplar único actualizado: {ejemplar_unico}")  # Debug
@@ -2940,7 +3279,7 @@ def guardar_alta_proyector(request):
                 # Crear el proyector para este ejemplar
                 proyector = Proyector.objects.create(
                     num_registro=ejemplar.get('num_registro'),
-                    modelo_pro=ejemplar.get('modelo_proy'),
+                    modelo_pro=ejemplar.get('modelo_pro'),
                     sede=ejemplar.get('sede'),
                     estado=proyector_data.get('estado', 'Disponible')
                 )
@@ -2987,3 +3326,23 @@ def cancelar_alta_mapa(request):
     
     messages.info(request, 'Se ha cancelado el registro del mapa.')
     return redirect('alta_materiales')
+
+def editar_programa(request, programa_id):
+    """
+    Vista para editar un programa existente
+    """
+    programa = get_object_or_404(Programa, id=programa_id)
+    
+    if request.method == 'POST':
+        form = ProgramaForm(request.POST, instance=programa)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f'Programa "{programa.nombre}" actualizado correctamente.')
+            return redirect('modificacion_materiales')
+    else:
+        form = ProgramaForm(instance=programa)
+    
+    return render(request, 'materiales/formularios_editar/editar_programa.html', {
+        'form': form,
+        'programa': programa
+    })

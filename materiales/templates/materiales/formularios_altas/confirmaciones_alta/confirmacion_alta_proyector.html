@@ -263,8 +263,8 @@
               </div>
               <div class="campo-item">
                 <span class="campo-label">Modelo</span>
-                <span class="campo-value modelo-value" id="modeloValue{{ forloop.counter }}">{{ ejemplar.modelo_proy|default:"Sin especificar" }}</span>
-                <input type="text" class="form-control campo-input modelo-input" id="modeloInput{{ forloop.counter }}" value="{{ ejemplar.modelo_proy|default:'' }}" style="display: none;">
+                <span class="campo-value modelo-value" id="modeloValue{{ forloop.counter }}">{{ ejemplar.modelo_pro|default:"Sin especificar" }}</span>
+                                <input type="text" class="form-control campo-input modelo-input" id="modeloInput{{ forloop.counter }}" value="{{ ejemplar.modelo_pro|default:'' }}" style="display: none;">
               </div>
             </div>
             {% endfor %}
@@ -286,7 +286,7 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('🚀 Página de confirmación PROYECTOR cargada');
     console.log('📋 Datos recibidos:', {
         num_registro: '{{ form_data.num_registro|escapejs }}',
-        modelo: '{{ form_data.modelo_proy|escapejs }}'
+        modelo: '{{ form_data.modelo_pro|escapejs }}'
     });
     
     // Verificar que Bootstrap está disponible
@@ -456,7 +456,7 @@ function confirmarProyector() {
         
         const modeloInput = document.createElement('input');
         modeloInput.type = 'hidden';
-        modeloInput.name = `ejemplares[${index}][modelo_proy]`;
+        modeloInput.name = `ejemplares[${index}][modelo_pro]`;
         modeloInput.value = document.getElementById(`modeloValue${contador}`).textContent;
         form.appendChild(modeloInput);
     });
