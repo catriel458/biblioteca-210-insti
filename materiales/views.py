@@ -429,17 +429,23 @@ def baja_mapa(request):
         motivo_baja = request.POST.get('motivo_baja')
         imagen_rota = request.FILES.get('imagen_rota')
 
-        # Lógica para actualizar el estado del mapa
+        # Obtener el mapa
         mapa = get_object_or_404(Mapas, id_mapa=mapa_id)
+        
+        # Cambiar estado
         mapa.estado = 'No disponible'
         mapa.motivo_baja = motivo_baja
+        
+        # Guardar imagen en el campo imagen_rota del modelo
         if imagen_rota:
             mapa.imagen_rota = imagen_rota
+        
         mapa.save()
 
-        return redirect('mapas')
+        messages.success(request, f'Mapa "{mapa.tipo}" dado de baja exitosamente.')
+        return redirect('modificacion_materiales')
 
-    return redirect('mapas')
+    return redirect('modificacion_materiales')
 
 # Vista para dar de alta un mapa:
 
@@ -503,7 +509,7 @@ def baja_multimedia(request):
         motivo_baja = request.POST.get('motivo_baja')
         imagen_rota = request.FILES.get('imagen_rota')
 
-        # Lógica para actualizar el estado del mapa
+        # Lógica para actualizar el estado del multimedia
         multimedia = get_object_or_404(Multimedia, id_multi=multi_id)
         multimedia.estado = 'No disponible'
         multimedia.motivo_baja = motivo_baja
@@ -511,9 +517,10 @@ def baja_multimedia(request):
             multimedia.imagen_rota = imagen_rota
         multimedia.save()
 
-        return redirect('multimedia')
+        messages.success(request, f'Multimedia "{multimedia.titulo_contenido}" dado de baja correctamente.')
+        return redirect('modificacion_materiales')
 
-    return redirect('multimedia')
+    return redirect('modificacion_materiales')
 
 # Vista para dar de alta un mapa:
 
@@ -1497,6 +1504,242 @@ def dar_alta_libro(request):
             'success': False,
             'error': f'Error interno: {str(e)}'
         }, status=500)
+@require_POST
+def obtener_informe_baja_mapa(request):
+    """Vista para obtener el informe de baja de un mapa específico"""
+    try:
+        data = json.loads(request.body)
+        mapa_id = data.get('mapa_id')
+        
+        print(f"🗺️ Obteniendo informe de baja para mapa ID: {mapa_id}")
+        
+        # Obtener el mapa - CORREGIDO: usar id_mapa en lugar de id
+        mapa = get_object_or_404(Mapas, id_mapa=mapa_id)
+        
+        # Verificar que el mapa esté dado de baja
+        if mapa.estado != 'No disponible':
+            return JsonResponse({
+                'success': False,
+                'error': 'El mapa no está dado de baja'
+            }, status=400)
+        
+        # Construir URL de la imagen si existe
+        imagen_baja_url = None
+        if mapa.imagen_rota:
+            imagen_baja_url = request.build_absolute_uri(mapa.imagen_rota.url)
+        
+        # Obtener los datos reales de la baja desde el modelo
+        informe_data = {
+            'motivo': mapa.motivo_baja if mapa.motivo_baja else 'Motivo no registrado',
+            'fecha_baja': '30/10/2024',  # Puedes agregar este campo al modelo si lo necesitas
+            'imagen_baja': imagen_baja_url,  # URL completa o None
+            'usuario_baja': 'Admin',  # Puedes agregar este campo al modelo si lo necesitas
+            'descripcion': mapa.descripcion if mapa.descripcion else '',
+        }
+        
+        print(f"📋 Datos del informe de mapa enviados: {informe_data}")
+        
+        return JsonResponse({
+            'success': True,
+            'informe': informe_data
+        })
+        
+    except Exception as e:
+        print(f"❌ Error en obtener_informe_baja_mapa: {e}")
+        import traceback
+        traceback.print_exc()
+        return JsonResponse({
+            'success': False,
+            'error': f'Error: {str(e)}'
+        }, status=500)
+
+@require_POST
+def dar_alta_mapa(request):
+    """Vista para dar de alta un mapa (cambiar estado a disponible)"""
+    try:
+        mapa_id = request.POST.get('mapa_id')
+        sede = request.POST.get('sede', 'LA PLATA')
+        observaciones = request.POST.get('observaciones', '')
+        
+        if not mapa_id:
+            return JsonResponse({
+                'success': False, 
+                'error': 'ID de mapa requerido'
+            }, status=400)
+        
+        # Obtener el mapa
+        mapa = get_object_or_404(Mapas, id_mapa=mapa_id)
+        
+        # Verificar que esté dado de baja
+        if mapa.estado != 'No disponible':
+            return JsonResponse({
+                'success': False, 
+                'error': 'El mapa no está dado de baja'
+            }, status=400)
+        
+        # Actualizar el mapa
+        mapa.estado = 'Disponible'
+        mapa.sede = sede
+        
+        # Agregar observaciones si las hay
+        if observaciones:
+            mapa.descripcion = observaciones  # Usar descripcion para observaciones en mapas
+        
+        # Limpiar motivo de baja al reactivar
+        mapa.motivo_baja = ''
+        # NO borrar la imagen_rota - mantenerla como historial
+        
+        mapa.save()
+        
+        print(f"✅ Mapa '{mapa.tipo}' dado de alta - Sede: {sede}")
+        
+        return JsonResponse({
+            'success': True,
+            'message': f'Mapa "{mapa.tipo}" dado de alta correctamente',
+            'mapa_id': mapa_id,
+            'nuevo_estado': 'Disponible'
+        })
+    
+    except Exception as e:
+        print(f"❌ Error al dar de alta mapa: {str(e)}")
+        return JsonResponse({
+            'success': False, 
+            'error': f'Error interno del servidor: {str(e)}'
+        }, status=500)
+
+# ===== FUNCIONES PARA MULTIMEDIA =====
+
+@login_required
+@require_POST
+def obtener_informe_baja_multimedia(request):
+    """
+    Vista para obtener información de baja de un multimedia específico
+    """
+    print(f"🔍 DEBUG: Usuario autenticado: {request.user.is_authenticated}")
+    print(f"🔍 DEBUG: Usuario: {request.user}")
+    print(f"🔍 DEBUG: Método de request: {request.method}")
+    print(f"🔍 DEBUG: POST data: {request.POST}")
+    
+    try:
+        multimedia_id = request.POST.get('multimedia_id')
+        print(f"🔍 DEBUG: multimedia_id recibido: {multimedia_id}")
+        
+        if not multimedia_id:
+            print("❌ DEBUG: No se recibió multimedia_id")
+            return JsonResponse({
+                'success': False, 
+                'error': 'ID de multimedia requerido'
+            }, status=400)
+        
+        # Obtener el multimedia
+        multimedia = get_object_or_404(Multimedia, id_multi=multimedia_id)
+        print(f"🔍 DEBUG: Multimedia encontrado: {multimedia.titulo_contenido}, Estado: {multimedia.estado}")
+        
+        # Verificar que esté dado de baja
+        if multimedia.estado != 'No disponible':
+            print(f"❌ DEBUG: Multimedia no está dado de baja. Estado actual: {multimedia.estado}")
+            return JsonResponse({
+                'success': False, 
+                'error': 'El multimedia no está dado de baja'
+            }, status=400)
+        
+        # Preparar datos del informe
+        informe_data = {
+            'titulo_contenido': multimedia.titulo_contenido or 'Sin título',
+            'profesor': multimedia.profesor or 'Sin especificar',
+            'carrera': multimedia.carrera or 'Sin especificar',
+            'materia': multimedia.materia or 'Sin especificar',
+            'motivo_baja': multimedia.motivo_baja or 'Sin motivo especificado',
+            'fecha_baja': '15/01/2025',  # Fecha hardcodeada como en los otros casos
+            'usuario_baja': 'Admin Sistema',  # Usuario hardcodeado
+            'enlace': multimedia.ingresar_enlace or 'Sin enlace',
+            'sede': multimedia.sede or 'Sin especificar'
+        }
+        
+        # Agregar URL de imagen si existe
+        if hasattr(multimedia, 'imagen_rota') and multimedia.imagen_rota:
+            informe_data['imagen_url'] = multimedia.imagen_rota.url
+        
+        print(f"✅ DEBUG: Enviando respuesta exitosa con datos: {informe_data}")
+        return JsonResponse({
+            'success': True,
+            'informe': informe_data
+        })
+        
+    except Exception as e:
+        print(f"❌ Error al obtener informe de baja multimedia: {str(e)}")
+        import traceback
+        print(f"❌ Traceback completo: {traceback.format_exc()}")
+        return JsonResponse({
+            'success': False, 
+            'error': f'Error al cargar: {str(e)}'
+        }, status=500)
+
+@login_required
+@require_POST
+def dar_alta_multimedia(request):
+    """
+    Vista para reactivar un multimedia dado de baja
+    """
+    try:
+        multimedia_id = request.POST.get('multimedia_id')
+        sede = request.POST.get('sede', 'LA PLATA')
+        observaciones = request.POST.get('observaciones', '')
+        
+        if not multimedia_id:
+            return JsonResponse({
+                'success': False, 
+                'error': 'ID de multimedia requerido'
+            }, status=400)
+        
+        # Obtener el multimedia
+        multimedia = get_object_or_404(Multimedia, id_multi=multimedia_id)
+        
+        # Verificar que esté dado de baja
+        if multimedia.estado != 'No disponible':
+            return JsonResponse({
+                'success': False, 
+                'error': 'El multimedia no está dado de baja'
+            }, status=400)
+        
+        # Actualizar el multimedia
+        multimedia.estado = 'Disponible'
+        multimedia.sede = sede
+        
+        # Agregar observaciones si las hay (usar un campo apropiado)
+        if observaciones:
+            # Para multimedia, podemos usar el campo profesor para observaciones adicionales
+            multimedia.profesor = f"{multimedia.profesor} - {observaciones}" if multimedia.profesor else observaciones
+        
+        # Limpiar motivo de baja al reactivar
+        multimedia.motivo_baja = ''
+        # NO borrar la imagen_rota - mantenerla como historial
+        
+        multimedia.save()
+        
+        print(f"✅ Multimedia '{multimedia.titulo_contenido}' dado de alta - Sede: {sede}")
+        
+        return JsonResponse({
+            'success': True,
+            'message': f'Multimedia "{multimedia.titulo_contenido}" dado de alta correctamente',
+            'multimedia_id': multimedia_id,
+            'nuevo_estado': 'Disponible'
+        })
+    
+    except Exception as e:
+        print(f"❌ Error al dar de alta multimedia: {str(e)}")
+        return JsonResponse({
+            'success': False, 
+            'error': f'Error interno del servidor: {str(e)}'
+        }, status=500)
+        
+    except Exception as e:
+        print(f"❌ Error en dar_alta_mapa: {e}")
+        return JsonResponse({
+            'success': False,
+            'error': f'Error interno: {str(e)}'
+        }, status=500)
+
 @require_POST  
 
 def obtener_informe_baja(request):

@@ -109,13 +109,13 @@ urlpatterns = [
     # URLs para sistema de obleas y dar de alta libros REACTIVADOS
 
     path('dar-alta-libro/', views.dar_alta_libro, name='dar_alta_libro'),
+    path('dar-alta-mapa/', views.dar_alta_mapa, name='dar_alta_mapa'),
+    path('obtener-informe-baja-mapa/', views.obtener_informe_baja_mapa, name='obtener_informe_baja_mapa'),
+    path('obtener-informe-baja-multimedia/', views.obtener_informe_baja_multimedia, name='obtener_informe_baja_multimedia'),
+    path('dar-alta-multimedia/', views.dar_alta_multimedia, name='dar_alta_multimedia'),
     path('obtener-informe-baja/', views.obtener_informe_baja, name='obtener_informe_baja'),
     path('ver-detalles-material/<int:libro_id>/', views.ver_detalles_material, name='ver_detalles_material'),
-    path('reactivar-libro-mejorado/<int:libro_id>/', views.reactivar_libro_mejorado, name='reactivar_libro_mejorado'),
 
-
-
-     # URLs para programas
     # URLs de programas
     path('programas/', views.lista_programas, name='lista_programas'),
     path('formulario/programa/', views.formulario_programa, name='formulario_programa'),

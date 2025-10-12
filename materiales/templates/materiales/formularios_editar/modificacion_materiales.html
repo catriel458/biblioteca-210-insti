@@ -78,18 +78,47 @@
         font-size: 16px;
     }
 
+    /* ===== ESTILOS PARA EL FILTRO DE NO DISPONIBLES ===== */
     .mostrar-no-disponibles {
         display: flex;
         align-items: center;
         gap: 8px;
-        font-size: 14px;
-        color: #555;
+        padding: 8px 12px;
+        background: #f8f9fa;
+        border-radius: 6px;
+        border: 1px solid #dee2e6;
+        transition: all 0.2s ease;
+    }
+
+    .mostrar-no-disponibles:hover {
+        background: #e9ecef;
+        border-color: #adb5bd;
     }
 
     .mostrar-no-disponibles input[type="checkbox"] {
         width: 18px;
         height: 18px;
-        accent-color: #4ECDC4;
+        cursor: pointer;
+        accent-color: #dc3545; /* Color rojo para indicar "no disponibles" */
+    }
+
+    .mostrar-no-disponibles label {
+        font-size: 14px;
+        font-weight: 500;
+        color: #495057;
+        cursor: pointer;
+        margin: 0;
+        user-select: none;
+    }
+
+    .mostrar-no-disponibles input[type="checkbox"]:checked + label {
+        color: #dc3545;
+        font-weight: 600;
+    }
+
+    /* Indicador visual cuando el filtro está activo */
+    .mostrar-no-disponibles input[type="checkbox"]:checked {
+        transform: scale(1.1);
     }
 
     .manual-button {
@@ -351,6 +380,197 @@
             padding: 0.8rem;
         }
     }
+
+    /* ===== ESTILOS PARA EL MODAL DE OBLEAS ===== */
+
+    /* Modal de obleas */
+    #obleasModal .modal-dialog {
+        max-width: 95%;
+        width: 1200px;
+    }
+
+    /* Estilos para las obleas */
+    .oblea {
+        width: 100px;
+        height: 140px;
+        border: 2px solid #2c3e50;
+        border-radius: 8px;
+        padding: 8px;
+        background: white;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        text-align: center;
+        font-family: 'Courier New', monospace;
+        font-weight: bold;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        position: relative;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .oblea:hover {
+        transform: scale(1.05);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+
+    .oblea .cdu {
+        font-size: 14px;
+        color: #2c3e50;
+        font-weight: 900;
+        line-height: 1.2;
+        margin-bottom: 8px;
+        padding: 4px;
+        border-bottom: 1px solid #bdc3c7;
+    }
+
+    .oblea .siglas {
+        font-size: 12px;
+        color: #34495e;
+        font-weight: 700;
+        margin-bottom: 8px;
+        word-wrap: break-word;
+        line-height: 1.1;
+    }
+
+    .oblea .ejemplar {
+        font-size: 16px;
+        color: #e74c3c;
+        font-weight: 900;
+        background: #ecf0f1;
+        padding: 4px;
+        border-radius: 4px;
+        margin-top: auto;
+    }
+
+    .oblea .eliminar {
+        position: absolute;
+        top: -8px;
+        right: -8px;
+        background: #e74c3c;
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 20px;
+        height: 20px;
+        font-size: 12px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+    .oblea .eliminar:hover {
+        background: #c0392b;
+        transform: scale(1.1);
+    }
+
+    /* Notificaciones */
+    .notificacion-obleas {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: #2ecc71;
+        color: white;
+        padding: 15px 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        z-index: 9999;
+        font-weight: 600;
+        font-size: 14px;
+        max-width: 300px;
+        animation: slideInRight 0.3s ease;
+    }
+
+    .notificacion-obleas.warning {
+        background: #f39c12;
+    }
+
+    .notificacion-obleas.info {
+        background: #3498db;
+    }
+
+    @keyframes slideInRight {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+
+    /* Botones del modal */
+    #obleasModal .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+
+    /* ===== ESTILOS PARA EL MODAL DE DAR DE ALTA ===== */
+    .modal-dar-alta .modal-content {
+        border: none;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+
+    .modal-dar-alta .modal-header {
+        background: linear-gradient(135deg, #28a745, #20c997);
+        color: white;
+        padding: 1.5rem;
+        border: none;
+        text-align: center;
+    }
+
+    .modal-dar-alta .modal-title {
+        font-weight: 700;
+        font-size: 1.1rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin: 0;
+        line-height: 1.3;
+    }
+
+    .modal-dar-alta .form-group-custom {
+        margin-bottom: 1.5rem;
+    }
+
+    .modal-dar-alta .form-group-custom label {
+        font-weight: 600;
+        color: #28a745;
+        font-size: 14px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+
+    .modal-dar-alta .form-control-custom {
+        width: 100%;
+        padding: 12px 15px;
+        border: 2px solid #e9ecef;
+        border-radius: 8px;
+        font-size: 14px;
+        transition: all 0.3s ease;
+        background: white;
+    }
+
+    .modal-dar-alta .form-control-custom:focus {
+        border-color: #28a745;
+        box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.1);
+        outline: none;
+    }
+
+    .modal-dar-alta .select-custom {
+        appearance: none;
+        background-image: url('data:image/svg+xml;charset=US-ASCII,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 4 5"><path fill="%23666" d="M2 0L0 2h4zm0 5L0 3h4z"/></svg>');
+        background-repeat: no-repeat;
+        background-position: right 12px center;
+        background-size: 12px;
+        padding-right: 40px;
+    }
 </style>
 {% endblock %}
 
@@ -519,6 +739,7 @@
                     <tr class="mapa-row{% if mapa.estado == 'No disponible' %} libro-no-disponible{% endif %}" 
                         data-estado="{{ mapa.estado|lower }}"
                         data-tipo="{{ mapa.tipo|lower }}"
+                        data-titulo="{{ mapa.tipo|lower }}"
                         data-denominacion="{{ mapa.denominacion|lower }}">
                         <td class="text-center">{{ mapa.id_mapa|default:'' }}</td>
                         <td class="titulo-cell">{{ mapa.tipo }}</td>
@@ -964,6 +1185,11 @@
             } else if (this.value === 'programa') {
                 programasContainer.style.display = 'block';
             }
+            
+            // Reaplicar filtros después de cambiar de tabla
+            setTimeout(() => {
+                filtrarLibros();
+            }, 100);
         });
         
         // Funciones para mapas
@@ -1312,91 +1538,156 @@
                 alert('Error al cargar los detalles del material');
             }
         };
-    });
 
-    // ===== FUNCIONALIDAD DE FILTRADO Y BÚSQUEDA =====
-    document.addEventListener('DOMContentLoaded', function() {
+    // ===== FUNCIONALIDAD DE FILTRADO Y BÚSQUEDA CORREGIDA =====
     const searchInput = document.getElementById('searchInput');
     const mostrarNoDisponibles = document.getElementById('mostrar_no_disponibles');
     const ordenarPor = document.getElementById('ordenar_por');
-    const rows = document.querySelectorAll('.libro-row');
 
     function filtrarLibros() {
         const searchTerm = searchInput.value.toLowerCase();
-        const showUnavailable = mostrarNoDisponibles.checked;
+        const showOnlyUnavailable = mostrarNoDisponibles.checked; // Cambio de nombre para claridad
         let visibleCount = 0;
 
-        rows.forEach(row => {
-            const titulo = row.dataset.titulo;
-            const autor = row.dataset.autor;
-            const editorial = row.dataset.editorial;
+        // Obtener todas las filas de todas las tablas
+        const allRows = document.querySelectorAll('.libro-row, .mapa-row, .programa-row, .multimedia-row, .notebook-row, .proyector-row, .varios-row');
+
+        allRows.forEach(row => {
+            const titulo = row.dataset.titulo || '';
+            const autor = row.dataset.autor || '';
+            const editorial = row.dataset.editorial || '';
+            const denominacion = row.dataset.denominacion || '';
+            const materia = row.dataset.materia || '';
+            const tipo = row.dataset.tipo || '';
+            const modelo = row.dataset.modelo || '';
             const estado = row.dataset.estado;
             
+            // Buscar en todos los campos relevantes según el tipo de material
             const matchesSearch = titulo.includes(searchTerm) || 
                                  autor.includes(searchTerm) || 
-                                 editorial.includes(searchTerm);
+                                 editorial.includes(searchTerm) ||
+                                 denominacion.includes(searchTerm) ||
+                                 materia.includes(searchTerm) ||
+                                 tipo.includes(searchTerm) ||
+                                 modelo.includes(searchTerm);
             
-            const isAvailable = estado === 'disponible' || estado === 'reservado';
-            const showRow = matchesSearch && (showUnavailable || isAvailable);
+            // Lógica corregida del filtro de estado
+            let showByState;
+            if (showOnlyUnavailable) {
+                // Si el checkbox está marcado, mostrar SOLO los no disponibles
+                showByState = estado === 'no disponible';
+            } else {
+                // Si el checkbox NO está marcado, mostrar SOLO los disponibles y reservados
+                showByState = estado === 'disponible' || estado === 'reservado';
+            }
+            
+            const showRow = matchesSearch && showByState;
             
             row.style.display = showRow ? '' : 'none';
             if (showRow) visibleCount++;
         });
 
         updateNoResultsMessage(visibleCount);
+        updateTabCounts(); // Actualizar contadores de pestañas
     }
 
     function updateNoResultsMessage(count) {
-        const tbody = document.getElementById('libros-table');
-        let noResultsRow = document.getElementById('no-results-row');
+        // Actualizar mensaje para todas las tablas
+        const tables = ['libros', 'mapas', 'programas', 'multimedia', 'notebook', 'proyector', 'varios'];
         
-        if (count === 0) {
-            if (!noResultsRow) {
-                noResultsRow = document.createElement('tr');
-                noResultsRow.id = 'no-results-row';
-                noResultsRow.innerHTML = '<td colspan="10" class="no-results">No se encontraron resultados con los filtros aplicados.</td>';
-                tbody.appendChild(noResultsRow);
+        tables.forEach(tableType => {
+            const tbody = document.getElementById(`${tableType}-table`);
+            if (!tbody) return;
+            
+            let noResultsRow = tbody.querySelector('.no-results-row');
+            const visibleRows = tbody.querySelectorAll('tr:not(.no-results-row)').length;
+            const actuallyVisibleRows = Array.from(tbody.querySelectorAll('tr:not(.no-results-row)')).filter(row => row.style.display !== 'none').length;
+            
+            if (actuallyVisibleRows === 0 && visibleRows > 0) {
+                if (!noResultsRow) {
+                    noResultsRow = document.createElement('tr');
+                    noResultsRow.className = 'no-results-row';
+                    const colspan = tbody.closest('table').querySelector('thead tr').children.length;
+                    noResultsRow.innerHTML = `<td colspan="${colspan}" class="no-results">No se encontraron resultados con los filtros aplicados.</td>`;
+                    tbody.appendChild(noResultsRow);
+                }
+            } else {
+                if (noResultsRow) {
+                    noResultsRow.remove();
+                }
             }
-        } else {
-            if (noResultsRow) {
-                noResultsRow.remove();
+        });
+    }
+
+    function updateTabCounts() {
+        // Actualizar contadores en las pestañas si existen
+        const tabs = document.querySelectorAll('.nav-link');
+        tabs.forEach(tab => {
+            const tabType = tab.getAttribute('data-tab');
+            if (tabType) {
+                const rows = document.querySelectorAll(`.${tabType}-row`);
+                const visibleRows = Array.from(rows).filter(row => row.style.display !== 'none').length;
+                
+                // Actualizar texto del tab si tiene contador
+                const tabText = tab.textContent.replace(/\(\d+\)/, '');
+                tab.textContent = `${tabText} (${visibleRows})`;
             }
-        }
+        });
     }
 
     // Event listeners para filtros
     searchInput.addEventListener('input', filtrarLibros);
-    mostrarNoDisponibles.addEventListener('change', filtrarLibros);
+    mostrarNoDisponibles.addEventListener('change', function() {
+        console.log('Checkbox "mostrar no disponibles" cambiado a:', this.checked);
+        filtrarLibros();
+    });
 
     // ===== APLICAR FILTRO INICIAL AL CARGAR LA PÁGINA =====
     filtrarLibros(); // <- AGREGAR ESTA LÍNEA
+    
+    // Agregar event listener para cambio de pestañas
+    const tabButtons = document.querySelectorAll('.nav-link');
+    tabButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            setTimeout(() => {
+                filtrarLibros(); // Aplicar filtros después de cambiar de pestaña
+            }, 100);
+        });
+    });
 
     // ===== FUNCIONALIDAD DE ORDENAMIENTO =====
     ordenarPor.addEventListener('change', function() {
-        const tbody = document.getElementById('libros-table');
-        const rowsArray = Array.from(rows);
+        // Obtener la tabla activa actualmente
+        const activeContainer = document.querySelector('.tabla-container:not([style*="display: none"])');
+        if (!activeContainer) return;
         
-        rowsArray.sort((a, b) => {
+        const tbody = activeContainer.querySelector('tbody');
+        const rows = Array.from(tbody.querySelectorAll('tr:not(.no-results-row)'));
+        
+        rows.sort((a, b) => {
             let aValue, bValue;
             
             switch (this.value) {
                 case 'autor':
-                    aValue = a.dataset.autor;
-                    bValue = b.dataset.autor;
+                    aValue = a.dataset.autor || a.dataset.profesor || '';
+                    bValue = b.dataset.autor || b.dataset.profesor || '';
                     break;
                 case 'fecha':
                     aValue = parseInt(a.querySelector('td:first-child').textContent) || 0;
                     bValue = parseInt(b.querySelector('td:first-child').textContent) || 0;
                     return bValue - aValue; // Descendente para fechas
                 default: // titulo
-                    aValue = a.dataset.titulo;
-                    bValue = b.dataset.titulo;
+                    aValue = a.dataset.titulo || a.dataset.tipo || a.dataset.materia || '';
+                    bValue = b.dataset.titulo || b.dataset.tipo || b.dataset.materia || '';
             }
             
             return aValue.localeCompare(bValue);
         });
         
-        rowsArray.forEach(row => tbody.appendChild(row));
+        rows.forEach(row => tbody.appendChild(row));
+        
+        // Reaplicar filtros después del ordenamiento
+        filtrarLibros();
     });
 
     // ===== MANEJO DE SUBIDA DE IMÁGENES EN MODAL DE BAJA =====
@@ -1428,7 +1719,1104 @@
             }
         });
     }
+
+    // ===== SISTEMA DE GESTIÓN DE OBLEAS =====
+    class SistemaObleas {
+        constructor() {
+            this.obleas = [];
+            this.contadorEjemplar = {};
+            this.init();
+        }
+        
+        init() {
+            // Event listeners para el modal de obleas
+            document.getElementById('limpiarObleas').addEventListener('click', () => this.limpiarTodo());
+            document.getElementById('imprimirPDF').addEventListener('click', () => this.generarPDF());
+            
+            // Cerrar modal con escape
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && document.getElementById('obleasModal').classList.contains('show')) {
+                    this.cerrarModal();
+                }
+            });
+            
+            // Inicializar estado del botón imprimir
+            this.actualizarContador();
+        }
+        
+        agregarOblea(libroData) {
+            // Generar número de ejemplar único por CDU + Siglas
+            const clave = `${libroData.cdu}_${libroData.siglas}`;
+            if (!this.contadorEjemplar[clave]) {
+                this.contadorEjemplar[clave] = 0;
+            }
+            this.contadorEjemplar[clave]++;
+            
+            // Crear oblea con datos del libro
+            const oblea = {
+                id: Date.now() + Math.random(),
+                cdu: libroData.cdu || 'SIN CDU',
+                siglas: libroData.siglas || 'ABC',
+                ejemplar: this.contadorEjemplar[clave],
+                titulo: libroData.titulo,
+                autor: libroData.autor
+            };
+            
+            // Agregar a la colección y actualizar vista
+            this.obleas.push(oblea);
+            this.renderizarObleas();
+            this.actualizarContador();
+            this.mostrarModal();
+            
+            // Mostrar notificación de éxito
+            this.mostrarNotificacion(`Oblea agregada: ${oblea.cdu} - ${oblea.siglas} (Ej. ${oblea.ejemplar})`);
+        }
+        
+        eliminarOblea(id) {
+            // Encontrar la oblea a eliminar
+            const obleaAEliminar = this.obleas.find(oblea => oblea.id === id);
+            if (!obleaAEliminar) return;
+            
+            // Confirmar eliminación
+            if (confirm(`¿Eliminar oblea ${obleaAEliminar.cdu} - ${obleaAEliminar.siglas}?`)) {
+                this.obleas = this.obleas.filter(oblea => oblea.id !== id);
+                this.renderizarObleas();
+                this.actualizarContador();
+                
+                // Mostrar notificación
+                this.mostrarNotificacion(`Oblea eliminada: ${obleaAEliminar.cdu} - ${obleaAEliminar.siglas}`, 'warning');
+            }
+        }
+        
+        limpiarTodo() {
+            if (this.obleas.length === 0) {
+                alert('No hay obleas para limpiar');
+                return;
+            }
+            
+            if (confirm(`¿Está seguro de eliminar todas las ${this.obleas.length} obleas?`)) {
+                this.obleas = [];
+                this.contadorEjemplar = {};
+                this.renderizarObleas();
+                this.actualizarContador();
+                
+                // Mostrar notificación
+                this.mostrarNotificacion('Todas las obleas han sido eliminadas', 'info');
+            }
+        }
+        
+        renderizarObleas() {
+            const container = document.getElementById('obleasContainer');
+            
+            if (this.obleas.length === 0) {
+                container.innerHTML = `
+                    <div id="placeholder" style="grid-column: 1 / -1; text-align: center; color: #95a5a6; font-style: italic; padding: 40px;">
+                        Haz clic en "Imprimir" de cualquier libro para agregar obleas aquí
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = this.obleas.map(oblea => `
+                <div class="oblea" title="Clic para eliminar">
+                    <button class="eliminar" onclick="sistemaObleas.eliminarOblea(${oblea.id})">×</button>
+                    <div class="cdu">${oblea.cdu}</div>
+                    <div class="siglas">${oblea.siglas}</div>
+                    <div class="ejemplar">Ej. ${oblea.ejemplar}</div>
+                </div>
+            `).join('');
+        }
+        
+        actualizarContador() {
+            document.getElementById('contadorObleas').textContent = this.obleas.length;
+            
+            // Habilitar/deshabilitar botón de imprimir
+            const btnImprimir = document.getElementById('imprimirPDF');
+            if (btnImprimir) {
+                btnImprimir.disabled = this.obleas.length === 0;
+                btnImprimir.style.opacity = this.obleas.length === 0 ? '0.5' : '1';
+            }
+        }
+        
+        mostrarModal() {
+            const modal = new bootstrap.Modal(document.getElementById('obleasModal'));
+            modal.show();
+        }
+        
+        cerrarModal() {
+            const modal = bootstrap.Modal.getInstance(document.getElementById('obleasModal'));
+            if (modal) modal.hide();
+        }
+        
+        mostrarNotificacion(mensaje, tipo = 'success') {
+            const notificacion = document.createElement('div');
+            notificacion.className = `notificacion-obleas ${tipo}`;
+            notificacion.textContent = mensaje;
+            
+            document.body.appendChild(notificacion);
+            
+            setTimeout(() => {
+                notificacion.remove();
+            }, 3000);
+        }
+        
+        generarPDF() {
+            if (this.obleas.length === 0) {
+                alert('No hay obleas para imprimir');
+                return;
+            }
+            
+            // Simular generación de PDF
+            this.mostrarNotificacion(`PDF generado con ${this.obleas.length} obleas`, 'success');
+            
+            // Aquí se implementaría la lógica real de generación de PDF
+            console.log('Generando PDF con obleas:', this.obleas);
+            
+            // Cerrar modal después de generar
+            setTimeout(() => {
+                this.cerrarModal();
+            }, 1500);
+        }
+    }
+
+    // Inicializar sistema de obleas
+    window.sistemaObleas = null;
+    document.addEventListener('DOMContentLoaded', function() {
+        try {
+            window.sistemaObleas = new SistemaObleas();
+            console.log('Sistema de obleas inicializado correctamente');
+        } catch (error) {
+            console.error('Error al inicializar sistema de obleas:', error);
+        }
     });
+
+    // ===== FUNCIÓN PARA IMPRIMIR LIBRO ACTUALIZADA =====
+    window.imprimirLibro = function(libroId) {
+        try {
+            console.log('🖨️ Imprimiendo libro con ID:', libroId);
+            
+            // Verificar si sistemaObleas está inicializado
+            if (!window.sistemaObleas) {
+                console.log('Inicializando sistema de obleas...');
+                window.sistemaObleas = new SistemaObleas();
+            }
+            
+            // Buscar la fila del libro en la tabla
+            const botonImprimir = document.querySelector(`button[onclick*="imprimirLibro(${libroId})"]`);
+            if (!botonImprimir) {
+                console.error('No se encontró el botón de imprimir para el libro ID:', libroId);
+                alert('Error: No se pudo encontrar la información del libro');
+                return;
+            }
+            
+            const filaLibro = botonImprimir.closest('tr');
+            const celdas = filaLibro.querySelectorAll('td');
+            
+            // Verificar que tenemos suficientes celdas
+            if (celdas.length < 7) {
+                console.error('No se encontraron suficientes celdas en la fila del libro');
+                alert('Error: No se pudo extraer la información del libro de la tabla');
+                return;
+            }
+            
+            // Extraer datos del libro de la tabla
+            const libroData = {
+                id: libroId,
+                numInventario: celdas[0].textContent.trim(),
+                titulo: celdas[1].textContent.trim(),
+                autor: celdas[2].textContent.trim(),
+                editorial: celdas[3].textContent.trim(),
+                cdu: celdas[4].textContent.trim(),
+                siglas: celdas[5].textContent.trim(),
+                sede: celdas[6].textContent.trim()
+            };
+            
+            console.log('Datos del libro extraídos:', libroData);
+            
+            // Agregar oblea al sistema
+            window.sistemaObleas.agregarOblea(libroData);
+            
+        } catch (error) {
+            console.error('Error al imprimir libro:', error);
+            alert('Error al procesar la impresión del libro: ' + error.message);
+        }
+    };
+
+    // ===== FUNCIÓN PARA DAR DE BAJA LIBRO ACTUALIZADA =====
+    window.darDeBaja = function(libroId, titulo) {
+        try {
+            console.log('🗑️ Dando de baja libro con ID:', libroId, 'Título:', titulo);
+            
+            const filaLibro = document.querySelector(`tr[data-titulo*="${titulo.toLowerCase()}"]`);
+            
+            if (!filaLibro) {
+                console.error('No se pudo encontrar la fila del libro');
+                return;
+            }
+            
+            // Extraer datos de la fila
+            const celdas = filaLibro.querySelectorAll('td');
+            const numInventario = celdas[0].textContent.trim();
+            const tituloLibro = celdas[1].textContent.trim();
+            const autor = celdas[2].textContent.trim();
+            const editorial = celdas[3].textContent.trim();
+            const cdu = celdas[4].textContent.trim();
+            const siglas = celdas[5].textContent.trim();
+            const sede = celdas[6].textContent.trim();
+            
+            // Obtener imagen del libro
+            const imagenElement = filaLibro.querySelector('.libro-thumbnail');
+            const imagenSrc = imagenElement ? imagenElement.src : '';
+            
+            // Llenar el formulario oculto
+            document.getElementById('libro_id').value = libroId;
+            
+            // Llenar los datos en el modal
+            document.getElementById('modal_num_inventario').textContent = numInventario || '1';
+            document.getElementById('modal_titulo').textContent = tituloLibro;
+            document.getElementById('modal_autor').textContent = autor || 'Sin autor';
+            document.getElementById('modal_editorial').textContent = editorial || 'Sin editorial';
+            document.getElementById('modal_cdu').textContent = cdu || 'Sin CDU';
+            document.getElementById('modal_siglas').textContent = siglas || 'ABC';
+            document.getElementById('modal_sede').textContent = sede || 'LA PLATA';
+            
+            // Manejar la imagen
+            const imagenModal = document.getElementById('libro_imagen_modal');
+            const placeholderModal = document.getElementById('libro_placeholder');
+            
+            if (imagenSrc && !imagenSrc.includes('placeholder')) {
+                imagenModal.src = imagenSrc;
+                imagenModal.style.display = 'block';
+                placeholderModal.style.display = 'none';
+            } else {
+                imagenModal.style.display = 'none';
+                placeholderModal.style.display = 'flex';
+            }
+            
+            // Limpiar el formulario
+            document.getElementById('motivo_baja').value = '';
+            document.getElementById('imagen_rota').value = '';
+            
+            // Mostrar el modal
+            const modal = new bootstrap.Modal(document.getElementById('bajaModal'));
+            modal.show();
+            
+        } catch (error) {
+            console.error('Error al dar de baja libro:', error);
+            alert('Error al abrir el modal de baja');
+        }
+    };
+
+    // ===== FUNCIÓN PARA VER INFORME DE BAJA ACTUALIZADA CON DATOS REALES =====
+    window.verInformeBaja = function(libroId) {
+        try {
+            console.log('📋 Viendo informe de baja para libro ID:', libroId);
+            
+            // Buscar la fila del libro en la tabla
+            const botonInforme = document.querySelector(`button[onclick*="verInformeBaja(${libroId})"]`);
+            if (!botonInforme) {
+                console.error('No se encontró el botón de informe para el libro ID:', libroId);
+                alert('Error: No se pudo encontrar la información del libro');
+                return;
+            }
+            
+            const filaLibro = botonInforme.closest('tr');
+            const celdas = filaLibro.querySelectorAll('td');
+            
+            // Extraer datos del libro de la tabla
+            const datosLibro = {
+                id: libroId,
+                numInventario: celdas[0]?.textContent.trim() || 'N/A',
+                titulo: celdas[1]?.textContent.trim() || 'N/A',
+                autor: celdas[2]?.textContent.trim() || 'N/A',
+                editorial: celdas[3]?.textContent.trim() || 'N/A',
+                cdu: celdas[4]?.textContent.trim() || 'N/A',
+                siglas: celdas[5]?.textContent.trim() || 'N/A',
+                sede: celdas[6]?.textContent.trim() || 'N/A'
+            };
+            
+            // Guardar el ID del libro para usar en el botón DAR DE ALTA
+            window.currentLibroId = libroId;
+            
+            // Llenar los datos básicos en el modal
+            document.getElementById('informe_num_inventario').textContent = datosLibro.numInventario;
+            document.getElementById('informe_titulo').textContent = datosLibro.titulo;
+            document.getElementById('informe_autor').textContent = datosLibro.autor;
+            document.getElementById('informe_cdu').textContent = datosLibro.cdu;
+            document.getElementById('informe_siglas').textContent = datosLibro.siglas;
+            
+            // Manejar imagen del libro
+            const imagenModal = document.getElementById('informe_imagen');
+            const placeholderModal = document.getElementById('informe_placeholder');
+            
+            // Buscar imagen en la fila (si existe)
+            const imagenEnFila = filaLibro.querySelector('img');
+            const imagenSrc = imagenEnFila ? imagenEnFila.src : null;
+            
+            if (imagenSrc && !imagenSrc.includes('placeholder')) {
+                imagenModal.src = imagenSrc;
+                imagenModal.style.display = 'block';
+                placeholderModal.style.display = 'none';
+            } else {
+                imagenModal.style.display = 'none';
+                placeholderModal.style.display = 'flex';
+            }
+            
+            // Mostrar el modal
+            const modal = new bootstrap.Modal(document.getElementById('verInformeModal'));
+            modal.show();
+            
+            // ===== OBTENER DATOS REALES DEL BACKEND =====
+            obtenerInformeBajaReal(libroId);
+            
+            console.log('Informe mostrado para libro:', datosLibro);
+            
+        } catch (error) {
+            console.error('Error al ver informe de baja:', error);
+            alert('Error al acceder al informe de baja');
+        }
+    };
+
+    // ===== FUNCIÓN PARA OBTENER DATOS REALES DEL INFORME DE BAJA =====
+    function obtenerInformeBajaReal(libroId) {
+        // Mostrar indicadores de carga
+        document.getElementById('informe_motivo').innerHTML = '<div style="text-align: center; color: #6c757d;"><i class="fas fa-spinner fa-spin"></i> Cargando motivo de baja...</div>';
+        document.getElementById('informe_fecha_baja').textContent = 'Cargando...';
+        
+        // Preparar datos para la petición
+        const formData = new FormData();
+        formData.append('libro_id', libroId);
+        
+        // Obtener token CSRF
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        formData.append('csrfmiddlewaretoken', csrfToken);
+        
+        // Realizar petición AJAX al backend
+        fetch('/obtener-informe-baja/', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': csrfToken
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('📋 Datos del informe recibidos:', data);
+            
+            if (data.success) {
+                // Actualizar motivo de baja con el dato real
+                const motivoElement = document.getElementById('informe_motivo');
+                if (data.informe.motivo && data.informe.motivo.trim() !== '') {
+                    motivoElement.textContent = data.informe.motivo;
+                    motivoElement.style.color = '#495057';
+                } else {
+                    motivoElement.textContent = 'Motivo no registrado';
+                    motivoElement.style.color = '#6c757d';
+                    motivoElement.style.fontStyle = 'italic';
+                }
+                
+                // Actualizar fecha de baja si está disponible
+                if (data.informe.fecha_baja) {
+                    document.getElementById('informe_fecha_baja').textContent = data.informe.fecha_baja;
+                } else {
+                    document.getElementById('informe_fecha_baja').textContent = 'Fecha no registrada';
+                }
+                
+                // Manejar imagen de baja si existe
+                const imagenBajaContainer = document.getElementById('imagen_baja_container');
+                const imagenBaja = document.getElementById('imagen_baja');
+                
+                if (data.informe.imagen_baja) {
+                    imagenBaja.src = data.informe.imagen_baja;
+                    imagenBajaContainer.style.display = 'block';
+                    console.log('🖼️ Imagen de baja cargada:', data.informe.imagen_baja);
+                } else {
+                    imagenBajaContainer.style.display = 'none';
+                    console.log('❌ No hay imagen de baja disponible');
+                }
+                
+            } else {
+                // Error del servidor
+                console.error('❌ Error del servidor:', data.error);
+                document.getElementById('informe_motivo').innerHTML = `<span style="color: #dc3545; font-style: italic;">Error al cargar: ${data.error}</span>`;
+                document.getElementById('informe_fecha_baja').textContent = 'Error al cargar';
+            }
+        })
+        .catch(error => {
+            console.error('❌ Error en la petición:', error);
+            document.getElementById('informe_motivo').innerHTML = '<span style="color: #dc3545; font-style: italic;">Error de conexión al cargar el motivo</span>';
+            document.getElementById('informe_fecha_baja').textContent = 'Error de conexión';
+        });
+    }
+
+    // ===== FUNCIONES PARA OTROS TIPOS DE MATERIALES =====
+    window.imprimirMapa = function(id) {
+        alert(`Imprimir Mapa ID: ${id} - Funcionalidad en desarrollo`);
+    };
+
+    window.imprimirPrograma = function(id) {
+        alert(`Imprimir Programa ID: ${id} - Funcionalidad en desarrollo`);
+    };
+
+    window.imprimirMultimedia = function(id) {
+        alert(`Imprimir Multimedia ID: ${id} - Funcionalidad en desarrollo`);
+    };
+
+    window.imprimirNotebook = function(id) {
+        alert(`Imprimir Notebook ID: ${id} - Funcionalidad en desarrollo`);
+    };
+
+    window.imprimirProyector = function(id) {
+        alert(`Imprimir Proyector ID: ${id} - Funcionalidad en desarrollo`);
+    };
+
+    window.imprimirVarios = function(id) {
+        alert(`Imprimir Varios ID: ${id} - Funcionalidad en desarrollo`);
+    };
+
+    window.darDeBajaMapa = function(id, tipo) {
+        try {
+            // Obtener datos del mapa desde la fila de la tabla
+            const filasMapa = document.querySelectorAll('#mapas-table tr');
+            let mapaData = null;
+            
+            filasMapa.forEach(fila => {
+                const celdas = fila.querySelectorAll('td');
+                if (celdas.length > 0 && celdas[0].textContent.trim() === id.toString()) {
+                    mapaData = {
+                        id: celdas[0].textContent.trim(),
+                        tipo: celdas[1].textContent.trim(),
+                        denominacion: celdas[2].textContent.trim(),
+                        num_registro: celdas[3].textContent.trim(),
+                        sede: celdas[4].textContent.trim()
+                    };
+                }
+            });
+            
+            if (!mapaData) {
+                alert('Error: No se pudieron obtener los datos del mapa');
+                return;
+            }
+            
+            // Llenar datos en el modal de baja
+            document.getElementById('modal_num_inventario').textContent = mapaData.num_registro;
+            document.getElementById('modal_titulo').textContent = mapaData.denominacion;
+            document.getElementById('modal_autor').textContent = mapaData.tipo;
+            document.getElementById('modal_editorial').textContent = '-';
+            document.getElementById('modal_cdu').textContent = '-';
+            document.getElementById('modal_siglas').textContent = '-';
+            document.getElementById('modal_sede').textContent = mapaData.sede;
+            
+            // Configurar el formulario para mapas
+            const form = document.querySelector('#bajaModal form');
+            form.action = '/baja-mapa/';
+            
+            // Agregar campo oculto para el ID del mapa
+            let hiddenInput = document.getElementById('mapa_id_hidden');
+            if (!hiddenInput) {
+                hiddenInput = document.createElement('input');
+                hiddenInput.type = 'hidden';
+                hiddenInput.name = 'mapa_id';
+                hiddenInput.id = 'mapa_id_hidden';
+                form.appendChild(hiddenInput);
+            }
+            hiddenInput.value = id;
+            
+            // Limpiar el campo libro_id para evitar conflictos
+            document.getElementById('libro_id').value = '';
+            
+            // Mostrar el modal
+            const modal = new bootstrap.Modal(document.getElementById('bajaModal'));
+            modal.show();
+            
+        } catch (error) {
+            console.error('Error en darDeBajaMapa:', error);
+            alert('Error al procesar la baja del mapa');
+        }
+    };
+
+    window.darDeBajaPrograma = function(id, materia) {
+        alert(`Dar de baja Programa ID: ${id}, Materia: ${materia} - Funcionalidad en desarrollo`);
+    };
+
+    window.darDeBajaMultimedia = function(id, tipo) {
+        try {
+            console.log('🎬 Iniciando proceso de baja para multimedia:', id);
+            
+            // Buscar los datos del multimedia en la tabla
+            const multimediaData = window.multimediaTableData?.find(item => item.id_multi == id);
+            
+            if (!multimediaData) {
+                console.error('❌ No se encontraron datos para multimedia ID:', id);
+                alert('Error: No se encontraron los datos del multimedia');
+                return;
+            }
+            
+            console.log('📊 Datos del multimedia encontrados:', multimediaData);
+            
+            // Llenar datos en el modal de baja
+            document.getElementById('modal_num_inventario').textContent = multimediaData.id_multi || 'N/A';
+            document.getElementById('modal_titulo').textContent = multimediaData.titulo_contenido || 'Sin título';
+            document.getElementById('modal_autor').textContent = multimediaData.profesor || 'Sin especificar';
+            document.getElementById('modal_editorial').textContent = multimediaData.carrera || 'Sin especificar';
+            document.getElementById('modal_cdu').textContent = multimediaData.materia || 'Sin especificar';
+            document.getElementById('modal_siglas').textContent = multimediaData.ingresar_enlace || 'Sin enlace';
+            document.getElementById('modal_sede').textContent = multimediaData.sede || 'Sin especificar';
+            
+            // Configurar el formulario para multimedia
+            const form = document.querySelector('#bajaModal form');
+            form.action = '/baja-multimedia/';
+            
+            // Agregar campo oculto para el ID del multimedia
+            let hiddenInput = document.getElementById('multimedia_id_hidden');
+            if (!hiddenInput) {
+                hiddenInput = document.createElement('input');
+                hiddenInput.type = 'hidden';
+                hiddenInput.name = 'id_multi';
+                hiddenInput.id = 'multimedia_id_hidden';
+                form.appendChild(hiddenInput);
+            }
+            hiddenInput.value = id;
+            
+            // Limpiar el campo libro_id para evitar conflictos
+            document.getElementById('libro_id').value = '';
+            
+            // Mostrar el modal
+            const modal = new bootstrap.Modal(document.getElementById('bajaModal'));
+            modal.show();
+            
+        } catch (error) {
+            console.error('Error en darDeBajaMultimedia:', error);
+            alert('Error al procesar la baja del multimedia');
+        }
+    };
+
+    window.darDeBajaNotebook = function(id, tipo) {
+        alert(`Dar de baja Notebook ID: ${id}, Tipo: ${tipo} - Funcionalidad en desarrollo`);
+    };
+
+    window.darDeBajaProyector = function(id, tipo) {
+        alert(`Dar de baja Proyector ID: ${id}, Tipo: ${tipo} - Funcionalidad en desarrollo`);
+    };
+
+    window.darDeBajaVarios = function(id, tipo) {
+        alert(`Dar de baja Varios ID: ${id}, Tipo: ${tipo} - Funcionalidad en desarrollo`);
+    };
+
+    window.verInformeBajaMapa = function(id) {
+        try {
+            // Obtener datos del mapa desde la fila de la tabla
+            const filasMapa = document.querySelectorAll('#mapas-table tr');
+            let mapaData = null;
+            
+            filasMapa.forEach(fila => {
+                const celdas = fila.querySelectorAll('td');
+                if (celdas.length > 0 && celdas[0].textContent.trim() === id.toString()) {
+                    mapaData = {
+                        id: celdas[0].textContent.trim(),
+                        tipo: celdas[1].textContent.trim(),
+                        denominacion: celdas[2].textContent.trim(),
+                        num_registro: celdas[3].textContent.trim(),
+                        sede: celdas[4].textContent.trim()
+                    };
+                }
+            });
+            
+            if (!mapaData) {
+                alert('Error: No se pudieron obtener los datos del mapa');
+                return;
+            }
+            
+            // Llenar datos básicos del mapa en el modal
+            document.getElementById('informe_num_inventario').textContent = mapaData.num_registro;
+            document.getElementById('informe_titulo').textContent = mapaData.denominacion;
+            document.getElementById('informe_autor').textContent = mapaData.tipo;
+            document.getElementById('informe_cdu').textContent = '-';
+            document.getElementById('informe_siglas').textContent = mapaData.sede;
+            
+            // Mostrar indicador de carga
+            const motivoElement = document.getElementById('informe_motivo');
+            const fechaElement = document.getElementById('informe_fecha_baja');
+            
+            motivoElement.textContent = 'Cargando motivo de baja...';
+            fechaElement.textContent = 'Cargando...';
+            
+            // Manejar imagen del mapa
+            const imagenModal = document.getElementById('informe_imagen');
+            const placeholderModal = document.getElementById('informe_placeholder');
+            
+            if (imagenModal && placeholderModal) {
+                imagenModal.style.display = 'none';
+                placeholderModal.style.display = 'flex';
+            }
+            
+            // Guardar ID del mapa actual para el botón de dar de alta
+            window.currentMapaId = id;
+            window.currentLibroId = null; // Limpiar ID de libro
+            
+            // Mostrar el modal
+            const modal = new bootstrap.Modal(document.getElementById('verInformeModal'));
+            modal.show();
+            
+            // Obtener datos reales del informe de baja
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+            
+            fetch('/obtener-informe-baja-mapa/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken
+                },
+                body: JSON.stringify({
+                    mapa_id: id
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const informe = data.informe;
+                    
+                    // Actualizar motivo de baja
+                    if (informe.motivo && informe.motivo.trim() !== '') {
+                        motivoElement.textContent = informe.motivo;
+                        motivoElement.style.color = '#495057';
+                        motivoElement.style.fontStyle = 'normal';
+                    } else {
+                        motivoElement.textContent = 'Motivo no registrado';
+                        motivoElement.style.color = '#6c757d';
+                        motivoElement.style.fontStyle = 'italic';
+                    }
+                    
+                    // Actualizar fecha de baja
+                    if (informe.fecha_baja) {
+                        fechaElement.textContent = informe.fecha_baja;
+                    } else {
+                        fechaElement.textContent = 'Fecha no registrada';
+                    }
+                    
+                    // Manejar imagen de baja
+                    const imagenBajaContainer = document.getElementById('imagen_baja_container');
+                    const imagenBaja = document.getElementById('imagen_baja');
+                    
+                    if (informe.imagen_baja && imagenBaja && imagenBajaContainer) {
+                        imagenBaja.src = informe.imagen_baja;
+                        imagenBajaContainer.style.display = 'block';
+                    } else if (imagenBajaContainer) {
+                        imagenBajaContainer.style.display = 'none';
+                    }
+                } else {
+                    motivoElement.innerHTML = `<span style="color: #dc3545; font-style: italic;">Error al cargar: ${data.error}</span>`;
+                    fechaElement.textContent = 'Error al cargar';
+                    console.error('Error:', data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                motivoElement.innerHTML = '<span style="color: #dc3545; font-style: italic;">Error de conexión al cargar el motivo</span>';
+                fechaElement.textContent = 'Error de conexión';
+            });
+            
+        } catch (error) {
+            console.error('Error en verInformeBajaMapa:', error);
+            alert('Error al mostrar el informe de baja del mapa');
+        }
+    };
+
+    window.verInformeBajaPrograma = function(id) {
+        alert(`Informe de baja para Programa ID: ${id} - Funcionalidad en desarrollo`);
+    };
+
+    window.verInformeBajaMultimedia = function(id) {
+        try {
+            // Obtener datos del multimedia desde la fila de la tabla
+            const filasMultimedia = document.querySelectorAll('#multimedia-table tr');
+            let multimediaData = null;
+            
+            filasMultimedia.forEach(fila => {
+                const celdas = fila.querySelectorAll('td');
+                if (celdas.length > 0 && celdas[0].textContent.trim() === id.toString()) {
+                    multimediaData = {
+                        id: celdas[0].textContent.trim(),
+                        titulo_contenido: celdas[1].textContent.trim(),
+                        profesor: celdas[2].textContent.trim(),
+                        carrera: celdas[3].textContent.trim(),
+                        materia: celdas[4].textContent.trim(),
+                        enlace: celdas[5].textContent.trim(),
+                        sede: celdas[6].textContent.trim()
+                    };
+                }
+            });
+            
+            if (!multimediaData) {
+                alert('Error: No se pudieron obtener los datos del multimedia');
+                return;
+            }
+            
+            // Llenar datos básicos del multimedia en el modal
+            document.getElementById('informe_num_inventario').textContent = multimediaData.id;
+            document.getElementById('informe_titulo').textContent = multimediaData.titulo_contenido;
+            document.getElementById('informe_autor').textContent = multimediaData.profesor;
+            document.getElementById('informe_cdu').textContent = multimediaData.carrera;
+            document.getElementById('informe_siglas').textContent = multimediaData.sede;
+            
+            // Mostrar indicador de carga
+            const motivoElement = document.getElementById('informe_motivo');
+            const fechaElement = document.getElementById('informe_fecha_baja');
+            
+            motivoElement.textContent = 'Cargando motivo de baja...';
+            fechaElement.textContent = 'Cargando...';
+            
+            // Manejar imagen del multimedia
+            const imagenModal = document.getElementById('informe_imagen');
+            const placeholderModal = document.getElementById('informe_placeholder');
+            
+            if (imagenModal && placeholderModal) {
+                imagenModal.style.display = 'none';
+                placeholderModal.style.display = 'flex';
+            }
+            
+            // Guardar ID del multimedia actual para el botón de dar de alta
+            window.currentMultimediaId = id;
+            window.currentLibroId = null; // Limpiar ID de libro
+            window.currentMapaId = null; // Limpiar ID de mapa
+            
+            // Mostrar el modal
+            const modal = new bootstrap.Modal(document.getElementById('verInformeModal'));
+            modal.show();
+            
+            // Obtener datos reales del informe de baja
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+            const formData = new FormData();
+            formData.append('multimedia_id', id);
+            formData.append('csrfmiddlewaretoken', csrfToken);
+            
+            fetch('/obtener-informe-baja-multimedia/', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': csrfToken
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const informe = data.informe;
+                    
+                    // Actualizar motivo de baja
+                    if (informe.motivo_baja && informe.motivo_baja.trim() !== '') {
+                        motivoElement.textContent = informe.motivo_baja;
+                        motivoElement.style.color = '#495057';
+                        motivoElement.style.fontStyle = 'normal';
+                    } else {
+                        motivoElement.textContent = 'Motivo no registrado';
+                        motivoElement.style.color = '#6c757d';
+                        motivoElement.style.fontStyle = 'italic';
+                    }
+                    
+                    // Actualizar fecha de baja
+                    if (informe.fecha_baja) {
+                        fechaElement.textContent = informe.fecha_baja;
+                    } else {
+                        fechaElement.textContent = 'Fecha no registrada';
+                    }
+                    
+                    // Manejar imagen de baja
+                    const imagenBajaContainer = document.getElementById('imagen_baja_container');
+                    const imagenBaja = document.getElementById('imagen_baja');
+                    
+                    if (informe.imagen_url && imagenBaja && imagenBajaContainer) {
+                        imagenBaja.src = informe.imagen_url;
+                        imagenBajaContainer.style.display = 'block';
+                    } else if (imagenBajaContainer) {
+                        imagenBajaContainer.style.display = 'none';
+                    }
+                } else {
+                    motivoElement.innerHTML = `<span style="color: #dc3545; font-style: italic;">Error al cargar: ${data.error}</span>`;
+                    fechaElement.textContent = 'Error al cargar';
+                    console.error('Error:', data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                motivoElement.innerHTML = '<span style="color: #dc3545; font-style: italic;">Error de conexión al cargar el motivo</span>';
+                fechaElement.textContent = 'Error de conexión';
+            });
+            
+        } catch (error) {
+            console.error('Error en verInformeBajaMultimedia:', error);
+            alert('Error al mostrar el informe de baja del multimedia');
+        }
+    };
+
+    window.verInformeBajaNotebook = function(id) {
+        alert(`Informe de baja para Notebook ID: ${id} - Funcionalidad en desarrollo`);
+    };
+
+    window.verInformeBajaProyector = function(id) {
+        alert(`Informe de baja para Proyector ID: ${id} - Funcionalidad en desarrollo`);
+    };
+
+    window.verInformeBajaVarios = function(id) {
+        alert(`Informe de baja para Varios ID: ${id} - Funcionalidad en desarrollo`);
+    };
+
+    // Event listener para el botón "DAR DE ALTA" - IMPLEMENTACIÓN COMPLETA
+    const btnDarDeAlta = document.getElementById('btnDarDeAlta');
+    if (btnDarDeAlta) {
+        btnDarDeAlta.addEventListener('click', function() {
+            // Verificar si es un libro, mapa o multimedia
+            if (window.currentLibroId) {
+                // Lógica para libros
+                const confirmarModal = new bootstrap.Modal(document.getElementById('confirmarAltaModal'));
+                const tituloLibro = document.getElementById('informe_titulo').textContent;
+                document.getElementById('confirm_titulo_libro').textContent = tituloLibro;
+                
+                const informeModal = bootstrap.Modal.getInstance(document.getElementById('verInformeModal'));
+                if (informeModal) informeModal.hide();
+                
+                confirmarModal.show();
+            } else if (window.currentMapaId) {
+                // Lógica para mapas - IMPLEMENTACIÓN COMPLETA
+                const confirmarModal = new bootstrap.Modal(document.getElementById('confirmarAltaModal'));
+                const denominacionMapa = document.getElementById('informe_titulo').textContent;
+                document.getElementById('confirm_titulo_libro').textContent = denominacionMapa;
+                
+                const informeModal = bootstrap.Modal.getInstance(document.getElementById('verInformeModal'));
+                if (informeModal) informeModal.hide();
+                
+                confirmarModal.show();
+            } else if (window.currentMultimediaId) {
+                // Lógica para multimedia - IMPLEMENTACIÓN COMPLETA
+                const confirmarModal = new bootstrap.Modal(document.getElementById('confirmarAltaModal'));
+                const tituloMultimedia = document.getElementById('informe_titulo').textContent;
+                document.getElementById('confirm_titulo_libro').textContent = tituloMultimedia;
+                
+                const informeModal = bootstrap.Modal.getInstance(document.getElementById('verInformeModal'));
+                if (informeModal) informeModal.hide();
+                
+                confirmarModal.show();
+            } else {
+                alert('Error: No se pudo identificar el material a reactivar');
+            }
+        });
+    }
+    
+    // Event listener para el botón CONFIRMAR del modal de confirmación
+    const btnConfirmarAlta = document.getElementById('confirmarDarAlta');
+    if (btnConfirmarAlta) {
+        btnConfirmarAlta.addEventListener('click', function() {
+            if (window.currentLibroId) {
+                darDeAltaLibro(window.currentLibroId);
+            } else if (window.currentMapaId) {
+                darDeAltaMapa(window.currentMapaId);
+            } else if (window.currentMultimediaId) {
+                darDeAltaMultimedia(window.currentMultimediaId);
+            }
+        });
+    }
+
+    // ===== FUNCIÓN PARA DAR DE ALTA LIBRO (COMUNICACIÓN CON BACKEND) =====
+    function darDeAltaLibro(libroId) {
+        if (!libroId) {
+            alert('Error: ID de libro no válido');
+            return;
+        }
+        
+        // Mostrar indicador de carga
+        const btnConfirmar = document.getElementById('confirmarDarAlta');
+        const textoOriginal = btnConfirmar.textContent;
+        btnConfirmar.textContent = 'PROCESANDO...';
+        btnConfirmar.disabled = true;
+        
+        // Preparar datos para enviar
+        const formData = new FormData();
+        formData.append('libro_id', libroId);
+        formData.append('sede', 'LA PLATA'); // Valor por defecto
+        formData.append('disponibilidad', 'Domicilio'); // Valor por defecto
+        formData.append('observaciones', 'Material reactivado desde sistema de gestión');
+        
+        // Obtener token CSRF
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        formData.append('csrfmiddlewaretoken', csrfToken);
+        
+        // Realizar petición AJAX
+        fetch('/dar-alta-libro/', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': csrfToken
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Restaurar botón
+            btnConfirmar.textContent = textoOriginal;
+            btnConfirmar.disabled = false;
+            
+            if (data.success) {
+                // Cerrar modal de confirmación
+                const confirmarModal = bootstrap.Modal.getInstance(document.getElementById('confirmarAltaModal'));
+                if (confirmarModal) confirmarModal.hide();
+                
+                // Mostrar modal de éxito
+                const exitoModal = new bootstrap.Modal(document.getElementById('exitoModal'));
+                exitoModal.show();
+                
+                // Recargar la página después de 2 segundos para actualizar la tabla
+                setTimeout(() => {
+                    window.location.reload();
+                }, 2000);
+                
+                console.log('✅ Libro dado de alta exitosamente:', data);
+            } else {
+                alert('Error al dar de alta el libro: ' + (data.error || 'Error desconocido'));
+                console.error('❌ Error del servidor:', data);
+            }
+        })
+        .catch(error => {
+            // Restaurar botón
+            btnConfirmar.textContent = textoOriginal;
+            btnConfirmar.disabled = false;
+            
+            console.error('❌ Error en la petición:', error);
+            alert('Error de conexión. Por favor, intente nuevamente.');
+        });
+    }
+
+    // ===== FUNCIÓN PARA DAR DE ALTA MULTIMEDIA (COMUNICACIÓN CON BACKEND) =====
+    function darDeAltaMultimedia(multimediaId) {
+        if (!multimediaId) {
+            alert('Error: ID de multimedia no válido');
+            return;
+        }
+        
+        // Mostrar indicador de carga
+        const btnConfirmar = document.getElementById('confirmarDarAlta');
+        const textoOriginal = btnConfirmar.textContent;
+        btnConfirmar.textContent = 'PROCESANDO...';
+        btnConfirmar.disabled = true;
+        
+        // Preparar datos para enviar
+        const formData = new FormData();
+        formData.append('multimedia_id', multimediaId);
+        formData.append('sede', 'LA PLATA'); // Valor por defecto
+        formData.append('observaciones', 'Material reactivado desde sistema de gestión');
+        
+        // Obtener token CSRF
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        formData.append('csrfmiddlewaretoken', csrfToken);
+        
+        // Realizar petición AJAX
+        fetch('/dar-alta-multimedia/', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': csrfToken
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Restaurar botón
+            btnConfirmar.textContent = textoOriginal;
+            btnConfirmar.disabled = false;
+            
+            if (data.success) {
+                // Cerrar modal de confirmación
+                const confirmarModal = bootstrap.Modal.getInstance(document.getElementById('confirmarAltaModal'));
+                if (confirmarModal) confirmarModal.hide();
+                
+                // Mostrar modal de éxito
+                const exitoModal = new bootstrap.Modal(document.getElementById('exitoModal'));
+                exitoModal.show();
+                
+                // Recargar la página después de 2 segundos para actualizar la tabla
+                setTimeout(() => {
+                    window.location.reload();
+                }, 2000);
+                
+                console.log('✅ Multimedia dado de alta exitosamente:', data);
+            } else {
+                alert('Error al dar de alta el multimedia: ' + (data.error || 'Error desconocido'));
+                console.error('❌ Error del servidor:', data);
+            }
+        })
+        .catch(error => {
+            // Restaurar botón
+            btnConfirmar.textContent = textoOriginal;
+            btnConfirmar.disabled = false;
+            
+            console.error('❌ Error en la petición:', error);
+            alert('Error de conexión. Por favor, intente nuevamente.');
+        });
+    }
+
+    // ===== FUNCIÓN PARA DAR DE ALTA MAPA (COMUNICACIÓN CON BACKEND) =====
+    function darDeAltaMapa(mapaId) {
+        if (!mapaId) {
+            alert('Error: ID de mapa no válido');
+            return;
+        }
+        
+        // Mostrar indicador de carga
+        const btnConfirmar = document.getElementById('confirmarDarAlta');
+        const textoOriginal = btnConfirmar.textContent;
+        btnConfirmar.textContent = 'PROCESANDO...';
+        btnConfirmar.disabled = true;
+        
+        // Preparar datos para enviar
+        const formData = new FormData();
+        formData.append('mapa_id', mapaId);
+        formData.append('sede', 'LA PLATA'); // Valor por defecto
+        formData.append('observaciones', 'Material reactivado desde sistema de gestión');
+        
+        // Obtener token CSRF
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        formData.append('csrfmiddlewaretoken', csrfToken);
+        
+        // Realizar petición AJAX
+        fetch('/dar-alta-mapa/', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': csrfToken
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Restaurar botón
+            btnConfirmar.textContent = textoOriginal;
+            btnConfirmar.disabled = false;
+            
+            if (data.success) {
+                // Cerrar modal de confirmación
+                const confirmarModal = bootstrap.Modal.getInstance(document.getElementById('confirmarAltaModal'));
+                if (confirmarModal) confirmarModal.hide();
+                
+                // Mostrar modal de éxito
+                const exitoModal = new bootstrap.Modal(document.getElementById('exitoModal'));
+                exitoModal.show();
+                
+                // Recargar la página después de 2 segundos para actualizar la tabla
+                setTimeout(() => {
+                    window.location.reload();
+                }, 2000);
+                
+                console.log('✅ Mapa dado de alta exitosamente:', data);
+            } else {
+                alert('Error al dar de alta el mapa: ' + (data.error || 'Error desconocido'));
+                console.error('❌ Error del servidor:', data);
+            }
+        })
+        .catch(error => {
+            // Restaurar botón
+            btnConfirmar.textContent = textoOriginal;
+            btnConfirmar.disabled = false;
+            
+            console.error('❌ Error en la petición:', error);
+            alert('Error de conexión. Por favor, intente nuevamente.');
+        });
+    }
+});
 </script>
 
 <!-- Modal de Detalles para Mapas -->
@@ -2182,9 +3570,9 @@
                                     <td style="padding: 8px 0;" id="informe_siglas">-</td>
                                 </tr>
                                 <tr>
-                                    <td style="padding: 8px 0; font-weight: 600;">Fecha de baja:</td>
-                                    <td style="padding: 8px 0; color: #dc3545;" id="informe_fecha_baja">30/10/2024</td>
-                                </tr>
+                            <td style="padding: 8px 0; font-weight: 600;">Fecha de baja:</td>
+                            <td style="padding: 8px 0; color: #dc3545;" id="informe_fecha_baja">Cargando...</td>
+                        </tr>
                             </table>
                         </div>
                     </div>
@@ -2242,7 +3630,7 @@
             <div class="modal-body" style="padding: 2rem; background: white; text-align: center;">
                 <div style="font-size: 48px; color: #28a745; margin-bottom: 1rem;">📚</div>
                 <p style="font-size: 16px; color: #495057; margin-bottom: 2rem; line-height: 1.5;">
-                    El libro <strong id="confirm_titulo_libro">título del libro</strong> volverá a estar disponible para préstamos.
+                    El material <strong id="confirm_titulo_libro">título del material</strong> volverá a estar disponible para préstamos.
                 </p>
             </div>
 
@@ -2336,7 +3724,6 @@
                 <div style="font-size: 64px; color: #28a745; margin-bottom: 1rem;">✅</div>
                 <h5 style="color: #28a745; font-weight: 700; margin-bottom: 1rem; text-transform: uppercase;">
                     EL ALTA DEL MATERIAL<br>
-                    <span id="exito_titulo">TITULO</span> COL S<br>
                     HA CONCLUIDO CON ÉXITO
                 </h5>
             </div>
@@ -2350,5 +3737,7 @@
         </div>
     </div>
 </div>
+
+
 
 {% endblock %}
