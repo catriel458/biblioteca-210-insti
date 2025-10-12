@@ -678,8 +678,8 @@ function plantillaEjemplarMaterial(idx, tipo) {
                 <input type="text" class="form-control" id="num_registro_${idx}" name="num_registro_${idx}" required placeholder="N° de registro...">
             </div>
             <div class="col-md-3">
-                <label for="modelo_proy_${idx}" style="font-size: 14px;">Modelo:</label>
-                <input type="text" class="form-control" id="modelo_proy_${idx}" name="modelo_proy_${idx}" placeholder="Modelo..." />
+                <label for="modelo_pro_${idx}" style="font-size: 14px;">Modelo:</label>
+                <input type="text" class="form-control" id="modelo_pro_${idx}" name="modelo_pro_${idx}" placeholder="Modelo..." />
             </div>
         </div>`;
     } else if (tipo === 'notebook') {

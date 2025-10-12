@@ -2614,7 +2614,7 @@ def confirmacion_alta_proyector(request):
             ejemplar = {
                 'sede': sede_texto,  # Usar el nombre real de la sede
                 'num_registro': request.POST.get(f'num_registro_{i}', ''),
-                'modelo_proy': request.POST.get(f'modelo_proy_{i}', ''),
+                'modelo_pro': request.POST.get(f'modelo_pro_{i}', ''),
             }
             ejemplares.append(ejemplar)
         
@@ -2625,7 +2625,7 @@ def confirmacion_alta_proyector(request):
             'sede': sede_value,
             'sede_texto': sede_mapping.get(sede_value, sede_value),  # Agregar el nombre legible de la sede
             'num_registro': request.POST.get('num_registro', ''),
-            'modelo_proy': request.POST.get('modelo_proy', ''),
+            'modelo_pro': request.POST.get('modelo_pro', ''),
             'estado': 'Disponible',  # Valor por defecto
         }
         
@@ -3008,13 +3008,13 @@ def guardar_alta_proyector(request):
                 for i, ejemplar_original in enumerate(ejemplares_originales):
                     # Buscar datos editados para este ejemplar
                     num_registro_editado = request.POST.get(f'ejemplares[{i}][num_registro]')
-                    modelo_editado = request.POST.get(f'ejemplares[{i}][modelo_proy]')
+                    modelo_editado = request.POST.get(f'ejemplares[{i}][modelo_pro]')
                     
                     # Crear ejemplar actualizado con datos editados o originales
                     ejemplar_actualizado = {
                         'sede': sede_editada if sede_editada else ejemplar_original.get('sede'),
                         'num_registro': num_registro_editado if num_registro_editado else ejemplar_original.get('num_registro'),
-                        'modelo_proy': modelo_editado if modelo_editado else ejemplar_original.get('modelo_proy'),
+                        'modelo_pro': modelo_editado if modelo_editado else ejemplar_original.get('modelo_pro'),
                     }
                     ejemplares_actualizados.append(ejemplar_actualizado)
                     
@@ -3024,7 +3024,7 @@ def guardar_alta_proyector(request):
                 ejemplar_unico = {
                     'sede': sede_editada if sede_editada else proyector_data.get('sede_texto'),
                     'num_registro': request.POST.get('ejemplares[0][num_registro]') or proyector_data.get('num_registro'),
-                    'modelo_proy': request.POST.get('ejemplares[0][modelo_proy]') or proyector_data.get('modelo_proy'),
+                    'modelo_pro': request.POST.get('ejemplares[0][modelo_pro]') or proyector_data.get('modelo_pro'),
                 }
                 ejemplares_actualizados.append(ejemplar_unico)
                 print(f"📝 Ejemplar único actualizado: {ejemplar_unico}")  # Debug
@@ -3036,7 +3036,7 @@ def guardar_alta_proyector(request):
                 # Crear el proyector para este ejemplar
                 proyector = Proyector.objects.create(
                     num_registro=ejemplar.get('num_registro'),
-                    modelo_pro=ejemplar.get('modelo_proy'),
+                    modelo_pro=ejemplar.get('modelo_pro'),
                     sede=ejemplar.get('sede'),
                     estado=proyector_data.get('estado', 'Disponible')
                 )

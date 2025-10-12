@@ -447,12 +447,12 @@
                         data-titulo="{{ libro.titulo|lower }}"
                         data-autor="{{ libro.autor|lower }}"
                         data-editorial="{{ libro.editorial|lower }}">
-                        <td class="text-center">{{ libro.num_inventario|default:'' }}</td>
+                        <td class="text-center">{{ libro.id_inventario|default:'' }}</td>
                         <td class="titulo-cell">{{ libro.titulo }}</td>
                         <td>{{ libro.autor }}</td>
                         <td>{{ libro.editorial }}</td>
-                        <td class="text-center">{{ libro.clasificacion|default:'' }}</td>
-                        <td>{{ libro.etiquetas|default:'' }}</td>
+                        <td class="text-center">{{ libro.clasificacion_cdu|default:'' }}</td>
+                        <td>{{ libro.etiqueta_palabra_clave|default:'' }}</td>
                         <td class="text-center">{{ libro.sede|default:'LA PLATA' }}</td>
                         <td class="text-center">{{ libro.num_ejemplar|default:'' }}</td>
                         <td>{{ libro.observaciones|default:'' }}</td>
@@ -579,7 +579,6 @@
                     <th>Ciclo Lectivo</th>
                     <th>Enlace</th>
                     <th class="text-center">Sede</th>
-                    <th>Observaciones</th>
                     <th class="text-center">Disponibilidad</th>
                     <th class="text-center">Acciones</th>
                 </tr>
@@ -605,7 +604,6 @@
                             {% endif %}
                         </td>
                         <td class="text-center">{{ programa.sede|default:'LA PLATA' }}</td>
-                        <td>{{ programa.observaciones|default:'' }}</td>
                         <td class="disponibilidad-cell">
                             {% if programa.estado == 'Disponible' %}
                                 <span class="disponible">Disponible para préstamo</span>
@@ -641,7 +639,7 @@
                     {% endfor %}
                 {% else %}
                     <tr>
-                        <td colspan="10" class="no-results">No se encontraron programas disponibles.</td>
+                        <td colspan="9" class="no-results">No se encontraron programas disponibles.</td>
                     </tr>
                 {% endif %}
             </tbody>
@@ -814,7 +812,7 @@
                         data-denominacion="{{ pro.denominacion|lower }}">
                         <td class="text-center">{{ pro.id_proyector|default:'' }}</td>
                         <td class="text-center">{{ pro.num_registro|default:'' }}</td>
-                        <td class="titulo-cell">{{ pro.modelo_proy }}</td>
+                        <td class="titulo-cell">{{ pro.modelo_pro }}</td>
                         <td class="text-center">{{ pro.sede|default:'LA PLATA' }}</td>
                         <td class="disponibilidad-cell">
                             {% if pro.estado == 'Disponible' %}
@@ -865,8 +863,6 @@
                 <tr>
                     <th class="text-center">ID</th>
                     <th>Tipo</th>
-                    <th>Denominación</th>
-                    <th class="text-center">N° Registro</th>
                     <th class="text-center">Sede</th>
                     <th class="text-center">Disponibilidad</th>
                     <th class="text-center">Acciones</th>
@@ -877,12 +873,9 @@
                     {% for var in varios %}
                     <tr class="varios-row{% if var.estado == 'No disponible' %} libro-no-disponible{% endif %}" 
                         data-estado="{{ var.estado|lower }}"
-                        data-tipo="{{ var.tipo|lower }}"
-                        data-denominacion="{{ var.denominacion|lower }}">
+                        data-tipo="{{ var.tipo|lower }}">
                         <td class="text-center">{{ var.id_varios|default:'' }}</td>
                         <td class="titulo-cell">{{ var.tipo }}</td>
-                        <td>{{ var.denominacion }}</td>
-                        <td class="text-center">{{ var.num_registro|default:'' }}</td>
                         <td class="text-center">{{ var.sede|default:'LA PLATA' }}</td>
                         <td class="disponibilidad-cell">
                             {% if var.estado == 'Disponible' %}
@@ -919,7 +912,7 @@
                     {% endfor %}
                 {% else %}
                     <tr>
-                        <td colspan="7" class="no-results">No se encontraron elementos varios disponibles.</td>
+                        <td colspan="5" class="no-results">No se encontraron elementos varios disponibles.</td>
                     </tr>
                 {% endif %}
             </tbody>
