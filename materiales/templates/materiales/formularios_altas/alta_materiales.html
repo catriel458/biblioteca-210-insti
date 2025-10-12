@@ -81,6 +81,9 @@
         </div>
     </form>
 </div>
+
+<!-- Cargar alertas.js globalmente para asegurar que esté disponible -->
+<script src="{% static 'js/alertas.js' %}"></script>
 {% endblock %}
 
 {% block modals %}
@@ -89,6 +92,9 @@
   <div id="contenedor-modal-confirmacion">
    
   </div>
+  
+  <!-- Incluir el modal de alerta de vaciar campos -->
+  {% include 'modals/alertas/vaciar_campos.html' %}
 {% endblock %}
 
 {% block extra_scripts %}
@@ -346,7 +352,6 @@ document.addEventListener("DOMContentLoaded", function () {
                     script.src = "{% static 'js/alertas.js' %}";
                     document.body.appendChild(script);
 
-
                     buttonsContainer.style.display = 'flex';
                     // No mostrar carga masiva ni URL para proyector
                     if (uploadSimple) uploadSimple.style.display = 'none';
@@ -385,11 +390,11 @@ document.addEventListener("DOMContentLoaded", function () {
                     if (uploadSimple) uploadSimple.style.display = 'none';
                     if (uploadBox) uploadBox.style.display = 'none';
                     
-                    // 🎯 CRÍTICO: Inicializar funcionalidad carrera-materia DESPUÉS de cargar HTML
-                    setTimeout(() => {
-                        initCarreraMateriaFunctionality();
-                        initVariosFunctionality(); // Inicializar funcionalidad del botón '+' para varios
-                    }, 100); // Pequeño delay para asegurar que el DOM esté listo
+                    // Cargar el script alertas.js directamente
+                    const script = document.createElement('script');
+                    script.src = "{% static 'js/alertas.js' %}";
+                    document.body.appendChild(script);
+                    console.log('✅ Script alertas.js cargado para varios');
                     
                     // Configurar la acción del formulario para varios
                     const form = document.getElementById('form_alta_material');
@@ -397,6 +402,13 @@ document.addEventListener("DOMContentLoaded", function () {
                         form.action = '{% url "confirmacion_alta_varios" %}';
                         console.log('✅ Acción del formulario configurada para varios:', form.action);
                     }
+                    
+                    // 🎯 CRÍTICO: Inicializar funcionalidad dinámica DESPUÉS de cargar HTML
+                    setTimeout(() => {
+                        initCarreraMateriaFunctionality();
+                        initVariosFunctionality();
+                    }, 100); // Pequeño delay para asegurar que el DOM esté listo
+                    
                     console.log('✅ Formulario de varios cargado');
                 })
                 .catch(error => {

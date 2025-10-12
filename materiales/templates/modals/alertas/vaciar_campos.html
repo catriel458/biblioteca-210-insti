@@ -3,8 +3,10 @@
     <p class="atencion">¡ATENCIÓN!</p>
     
     <p class="texto-alerta">
-        ESTA ACCIÓN HARÁ QUE SE VACÍEN TODOS LOS CAMPOS YA COMPLETADOS, SIN 
-        POSIBILIDAD DE GUARDAR EL PROGRESO
+ESTA ACCIÓN HARÁ QUE SE
+VACIEN TODOS LOS CAMPOS YA
+COMPLETADOS, SIN POSIBILIDAD
+DE GUARDAR EL PROGRESO
     </p>
     
     <div class="botones-tarjeta">
@@ -30,13 +32,13 @@
     box-sizing: border-box;
     align-items: center;
     width: 100%;
-    max-width: 420px;
+    max-width: 340px;
     min-width: 300px;
-    padding: 2em 1.8em;
+    padding: 0.8em 0.8em;
     text-align: center;
     background: #FFB3BA;
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border: 2px solid #FF0000;
 }
 
 .modal-backdrop {
@@ -50,31 +52,53 @@
     z-index: 1040;
 }
 
+.atencion {
+    color: #000;
+    font-weight: normal;
+    font-size: 0.65em;
+    font-family: Arial, sans-serif;
+    margin-top: 0;
+    margin-bottom: 3px;
+    padding: 0;
+    text-decoration: underline;
+    text-decoration-color: red;
+    text-underline-offset: 3px;
+}
+
+.texto-alerta {
+    color: #000;
+    font-size: 0.85em;
+    line-height: 1.1;
+    margin: 0 0 5px;
+    padding: 0;
+    font-weight: 500;
+    font-family: Arial, sans-serif;
+    text-transform: uppercase;
+    max-width: 100%;
+    width: 100%;
+    white-space: pre-line;
+    letter-spacing: 0;
+}
+
 .botones-tarjeta {
     display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-    gap: 15px;
-    flex-wrap: nowrap;
+    justify-content: space-between;
     width: 100%;
-    margin-top: 25px;
+    margin-top: 5px;
 }
 
 .botones-tarjeta > button {
-    min-width: 120px;
+    min-width: 110px;
     flex: 0 1 auto;
     white-space: nowrap;
-    padding: 0.6em 1.8em;
-    font-weight: 600;
-    font-size: 0.9em;
-    letter-spacing: 0.3px;
-    border-radius: 6px;
-    border: none;
+    padding: 0.4em 0.8em;
+    border-radius: 5px;
+    border: 1px solid #000;
     cursor: pointer;
-    transition: all 0.2s ease;
-    text-transform: uppercase;
+    font-weight: normal;
     font-family: Arial, sans-serif;
+    text-transform: uppercase;
+    font-size: 0.6em;
 }
 
 .btn-cancelar-modal {
@@ -82,67 +106,18 @@
     color: white !important;
 }
 
-.btn-cancelar-modal:hover {
-    background-color: #357ABD !important;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(74, 144, 226, 0.3);
+.btn-confirmar-modal {
+    color: white !important;
+    background-color: #FF8C42 !important;
 }
 
-.btn-confirmar-modal {
-    background-color: #FF8C42 !important;
-    color: white !important;
+.btn-cancelar-modal:hover {
+    background-color: #3A7BC8 !important;
 }
 
 .btn-confirmar-modal:hover {
-    background-color: #E67A33 !important;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(255, 140, 66, 0.3);
+    background-color: #E67E3C !important;
 }
 
-.atencion {
-    text-decoration: none;
-    font-weight: 800;
-    margin-bottom: 15px;
-    color: #2C3E50;
-    font-size: 1.4em;
-    letter-spacing: 1px;
-    font-family: Arial, sans-serif;
-}
 
-.texto-alerta {
-    font-size: 0.95em;
-    line-height: 1.5;
-    color: #2C3E50;
-    font-weight: 500;
-    margin-bottom: 0;
-    letter-spacing: 0.2px;
-    font-family: Arial, sans-serif;
-    max-width: 90%;
-}
-
-/* Responsive */
-@media (max-width: 576px) {
-    .tarjeta-alerta {
-        max-width: 85%;
-        padding: 1.8em 1.4em;
-    }
-    
-    .botones-tarjeta {
-        flex-direction: column;
-        gap: 10px;
-    }
-    
-    .botones-tarjeta > button {
-        width: 100%;
-        min-width: auto;
-    }
-    
-    .atencion {
-        font-size: 1.2em;
-    }
-    
-    .texto-alerta {
-        font-size: 0.9em;
-    }
-}
 </style>
