@@ -224,14 +224,21 @@ class ProyectorForm(forms.ModelForm):
 class VariosForm(forms.ModelForm):
     class Meta:
         model = Varios
-        fields = ['id_varios', 'tipo', 'descripcion', 'num_ejemplar']
-        
+        fields = ['id_varios', 'tipo', 'descripcion', 'cantidad', 'cantidad_disponible']
+
         widgets = {
             'id_varios': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese el ID del artículo'}),
             'tipo': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese el tipo de artículo'}),
             'descripcion': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Ingrese una descripción del artículo'}),
-            'num_ejemplar': forms.NumberInput(attrs={'class': 'form-control', 'min': 1, 'placeholder': 'Cantidad de ejemplares'}),
+            'cantidad': forms.NumberInput(attrs={'class': 'form-control', 'min': 1, 'placeholder': 'Cantidad total'}),
+            'cantidad_disponible': forms.NumberInput(attrs={'class': 'form-control', 'min': 0, 'placeholder': 'Cantidad disponible'}),
         }
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Hacer que cantidad_disponible sea igual a cantidad por defecto en nuevos registros
+        if not self.instance.pk:
+            self.fields['cantidad_disponible'].initial = self.fields['cantidad'].initial or 1
 
 class RegistroForm(UserCreationForm):
     nombre = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese su nombre'}))

@@ -1920,6 +1920,8 @@ def ver_detalles_material(request, libro_id):
                 'detalle_varios_num_registro': 'N/A',
                 'detalle_varios_denominacion': f"Material varios - {material.tipo}",
                 'detalle_varios_estado': 'Activo',
+                'detalle_varios_cantidad': material.cantidad,
+                'detalle_varios_cantidad_disponible': material.cantidad_disponible,
             }
             
         else:
@@ -2365,29 +2367,32 @@ def guardar_alta_varios(request):
                 
                 materiales_creados = []
                 
-                # Crear un registro Varios por cada tipo y ejemplar
+                # Crear un registro Varios por cada tipo (agrupado por cantidad)
                 for tipo_data in tipos_varios:
                     tipo = tipo_data.get('tipo', '')
                     ejemplares = tipo_data.get('ejemplares', [])
+                    cantidad_total = len(ejemplares)
                     
-                    for ejemplar in ejemplares:
-                        # Crear el objeto Varios con los campos correctos del modelo
+                    if cantidad_total > 0:
+                        # Crear un solo registro con la cantidad total
                         varios = Varios(
                             tipo=tipo,
                             estado='Disponible',
-                            descripcion=ejemplar.get('descripcion', ''),
-                            num_ejemplar=1,  # Cada registro es un ejemplar
-                            sede=ejemplar.get('sede', 'La Plata')  # Usar el campo sede del ejemplar
+                            descripcion=ejemplares[0].get('descripcion', '') if ejemplares else '',
+                            num_ejemplar=1,  # Mantener para compatibilidad
+                            sede=ejemplares[0].get('sede', 'La Plata') if ejemplares else 'La Plata',
+                            cantidad=cantidad_total,
+                            cantidad_disponible=cantidad_total
                         )
                         varios.save()
                         materiales_creados.append(varios)
-                        print(f"✅ Material varios creado: {varios}")  # Debug
+                        print(f"✅ Material varios creado: {varios} con cantidad: {cantidad_total}")  # Debug
                 
                 # Limpiar la sesión
                 if 'varios_data' in request.session:
                     del request.session['varios_data']
                 
-                messages.success(request, f'Se han guardado exitosamente {len(materiales_creados)} materiales varios.')
+                messages.success(request, f'Se han guardado exitosamente {len(materiales_creados)} tipos de materiales varios.')
                 return redirect('alta_materiales')
                 
             except Exception as e:

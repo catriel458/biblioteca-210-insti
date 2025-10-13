@@ -1095,6 +1095,8 @@
                     <th class="text-center">ID</th>
                     <th>Tipo</th>
                     <th class="text-center">Sede</th>
+                    <th class="text-center">Cantidad</th>
+                    <th class="text-center">Disponible</th>
                     <th class="text-center">Disponibilidad</th>
                     <th class="text-center">Acciones</th>
                 </tr>
@@ -1108,6 +1110,8 @@
                         <td class="text-center">{{ var.id_varios|default:'' }}</td>
                         <td class="titulo-cell">{{ var.tipo }}</td>
                         <td class="text-center">{{ var.sede|default:'LA PLATA' }}</td>
+                        <td class="text-center">{{ var.cantidad|default:'1' }}</td>
+                        <td class="text-center">{{ var.cantidad_disponible|default:'1' }}</td>
                         <td class="disponibilidad-cell">
                             {% if var.estado == 'Disponible' %}
                                 <span class="disponible">Disponible para préstamo</span>
@@ -1446,6 +1450,8 @@
                         document.getElementById('detalle_varios_tipo').textContent = detalles.detalle_varios_tipo || '-';
                         document.getElementById('detalle_varios_denominacion').textContent = detalles.detalle_varios_denominacion || '-';
                         document.getElementById('detalle_varios_sede').textContent = detalles.detalle_varios_sede || '-';
+                        document.getElementById('detalle_varios_cantidad').textContent = detalles.detalle_varios_cantidad || '-';
+                        document.getElementById('detalle_varios_cantidad_disponible').textContent = detalles.detalle_varios_cantidad_disponible || '-';
                         document.getElementById('detalle_varios_estado').textContent = detalles.detalle_varios_estado || '-';
                         
                         // Mostrar el modal
@@ -3215,6 +3221,14 @@
                                 <tr style="border-bottom: 1px solid #dee2e6;">
                                     <td style="padding: 12px 0; font-weight: 600;">Sede:</td>
                                     <td style="padding: 12px 0;" id="detalle_varios_sede">-</td>
+                                </tr>
+                                <tr style="border-bottom: 1px solid #dee2e6;">
+                                    <td style="padding: 12px 0; font-weight: 600;">Cantidad Total:</td>
+                                    <td style="padding: 12px 0;" id="detalle_varios_cantidad">-</td>
+                                </tr>
+                                <tr style="border-bottom: 1px solid #dee2e6;">
+                                    <td style="padding: 12px 0; font-weight: 600;">Cantidad Disponible:</td>
+                                    <td style="padding: 12px 0;" id="detalle_varios_cantidad_disponible">-</td>
                                 </tr>
                                 <tr>
                                     <td style="padding: 12px 0; font-weight: 600;">Estado:</td>

@@ -42,10 +42,10 @@
                                         <td>${varios.tipo}</td>
                                         <td>${varios.num_ejemplar}</td>
                                         <td>
-                                            <a href="/editar/${varios.id_varios}">
-                                                <img src="{% static 'materiales/img/lapiz.png' %}" alt="Editar" style="cursor: pointer; width: 20px; height: 20px;">
+                                            <a href="/editar/${varios.id_varios}" title="Editar">
+                                                <img src="{% static 'materiales/img/lapiz.png' %}" alt="Editar" style="cursor: pointer; width: 20px; height: 20px; margin-right: 5px;">
                                             </a>
-                                            <img src="{% static 'materiales/img/trash.png' %}" alt="Eliminar" onclick="abrirModal({{ varios.id_varios }})" style="cursor: pointer; width: 20px; height: 20px;">
+                                            <img src="{% static 'materiales/img/trash.png' %}" alt="Eliminar" onclick="abrirModal(${varios.id_varios})" style="cursor: pointer; width: 20px; height: 20px;" title="Eliminar">
                                         </td>
                                     </tr>`
                                 );
@@ -279,7 +279,7 @@ header {
                 <tr>
                     <th>ID</th>
                     <th>Tipo</th>
-                    <th>Cantidad</th>
+                    <th>Num. Ejemplar</th>
                     <th>Acciones</th>
                 </tr>
             </thead>
@@ -290,10 +290,10 @@ header {
                     <td>{{ var.tipo }}</td>
                     <td>{{ var.num_ejemplar }}</td>
                     <td>
-                        <a href="{% url 'editar_varios' var.id_varios %}">
-                            <img src="{% static 'materiales/img/lapiz.png' %}" alt="Editar" style="cursor: pointer; width: 20px; height: 20px;">
+                        <a href="{% url 'editar_varios' var.id_varios %}" title="Editar">
+                            <img src="{% static 'materiales/img/lapiz.png' %}" alt="Editar" style="cursor: pointer; width: 20px; height: 20px; margin-right: 5px;">
                         </a>
-                        <img src="{% static 'materiales/img/trash.png' %}" alt="Eliminar" onclick="abrirModal({{ var.id_varios }})" style="cursor: pointer; width: 20px; height: 20px;">
+                        <img src="{% static 'materiales/img/trash.png' %}" alt="Eliminar" onclick="abrirModal({{ var.id_varios }})" style="cursor: pointer; width: 20px; height: 20px;" title="Eliminar">
                     </td>
                 </tr>
                 {% empty %}
