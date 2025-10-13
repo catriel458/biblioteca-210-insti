@@ -1,7 +1,7 @@
 <!-- Modal para el Manual -->
 <div id="manualModal" class="modal">
     <div class="modal-content">
-        <button onclick="document.getElementById('manualModal').style.display='none'" class="close-button">&times;</button>
+        <button onclick="closeManualModal()" class="close-button">&times;</button>
         <div class="manual-title">MANUAL DE ALTA DE MATERIAL</div>
         <div class="manual-content">
             <p><strong>Introducción</strong></p>
@@ -90,3 +90,9 @@
         <!-- Modal completado -->
     </div>
 </div>
+
+<script>
+function closeManualModal() {
+    document.getElementById('manualModal').style.display = 'none';
+}
+</script>

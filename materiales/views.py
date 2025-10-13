@@ -216,6 +216,30 @@ def home(request):
     """
     return render(request, 'home.html')  # ← CORRECTO
 
+def gestion(request):
+    """
+    Vista principal de gestión - Pantalla de gestión
+    """
+    return render(request, 'materiales/GESTION/gestion.html')
+
+def gestion_usuarios(request):
+    """
+    Vista de gestión de usuarios
+    """
+    return render(request, 'materiales/GESTION/gestion_usuarios.html')
+
+def gestion_prestamos(request):
+    """
+    Vista de gestión de préstamos
+    """
+    return render(request, 'materiales/GESTION/gestion_prestamos.html')
+
+def gestion_sanciones(request):
+    """
+    Vista de gestión de sanciones
+    """
+    return render(request, 'materiales/GESTION/gestion_sanciones.html')
+
 # Código modificado (funcionando)
 def buscar_notebooks(request):
     query = request.GET.get('q', '')

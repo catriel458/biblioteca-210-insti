@@ -6,6 +6,12 @@ urlpatterns = [
     # URL principal - Home
     path('', views.home, name='home'),
     
+    # URLs de gestión
+    path('gestion/', views.gestion, name='gestion'),
+    path('gestion/usuarios/', views.gestion_usuarios, name='gestion_usuarios'),
+    path('gestion/prestamos/', views.gestion_prestamos, name='gestion_prestamos'),
+    path('gestion/sanciones/', views.gestion_sanciones, name='gestion_sanciones'),
+    
     # URLs de autenticación
     path('registro/', views.registro_view, name='registro'),
     path('logout/', views.logout_view, name='logout'),

@@ -34,6 +34,34 @@
                 <img src="{% static 'imagenes/Logo_inicio.png' %}" alt="Logo" class="cover-pic">
             </a>
         </div>
+    {% elif request.resolver_match.url_name == 'gestion' %}
+        <div class="header-pantalla">
+            <h1 class="header-title" style="padding-top: 35px;">GESTIÓN</h1>
+            <a href="{% url 'home' %}" class="logo-link">
+                <img src="{% static 'imagenes/Logo_inicio.png' %}" alt="Logo" class="cover-pic">
+            </a>
+        </div>
+    {% elif request.resolver_match.url_name == 'gestion_usuarios' %}
+        <div class="header-pantalla">
+            <h1 class="header-title" style="padding-top: 35px;">GESTIÓN USUARIOS</h1>
+            <a href="{% url 'home' %}" class="logo-link">
+                <img src="{% static 'imagenes/Logo_inicio.png' %}" alt="Logo" class="cover-pic">
+            </a>
+        </div>
+    {% elif request.resolver_match.url_name == 'gestion_prestamos' %}
+        <div class="header-pantalla">
+            <h1 class="header-title" style="padding-top: 35px;">GESTIÓN PRÉSTAMOS</h1>
+            <a href="{% url 'home' %}" class="logo-link">
+                <img src="{% static 'imagenes/Logo_inicio.png' %}" alt="Logo" class="cover-pic">
+            </a>
+        </div>
+    {% elif request.resolver_match.url_name == 'gestion_sanciones' %}
+        <div class="header-pantalla">
+            <h1 class="header-title" style="padding-top: 35px;">GESTIÓN SANCIONES</h1>
+            <a href="{% url 'home' %}" class="logo-link">
+                <img src="{% static 'imagenes/Logo_inicio.png' %}" alt="Logo" class="cover-pic">
+            </a>
+        </div>
     {% endif %}
 
 </header>
