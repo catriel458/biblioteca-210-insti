@@ -95,6 +95,11 @@
   
   <!-- Incluir el modal de alerta de vaciar campos -->
   {% include 'modals/alertas/vaciar_campos.html' %}
+  <!-- Incluir el modal de alerta de reducir ejemplares -->
+  {% include 'modals/alertas/reducir_ejemplares.html' %}
+  
+  <!-- Backdrop para los modales -->
+  <div id="modal-backdrop" class="modal-backdrop"></div>
 {% endblock %}
 
 {% block extra_scripts %}
@@ -347,11 +352,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 .then(html => {
                     formularioEspecifico.innerHTML = html;
 
-                    // cargo script alertas
-                    const script = document.createElement('script');
-                    script.src = "{% static 'js/alertas.js' %}";
-                    document.body.appendChild(script);
-
                     buttonsContainer.style.display = 'flex';
                     // No mostrar carga masiva ni URL para proyector
                     if (uploadSimple) uploadSimple.style.display = 'none';
@@ -435,52 +435,63 @@ function initProyectorDynamicFunctionality() {
     if (cantEjemplaresProyector && contenedorEjemplaresProyector) {
         console.log('✅ Elementos encontrados para proyector...');
         
-        // Función para generar campos dinámicos idénticos a notebook
         function generarCamposProyector() {
             const cantidad = parseInt(cantEjemplaresProyector.value) || 1;
+            const cantidadAnterior = contenedorEjemplaresProyector.querySelectorAll('.row.mb-3').length;
+            
+            // Si se está reduciendo la cantidad de ejemplares
+            if (cantidad < cantidadAnterior) {
+                // Verificar si hay datos en los ejemplares que se eliminarán
+                if (tieneEjemplaresConDatos(contenedorEjemplaresProyector, cantidad)) {
+                    // Mostrar modal de confirmación
+                    mostrarModalReducirEjemplares(
+                        // Callback para confirmar
+                        function() {
+                            actualizarEjemplaresProyector(cantidad);
+                        },
+                        // Callback para cancelar
+                        function() {
+                            cantEjemplaresProyector.value = cantidadAnterior;
+                        }
+                    );
+                    return;
+                }
+            }
+            
+            // Si no hay reducción o no hay datos, actualizar directamente
+            actualizarEjemplaresProyector(cantidad);
+        }
+        
+        function actualizarEjemplaresProyector(cantidad) {
             let html = '';
             
             for (let i = 1; i <= cantidad; i++) {
                 html += `
-                <!-- Línea punteada -->
-                <div style="
-                    background: repeating-linear-gradient(
-                        to right,
-                        #8B1D69 0px,
-                        #8B1D69 10px,
-                        transparent 10px,
-                        transparent 30px
-                    );
-                    height: 3px;
-                    margin: 25px 0;
-                    width: 100%;
-                "></div>
-                <div class="row mb-2">
+                <div class="row mb-3">
                     <div class="col-md-3">
                         <label for="num_registro_${i}" style="font-size: 14px;">N° de registro<span style="color: #dc3545; font-weight: bold;">*</span>:</label>
-                        <input type="text" class="form-control" id="num_registro_${i}" name="num_registro_${i}" required placeholder="N° de registro...">
+                        <input type="text" class="form-control form-control-sm" id="num_registro_${i}" name="num_registro_${i}" required>
                     </div>
                     <div class="col-md-3">
-                        <label for="modelo_pro_${i}" style="font-size: 14px;">Modelo:</label>
-                                <input type="text" class="form-control" id="modelo_pro_${i}" name="modelo_pro_${i}" placeholder="Modelo..." />
+                        <label for="modelo_${i}" style="font-size: 14px;">Modelo:</label>
+                        <input type="text" class="form-control form-control-sm" id="modelo_${i}" name="modelo_${i}">
                     </div>
                 </div>`;
             }
+            
             contenedorEjemplaresProyector.innerHTML = html;
         }
         
-        // Event listeners para cambios dinámicos
+        // Inicializar con la cantidad actual
+        generarCamposProyector();
+        
+        // Event listeners para cambios en la cantidad
         cantEjemplaresProyector.addEventListener('input', generarCamposProyector);
         cantEjemplaresProyector.addEventListener('change', generarCamposProyector);
         
-        // Generar campos iniciales
-        generarCamposProyector();
-        
         console.log('✅ Funcionalidad dinámica del proyector inicializada correctamente');
     } else {
-        console.error('❌ No se encontraron los elementos necesarios para la funcionalidad dinámica');
-        console.log('cantEjemplaresProyector:', cantEjemplaresProyector);
-        console.log('contenedorEjemplaresProyector:', contenedorEjemplaresProyector);
+        console.error('❌ No se encontraron los elementos necesarios para proyector');
     }
 }
 

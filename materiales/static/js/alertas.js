@@ -1,4 +1,3 @@
-
 // Variables globales para almacenar callbacks
 let callbackConfirmar = null;
 let callbackCancelar = null;
@@ -8,7 +7,8 @@ let callbackCancelarReducir = null;
 // Función principal que se llama al hacer clic en CANCELAR
 function cancelarFormulario() {
     console.log('Función cancelarFormulario ejecutada');
-    mostrarModalAlerta();
+    // Pasar la función vaciarCamposFormulario como callback para confirmar
+    mostrarModalAlerta(vaciarCamposFormulario);
 }
 
 function cerrarModal(tipo = 'vaciar') {
@@ -116,70 +116,163 @@ function confirmarVaciarCampos() {
     ocultarModalAlerta();
 }
 
-// Función para vaciar todos los campos del formulario
+// Función para vaciar los campos del formulario
 function vaciarCamposFormulario() {
     // Detectar qué formulario está activo
-    const formularioProyector = document.getElementById('alta-proyector-form');
     const formularioNotebook = document.getElementById('alta-notebook-form');
-    const formularioLibro = document.getElementById('alta-libro-form');
+    const formAltaMaterial = document.getElementById('form_alta_material');
+    const formAltaMultimedia = document.getElementById('form_alta_multimedia');
     
-    let formulario = formularioProyector || formularioNotebook || formularioLibro;
-    
-    if (formulario) {
-        // Resetear el formulario completo
-        formulario.reset();
+    if (formularioNotebook) {
+        console.log('Vaciando campos del formulario notebook...');
         
-        // Limpiar inputs de texto y número
-        const inputs = formulario.querySelectorAll('input[type="text"], input[type="number"], input[type="email"], input[type="tel"], input[type="date"]');
-        inputs.forEach(input => {
-            input.value = '';
-        });
-        
-        // Resetear selects a su valor por defecto
-        const selects = formulario.querySelectorAll('select');
-        selects.forEach(select => {
-            select.selectedIndex = 0;
-        });
-        
-        // Limpiar textareas
-        const textareas = formulario.querySelectorAll('textarea');
-        textareas.forEach(textarea => {
-            textarea.value = '';
-        });
-        
-        // Desmarcar checkboxes y radio buttons
-        const checkboxesRadios = formulario.querySelectorAll('input[type="checkbox"], input[type="radio"]');
-        checkboxesRadios.forEach(input => {
-            input.checked = false;
-        });
-        
-        // Limpiar el contenedor de ejemplares dinámicos según el tipo de formulario
-        let contenedorEjemplares;
-        if (formularioProyector) {
-            contenedorEjemplares = document.getElementById('contenedor-ejemplares-proyector');
-        } else if (formularioNotebook) {
-            contenedorEjemplares = document.getElementById('contenedor-ejemplares-notebook');
-        } else if (formularioLibro) {
-            contenedorEjemplares = document.getElementById('contenedor-ejemplares-libro');
-        }
-        
-        if (contenedorEjemplares) {
-            contenedorEjemplares.innerHTML = '';
-        }
-        
-        // Resetear el campo de cantidad de ejemplares a 1
+        // Restablecer la cantidad de ejemplares a 1
         const cantEjemplares = document.getElementById('cant_ejemplares');
         if (cantEjemplares) {
             cantEjemplares.value = '1';
         }
-        
-        // Resetear el select de sede a "Aún sin seleccionar"
-        const selectSede = document.getElementById('sede');
-        if (selectSede) {
-            selectSede.value = '';
+
+        // Restablecer el select de sede
+        const sede = document.getElementById('sede');
+        if (sede) {
+            sede.selectedIndex = 0;
         }
+
+        // Usar la función updateRowsMaterial para generar correctamente los ejemplares
+        if (window.updateRowsMaterial) {
+            window.updateRowsMaterial('notebook');
+        } else {
+            console.error('Error: La función updateRowsMaterial no está disponible');
+            
+            // Fallback: Limpiar los campos de los ejemplares manualmente
+            const contenedorEjemplares = document.getElementById('contenedor-ejemplares-notebook');
+            if (contenedorEjemplares) {
+                contenedorEjemplares.innerHTML = '';
+                // Generar un solo ejemplar vacío usando la plantilla manual
+                let html = `
+                    <div class="row mb-3">
+                        <div class="col-md-3">
+                            <label for="num_registro_1" style="font-size: 14px;">N° de registro<span class="text-danger">*</span>:</label>
+                            <input type="text" class="form-control form-control-sm" id="num_registro_1" name="num_registro_1" required>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="modelo_1" style="font-size: 14px;">Modelo:</label>
+                            <input type="text" class="form-control form-control-sm" id="modelo_1" name="modelo_1">
+                        </div>
+                    </div>`;
+                contenedorEjemplares.innerHTML = html;
+            }
+        }
+
+        console.log('✅ Campos del formulario notebook vaciados correctamente');
+    } else if (formAltaMaterial) {
+        // Verificar si es el formulario de mapas
+        const tipoMaterial = document.getElementById('tipo_material');
+        if (tipoMaterial && tipoMaterial.value === 'mapa') {
+            console.log('Vaciando campos del formulario mapa...');
+            
+            // Restablecer el select de sede
+            const sedeMapa = document.getElementById('sede-mapa');
+            if (sedeMapa) {
+                sedeMapa.selectedIndex = 0;
+            }
+
+            // Restablecer el select de tipo de mapa
+            const tipoMapa = document.getElementById('input-nuevo-tipo-mapa');
+            if (tipoMapa) {
+                tipoMapa.selectedIndex = 0;
+            }
+
+            // Restablecer la cantidad a 1
+            const cantMapa = document.getElementById('input-nueva-cant-mapa');
+            if (cantMapa) {
+                cantMapa.value = '1';
+            }
+
+            // Limpiar los grupos de tipos
+            if (window.gruposTiposMapa) {
+                window.gruposTiposMapa = [];
+            }
+
+            // Limpiar el campo oculto de gruposTiposMapa
+            const gruposTiposMapaInput = document.getElementById('gruposTiposMapa');
+            if (gruposTiposMapaInput) {
+                gruposTiposMapaInput.value = '';
+            }
+
+            // Limpiar el contenedor de ejemplares
+            const contenedorEjemplares = document.getElementById('contenedor-ejemplares-mapa');
+            if (contenedorEjemplares) {
+                contenedorEjemplares.innerHTML = '';
+            }
+
+            // Limpiar el bloque de tipo y cantidad
+            const bloqueTipoCantidad = document.getElementById('bloque-tipo-cantidad');
+            if (bloqueTipoCantidad) {
+                bloqueTipoCantidad.innerHTML = '';
+            }
+
+            // Regenerar el botón + llamando a la función de renderizado
+            if (window.renderizarTiposMapa) {
+                window.renderizarTiposMapa();
+            }
+
+            console.log('✅ Campos del formulario mapa vaciados correctamente');
+        }
+    } else if (formAltaMultimedia) {
+        console.log('Vaciando campos del formulario multimedia...');
         
-        console.log('Formulario vaciado correctamente');
+        // Limpiar campos básicos del formulario multimedia
+        const profesor = document.getElementById('profesor');
+        if (profesor) {
+            profesor.value = '';
+        }
+
+        const carrera = document.getElementById('carrera');
+        if (carrera) {
+            carrera.selectedIndex = 0;
+        }
+
+        const materia = document.getElementById('materia');
+        if (materia) {
+            materia.innerHTML = '<option value="">Primero seleccione una carrera</option>';
+            materia.disabled = true;
+        }
+
+        const ingresarEnlace = document.getElementById('ingresar_enlace');
+        if (ingresarEnlace) {
+            ingresarEnlace.value = '';
+        }
+
+        const tituloContenido = document.getElementById('titulo_contenido');
+        if (tituloContenido) {
+            tituloContenido.value = '';
+        }
+
+        // Limpiar los grupos de multimedia
+        if (window.gruposTiposMultimedia) {
+            window.gruposTiposMultimedia = [];
+        }
+
+        // Limpiar el campo oculto de gruposMultimedia
+        const gruposMultimediaInput = document.getElementById('gruposMultimedia');
+        if (gruposMultimediaInput) {
+            gruposMultimediaInput.value = '';
+        }
+
+        // Limpiar el contenedor de tipos multimedia
+        const contenedorTiposMultimedia = document.getElementById('contenedor-tipos-multimedia');
+        if (contenedorTiposMultimedia) {
+            contenedorTiposMultimedia.innerHTML = '';
+        }
+
+        // Limpiar el contenedor de ejemplares multimedia
+        const contenedorEjemplaresMultimedia = document.getElementById('contenedor-ejemplares-multimedia');
+        if (contenedorEjemplaresMultimedia) {
+            contenedorEjemplaresMultimedia.innerHTML = '';
+        }
+
+        console.log('✅ Campos del formulario multimedia vaciados correctamente');
     }
 }
 
@@ -198,28 +291,6 @@ function tieneEjemplaresConDatos(container, nuevaCantidad) {
     }
     
     return false;
-}
-
-// Función para actualizar los ejemplares sin mostrar alerta
-function actualizarEjemplares(tipo, cantidad) {
-    const containerProyector = document.getElementById('contenedor-ejemplares-proyector');
-    const containerNotebook = document.getElementById('contenedor-ejemplares-notebook');
-    const containerLibro = document.getElementById('contenedor-ejemplares-libro');
-    
-    // Limpiar contenedores
-    if (containerProyector && tipo === 'proyector') containerProyector.innerHTML = '';
-    if (containerNotebook && tipo === 'notebook') containerNotebook.innerHTML = '';
-    if (containerLibro && tipo === 'libro') containerLibro.innerHTML = '';
-
-    for (let i = 1; i <= cantidad; i++) {
-        if (tipo === 'proyector' && containerProyector) {
-            containerProyector.insertAdjacentHTML('beforeend', plantillaEjemplarMaterial(i, 'proyector'));
-        } else if (tipo === 'notebook' && containerNotebook) {
-            containerNotebook.insertAdjacentHTML('beforeend', plantillaEjemplarMaterial(i, 'notebook'));
-        } else if (tipo === 'libro' && containerLibro) {
-            containerLibro.insertAdjacentHTML('beforeend', plantillaEjemplarMaterial(i, 'libro'));
-        }
-    }
 }
 
 // Event listeners que se ejecutan cuando se carga el DOM

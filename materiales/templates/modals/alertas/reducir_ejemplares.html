@@ -1,21 +1,3 @@
-<!-- Modal para confirmar vaciar campos -->
-<div class="tarjeta-alerta" id="modal-vaciar-campos">
-    <p class="atencion">¡ATENCIÓN!</p>
-    
-    <p class="texto-alerta">
-AL REDUCIR LA CANTIDAD DE
-EJEMPLARES, SE PERDERÁN LOS
-DATOS INTRODUCIDOS PARA LOS
-EJEMPLARES QUE SUPEREN LA 
-CANTIDAD SELECCIONADA
-    </p>
-    
-    <div class="botones-tarjeta">
-        <button type="button" class="btn btn-cancelar-modal" id="btn-cancelar-vaciar" onclick="cerrarModal()">CANCELAR</button>
-        <button type="button" class="btn btn-confirmar-modal" id="btn-confirmar-vaciar" onclick="confirmarModal()">CONFIRMAR</button>
-    </div>
-</div>
-
 <!-- Modal para confirmar reducir ejemplares -->
 <div class="tarjeta-alerta" id="modal-reducir-ejemplares">
     <p class="atencion">¡ATENCIÓN!</p>
@@ -33,9 +15,6 @@ CANTIDAD SELECCIONADA
         <button type="button" class="btn btn-confirmar-modal" id="btn-confirmar-reducir" onclick="confirmarModal('reducir')">CONFIRMAR</button>
     </div>
 </div>
-
-<!-- No incluir el backdrop aquí, ya que estará en vaciar_campos.html -->
-<div id="modal-backdrop" class="modal-backdrop"></div>
 
 <style>
 .tarjeta-alerta {
@@ -137,6 +116,4 @@ CANTIDAD SELECCIONADA
 .btn-confirmar-modal:hover {
     background-color: #E67E3C !important;
 }
-
-
 </style>
