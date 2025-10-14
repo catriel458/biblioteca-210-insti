@@ -1,6 +1,6 @@
 {% load static %}
 
-<div data-block="content" data-form="mapa">
+<div data-block="content" data-form-type="mapa">
     <div class="row mb-3">
         <div class="col-md-3">
             <label for="sede-mapa" style="font-size: 14px;">Sede: <span style="color: red;">*</span></label>
@@ -44,7 +44,7 @@
     <!-- Botones -->
     <div class="row" style="margin-bottom: 120px;">
         <div class="col-12 d-flex justify-content-end gap-3">
-            <button type="reset" class="btn btn-outline-danger btn-sm">Cancelar</button>
+            <button type="button" class="btn btn-outline-danger btn-sm" onclick="cancelarFormulario()">Cancelar</button>
             <button type="submit" class="btn btn-primary btn-sm" formaction="{% url 'confirmar_alta_mapa' %}" formmethod="post" onclick="prepararEnvioFormulario()">Guardar</button>
         </div>
     </div>
@@ -70,6 +70,8 @@
 
 <!-- Importación del JS dinámico de ejemplares -->
 <script src="{% static 'js/form_altas.js' %}"></script>
+<!-- Importación del JS de alertas -->
+<script src="{% static 'js/alertas.js' %}"></script>
 
 <script>
     // Inicializar gruposTiposMapa si no existe
@@ -112,6 +114,11 @@
                     prepararEnvioFormulario();
                 }
             });
+        }
+        
+        // Asegurarse de que el formulario tenga el atributo data-form-type para que alertas.js lo encuentre
+        if (form) {
+            form.setAttribute('data-form-type', 'mapa');
         }
     });
     

@@ -1,6 +1,7 @@
 
 // Función principal que se llama al hacer clic en CANCELAR
 function cancelarFormulario() {
+    console.log('Función cancelarFormulario ejecutada');
     mostrarModalAlerta();
 }
 
@@ -9,17 +10,25 @@ function cerrarModal() {
 }
 
 function confirmarModal() {
-    // Intentar encontrar el formulario de diferentes maneras
-    let formulario = document.getElementById('alta-proyector-form');
+    // Buscar el formulario activo en la página
+    let formulario = null;
     
-    // Si no lo encuentra por ID, buscar por selector más general
-    if (!formulario) {
-        formulario = document.querySelector('form[data-form-type="proyector"]');
+    // Intentar encontrar el formulario por tipo de formulario
+    const tiposFormulario = ['programa', 'proyector', 'multimedia', 'varios', 'mapa', 'notebook'];
+    
+    for (const tipo of tiposFormulario) {
+        const formPorTipo = document.querySelector(`form[data-form-type="${tipo}"]`);
+        if (formPorTipo) {
+            formulario = formPorTipo;
+            console.log(`Formulario encontrado por tipo: ${tipo}`);
+            break;
+        }
     }
     
-    // Si aún no lo encuentra, buscar cualquier formulario en la página
+    // Si no lo encuentra por tipo, buscar cualquier formulario
     if (!formulario) {
         formulario = document.querySelector('form');
+        console.log('Formulario encontrado genérico');
     }
     
     if (formulario) {
@@ -30,8 +39,8 @@ function confirmarModal() {
         
         // Luego forzar el reseteo manual de campos específicos
         
-        // Limpiar inputs de texto y número
-        const inputs = formulario.querySelectorAll('input[type="text"], input[type="number"], input[type="email"], input[type="tel"], input[type="date"]');
+        // Limpiar inputs de texto, número, email, tel, date y url
+        const inputs = formulario.querySelectorAll('input[type="text"], input[type="number"], input[type="email"], input[type="tel"], input[type="date"], input[type="url"]');
         inputs.forEach(input => {
             input.value = '';
         });
@@ -54,33 +63,41 @@ function confirmarModal() {
             input.checked = false;
         });
         
-        // Limpiar el contenedor de ejemplares dinámicos si existe
-        const contenedorEjemplares = document.getElementById('contenedor-ejemplares-proyector');
-        if (contenedorEjemplares) {
-            contenedorEjemplares.innerHTML = '';
-        }
+        // Limpiar contenedores de ejemplares dinámicos según el tipo de formulario
+        const tiposContenedores = ['programa', 'proyector', 'multimedia', 'varios', 'mapa', 'notebook'];
+        tiposContenedores.forEach(tipo => {
+            const contenedor = document.getElementById(`contenedor-ejemplares-${tipo}`);
+            if (contenedor) {
+                contenedor.innerHTML = '';
+            }
+        });
         
-        // Resetear específicamente el campo de cantidad de ejemplares a 1
+        // Resetear específicamente el campo de cantidad de ejemplares a 1 si existe
         const cantEjemplares = document.getElementById('cant_ejemplares');
         if (cantEjemplares) {
             cantEjemplares.value = '1';
         }
         
-        // Resetear específicamente el select de sede a "Aún sin seleccionar"
-        const selectSede = document.getElementById('sede');
-        if (selectSede) {
-            selectSede.value = '';
+        // Resetear específicamente los selects de materia y carrera
+        const selectMateria = document.getElementById('materia');
+        if (selectMateria) {
+            selectMateria.innerHTML = '<option value="">Primero seleccione una carrera</option>';
+            selectMateria.disabled = true;
+        }
+        
+        const selectCarrera = document.getElementById('carrera');
+        if (selectCarrera) {
+            selectCarrera.value = '';
         }
         
         // Disparar eventos de cambio para que otros scripts se enteren del reseteo
         const event = new Event('change', { bubbles: true });
         if (cantEjemplares) cantEjemplares.dispatchEvent(event);
-        if (selectSede) selectSede.dispatchEvent(event);
+        if (selectCarrera) selectCarrera.dispatchEvent(event);
         
         console.log('Formulario reseteado completamente');
     } else {
         console.error('No se encontró ningún formulario en la página');
-        console.log('Elementos disponibles:', document.querySelectorAll('form'));
     }
     
     // Cerrar el modal
@@ -96,6 +113,7 @@ function mostrarModalAlerta() {
         modalAlerta.style.display = 'flex';
         backdrop.style.display = 'block';
         document.body.style.overflow = 'hidden'; // Prevenir scroll
+        console.log('Modal mostrado correctamente');
     } else {
         console.error('Error: No se encontraron los elementos del modal');
     }

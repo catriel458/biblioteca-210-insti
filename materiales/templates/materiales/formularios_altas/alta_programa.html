@@ -1,6 +1,6 @@
-<form id="form_alta_programa" method="POST" action="">
+{% load static %}
+<form id="form_alta_programa" method="POST" action="" data-form-type="programa">
   {% csrf_token %}
-  {% load static %}
   <div data-block="content" data-form-type="programa">
     <div class="row mb-3">
       <div class="col-md-3">
@@ -44,10 +44,41 @@
       <!-- Los ejemplares se generarán aquí dinámicamente -->
     </div>
   </div>
+  
+  <!-- Botones de acción -->
+  <div class="row mt-3">
+    <div class="col-12 text-end">
+      <button type="button" class="btn btn-secondary" onclick="cancelarFormulario()">Cancelar</button>
+      <button type="submit" class="btn btn-primary">Guardar</button>
+    </div>
+  </div>
 </form>
+
+<!-- Modal para vaciar campos -->
+<div class="modal-backdrop fade" id="modal-backdrop" style="display: none;"></div>
+<div class="modal fade" id="modal-vaciar-campos" tabindex="-1" aria-labelledby="modalVaciarCamposLabel" aria-hidden="true" style="display: none;">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalVaciarCamposLabel">¿Desea vaciar los campos?</h5>
+        <button type="button" class="btn-close" onclick="cerrarModal()" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>¿Está seguro que desea vaciar todos los campos del formulario?</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="cerrarModal()">CANCELAR</button>
+        <button type="button" class="btn btn-primary" onclick="confirmarModal()">CONFIRMAR</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- Importación del JS dinámico de ejemplares -->
 <script src="{% static 'js/form_altas.js' %}"></script>
+
+<!-- Importación del JS de alertas -->
+<script src="{% static 'js/alertas.js' %}"></script>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -68,91 +99,42 @@ document.addEventListener('DOMContentLoaded', function() {
         'Educación Primaria': [
             'Pedagogía', 'Psicología Educacional', 'Sociología de la Educación',
             'Historia y Política de la Educación Argentina', 'Filosofía de la Educación',
-            'Didáctica General', 'Curriculum y Didáctica del Nivel Primario',
-            'Matemática y su Didáctica I', 'Matemática y su Didáctica II',
-            'Lengua y su Didáctica I', 'Lengua y su Didáctica II',
-            'Ciencias Sociales y su Didáctica I', 'Ciencias Sociales y su Didáctica II',
-            'Ciencias Naturales y su Didáctica I', 'Ciencias Naturales y su Didáctica II',
-            'Educación Artística', 'Educación Física', 'Tecnologías de la Información',
-            'Práctica Docente I', 'Práctica Docente II', 'Práctica Docente III', 'Práctica Docente IV'
-        ],
-        'Geografía': [
-            'Pedagogía', 'Psicología Educacional', 'Sociología de la Educación',
-            'Historia y Política de la Educación Argentina', 'Filosofía de la Educación',
-            'Didáctica General', 'Didáctica de la Geografía',
-            'Geografía Física I', 'Geografía Física II', 'Geografía Humana I', 'Geografía Humana II',
-            'Geografía de América', 'Geografía de Argentina', 'Geografía Mundial',
-            'Cartografía', 'Climatología', 'Geomorfología', 'Biogeografía',
-            'Geografía Económica', 'Geografía Urbana y Rural', 'Epistemología de la Geografía',
-            'Práctica Docente I', 'Práctica Docente II', 'Práctica Docente III', 'Práctica Docente IV'
-        ],
-        'Ciencias Políticas': [
-            'Pedagogía', 'Psicología Educacional', 'Sociología de la Educación',
-            'Historia y Política de la Educación Argentina', 'Filosofía de la Educación',
-            'Didáctica General', 'Didáctica de las Ciencias Políticas',
-            'Teoría Política', 'Historia Política Argentina', 'Historia Política Mundial',
-            'Sistemas Políticos Comparados', 'Relaciones Internacionales', 'Derecho Constitucional',
-            'Sociología Política', 'Economía Política', 'Filosofía Política',
-            'Práctica Docente I', 'Práctica Docente II', 'Práctica Docente III', 'Práctica Docente IV'
-        ],
-        'Análisis de Sistemas': [
-            'Matemática', 'Algoritmos y Estructuras de Datos', 'Programación I', 'Programación II',
-            'Base de Datos I', 'Base de Datos II', 'Sistemas Operativos', 'Redes y Comunicaciones',
-            'Ingeniería de Software I', 'Ingeniería de Software II', 'Análisis de Sistemas',
-            'Diseño de Sistemas', 'Gestión de Proyectos', 'Seguridad Informática',
-            'Desarrollo Web', 'Programación Móvil', 'Inteligencia Artificial',
-            'Práctica Profesional I', 'Práctica Profesional II'
+            'Didáctica General', 'Didáctica de la Lengua y la Literatura', 
+            'Didáctica de la Matemática', 'Didáctica de las Ciencias Sociales',
+            'Didáctica de las Ciencias Naturales', 'Educación Tecnológica',
+            'Educación Artística', 'Educación Física', 'Práctica Docente I',
+            'Práctica Docente II', 'Práctica Docente III', 'Práctica Docente IV'
         ]
     };
     
-    // Función para cargar materias según la carrera seleccionada
-    function cargarMaterias(carreraSeleccionada) {
-        console.log('📚 Carrera seleccionada:', carreraSeleccionada);
-        
-        // Limpiar opciones de materia
+    carreraSelect.addEventListener('change', function() {
+        const carreraSeleccionada = this.value;
         materiaSelect.innerHTML = '';
+        materiaSelect.disabled = true;
         
         if (carreraSeleccionada && materiasPorCarrera[carreraSeleccionada]) {
-            // Agregar opción vacía
-            const opcionVacia = document.createElement('option');
-            opcionVacia.value = '';
-            opcionVacia.textContent = 'Seleccione una materia';
-            materiaSelect.appendChild(opcionVacia);
+            materiaSelect.disabled = false;
             
-            // Agregar materias de la carrera seleccionada
-            materiasPorCarrera[carreraSeleccionada].forEach(function(materia) {
+            // Opción por defecto
+            const defaultOption = document.createElement('option');
+            defaultOption.value = '';
+            defaultOption.textContent = 'Seleccione una materia';
+            materiaSelect.appendChild(defaultOption);
+            
+            // Agregar materias según la carrera seleccionada
+            materiasPorCarrera[carreraSeleccionada].forEach(materia => {
                 const option = document.createElement('option');
                 option.value = materia;
                 option.textContent = materia;
                 materiaSelect.appendChild(option);
             });
-            
-            materiaSelect.disabled = false;
-            console.log('✅ Materias cargadas:', materiasPorCarrera[carreraSeleccionada].length);
         } else {
-            // No hay carrera seleccionada o no tiene materias
-            const opcionVacia = document.createElement('option');
-            opcionVacia.value = '';
-            opcionVacia.textContent = 'Primero seleccione una carrera';
-            materiaSelect.appendChild(opcionVacia);
-            materiaSelect.disabled = true;
-            console.log('⚠️ No hay materias para:', carreraSeleccionada);
+            // Si no hay carrera seleccionada o no hay materias para esa carrera
+            const defaultOption = document.createElement('option');
+            defaultOption.value = '';
+            defaultOption.textContent = 'Primero seleccione una carrera';
+            materiaSelect.appendChild(defaultOption);
         }
-    }
-    
-    // Event listener para cambio de carrera
-    carreraSelect.addEventListener('change', function() {
-        cargarMaterias(this.value);
     });
-    
-    // Inicializar estado de materia
-    materiaSelect.disabled = true;
-    
-    // Si ya hay una carrera seleccionada al cargar (por ejemplo, por validación de errores)
-    if (carreraSelect.value) {
-        cargarMaterias(carreraSelect.value);
-    }
-    
-    console.log('✅ Funcionalidad carrera-materia inicializada correctamente');
 });
 </script>
