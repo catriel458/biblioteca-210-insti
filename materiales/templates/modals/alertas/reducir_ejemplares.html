@@ -1,0 +1,142 @@
+<!-- Modal para confirmar vaciar campos -->
+<div class="tarjeta-alerta" id="modal-vaciar-campos">
+    <p class="atencion">¡ATENCIÓN!</p>
+    
+    <p class="texto-alerta">
+AL REDUCIR LA CANTIDAD DE
+EJEMPLARES, SE PERDERÁN LOS
+DATOS INTRODUCIDOS PARA LOS
+EJEMPLARES QUE SUPEREN LA 
+CANTIDAD SELECCIONADA
+    </p>
+    
+    <div class="botones-tarjeta">
+        <button type="button" class="btn btn-cancelar-modal" id="btn-cancelar-vaciar" onclick="cerrarModal()">CANCELAR</button>
+        <button type="button" class="btn btn-confirmar-modal" id="btn-confirmar-vaciar" onclick="confirmarModal()">CONFIRMAR</button>
+    </div>
+</div>
+
+<!-- Modal para confirmar reducir ejemplares -->
+<div class="tarjeta-alerta" id="modal-reducir-ejemplares">
+    <p class="atencion">¡ATENCIÓN!</p>
+    
+    <p class="texto-alerta">
+AL REDUCIR LA CANTIDAD DE
+EJEMPLARES, SE PERDERÁN LOS
+DATOS INTRODUCIDOS PARA LOS
+EJEMPLARES QUE SUPEREN LA 
+CANTIDAD SELECCIONADA
+    </p>
+    
+    <div class="botones-tarjeta">
+        <button type="button" class="btn btn-cancelar-modal" id="btn-cancelar-reducir" onclick="cerrarModal('reducir')">CANCELAR</button>
+        <button type="button" class="btn btn-confirmar-modal" id="btn-confirmar-reducir" onclick="confirmarModal('reducir')">CONFIRMAR</button>
+    </div>
+</div>
+
+<!-- No incluir el backdrop aquí, ya que estará en vaciar_campos.html -->
+<div id="modal-backdrop" class="modal-backdrop"></div>
+
+<style>
+.tarjeta-alerta {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1050;
+    flex-direction: column;
+    justify-content: center;
+    border-radius: 15px;
+    box-sizing: border-box;
+    align-items: center;
+    width: 100%;
+    max-width: 340px;
+    min-width: 300px;
+    padding: 0.8em 0.8em;
+    text-align: center;
+    background: #FFB3BA;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    border: 2px solid #FF0000;
+}
+
+.modal-backdrop {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1040;
+}
+
+.atencion {
+    color: #000;
+    font-weight: normal;
+    font-size: 0.65em;
+    font-family: Arial, sans-serif;
+    margin-top: 0;
+    margin-bottom: 3px;
+    padding: 0;
+    text-decoration: underline;
+    text-decoration-color: red;
+    text-underline-offset: 3px;
+}
+
+.texto-alerta {
+    color: #000;
+    font-size: 0.85em;
+    line-height: 1.1;
+    margin: 0 0 5px;
+    padding: 0;
+    font-weight: 500;
+    font-family: Arial, sans-serif;
+    text-transform: uppercase;
+    max-width: 100%;
+    width: 100%;
+    white-space: pre-line;
+    letter-spacing: 0;
+}
+
+.botones-tarjeta {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    margin-top: 5px;
+}
+
+.botones-tarjeta > button {
+    min-width: 110px;
+    flex: 0 1 auto;
+    white-space: nowrap;
+    padding: 0.4em 0.8em;
+    border-radius: 5px;
+    border: 1px solid #000;
+    cursor: pointer;
+    font-weight: normal;
+    font-family: Arial, sans-serif;
+    text-transform: uppercase;
+    font-size: 0.6em;
+}
+
+.btn-cancelar-modal {
+    background-color: #4A90E2 !important;
+    color: white !important;
+}
+
+.btn-confirmar-modal {
+    color: white !important;
+    background-color: #FF8C42 !important;
+}
+
+.btn-cancelar-modal:hover {
+    background-color: #3A7BC8 !important;
+}
+
+.btn-confirmar-modal:hover {
+    background-color: #E67E3C !important;
+}
+
+
+</style>

@@ -770,10 +770,69 @@ window.updateRowsMaterial = function(tipo) {
     const cantidad = parseInt(cantidadInput ? cantidadInput.value : 1) || 1;
     console.log('📊 DATOS:', {cantidadInput, cantidad, containerProyector, containerNotebook, containerLibro});
 
+    // Verificar si se está reduciendo la cantidad de ejemplares
+    let container;
+    if (tipo === 'proyector') container = containerProyector;
+    else if (tipo === 'notebook') container = containerNotebook;
+    else if (tipo === 'libro') container = containerLibro;
+    
+    if (container) {
+        const ejemplaresActuales = container.querySelectorAll('.row.mb-3, .row.mb-2').length;
+        
+        // Si se está reduciendo la cantidad y hay datos ingresados, mostrar alerta
+        if (cantidad < ejemplaresActuales && tieneEjemplaresConDatos(container, cantidad)) {
+            // Guardar el valor anterior para restaurarlo si se cancela
+            cantidadInput.dataset.valorAnterior = ejemplaresActuales;
+            
+            // Definir callbacks para confirmar y cancelar
+            const onConfirm = function() {
+                // Proceder con la actualización
+                actualizarEjemplares(tipo, cantidad);
+            };
+            
+            const onCancel = function() {
+                // Restaurar valor anterior
+                cantidadInput.value = cantidadInput.dataset.valorAnterior;
+            };
+            
+            // Mostrar modal con callbacks
+            mostrarModalReducirEjemplares(onConfirm, onCancel);
+            
+            return; // Detener la ejecución hasta que el usuario decida
+        }
+    }
+    
+    // Si no hay reducción o no hay datos que perder, actualizar normalmente
+    actualizarEjemplares(tipo, cantidad);
+};
+
+// Función auxiliar para verificar si hay ejemplares con datos
+function tieneEjemplaresConDatos(container, nuevaCantidad) {
+    const ejemplares = container.querySelectorAll('.row.mb-3, .row.mb-2');
+    
+    // Verificar si alguno de los ejemplares que se eliminarían tiene datos
+    for (let i = nuevaCantidad; i < ejemplares.length; i++) {
+        const inputs = ejemplares[i].querySelectorAll('input[type="text"], input[type="number"], select, textarea');
+        for (const input of inputs) {
+            if (input.value && input.id && !input.id.includes('ejemplar') && !input.readOnly) {
+                return true; // Hay al menos un campo con datos
+            }
+        }
+    }
+    
+    return false;
+}
+
+// Función para actualizar los ejemplares sin mostrar alerta
+function actualizarEjemplares(tipo, cantidad) {
+    const containerProyector = document.getElementById('contenedor-ejemplares-proyector');
+    const containerNotebook = document.getElementById('contenedor-ejemplares-notebook');
+    const containerLibro = document.getElementById('contenedor-ejemplares-libro');
+    
     // Limpiar contenedores
-    if (containerProyector) containerProyector.innerHTML = '';
-    if (containerNotebook) containerNotebook.innerHTML = '';
-    if (containerLibro) containerLibro.innerHTML = '';
+    if (containerProyector && tipo === 'proyector') containerProyector.innerHTML = '';
+    if (containerNotebook && tipo === 'notebook') containerNotebook.innerHTML = '';
+    if (containerLibro && tipo === 'libro') containerLibro.innerHTML = '';
 
     for (let i = 1; i <= cantidad; i++) {
         if (tipo === 'proyector' && containerProyector) {
@@ -784,7 +843,9 @@ window.updateRowsMaterial = function(tipo) {
             containerLibro.insertAdjacentHTML('beforeend', plantillaEjemplarMaterial(i, 'libro'));
         }
     }
-};
+}
+
+// Esta función ha sido eliminada ya que ahora usamos mostrarModalAlerta con callbacks
 
 // Inicializar evento al cargar (solo para carga directa, no dinámica)
 document.addEventListener('DOMContentLoaded', function () {

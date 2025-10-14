@@ -1,111 +1,54 @@
 
+// Variables globales para almacenar callbacks
+let callbackConfirmar = null;
+let callbackCancelar = null;
+let callbackConfirmarReducir = null;
+let callbackCancelarReducir = null;
+
 // Función principal que se llama al hacer clic en CANCELAR
 function cancelarFormulario() {
     console.log('Función cancelarFormulario ejecutada');
     mostrarModalAlerta();
 }
 
-function cerrarModal() {
-    ocultarModalAlerta();
-}
-
-function confirmarModal() {
-    // Buscar el formulario activo en la página
-    let formulario = null;
-    
-    // Intentar encontrar el formulario por tipo de formulario
-    const tiposFormulario = ['programa', 'proyector', 'multimedia', 'varios', 'mapa', 'notebook'];
-    
-    for (const tipo of tiposFormulario) {
-        const formPorTipo = document.querySelector(`form[data-form-type="${tipo}"]`);
-        if (formPorTipo) {
-            formulario = formPorTipo;
-            console.log(`Formulario encontrado por tipo: ${tipo}`);
-            break;
+function cerrarModal(tipo = 'vaciar') {
+    if (tipo === 'reducir') {
+        if (callbackCancelarReducir) {
+            callbackCancelarReducir();
+            callbackCancelarReducir = null;
         }
-    }
-    
-    // Si no lo encuentra por tipo, buscar cualquier formulario
-    if (!formulario) {
-        formulario = document.querySelector('form');
-        console.log('Formulario encontrado genérico');
-    }
-    
-    if (formulario) {
-        console.log('Formulario encontrado:', formulario);
-        
-        // Resetear el formulario completo primero
-        formulario.reset();
-        
-        // Luego forzar el reseteo manual de campos específicos
-        
-        // Limpiar inputs de texto, número, email, tel, date y url
-        const inputs = formulario.querySelectorAll('input[type="text"], input[type="number"], input[type="email"], input[type="tel"], input[type="date"], input[type="url"]');
-        inputs.forEach(input => {
-            input.value = '';
-        });
-        
-        // Resetear selects a su valor por defecto
-        const selects = formulario.querySelectorAll('select');
-        selects.forEach(select => {
-            select.selectedIndex = 0;
-        });
-        
-        // Limpiar textareas
-        const textareas = formulario.querySelectorAll('textarea');
-        textareas.forEach(textarea => {
-            textarea.value = '';
-        });
-        
-        // Desmarcar checkboxes y radio buttons
-        const checkboxesRadios = formulario.querySelectorAll('input[type="checkbox"], input[type="radio"]');
-        checkboxesRadios.forEach(input => {
-            input.checked = false;
-        });
-        
-        // Limpiar contenedores de ejemplares dinámicos según el tipo de formulario
-        const tiposContenedores = ['programa', 'proyector', 'multimedia', 'varios', 'mapa', 'notebook'];
-        tiposContenedores.forEach(tipo => {
-            const contenedor = document.getElementById(`contenedor-ejemplares-${tipo}`);
-            if (contenedor) {
-                contenedor.innerHTML = '';
-            }
-        });
-        
-        // Resetear específicamente el campo de cantidad de ejemplares a 1 si existe
-        const cantEjemplares = document.getElementById('cant_ejemplares');
-        if (cantEjemplares) {
-            cantEjemplares.value = '1';
-        }
-        
-        // Resetear específicamente los selects de materia y carrera
-        const selectMateria = document.getElementById('materia');
-        if (selectMateria) {
-            selectMateria.innerHTML = '<option value="">Primero seleccione una carrera</option>';
-            selectMateria.disabled = true;
-        }
-        
-        const selectCarrera = document.getElementById('carrera');
-        if (selectCarrera) {
-            selectCarrera.value = '';
-        }
-        
-        // Disparar eventos de cambio para que otros scripts se enteren del reseteo
-        const event = new Event('change', { bubbles: true });
-        if (cantEjemplares) cantEjemplares.dispatchEvent(event);
-        if (selectCarrera) selectCarrera.dispatchEvent(event);
-        
-        console.log('Formulario reseteado completamente');
+        ocultarModalReducirEjemplares();
     } else {
-        console.error('No se encontró ningún formulario en la página');
+        if (callbackCancelar) {
+            callbackCancelar();
+            callbackCancelar = null;
+        }
+        ocultarModalAlerta();
     }
-    
-    // Cerrar el modal
-    ocultarModalAlerta();
 }
 
-// Función para mostrar el modal de alerta
-function mostrarModalAlerta() {
+function confirmarModal(tipo = 'vaciar') {
+    if (tipo === 'reducir') {
+        if (callbackConfirmarReducir) {
+            callbackConfirmarReducir();
+            callbackConfirmarReducir = null;
+        }
+        ocultarModalReducirEjemplares();
+    } else {
+        if (callbackConfirmar) {
+            callbackConfirmar();
+            callbackConfirmar = null;
+        }
+        ocultarModalAlerta();
+    }
+}
+
+// Función para mostrar el modal de alerta de vaciar campos
+function mostrarModalAlerta(onConfirm = null, onCancel = null) {
+    // Guardar callbacks
+    callbackConfirmar = onConfirm;
+    callbackCancelar = onCancel;
+    
     const modalAlerta = document.getElementById('modal-vaciar-campos');
     const backdrop = document.getElementById('modal-backdrop');
     
@@ -113,19 +56,50 @@ function mostrarModalAlerta() {
         modalAlerta.style.display = 'flex';
         backdrop.style.display = 'block';
         document.body.style.overflow = 'hidden'; // Prevenir scroll
-        console.log('Modal mostrado correctamente');
+        console.log('Modal vaciar campos mostrado correctamente');
     } else {
-        console.error('Error: No se encontraron los elementos del modal');
+        console.error('Error: No se encontraron los elementos del modal vaciar campos');
     }
 }
 
-// Función para ocultar el modal de alerta
+// Función para ocultar el modal de alerta de vaciar campos
 function ocultarModalAlerta() {
     const modalAlerta = document.getElementById('modal-vaciar-campos');
     const backdrop = document.getElementById('modal-backdrop');
     
     if (modalAlerta && backdrop) {
         modalAlerta.style.display = 'none';
+        backdrop.style.display = 'none';
+        document.body.style.overflow = ''; // Restaurar scroll
+    }
+}
+
+// Función para mostrar el modal de reducir ejemplares
+function mostrarModalReducirEjemplares(onConfirm = null, onCancel = null) {
+    // Guardar callbacks
+    callbackConfirmarReducir = onConfirm;
+    callbackCancelarReducir = onCancel;
+    
+    const modalReducir = document.getElementById('modal-reducir-ejemplares');
+    const backdrop = document.getElementById('modal-backdrop');
+    
+    if (modalReducir && backdrop) {
+        modalReducir.style.display = 'flex';
+        backdrop.style.display = 'block';
+        document.body.style.overflow = 'hidden'; // Prevenir scroll
+        console.log('Modal reducir ejemplares mostrado correctamente');
+    } else {
+        console.error('Error: No se encontraron los elementos del modal reducir ejemplares');
+    }
+}
+
+// Función para ocultar el modal de reducir ejemplares
+function ocultarModalReducirEjemplares() {
+    const modalReducir = document.getElementById('modal-reducir-ejemplares');
+    const backdrop = document.getElementById('modal-backdrop');
+    
+    if (modalReducir && backdrop) {
+        modalReducir.style.display = 'none';
         backdrop.style.display = 'none';
         document.body.style.overflow = ''; // Restaurar scroll
     }
@@ -144,7 +118,12 @@ function confirmarVaciarCampos() {
 
 // Función para vaciar todos los campos del formulario
 function vaciarCamposFormulario() {
-    const formulario = document.getElementById('alta-proyector-form');
+    // Detectar qué formulario está activo
+    const formularioProyector = document.getElementById('alta-proyector-form');
+    const formularioNotebook = document.getElementById('alta-notebook-form');
+    const formularioLibro = document.getElementById('alta-libro-form');
+    
+    let formulario = formularioProyector || formularioNotebook || formularioLibro;
     
     if (formulario) {
         // Resetear el formulario completo
@@ -174,8 +153,16 @@ function vaciarCamposFormulario() {
             input.checked = false;
         });
         
-        // Limpiar el contenedor de ejemplares dinámicos si existe
-        const contenedorEjemplares = document.getElementById('contenedor-ejemplares-proyector');
+        // Limpiar el contenedor de ejemplares dinámicos según el tipo de formulario
+        let contenedorEjemplares;
+        if (formularioProyector) {
+            contenedorEjemplares = document.getElementById('contenedor-ejemplares-proyector');
+        } else if (formularioNotebook) {
+            contenedorEjemplares = document.getElementById('contenedor-ejemplares-notebook');
+        } else if (formularioLibro) {
+            contenedorEjemplares = document.getElementById('contenedor-ejemplares-libro');
+        }
+        
         if (contenedorEjemplares) {
             contenedorEjemplares.innerHTML = '';
         }
@@ -196,24 +183,91 @@ function vaciarCamposFormulario() {
     }
 }
 
-// Event listeners que se ejecutan cuando se carga el DOM
-document.addEventListener('DOMContentLoaded', function() {
-    const btnCancelarModal = document.getElementById('btn-cancelar-vaciar');
-    const btnConfirmarModal = document.getElementById('btn-confirmar-vaciar');
-    const backdrop = document.getElementById('modal-backdrop');
+// Funciones para verificar y actualizar ejemplares (usadas en form_altas.js)
+function tieneEjemplaresConDatos(container, nuevaCantidad) {
+    const ejemplares = container.querySelectorAll('.row.mb-3, .row.mb-2');
     
-    // Event listener para el botón CANCELAR del modal
-    if (btnCancelarModal) {
-        btnCancelarModal.addEventListener('click', cancelarModal);
+    // Verificar si alguno de los ejemplares que se eliminarían tiene datos
+    for (let i = nuevaCantidad; i < ejemplares.length; i++) {
+        const inputs = ejemplares[i].querySelectorAll('input[type="text"], input[type="number"], select, textarea');
+        for (const input of inputs) {
+            if (input.value && input.id && !input.id.includes('ejemplar') && !input.readOnly) {
+                return true; // Hay al menos un campo con datos
+            }
+        }
     }
     
-    // Event listener para el botón CONFIRMAR del modal
+    return false;
+}
+
+// Función para actualizar los ejemplares sin mostrar alerta
+function actualizarEjemplares(tipo, cantidad) {
+    const containerProyector = document.getElementById('contenedor-ejemplares-proyector');
+    const containerNotebook = document.getElementById('contenedor-ejemplares-notebook');
+    const containerLibro = document.getElementById('contenedor-ejemplares-libro');
+    
+    // Limpiar contenedores
+    if (containerProyector && tipo === 'proyector') containerProyector.innerHTML = '';
+    if (containerNotebook && tipo === 'notebook') containerNotebook.innerHTML = '';
+    if (containerLibro && tipo === 'libro') containerLibro.innerHTML = '';
+
+    for (let i = 1; i <= cantidad; i++) {
+        if (tipo === 'proyector' && containerProyector) {
+            containerProyector.insertAdjacentHTML('beforeend', plantillaEjemplarMaterial(i, 'proyector'));
+        } else if (tipo === 'notebook' && containerNotebook) {
+            containerNotebook.insertAdjacentHTML('beforeend', plantillaEjemplarMaterial(i, 'notebook'));
+        } else if (tipo === 'libro' && containerLibro) {
+            containerLibro.insertAdjacentHTML('beforeend', plantillaEjemplarMaterial(i, 'libro'));
+        }
+    }
+}
+
+// Event listeners que se ejecutan cuando se carga el DOM
+document.addEventListener('DOMContentLoaded', function() {
+    // Event listeners para modal vaciar campos
+    const btnCancelarModal = document.getElementById('btn-cancelar-vaciar');
+    const btnConfirmarModal = document.getElementById('btn-confirmar-vaciar');
+    
+    // Event listeners para modal reducir ejemplares
+    const btnCancelarReducir = document.getElementById('btn-cancelar-reducir');
+    const btnConfirmarReducir = document.getElementById('btn-confirmar-reducir');
+    
+    const backdrop = document.getElementById('modal-backdrop');
+    
+    // Event listener para el botón CANCELAR del modal vaciar campos
+    if (btnCancelarModal) {
+        btnCancelarModal.addEventListener('click', function() {
+            cerrarModal('vaciar');
+        });
+    }
+    
+    // Event listener para el botón CONFIRMAR del modal vaciar campos
     if (btnConfirmarModal) {
-        btnConfirmarModal.addEventListener('click', confirmarVaciarCampos);
+        btnConfirmarModal.addEventListener('click', function() {
+            confirmarModal('vaciar');
+        });
+    }
+    
+    // Event listener para el botón CANCELAR del modal reducir ejemplares
+    if (btnCancelarReducir) {
+        btnCancelarReducir.addEventListener('click', function() {
+            cerrarModal('reducir');
+        });
+    }
+    
+    // Event listener para el botón CONFIRMAR del modal reducir ejemplares
+    if (btnConfirmarReducir) {
+        btnConfirmarReducir.addEventListener('click', function() {
+            confirmarModal('reducir');
+        });
     }
     
     // Cerrar modal al hacer clic en el backdrop
     if (backdrop) {
-        backdrop.addEventListener('click', ocultarModalAlerta);
+        backdrop.addEventListener('click', function() {
+            // Cerrar ambos modales
+            ocultarModalAlerta();
+            ocultarModalReducirEjemplares();
+        });
     }
 });
