@@ -122,7 +122,7 @@
     }
 
     .manual-button {
-        background: linear-gradient(135deg, #667eea, #764ba2);
+        background-color: #8B1D69 !important;
         color: white;
         border: none;
         padding: 8px 20px;
@@ -134,7 +134,7 @@
     }
 
     .manual-button:hover {
-        background: linear-gradient(135deg, #764ba2, #667eea);
+        background-color: #6d1552 !important;
         transform: translateY(-2px);
         box-shadow: 0 5px 15px rgba(0,0,0,0.2);
     }
@@ -146,6 +146,8 @@
         color: #25898D;
     }
 
+    /* Comentamos estos estilos para que use los del main.css */
+    /*
     .tipo-material-container select {
         width: 100%;
         padding: 8px 12px;
@@ -154,6 +156,7 @@
         font-size: 14px;
         background: white;
     }
+    */
 
     /* Tabla de materiales */
     .tabla-container {
@@ -337,21 +340,28 @@
     }
 
     /* Estilos para ordenamiento */
+    .ordenar-por {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
     .ordenar-por label {
         font-weight: 600;
-        margin-bottom: 5px;
-        display: block;
+        margin-bottom: 0;
         color: #25898D;
         font-size: 14px;
+        white-space: nowrap;
     }
 
     .ordenar-por select {
-        width: 100%;
+        flex: 1;
         padding: 8px 12px;
         border: 1px solid #ddd;
         border-radius: 5px;
         font-size: 14px;
         background: white;
+        min-width: 150px;
     }
 
     /* Responsive */
@@ -615,8 +625,8 @@
 
             <!-- Manual de usuario -->
             <div class="col-12 col-md-1 col-lg-2 text-end">
-                <button type="button" class="manual-button" data-bs-toggle="modal" data-bs-target="#manualModal">
-                    📖 Manual
+                <button type="button" class="btn btn-dark btn-sm manual-button w-100" onclick="document.getElementById('manualModal').style.display='flex'">
+                    MANUAL
                 </button>
             </div>
         </div>
@@ -625,10 +635,10 @@
         <div class="row mt-3">
             <div class="col-12 col-md-3 col-lg-2">
                 <div class="tipo-material-container">
-                    <label for="tipo_material">Tipo de Material:</label>
+                    <label for="tipo_material" class="text-input" style="color:#25898D;">Tipo de Material:</label>
                     <select class="form-control form-control-sm" id="tipo_material" name="tipo_material">
-                        <option value="">Selecciona un tipo de material</option>
-                        <option value="libro" selected>LIBRO</option>
+                        <option value="" selected>Selecciona un tipo de material</option>
+                        <option value="libro">LIBRO</option>
                         <option value="mapa">MAPA</option>
                         <option value="multimedia">MULTIMEDIA</option>
                         <option value="notebook">NOTEBOOK</option>
@@ -642,7 +652,7 @@
     </div>
 
     <!-- Tabla de libros -->
-    <div class="tabla-container" id="libros-container">
+    <div class="tabla-container" id="libros-container" style="display: none;">
         <table class="libros-table">
             <thead>
                 <tr>
@@ -1085,6 +1095,8 @@
                     <th class="text-center">ID</th>
                     <th>Tipo</th>
                     <th class="text-center">Sede</th>
+                    <th class="text-center">Cantidad</th>
+                    <th class="text-center">Disponible</th>
                     <th class="text-center">Disponibilidad</th>
                     <th class="text-center">Acciones</th>
                 </tr>
@@ -1098,6 +1110,8 @@
                         <td class="text-center">{{ var.id_varios|default:'' }}</td>
                         <td class="titulo-cell">{{ var.tipo }}</td>
                         <td class="text-center">{{ var.sede|default:'LA PLATA' }}</td>
+                        <td class="text-center">{{ var.cantidad|default:'1' }}</td>
+                        <td class="text-center">{{ var.cantidad_disponible|default:'1' }}</td>
                         <td class="disponibilidad-cell">
                             {% if var.estado == 'Disponible' %}
                                 <span class="disponible">Disponible para préstamo</span>
@@ -1436,6 +1450,8 @@
                         document.getElementById('detalle_varios_tipo').textContent = detalles.detalle_varios_tipo || '-';
                         document.getElementById('detalle_varios_denominacion').textContent = detalles.detalle_varios_denominacion || '-';
                         document.getElementById('detalle_varios_sede').textContent = detalles.detalle_varios_sede || '-';
+                        document.getElementById('detalle_varios_cantidad').textContent = detalles.detalle_varios_cantidad || '-';
+                        document.getElementById('detalle_varios_cantidad_disponible').textContent = detalles.detalle_varios_cantidad_disponible || '-';
                         document.getElementById('detalle_varios_estado').textContent = detalles.detalle_varios_estado || '-';
                         
                         // Mostrar el modal
@@ -3206,6 +3222,14 @@
                                     <td style="padding: 12px 0; font-weight: 600;">Sede:</td>
                                     <td style="padding: 12px 0;" id="detalle_varios_sede">-</td>
                                 </tr>
+                                <tr style="border-bottom: 1px solid #dee2e6;">
+                                    <td style="padding: 12px 0; font-weight: 600;">Cantidad Total:</td>
+                                    <td style="padding: 12px 0;" id="detalle_varios_cantidad">-</td>
+                                </tr>
+                                <tr style="border-bottom: 1px solid #dee2e6;">
+                                    <td style="padding: 12px 0; font-weight: 600;">Cantidad Disponible:</td>
+                                    <td style="padding: 12px 0;" id="detalle_varios_cantidad_disponible">-</td>
+                                </tr>
                                 <tr>
                                     <td style="padding: 12px 0; font-weight: 600;">Estado:</td>
                                     <td style="padding: 12px 0;" id="detalle_varios_estado">-</td>
@@ -3738,6 +3762,7 @@
     </div>
 </div>
 
-
+<!-- Incluir el modal del manual -->
+{% include 'modals/manual_modal.html' %}
 
 {% endblock %}

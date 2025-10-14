@@ -7,8 +7,15 @@
 <style>
     .logo-trans-background {
         background-image: url("{% static 'imagenes/LogoTrans.png' %}");
-        background-size: cover;
+        background-size: 70%; /* Reducido 30% del tamaño original (100% - 30% = 70%) */
         background-repeat: no-repeat;
+        background-position: center; /* Centrar la imagen reducida */
+    }
+    
+    .logo-img {
+        transform: scale(1.45); /* Aumentado 45% del tamaño original */
+        margin-right: 10%;
+        margin-left: 15%; /* Movido 15% más a la derecha */
     }
 </style>
 {% endblock %}
@@ -19,14 +26,14 @@
         
         <!-- Columna del logo -->
         <div class="col-lg-6 col-md-7 d-flex align-items-center justify-content-center logo-background">
-            <img src="{% static 'imagenes/LogoBiblioteca.png' %}" alt="Logo Biblioteca" class="logo-img" style="margin-right: 10%">
+            <img src="{% static 'imagenes/LogoBiblioteca.png' %}" alt="Logo Biblioteca" class="logo-img">
         </div>
         
         <!-- Columna del fondo con los botones -->
         <div class="col-lg-6 col-md-5 d-flex justify-content-center align-items-center transparencia logo-trans-background">
             <!-- Contenedor de botones con superposición -->
             <div class="content-overlay d-flex flex-column justify-content-center align-items-start">
-                <a class="btn btn-home mb-3" role="button">PRESTAMOS</a>
+                <a class="btn btn-home mb-3" href="{% url 'gestion' %}" role="button">GESTIONES</a>
                 <a class="btn btn-home mb-3" href="{% url 'alta_materiales' %}" role="button">ALTA MATERIAL</a>
                 <a class="btn btn-home mb-3" href="{% url 'modificacion_materiales' %}" role="button">MODIFICACION <br>MATERIAL</a>
             </div>

@@ -6,6 +6,12 @@ urlpatterns = [
     # URL principal - Home
     path('', views.home, name='home'),
     
+    # URLs de gestión
+    path('gestion/', views.gestion, name='gestion'),
+    path('gestion/usuarios/', views.gestion_usuarios, name='gestion_usuarios'),
+    path('gestion/prestamos/', views.gestion_prestamos, name='gestion_prestamos'),
+    path('gestion/sanciones/', views.gestion_sanciones, name='gestion_sanciones'),
+    
     # URLs de autenticación
     path('registro/', views.registro_view, name='registro'),
     path('logout/', views.logout_view, name='logout'),
@@ -64,6 +70,7 @@ urlpatterns = [
     
     # URLs de varios
     path('varios/', views.varios_view, name='varios'),
+    path('lista-varios/', views.varios_view, name='lista_varios'),
     path('alta-varios/', views.alta_varios, name='alta_varios'),
     path('confirmacion-alta-varios/', views.confirmacion_alta_varios, name='confirmacion_alta_varios'),
     path('guardar-alta-varios/', views.guardar_alta_varios, name='guardar_alta_varios'),

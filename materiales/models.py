@@ -169,9 +169,11 @@ class Varios(Inventario):
     id_varios = models.AutoField(primary_key=True)
     tipo = models.CharField(max_length=255)
     sede = models.CharField(max_length=255, default='La Plata')
+    cantidad = models.PositiveIntegerField(default=1, help_text="Cantidad total de este tipo de material")
+    cantidad_disponible = models.PositiveIntegerField(default=1, help_text="Cantidad disponible para préstamo")
 
     def __str__(self):
-        return f"id: {self.id_varios}, tipo: {self.tipo}, sede: {self.sede}"
+        return f"id: {self.id_varios}, tipo: {self.tipo}, sede: {self.sede}, cantidad: {self.cantidad}, disponible: {self.cantidad_disponible}"
 
 
 # CUARTO: Modelo de Préstamos (DESPUÉS del Usuario y Libro)
@@ -228,7 +230,7 @@ class Prestamo(models.Model):
             return False
         
         return timezone.now() > self.fecha_devolucion_programada
-    
+
 class Programa(Inventario):
     id_programa = models.AutoField(primary_key=True)
     profesor = models.CharField(max_length=255)
