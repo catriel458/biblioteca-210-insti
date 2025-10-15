@@ -103,6 +103,10 @@ document.addEventListener("DOMContentLoaded", function () {
     const uploadSimple = document.getElementById('upload_simple_container');
     const uploadBox = document.getElementById('upload_box_container');
 
+    // Mostrar carga masiva al cargar la página (estado inicial)
+    if (uploadSimple) uploadSimple.style.display = 'block';
+    if (uploadBox) uploadBox.style.display = 'none';
+
     // FUNCIONALIDAD PRINCIPAL
     tipoMaterial.addEventListener('change', function () {
         const tipo = this.value;
@@ -111,7 +115,8 @@ document.addEventListener("DOMContentLoaded", function () {
         if (tipo === '') {
             formularioEspecifico.innerHTML = '';
             buttonsContainer.style.display = 'none';
-            if (uploadSimple) uploadSimple.style.display = 'none';
+            // Mostrar carga masiva al inicio (antes de seleccionar material)
+            if (uploadSimple) uploadSimple.style.display = 'block';
             if (uploadBox) uploadBox.style.display = 'none';
             return;
         }

@@ -3,20 +3,24 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    # URL principal - Home
-    path('', views.home, name='home'),
+    # URL principal - Redirige al login si no está autenticado
+    path('', views.login_view, name='login'),
+    
+    # URLs de autenticación
+    path('login/', views.login_view, name='login'),
+    path('registro/', views.registro_view, name='registro'),
+    path('logout/', views.logout_view, name='logout'),
+    path('perfil/', views.perfil_usuario, name='perfil_usuario'),
+    path('cambiar-password/', views.cambiar_password, name='cambiar_password'),
+    
+    # URL principal después del login
+    path('home/', views.home, name='home'),
     
     # URLs de gestión
     path('gestion/', views.gestion, name='gestion'),
     path('gestion/usuarios/', views.gestion_usuarios, name='gestion_usuarios'),
     path('gestion/prestamos/', views.gestion_prestamos, name='gestion_prestamos'),
     path('gestion/sanciones/', views.gestion_sanciones, name='gestion_sanciones'),
-    
-    # URLs de autenticación
-    path('registro/', views.registro_view, name='registro'),
-    path('logout/', views.logout_view, name='logout'),
-    path('perfil/', views.perfil_usuario, name='perfil_usuario'),
-    path('cambiar-password/', views.cambiar_password, name='cambiar_password'),
     
     # URLs de libros
     path('libros/', views.lista_libros, name='lista_libros'),

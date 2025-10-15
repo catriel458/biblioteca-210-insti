@@ -4,6 +4,14 @@
     --header-height: 120px; /* Altura del header */
 }
 
+/* Eliminar márgenes y padding del body y html */
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    overflow-x: hidden;
+}
+
 .layout-container {
     display: grid;
     height: 100vh; /* Altura total de la ventana */
@@ -15,6 +23,9 @@
         "footer";
     gap: 0px; /* Espacio entre áreas del grid */
     padding: 0; /* Elimina el padding para asegurar que ocupe todo el ancho */
+    margin: 0;
+    width: 100vw;
+    box-sizing: border-box;
 }
 .content {
     background-color: #ffffff; /* Color de fondo para el contenido */

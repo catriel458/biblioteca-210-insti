@@ -1,43 +1,23 @@
 import json
-from django.shortcuts import render, redirect, get_object_or_404
-from django.http import HttpResponse
-from collections import Counter
-from .models import Libro, Inventario, Mapas, Multimedia, Notebook, Proyector, Varios, Prestamo
-from .forms import LibroForm, MapaForm, MultimediaForm, NotebookForm, ProyectorForm, VariosForm
 import csv
-import io  # Agregar esta línea
-from django.contrib import messages #Para mensajes
-from django.http import JsonResponse
-from django.db.models import Q  # Añade esta línea
-from django.contrib import messages
-from django.utils import timezone
+import io
 import datetime
+from collections import Counter
+
+from django.shortcuts import render, redirect, get_object_or_404
+from django.http import HttpResponse, JsonResponse
+from django.contrib import messages
+from django.db.models import Q
+from django.utils import timezone
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
 
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.mixins import LoginRequiredMixin
-from .forms import RegistroForm, LoginForm, CambiarPasswordForm
-from .models import Usuario
 
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-from django.views.decorators.http import require_POST
-import json
-
-import csv
-import io
-from django.http import HttpResponse
-from django.shortcuts import render, redirect
-from .models import Libro, Mapas, Multimedia, Notebook, Proyector, Varios
-
-import csv
-import io
-from django.http import HttpResponse
-from django.shortcuts import render, redirect
-from .models import Libro, Mapas, Multimedia, Notebook, Proyector, Varios
-
-from .models import Programa  # Agregar esta importación al inicio
-from .forms import ProgramaForm  # Agregar esta importación al inicio
+from .models import Libro, Inventario, Mapas, Multimedia, Notebook, Proyector, Varios, Prestamo, Usuario, Programa
+from .forms import LibroForm, MapaForm, MultimediaForm, NotebookForm, ProyectorForm, VariosForm, RegistroForm, LoginForm, CambiarPasswordForm, ProgramaForm
 
 def cargar_csv(request):
     if request.method == 'POST':
@@ -204,12 +184,12 @@ def buscar_multimedia(request):
 '''def buscar_notebooks(request):
     query = request.GET.get('q', '')
     notebooks = Notebook.objects.filter(
-        Q(marca__icontains=query) | 
         Q(modelo__icontains=query)
-    ).values('id_netbook', 'marca', 'modelo', 'num_ejemplar')
+    ).values('id_netbook', 'modelo', 'num_ejemplar')
 
     return JsonResponse(list(notebooks), safe=False)'''
 
+@login_required
 def home(request):
     """
     Vista principal de la aplicación - Pantalla de inicio
@@ -244,11 +224,11 @@ def gestion_sanciones(request):
 def buscar_notebooks(request):
     query = request.GET.get('q', '')
     if query:
-        notebooks = Notebook.objects.filter(marca_not__icontains=query, estado='Disponible') | Notebook.objects.filter(modelo_not__icontains=query, estado='Disponible')
+        notebooks = Notebook.objects.filter(modelo_not__icontains=query, estado='Disponible')
     else:
         notebooks = Notebook.objects.filter(estado='Disponible')
 
-    data = list(notebooks.values('id_not', 'marca_not', 'modelo_not', 'num_ejemplar'))
+    data = list(notebooks.values('id_not', 'modelo_not', 'num_ejemplar'))
     return JsonResponse(data, safe=False)
 
 # Buscador de proyectores
@@ -277,7 +257,7 @@ def buscar_varios(request):
 def borrar_libros(request):
     if request.method == 'POST':
         Libro.objects.all().delete()
-        messages.success(request, "Todos los libros han sido borrados.")
+        # messages.success(request, "Todos los libros han sido borrados.")
         return redirect('lista_libros')  # Cambia esto a la URL donde quieras redirigir después de borrar
 
     return render(request, 'libros/borrar_libros.html')  # Crea un template para confirmar la acción
@@ -350,7 +330,7 @@ def baja_libro(request):
         
         libro.save()
 
-        messages.success(request, f'Libro "{libro.titulo}" dado de baja exitosamente.')
+        # messages.success(request, f'Libro "{libro.titulo}" dado de baja exitosamente.')
         return redirect('modificacion_materiales')
 
     return redirect('modificacion_materiales')
@@ -409,7 +389,7 @@ def editar_libro(request, libro_id):
                 print(f"✅ Libro actualizado: {libro_actualizado.titulo}")
                 print(f"📋 Imagen final: {libro_actualizado.img}")
                 
-                messages.success(request, f'✅ Libro "{libro_actualizado.titulo}" actualizado exitosamente.')
+                # messages.success(request, f'✅ Libro "{libro_actualizado.titulo}" actualizado exitosamente.')
                 return redirect('modificacion_materiales')
                 
             except Exception as e:
@@ -466,7 +446,7 @@ def baja_mapa(request):
         
         mapa.save()
 
-        messages.success(request, f'Mapa "{mapa.tipo}" dado de baja exitosamente.')
+        # messages.success(request, f'Mapa "{mapa.tipo}" dado de baja exitosamente.')
         return redirect('modificacion_materiales')
 
     return redirect('modificacion_materiales')
@@ -541,7 +521,7 @@ def baja_multimedia(request):
             multimedia.imagen_rota = imagen_rota
         multimedia.save()
 
-        messages.success(request, f'Multimedia "{multimedia.titulo_contenido}" dado de baja correctamente.')
+        # messages.success(request, f'Multimedia "{multimedia.titulo_contenido}" dado de baja correctamente.')
         return redirect('modificacion_materiales')
 
     return redirect('modificacion_materiales')
@@ -780,7 +760,7 @@ def reactivar_libro(request, libro_id):
         libro.estado = 'Disponible'
         libro.motivo_baja = ''  # Opcional: limpiar el motivo de baja
         libro.save()
-        messages.success(request, f'El libro "{libro.titulo}" ha sido reactivado exitosamente.')
+        # messages.success(request, f'El libro "{libro.titulo}" ha sido reactivado exitosamente.')
         return redirect('registro_de_bajas')
     return redirect('registro_de_bajas')
 
@@ -817,7 +797,7 @@ def solicitar_prestamo(request, libro_id):
         libro.estado = 'Reservado'
         libro.save()
         
-        messages.success(request, f"Has solicitado el préstamo del libro '{libro.titulo}'. La bibliotecaria revisará tu solicitud y tendrás 3 días hábiles para retirarlo una vez aprobada.")
+        # messages.success(request, f"Has solicitado el préstamo del libro '{libro.titulo}'. La bibliotecaria revisará tu solicitud y tendrás 3 días hábiles para retirarlo una vez aprobada.")
         return redirect('prestamos_solicitados')
     
     return render(request, 'libros/solicitar_prestamo.html', {'libro': libro})
@@ -843,7 +823,7 @@ def aprobar_solicitud_prestamo(request, prestamo_id):
     
     # Calcular días hábiles restantes para mostrar en el mensaje
     dias_habiles = 3
-    messages.success(request, f"✅ RESERVA APROBADA: '{prestamo.libro.titulo}' para {prestamo.nombre_usuario}. Tiempo límite: {fecha_limite.strftime('%d/%m/%Y a las %H:%M')} ({dias_habiles} días hábiles).")
+    # messages.success(request, f"✅ RESERVA APROBADA: '{prestamo.libro.titulo}' para {prestamo.nombre_usuario}. Tiempo límite: {fecha_limite.strftime('%d/%m/%Y a las %H:%M')} ({dias_habiles} días hábiles).")
     
     return redirect('gestionar_prestamos')
 
@@ -871,7 +851,7 @@ def cancelar_reserva_usuario(request, prestamo_id):
         libro.estado = 'Disponible'
         libro.save()
         
-        messages.success(request, f"Has cancelado exitosamente la reserva del libro '{prestamo.libro.titulo}'.")
+        # messages.success(request, f"Has cancelado exitosamente la reserva del libro '{prestamo.libro.titulo}'.")
         
         return redirect('gestionar_prestamos')
     
@@ -918,7 +898,7 @@ def aprobar_prestamo(request, prestamo_id):
     
     prestamo.save()
     
-    messages.success(request, f"El préstamo del libro '{prestamo.libro.titulo}' ha sido aprobado. Fecha de devolución: {prestamo.fecha_devolucion_programada.strftime('%d/%m/%Y')}.")
+    # messages.success(request, f"El préstamo del libro '{prestamo.libro.titulo}' ha sido aprobado. Fecha de devolución: {prestamo.fecha_devolucion_programada.strftime('%d/%m/%Y')}.")
     
     return redirect('gestionar_prestamos')
 
@@ -941,7 +921,7 @@ def rechazar_prestamo(request, prestamo_id):
         libro.estado = 'Disponible'
         libro.save()
         
-        messages.success(request, f"El préstamo del libro '{prestamo.libro.titulo}' ha sido rechazado.")
+        # messages.success(request, f"El préstamo del libro '{prestamo.libro.titulo}' ha sido rechazado.")
         
         return redirect('gestionar_prestamos')
     
@@ -963,7 +943,7 @@ def finalizar_prestamo(request, prestamo_id):
     libro.estado = 'Disponible'
     libro.save()
     
-    messages.success(request, f"El préstamo del libro '{prestamo.libro.titulo}' ha sido finalizado.")
+    # messages.success(request, f"El préstamo del libro '{prestamo.libro.titulo}' ha sido finalizado.")
     
     return redirect('gestionar_prestamos')
 
@@ -1059,7 +1039,7 @@ def confirmar_retiro_libro(request, prestamo_id):
         
         prestamo.save()
         
-        messages.success(request, f"Se confirmó el retiro del libro '{prestamo.libro.titulo}'. Fecha de devolución: {prestamo.fecha_devolucion_programada.strftime('%d/%m/%Y')}.")
+        # messages.success(request, f"Se confirmó el retiro del libro '{prestamo.libro.titulo}'. Fecha de devolución: {prestamo.fecha_devolucion_programada.strftime('%d/%m/%Y')}.")
         
         return redirect('gestionar_prestamos')
     
@@ -1088,7 +1068,7 @@ def marcar_no_retiro(request, prestamo_id):
         libro.estado = 'Disponible'
         libro.save()
         
-        messages.success(request, f"Se marcó como no retirado el libro '{prestamo.libro.titulo}'. El libro está nuevamente disponible.")
+        # messages.success(request, f"Se marcó como no retirado el libro '{prestamo.libro.titulo}'. El libro está nuevamente disponible.")
         
         return redirect('gestionar_prestamos')
     
@@ -1107,46 +1087,50 @@ from .models import Usuario
 
 # Agregar estas vistas al final de tu archivo views.py
 
-# def login_view(request):
-#     if request.user.is_authenticated:
-#         return redirect('pantalla_principal')
+def login_view(request):
+    if request.user.is_authenticated:
+        return redirect('home')
     
-#     if request.method == 'POST':
-#         form = LoginForm(request, data=request.POST)
-#         if form.is_valid():
-#             dni = form.cleaned_data.get('username')
-#             password = form.cleaned_data.get('password')
-#             user = authenticate(request, username=dni, password=password)
-#             if user is not None:
-#                 login(request, user)
-#                 messages.success(request, f'Bienvenido/a {user.get_full_name()}')
-#                 return redirect('pantalla_principal')
-#     else:
-#         form = LoginForm()
+    if request.method == 'POST':
+        form = LoginForm(request, data=request.POST)
+        if form.is_valid():
+            dni = form.cleaned_data.get('username')
+            password = form.cleaned_data.get('password')
+            user = authenticate(request, username=dni, password=password)
+            if user is not None:
+                login(request, user)
+                # messages.success(request, f'Bienvenido/a {user.get_full_name()}')
+                return redirect('home')
+        else:
+            messages.error(request, 'DNI o contraseña incorrectos.')
+    else:
+        form = LoginForm()
     
-#     return render(request, 'libros/login.html', {'form': form})
+    return render(request, 'login/login.html', {'form': form})
 
 def registro_view(request):
     if request.method == 'POST':
         form = RegistroForm(request.POST)
         if form.is_valid():
             user = form.save()
-            messages.success(request, 'Cuenta creada exitosamente. Ya puedes iniciar sesión.')
+            # messages.success(request, 'Cuenta creada exitosamente. Ya puedes iniciar sesión.')
             return redirect('login')
+        else:
+            messages.error(request, 'Por favor corrige los errores en el formulario.')
     else:
         form = RegistroForm()
     
-    return render(request, 'materiales/formularios_altas/alta_libro.html', {'form': form})
+    return render(request, 'login/registro.html', {'form': form})
 
 @login_required
 def logout_view(request):
     logout(request)
-    messages.success(request, 'Has cerrado sesión exitosamente.')
+    # messages.success(request, 'Has cerrado sesión exitosamente.')
     return redirect('login')
 
 @login_required
 def perfil_usuario(request):
-    return render(request, 'libros/perfil_usuario.html', {'usuario': request.user})
+    return render(request, 'login/perfil_usuario.html', {'usuario': request.user})
 
 @login_required
 def cambiar_password(request):
@@ -1155,7 +1139,7 @@ def cambiar_password(request):
         if form.is_valid():
             request.user.set_password(form.cleaned_data['password_nueva'])
             request.user.save()
-            messages.success(request, 'Contraseña cambiada exitosamente. Inicia sesión nuevamente.')
+            # messages.success(request, 'Contraseña cambiada exitosamente. Inicia sesión nuevamente.')
             return redirect('login')
     else:
         form = CambiarPasswordForm(request.user)
@@ -1420,7 +1404,7 @@ def guardar_libro_confirmado(request):
             # Limpiar sesión
             del request.session['libro_data']
             
-            messages.success(request, f'✅ {num_ejemplares} ejemplares del libro "{titulo}" registrados exitosamente.')
+            # messages.success(request, f'✅ {num_ejemplares} ejemplares del libro "{titulo}" registrados exitosamente.')
             return redirect('alta_materiales')
             
         except Exception as e:
@@ -1894,9 +1878,8 @@ def ver_detalles_material(request, libro_id):
                 'detalle_notebook_num_registro': material.num_registro,
                 'detalle_notebook_sede': material.sede,
                 'detalle_notebook_modelo': material.modelo_not,
-                'detalle_notebook_marca': material.marca,
                 'detalle_notebook_estado': material.estado,
-                'detalle_notebook_denominacion': f"{material.marca} {material.modelo_not}",
+                'detalle_notebook_denominacion': material.modelo_not,
             }
             
         elif tipo == 'proyector':
@@ -1962,7 +1945,7 @@ def reactivar_libro_mejorado(request, libro_id):
         # Mantener otros datos como están
         libro.save()
         
-        messages.success(request, f'✅ El libro "{libro.titulo}" ha sido reactivado exitosamente.')
+        # messages.success(request, f'✅ El libro "{libro.titulo}" ha sido reactivado exitosamente.')
         return redirect('modificacion_materiales')
     
     return redirect('modificacion_materiales')   
@@ -2157,7 +2140,7 @@ def guardar_alta_multimedia(request):
             # Limpiar sesión
             del request.session['multimedia_data']
             
-            messages.success(request, f'✅ Multimedia "{multimedia.titulo_contenido}" registrado exitosamente.')
+            # messages.success(request, f'✅ Multimedia "{multimedia.titulo_contenido}" registrado exitosamente.')
             return redirect('alta_materiales')
             
         except Exception as e:
@@ -2372,27 +2355,43 @@ def guardar_alta_varios(request):
                     tipo = tipo_data.get('tipo', '')
                     ejemplares = tipo_data.get('ejemplares', [])
                     cantidad_total = len(ejemplares)
+                    sede = ejemplares[0].get('sede', 'La Plata') if ejemplares else 'La Plata'
                     
                     if cantidad_total > 0:
-                        # Crear un solo registro con la cantidad total
-                        varios = Varios(
+                        # 🔍 VERIFICAR SI YA EXISTE UN MATERIAL CON EL MISMO TIPO Y SEDE
+                        varios_existente = Varios.objects.filter(
                             tipo=tipo,
-                            estado='Disponible',
-                            descripcion=ejemplares[0].get('descripcion', '') if ejemplares else '',
-                            num_ejemplar=1,  # Mantener para compatibilidad
-                            sede=ejemplares[0].get('sede', 'La Plata') if ejemplares else 'La Plata',
-                            cantidad=cantidad_total,
-                            cantidad_disponible=cantidad_total
-                        )
-                        varios.save()
-                        materiales_creados.append(varios)
-                        print(f"✅ Material varios creado: {varios} con cantidad: {cantidad_total}")  # Debug
+                            sede=sede,
+                            estado='Disponible'
+                        ).first()
+                        
+                        if varios_existente:
+                            # ✅ SI EXISTE: ACTUALIZAR CANTIDADES
+                            varios_existente.cantidad += cantidad_total
+                            varios_existente.cantidad_disponible += cantidad_total
+                            varios_existente.save()
+                            materiales_creados.append(varios_existente)
+                            print(f"🔄 Material varios actualizado: {varios_existente} - Nueva cantidad total: {varios_existente.cantidad}")  # Debug
+                        else:
+                            # ➕ SI NO EXISTE: CREAR NUEVO REGISTRO
+                            varios = Varios(
+                                tipo=tipo,
+                                estado='Disponible',
+                                descripcion=ejemplares[0].get('descripcion', '') if ejemplares else '',
+                                num_ejemplar=1,  # Mantener para compatibilidad
+                                sede=sede,
+                                cantidad=cantidad_total,
+                                cantidad_disponible=cantidad_total
+                            )
+                            varios.save()
+                            materiales_creados.append(varios)
+                            print(f"✅ Material varios creado: {varios} con cantidad: {cantidad_total}")  # Debug
                 
                 # Limpiar la sesión
                 if 'varios_data' in request.session:
                     del request.session['varios_data']
                 
-                messages.success(request, f'Se han guardado exitosamente {len(materiales_creados)} tipos de materiales varios.')
+                # messages.success(request, f'Se han guardado exitosamente {len(materiales_creados)} tipos de materiales varios.')
                 return redirect('alta_materiales')
                 
             except Exception as e:
@@ -2470,7 +2469,7 @@ def solicitar_prestamo(request, libro_id):
         libro.estado = 'Reservado'
         libro.save()
         
-        messages.success(request, f"Has solicitado el préstamo del libro '{libro.titulo}'. La biblioteca revisará tu solicitud.")
+        # messages.success(request, f"Has solicitado el préstamo del libro '{libro.titulo}'. La biblioteca revisará tu solicitud.")
         return redirect('prestamos_solicitados')
     
     return render(request, 'libros/solicitar_prestamo.html', {'libro': libro})
@@ -2674,7 +2673,7 @@ def guardar_programa_confirmado(request):
             if 'programa_data' in request.session:
                 del request.session['programa_data']
             
-            messages.success(request, f'✅ Programa "{programa.materia}" registrado exitosamente.')
+            # messages.success(request, f'✅ Programa "{programa.materia}" registrado exitosamente.')
             return redirect('alta_materiales')
             
         except Exception as e:
@@ -2814,8 +2813,7 @@ def guardar_alta_notebook(request):
                     num_registro=ejemplar.get('num_registro'),
                     modelo_not=ejemplar.get('modelo_not'),
                     sede=ejemplar.get('sede'),
-                    estado=ejemplar.get('disponibilidad', 'Disponible'),
-                    marca=notebook_data.get('marca', 'Sin especificar')
+                    estado=ejemplar.get('disponibilidad', 'Disponible')
                 )
                 notebooks_creados.append(notebook)
                 print(f"✅ Notebook guardada en BD con ID: {notebook.id_not}")  # Debug
@@ -2825,7 +2823,7 @@ def guardar_alta_notebook(request):
                 del request.session['notebook_data']
             
             cantidad = len(notebooks_creados)
-            messages.success(request, f'Notebook(s) registrado(s) exitosamente: {cantidad} ejemplar(es)')
+            # messages.success(request, f'Notebook(s) registrado(s) exitosamente: {cantidad} ejemplar(es)')
             return redirect('alta_materiales')
             
         except Exception as e:
@@ -3152,7 +3150,7 @@ def confirmar_mapa_final(request):
             
             # Mensaje de éxito
             cantidad_total = len(mapas_creados)
-            messages.success(request, f'✅ Se han registrado exitosamente {cantidad_total} mapa(s) en la base de datos.')
+            # messages.success(request, f'✅ Se han registrado exitosamente {cantidad_total} mapa(s) en la base de datos.')
             return redirect('alta_materiales')
             
         except Exception as e:
@@ -3223,7 +3221,7 @@ def guardar_alta_mapa(request):
             
             # Mensaje de éxito
             cantidad_total = len(mapas_creados)
-            messages.success(request, f'Se han registrado exitosamente {cantidad_total} mapa(s).')
+            # messages.success(request, f'Se han registrado exitosamente {cantidad_total} mapa(s).')
             
         else:
             # Fallback: crear un registro simple si no hay tipos específicos
@@ -3237,7 +3235,7 @@ def guardar_alta_mapa(request):
                 denominacion='Mapa General',
                 tipo='GENERAL'
             )
-            messages.success(request, 'Mapa registrado exitosamente.')
+            # messages.success(request, 'Mapa registrado exitosamente.')
             print(f"✅ Mapa simple creado: {mapa.num_registro} - Sede: {mapa.sede}")
         
         # Limpiar datos de sesión
@@ -3323,7 +3321,7 @@ def guardar_alta_proyector(request):
             if 'ejemplares_proyector' in request.session:
                 del request.session['ejemplares_proyector']
             
-            messages.success(request, f'Se han guardado {len(proyectores_creados)} proyector(es) correctamente.')
+            # messages.success(request, f'Se han guardado {len(proyectores_creados)} proyector(es) correctamente.')
             return redirect('alta_materiales')
             
         except Exception as e:
@@ -3366,7 +3364,7 @@ def editar_programa(request, programa_id):
         form = ProgramaForm(request.POST, instance=programa)
         if form.is_valid():
             form.save()
-            messages.success(request, f'Programa "{programa.nombre}" actualizado correctamente.')
+            # messages.success(request, f'Programa "{programa.nombre}" actualizado correctamente.')
             return redirect('modificacion_materiales')
     else:
         form = ProgramaForm(instance=programa)
