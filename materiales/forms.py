@@ -186,7 +186,7 @@ class MultimediaForm(forms.ModelForm):
 class NotebookForm(forms.ModelForm):
     class Meta:
         model = Notebook
-        fields = ['sede', 'num_registro', 'modelo_not', 'marca', 'num_ejemplar']
+        fields = ['sede', 'num_registro', 'modelo_not', 'num_ejemplar']
         
         widgets = {
             'sede': forms.Select(attrs={'class': 'form-control'}, choices=[
@@ -195,7 +195,6 @@ class NotebookForm(forms.ModelForm):
             ]),
             'num_registro': forms.TextInput(attrs={'class': 'form-control'}),
             'modelo_not': forms.TextInput(attrs={'class': 'form-control'}),
-            'marca': forms.TextInput(attrs={'class': 'form-control'}),
             'num_ejemplar': forms.NumberInput(attrs={'class': 'form-control', 'min': 1}),
         }
 

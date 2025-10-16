@@ -961,7 +961,6 @@
                     <th class="text-center">ID</th>
                     <th class="text-center">N° Registro</th>
                     <th>Modelo</th>
-                    <th>Marca</th>
                     <th class="text-center">Sede</th>
                     <th class="text-center">Disponibilidad</th>
                     <th class="text-center">Acciones</th>
@@ -977,7 +976,6 @@
                         <td class="text-center">{{ not.id_not|default:'' }}</td>
                         <td class="text-center">{{ not.num_registro|default:'' }}</td>
                         <td class="titulo-cell">{{ not.modelo_not }}</td>
-                        <td>{{ not.marca }}</td>
                         <td class="text-center">{{ not.sede|default:'LA PLATA' }}</td>
                         <td class="disponibilidad-cell">
                             {% if not.estado == 'Disponible' %}
@@ -3089,9 +3087,6 @@
                                     <td style="padding: 12px 0; font-weight: 600; color: #f39c12;" id="detalle_notebook_modelo">-</td>
                                 </tr>
                                 <tr style="border-bottom: 1px solid #dee2e6;">
-                                    <td style="padding: 12px 0; font-weight: 600;">Marca:</td>
-                                    <td style="padding: 12px 0;" id="detalle_notebook_marca">-</td>
-                                </tr>
                                 <tr style="border-bottom: 1px solid #dee2e6;">
                                     <td style="padding: 12px 0; font-weight: 600;">Sede:</td>
                                     <td style="padding: 12px 0;" id="detalle_notebook_sede">-</td>

@@ -8,81 +8,36 @@
 <body>
 
     <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <nav class="navbar navbar-expand-lg" style="margin: 0; padding: 0; border: none;">
         <div class="fondo container-fluid d-flex align-items-center">
-            <img class="icon me-2">
+            <div class="icon me-2"></div>
             <a class="navbar-brand ms-2 text-navbar" href="#" style="font-size: 0.9rem;">Instituto Superior de Formación <br> Tecnica y Docente N° 210</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
-                <ul class="navbar-nav">
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" style="color: white;" href="#" id="navbarDropdown1" role="button" data-bs-toggle="dropdown" aria-expanded="false">Usuarios</a>
-                        <ul class="dropdown-menu user-dd" aria-labelledby="dropdownMenuButton1">
-                            <li><a class="dropdown-item" href="/user_list/">Lista de usuarios</a></li>
-                            <li><a class="dropdown-item" href="/create_user/">Crear nuevo usuario</a></li>
-                            <li><a class="dropdown-item" href="/cargaMasivaEstudiantes/">Carga Masiva de usuario</a></li>
-                          </ul>
-                    </li>
-                    <li class="nav-item">
-                        <div class="dropdown">
-                          <button class="btn btn-navbar dropdown-toggle nav-link" style="color: white;" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
-                            Materias
-                          </button>
-                          <ul class="dropdown-menu user-dd" aria-labelledby="dropdownMenuButton1">
-                            {% if request.user.is_staff or request.user.is_superuser or request.user.admin %}
-                              <li><a class="dropdown-item" href="/altaMateria/">Crear materia</a></li>
-                              <li><a class="dropdown-item" href="/lista_materias_admin/">Listado de materias</a></li>
-                              <li><a class="dropdown-item" href="/inscripcionMateria/">Inscripcion a materias</a></li>
-                              <li><a class="dropdown-item" href="/listaMateriasAdm/">Lista de inscripciones</a></li> 
+                {% if user.is_authenticated %}
+                <div class="user-info d-flex align-items-center">
+                    <div class="user-welcome text-end me-3">
+                        <div class="user-name" style="color: white; font-size: 1.2em; font-weight: bold;">{{ user.get_full_name|default:user.email }}</div>
+                        <div class="user-role" style="color: white; font-size: 0.9em; opacity: 0.8;">
+                            {% if user.is_superuser or user.is_staff %}
+                                Bibliotecaria
+                            {% else %}
+                                Alumno
                             {% endif %}
-                            {% if not request.user.is_staff and not request.user.is_superuser and not request.user.admin %}
-                              <li><a class="dropdown-item" href="/inscripcionMateriaEst/">Inscripcion a materias</a></li>
-                              <li><a class="dropdown-item" href="/listaMateriasEst/">Lista de inscripciones</a></li> 
-                            {% endif %}               
-                          </ul>
                         </div>
-                    </li>
-                    <li class="nav-item">
-                        <div class="dropdown">
-                          <button class="btn btn-navbar dropdown-toggle nav-link" type="button" style="color: white;" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false" style="text-decoration: none" style="text-align: right">
-                            Finales
-                          </button>
-                          <ul class="dropdown-menu user-dd" aria-labelledby="dropdownMenuButton1">
-                            {% if request.user.is_staff or request.user.is_superuser or request.user.admin %}
-                              <li><a class="dropdown-item" href="/altaMesa/">Dar alta mesa de final</a></li>
-                              <li><a class="dropdown-item" href="/mesas_lista/">Listado de mesas</a></li>
-                              <li><a class="dropdown-item" href="/inscripcionFinal/">Inscripcion a finales</a></li>
-                            <li><a class="dropdown-item" href="/listaFinalesAdm/">Lista de inscripciones</a></li>  
-                            {% endif %}
-                            {% if not request.user.is_staff and not request.user.is_superuser and not request.user.admin %}
-                              <li><a class="dropdown-item" href="/inscripcionFinalEst/">Inscripcion a finales</a></li>
-                              <li><a class="dropdown-item" href="/listaFinalesEst/">Lista de inscripciones</a></li>      
-                            {% endif %}          
-                          </ul>
-                        </div>
-                      </li>
-                    <li class="nav-item">
-                        <div class="dropdown">
-                          <button class="btn btn-navbar dropdown-toggle nav-link" type="button" style="color: white;" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false" style="text-decoration: none" style="text-align: right">
-                            Información
-                          </button>
-                          <ul class="dropdown-menu user-dd" aria-labelledby="dropdownMenuButton1">
-                            <li><a class="dropdown-item" href=#>Carreras</a></li>
-                            <li><a class="dropdown-item" href=#>Información</a></li>
-                          </ul>
-                        </div>
-                
-                      <li class="nav-item">
-                        <a class="nav-link" href="/biblioteca/" rel="noopener noreferrer" style="color: white;">Biblioteca</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" style="color: white; border: bottom 2px;" href="#">usuario@gmail.com</a>
-                    </li>
-                </ul>
-                <!-- Aquí ajusté el margen del botón -->
-                <a href="#" class="icon-usuario" title="Usuario"></a>
+                    </div>
+                    <div class="user-actions d-flex gap-2">
+                        <a href="{% url 'perfil_usuario' %}" class="btn btn-outline-light btn-sm" style="border: 2px solid white; color: white; padding: 6px 12px; font-size: 0.9em; text-decoration: none; border-radius: 5px;">Mi Perfil</a>
+                        <a href="{% url 'logout' %}" class="btn btn-danger btn-sm" style="background: #dc3545; color: white; border: 2px solid #dc3545; padding: 6px 12px; font-size: 0.9em; text-decoration: none; border-radius: 5px;">Salir</a>
+                    </div>
+                </div>
+                {% else %}
+                <div class="user-actions">
+                    <a class="nav-link" style="color: white;" href="{% url 'login' %}">Iniciar Sesión</a>
+                </div>
+                {% endif %}
             </div>
         </div>
     </nav>

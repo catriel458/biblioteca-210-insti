@@ -285,7 +285,6 @@
 document.addEventListener('DOMContentLoaded', function() {
     console.log('🚀 Página de confirmación NOTEBOOK cargada');
     console.log('📋 Datos recibidos:', {
-        marca: '{{ form_data.marca|escapejs }}',
         modelo: '{{ form_data.modelo_not|escapejs }}',
         registro: '{{ form_data.num_registro|escapejs }}'
     });
