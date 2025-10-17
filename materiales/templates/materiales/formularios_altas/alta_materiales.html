@@ -472,6 +472,19 @@ function initProyectorDynamicFunctionality() {
             
             for (let i = 1; i <= cantidad; i++) {
                 html += `
+                <!-- Línea punteada -->
+                <div style="
+                    background: repeating-linear-gradient(
+                        to right,
+                        #8B1D69 0px,
+                        #8B1D69 10px,
+                        transparent 10px,
+                        transparent 30px
+                    );
+                    height: 3px;
+                    margin: 25px 0;
+                    width: 100%;
+                "></div>
                 <div class="row mb-3">
                     <div class="col-md-3">
                         <label for="num_registro_${i}" style="font-size: 14px;">N° de registro<span style="color: #dc3545; font-weight: bold;">*</span>:</label>
