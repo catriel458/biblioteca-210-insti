@@ -329,10 +329,61 @@ window.renderizarTiposMapa = function() {
     // Listeners para inputs dinámicos
     // 1. Cambiar cantidad
     document.querySelectorAll('.input-cant-mapa').forEach(inp => {
+        // Guardar el valor anterior en el elemento
+        inp.dataset.valorAnterior = inp.value;
+        
         inp.addEventListener('change', function() {
             const idx = parseInt(this.dataset.idx);
             let val = parseInt(this.value);
             if (isNaN(val) || val < 1) val = 1;
+            
+            // Obtener el valor anterior
+            const valorAnterior = parseInt(this.dataset.valorAnterior) || 1;
+            
+            // Imprimir el valor del input
+            console.log(`Cantidad cambiada para mapa ${idx}: ${val}`);
+            
+            // Verificar si el valor bajó
+            if (val < valorAnterior) {
+                // Guardar el valor anterior para restaurarlo si se cancela
+                this.dataset.valorAnteriorTemp = valorAnterior;
+                
+                // Definir callbacks para confirmar y cancelar
+                const onConfirm = () => {
+                    // Establecer la cantidad en 1
+                    this.value = "1";
+                    this.dataset.valorAnterior = "1";
+                    
+                    // Actualizar el grupo de mapas a cantidad 1
+                    window.gruposTiposMapa[idx].cantidad = 1;
+                    
+                    // Renderizar para actualizar la vista
+                    window.renderizarTiposMapa();
+                    
+                    // Limpiar todos los inputs del grupo actual
+                    const container = document.getElementById('contenedor-ejemplares-mapa');
+                    if (container) {
+                        const inputs = container.querySelectorAll(`input[id^='n_registro_${idx}_'], input[id^='denominacion_${idx}_'], textarea[id^='descripcion_${idx}_']`);
+                        inputs.forEach(input => {
+                            input.value = '';
+                        });
+                    }
+                    console.log(`🧹 Se reinició el tipo ${window.gruposTiposMapa[idx].tipo} a 1 ejemplar`);
+                };
+                
+                const onCancel = () => {
+                    // Restaurar valor anterior
+                    this.value = this.dataset.valorAnteriorTemp;
+                    this.dataset.valorAnterior = this.dataset.valorAnteriorTemp;
+                };
+                
+                // Mostrar modal con callbacks
+                mostrarModalReducirEjemplares(onConfirm, onCancel);
+                return; // Detener la ejecución hasta que el usuario decida
+            }
+            
+            // Si no hubo reducción, actualizar normalmente
+            this.dataset.valorAnterior = val;
             
             // Guardar datos existentes antes de cambiar cantidad
             const datosExistentes = guardarDatosFormularioMapa();
