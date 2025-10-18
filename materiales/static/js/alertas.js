@@ -3,7 +3,6 @@ let callbackConfirmar = null;
 let callbackCancelar = null;
 let callbackConfirmarReducir = null;
 let callbackCancelarReducir = null;
-
 // Función principal que se llama al hacer clic en CANCELAR
 function cancelarFormulario() {
     console.log('Función cancelarFormulario ejecutada');
@@ -43,17 +42,28 @@ function confirmarModal(tipo = 'vaciar') {
     }
 }
 
+// Función para vaciar los campos del formulario
+function vaciarCamposFormulario() {
+    const form = document.querySelector('form');
+    if (form) {
+        form.reset();
+        console.log('Formulario vaciado correctamente');
+    }
+}
+
 // Función para mostrar el modal de alerta de vaciar campos
 function mostrarModalAlerta(onConfirm = null, onCancel = null) {
-    // Guardar callbacks
-    callbackConfirmar = onConfirm;
+    // Si no se proporciona un callback de confirmación, usar vaciarCamposFormulario por defecto
+    callbackConfirmar = onConfirm || vaciarCamposFormulario;
     callbackCancelar = onCancel;
     
     const modalAlerta = document.getElementById('modal-vaciar-campos');
     const backdrop = document.getElementById('modal-backdrop');
     
     if (modalAlerta && backdrop) {
-        modalAlerta.style.display = 'flex';
+        modalAlerta.classList.add('show');
+        modalAlerta.style.display = 'block';
+        backdrop.classList.add('show');
         backdrop.style.display = 'block';
         document.body.style.overflow = 'hidden'; // Prevenir scroll
         console.log('Modal vaciar campos mostrado correctamente');
@@ -138,11 +148,139 @@ function vaciarCamposFormulario() {
             break;
         case 'mapa':
             console.log("Formulario 4 seleccionado");
+            borrarMapa();
             break;
+        case 'programa':
+            console.log("Formulario 5 seleccionado");
+            borrarPrograma();
+            break;            
         default:
             console.log("Formulario no reconocido");
             break;
     } 
+}
+
+function borrarMapa(){
+    console.log('Limpiando campos del formulario mapa...');
+    
+    // Limpiar sede
+    const sedeMapa = document.getElementById('sede-mapa');
+    if (sedeMapa) {
+        sedeMapa.value = '';
+        console.log('Campo sede limpiado');
+    }
+
+    // Limpiar tipo de mapa
+    const tipoMapa = document.getElementById('input-nuevo-tipo-mapa');
+    if (tipoMapa) {
+        tipoMapa.value = '';
+        console.log('Campo tipo de mapa limpiado');
+    }
+
+    // Resetear cantidad a 1
+    const cantidadMapa = document.getElementById('input-nueva-cant-mapa');
+    if (cantidadMapa) {
+        cantidadMapa.value = '1';
+        console.log('Cantidad reseteada a 1');
+    }
+
+    // Limpiar array de grupos de tipos
+    if (window.gruposTiposMapa) {
+        window.gruposTiposMapa = [];
+        console.log('Array gruposTiposMapa vaciado');
+        
+        // Limpiar el input oculto
+        const gruposTiposMapaInput = document.getElementById('gruposTiposMapa');
+        if (gruposTiposMapaInput) {
+            gruposTiposMapaInput.value = '';
+        }
+    }
+
+    // Limpiar el contenedor de ejemplares
+    const contenedorEjemplares = document.getElementById('contenedor-ejemplares-mapa');
+    if (contenedorEjemplares) {
+        contenedorEjemplares.innerHTML = '';
+        console.log('Contenedor de ejemplares limpiado');
+    }
+
+    // Limpiar el bloque de tipo y cantidad
+    const bloqueTipoCantidad = document.getElementById('bloque-tipo-cantidad');
+    if (bloqueTipoCantidad) {
+        bloqueTipoCantidad.innerHTML = '';
+        console.log('Bloque de tipo y cantidad limpiado');
+    }
+
+    // Re-renderizar los tipos si existe la función
+    if (window.renderizarTiposMapa) {
+        window.renderizarTiposMapa();
+        console.log('Tipos re-renderizados');
+    }
+
+    console.log('✅ Campos del formulario mapa vaciados correctamente');
+    
+    // Cerrar el modal de alerta
+    ocultarModalAlerta();
+}
+
+function borrarPrograma(){
+    console.log('Limpiando campos del formulario programa...');
+    
+    // Intentar encontrar el formulario por ID o por atributos
+    let form = document.getElementById('form_alta_programa') || 
+               document.getElementById('form_alta_material') || 
+               document.querySelector('form[data-form-type="programa"]');
+
+    if (form) {
+        console.log('Formulario encontrado, limpiando campos...');
+        
+        // Limpiar campos individualmente para asegurar que los eventos se disparen
+        const profesor = form.querySelector('#profesor, [name="profesor"]');
+        const carrera = form.querySelector('#carrera, [name="carrera"]');
+        const materia = form.querySelector('#materia, [name="materia"]');
+        const url = form.querySelector('#url, [name="url"]');
+        const cicloLectivo = form.querySelector('#ciclo_lectivo, [name="ciclo_lectivo"]');
+
+        if (profesor) {
+            profesor.value = '';
+            console.log('Campo profesor limpiado');
+        }
+        
+        // Limpiar carrera y disparar evento change
+        if (carrera) {
+            carrera.value = '';
+            // Crear y disparar evento change
+            const event = new Event('change', { bubbles: true });
+            carrera.dispatchEvent(event);
+            console.log('Campo carrera limpiado y evento disparado');
+        }
+
+        // El evento change de carrera ya se encargará de limpiar y deshabilitar materia
+        if (materia) {
+            materia.innerHTML = '<option value="">Primero seleccione una carrera</option>';
+            materia.disabled = true;
+            console.log('Campo materia reseteado');
+        }
+
+        if (url) {
+            url.value = '';
+            console.log('Campo URL limpiado');
+        }
+        
+        if (cicloLectivo) {
+            cicloLectivo.value = '';
+            console.log('Campo ciclo lectivo limpiado');
+        }
+        
+        console.log('✅ Campos del formulario programa vaciados correctamente');
+    } else {
+        console.error('❌ No se encontró el formulario de programa');
+        console.log('Elementos disponibles:', 
+            document.querySelectorAll('form').length, 
+            'formularios en la página');
+    }
+    
+    // Cerrar el modal de alerta
+    ocultarModalAlerta();
 }
 
 function borrarVarios() {

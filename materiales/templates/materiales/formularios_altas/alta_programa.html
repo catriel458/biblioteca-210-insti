@@ -48,15 +48,15 @@
   <!-- Botones de acción -->
   <div class="row mt-3">
     <div class="col-12 text-end">
-      <button type="button" class="btn btn-secondary" onclick="cancelarFormulario()">Cancelar</button>
+      <button type="button" class="btn btn-secondary" onclick="mostrarModalAlerta()">Cancelar</button>
       <button type="submit" class="btn btn-primary">Guardar</button>
     </div>
   </div>
 </form>
 
 <!-- Modal para vaciar campos -->
-<div class="modal-backdrop fade" id="modal-backdrop" style="display: none;"></div>
-<div class="modal fade" id="modal-vaciar-campos" tabindex="-1" aria-labelledby="modalVaciarCamposLabel" aria-hidden="true" style="display: none;">
+<div class="modal-backdrop fade show" id="modal-backdrop" style="display: none;"></div>
+<div class="modal fade show" id="modal-vaciar-campos" tabindex="-1" aria-labelledby="modalVaciarCamposLabel" aria-hidden="true" style="display: none;">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
@@ -74,11 +74,9 @@
   </div>
 </div>
 
-<!-- Importación del JS dinámico de ejemplares -->
-<script src="{% static 'js/form_altas.js' %}"></script>
-
-<!-- Importación del JS de alertas -->
+<!-- Importación de los JS necesarios -->
 <script src="{% static 'js/alertas.js' %}"></script>
+<script src="{% static 'js/form_altas.js' %}"></script>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
