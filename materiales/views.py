@@ -200,25 +200,300 @@ def gestion(request):
     """
     Vista principal de gestión - Pantalla de gestión
     """
-    return render(request, 'materiales/GESTION/gestion.html')
+    return render(request, 'gestion/gestion.html')
 
+# Función auxiliar para verificar si el usuario es bibliotecaria
+def es_bibliotecaria(user):
+    return user.is_authenticated and user.perfil == 'bibliotecaria'
+
+# Decorador personalizado para requerir permisos de bibliotecaria
+def bibliotecaria_required(view_func):
+    def _wrapped_view(request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            messages.error(request, 'Debe iniciar sesión para acceder a esta página.')
+            return redirect('login')
+        if not es_bibliotecaria(request.user):
+            messages.error(request, 'No tiene permisos para acceder a esta página.')
+            return redirect('home')
+        return view_func(request, *args, **kwargs)
+    return _wrapped_view
+
+@bibliotecaria_required
 def gestion_usuarios(request):
     """
-    Vista de gestión de usuarios
+    Vista principal de gestión de usuarios - Solo para bibliotecarias
     """
-    return render(request, 'materiales/GESTION/gestion_usuarios.html')
+    usuarios = Usuario.objects.all().order_by('-fecha_registro')
+    
+    context = {
+        'usuarios': usuarios,
+        'total_usuarios': usuarios.count(),
+        'usuarios_activos': usuarios.filter(is_active=True).count(),
+        'usuarios_inactivos': usuarios.filter(is_active=False).count(),
+        'bibliotecarias': usuarios.filter(perfil='bibliotecaria').count(),
+        'alumnos': usuarios.filter(perfil='alumno').count(),
+        'docentes': usuarios.filter(perfil='docente').count(),
+    }
+    
+    return render(request, 'gestion/gestion_usuarios.html', context)
+
+@bibliotecaria_required
+def buscar_usuarios(request):
+    """
+    Vista AJAX para buscar usuarios por DNI, nombre, apellido o email
+    """
+    if request.method == 'GET':
+        query = request.GET.get('q', '').strip()
+        
+        if query:
+            usuarios = Usuario.objects.filter(
+                Q(dni__icontains=query) |
+                Q(nombre__icontains=query) |
+                Q(apellido__icontains=query) |
+                Q(email__icontains=query)
+            ).order_by('-fecha_registro')
+        else:
+            usuarios = Usuario.objects.all().order_by('-fecha_registro')
+        
+        usuarios_data = []
+        for usuario in usuarios:
+            usuarios_data.append({
+                'id': usuario.id,
+                'dni': usuario.dni,
+                'nombre': usuario.nombre,
+                'apellido': usuario.apellido,
+                'email': usuario.email,
+                'perfil': usuario.get_perfil_display(),
+                'perfil_value': usuario.perfil,
+                'is_active': usuario.is_active,
+                'fecha_registro': usuario.fecha_registro.strftime('%d/%m/%Y'),
+            })
+        
+        return JsonResponse({'usuarios': usuarios_data})
+    
+    return JsonResponse({'error': 'Método no permitido'}, status=405)
+
+@bibliotecaria_required
+def crear_usuario(request):
+    """
+    Vista para crear un nuevo usuario - Solo para bibliotecarias
+     Usa el mismo formulario que registro.html para consistencia
+    """
+    if request.method == 'POST':
+        try:
+            # Crear una copia mutable de POST data
+            post_data = request.POST.copy()
+            
+            # El perfil viene del formulario de gestión de usuarios
+            perfil = post_data.get('perfil')
+            
+            # Agregar password2 para que coincida con el formulario de registro
+            password1 = post_data.get('password')
+            post_data['password1'] = password1
+            post_data['password2'] = password1
+            
+            # Crear el formulario usando RegistroForm (mismo que registro.html)
+            form = RegistroForm(post_data)
+            
+            if form.is_valid():
+                # Crear el usuario usando el formulario
+                user = form.save(commit=False)
+                
+                # Asignar el perfil seleccionado desde el modal
+                if perfil in ['alumno', 'docente', 'bibliotecaria']:
+                    user.perfil = perfil
+                else:
+                    user.perfil = 'alumno'  # Valor por defecto
+                
+                # Guardar el usuario
+                user.save()
+                
+                return JsonResponse({
+                    'success': True,
+                    'message': f'Usuario {user.nombre} {user.apellido} creado exitosamente.',
+                    'usuario': {
+                        'id': user.id,
+                        'dni': user.dni,
+                        'nombre': user.nombre,
+                        'apellido': user.apellido,
+                        'email': user.email,
+                        'perfil': user.get_perfil_display(),
+                        'perfil_value': user.perfil,
+                        'is_active': user.is_active,
+                        'fecha_registro': user.fecha_registro.strftime('%d/%m/%Y'),
+                    }
+                })
+                
+            else:
+                # Recopilar errores del formulario
+                errors = []
+                for field, field_errors in form.errors.items():
+                    for error in field_errors:
+                        if field == '__all__':
+                            errors.append(str(error))
+                        else:
+                            field_name = form.fields[field].label or field
+                            errors.append(f"{field_name}: {error}")
+                
+                return JsonResponse({
+                    'success': False,
+                    'error': 'Errores en el formulario: ' + '; '.join(errors)
+                })
+                
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'error': f'Error al crear el usuario: {str(e)}'
+            })
+    
+    return JsonResponse({'error': 'Método no permitido'}, status=405)
+
+@bibliotecaria_required
+def editar_usuario(request, usuario_id):
+    """
+    Vista para editar un usuario existente - Solo para bibliotecarias
+    """
+    try:
+        usuario = get_object_or_404(Usuario, id=usuario_id)
+        
+        if request.method == 'GET':
+            # Devolver datos del usuario para el formulario
+            return JsonResponse({
+                'success': True,
+                'usuario': {
+                    'id': usuario.id,
+                    'dni': usuario.dni,
+                    'nombre': usuario.nombre,
+                    'apellido': usuario.apellido,
+                    'email': usuario.email,
+                    'perfil': usuario.perfil,
+                    'is_active': usuario.is_active,
+                }
+            })
+        
+        elif request.method == 'POST':
+            # Actualizar datos del usuario
+            nombre = request.POST.get('nombre', '').strip()
+            apellido = request.POST.get('apellido', '').strip()
+            email = request.POST.get('email', '').strip()
+            perfil = request.POST.get('perfil', '').strip()
+            is_active = request.POST.get('is_active') == 'true'
+            nueva_password = request.POST.get('nueva_password', '').strip()
+            
+            # Validaciones básicas
+            if not all([nombre, apellido, email, perfil]):
+                return JsonResponse({
+                    'success': False,
+                    'error': 'Nombre, apellido, email y perfil son obligatorios.'
+                })
+            
+            # Verificar si el email ya existe (excluyendo el usuario actual)
+            if Usuario.objects.filter(email=email).exclude(id=usuario.id).exists():
+                return JsonResponse({
+                    'success': False,
+                    'error': 'Ya existe otro usuario con este email.'
+                })
+            
+            # Validar perfil
+            if perfil not in ['alumno', 'bibliotecaria', 'docente']:
+                return JsonResponse({
+                    'success': False,
+                    'error': 'Perfil no válido.'
+                })
+            
+            # Actualizar campos
+            usuario.nombre = nombre
+            usuario.apellido = apellido
+            usuario.email = email
+            usuario.perfil = perfil
+            usuario.is_active = is_active
+            
+            # Cambiar contraseña si se proporcionó una nueva
+            if nueva_password:
+                usuario.set_password(nueva_password)
+            
+            usuario.save()
+            
+            messages.success(request, f'Usuario {usuario.nombre} {usuario.apellido} actualizado exitosamente.')
+            
+            return JsonResponse({
+                'success': True,
+                'message': 'Usuario actualizado exitosamente.',
+                'usuario': {
+                    'id': usuario.id,
+                    'dni': usuario.dni,
+                    'nombre': usuario.nombre,
+                    'apellido': usuario.apellido,
+                    'email': usuario.email,
+                    'perfil': usuario.get_perfil_display(),
+                    'perfil_value': usuario.perfil,
+                    'is_active': usuario.is_active,
+                    'fecha_registro': usuario.fecha_registro.strftime('%d/%m/%Y'),
+                }
+            })
+            
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': f'Error al editar el usuario: {str(e)}'
+        })
+    
+    return JsonResponse({'error': 'Método no permitido'}, status=405)
+
+@bibliotecaria_required
+def eliminar_usuario(request, usuario_id):
+    """
+    Vista para eliminar un usuario - Solo para bibliotecarias
+    """
+    if request.method == 'POST':
+        try:
+            usuario = get_object_or_404(Usuario, id=usuario_id)
+            
+            # Verificar que no sea el último bibliotecario
+            if usuario.perfil == 'bibliotecaria':
+                bibliotecarias_count = Usuario.objects.filter(perfil='bibliotecaria', is_active=True).count()
+                if bibliotecarias_count <= 1:
+                    return JsonResponse({
+                        'success': False,
+                        'error': 'No se puede eliminar el último bibliotecario del sistema.'
+                    })
+            
+            # Verificar que el usuario no se esté eliminando a sí mismo
+            if usuario.id == request.user.id:
+                return JsonResponse({
+                    'success': False,
+                    'error': 'No puede eliminar su propia cuenta.'
+                })
+            
+            nombre_completo = f"{usuario.nombre} {usuario.apellido}"
+            usuario.delete()
+            
+            messages.success(request, f'Usuario {nombre_completo} eliminado exitosamente.')
+            
+            return JsonResponse({
+                'success': True,
+                'message': 'Usuario eliminado exitosamente.'
+            })
+            
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'error': f'Error al eliminar el usuario: {str(e)}'
+            })
+    
+    return JsonResponse({'error': 'Método no permitido'}, status=405)
 
 def gestion_prestamos(request):
     """
     Vista de gestión de préstamos
     """
-    return render(request, 'materiales/GESTION/gestion_prestamos.html')
+    return render(request, 'gestion/gestion_prestamos.html')
 
 def gestion_sanciones(request):
     """
     Vista de gestión de sanciones
     """
-    return render(request, 'materiales/GESTION/gestion_sanciones.html')
+    return render(request, 'gestion/gestion_sanciones.html')
 
 # Código modificado (funcionando)
 def buscar_notebooks(request):
@@ -1130,6 +1405,11 @@ def logout_view(request):
 
 @login_required
 def perfil_usuario(request):
+    # Clear any existing messages to prevent unwanted alerts on the profile page
+    storage = messages.get_messages(request)
+    for message in storage:
+        pass  # This consumes and clears the messages
+    
     return render(request, 'login/perfil_usuario.html', {'usuario': request.user})
 
 @login_required

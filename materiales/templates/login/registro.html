@@ -10,7 +10,8 @@
 <body>
     <div class="registro-container">
         <form method="post" class="registro-box">
-            <img src="{% static 'imagenes/login_logo.png' %}" alt="Logo Biblioteca" class="logo">
+            <img src="{% static 'imagenes/registro_logo.png' %}" alt="Logo Registro" class="logo-transparente">
+            <h1 class="titulo-registro">NUEVO USUARIO</h1>
             {% csrf_token %}
             
             {% if form.errors %}
@@ -139,15 +140,30 @@ body {
     margin: 0 auto;
 }
 
-/* Logo */
-.logo {
+/* Logo transparente */
+.logo-transparente {
     width: 100%;
-    max-width: 300px;
+    max-width: 380px;
     height: auto;
-    margin-bottom: 30px;
+    margin-bottom: 0px;
     display: block;
     margin-left: auto;
     margin-right: auto;
+    opacity: 0.1; /* 10% transparencia = 10% opacidad */
+}
+
+/* Título */
+.titulo-registro {
+    text-align: center;
+    color: #333;
+    font-size: 50px;
+    font-weight: 500;
+    margin-bottom: 30px;
+    margin-top: 0;
+    letter-spacing: 1px;
+    border-bottom: 2px solid #000000;
+    padding-bottom: 5px;
+    width: 100%;
 }
 
 /* Caja del formulario */
@@ -288,8 +304,13 @@ input[type="number"]:focus {
         padding: 30px 20px;
     }
     
-    .logo {
+    .logo-transparente {
         max-width: 250px;
+        margin-bottom: 15px;
+    }
+    
+    .titulo-registro {
+        font-size: 14px;
         margin-bottom: 20px;
     }
     
@@ -308,8 +329,13 @@ input[type="number"]:focus {
         padding: 25px 15px;
     }
     
-    .logo {
+    .logo-transparente {
         max-width: 200px;
+        margin-bottom: 10px;
+    }
+    
+    .titulo-registro {
+        font-size: 14px;
     }
 }
 </style>

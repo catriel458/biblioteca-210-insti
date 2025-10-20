@@ -19,6 +19,10 @@ urlpatterns = [
     # URLs de gestión
     path('gestion/', views.gestion, name='gestion'),
     path('gestion/usuarios/', views.gestion_usuarios, name='gestion_usuarios'),
+    path('gestion/usuarios/buscar/', views.buscar_usuarios, name='buscar_usuarios'),
+    path('gestion/usuarios/crear/', views.crear_usuario, name='crear_usuario'),
+    path('gestion/usuarios/editar/<int:usuario_id>/', views.editar_usuario, name='editar_usuario'),
+    path('gestion/usuarios/eliminar/<int:usuario_id>/', views.eliminar_usuario, name='eliminar_usuario'),
     path('gestion/prestamos/', views.gestion_prestamos, name='gestion_prestamos'),
     path('gestion/sanciones/', views.gestion_sanciones, name='gestion_sanciones'),
     

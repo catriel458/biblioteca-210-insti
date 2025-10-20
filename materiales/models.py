@@ -30,6 +30,7 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
     PERFIL_CHOICES = (
         ('alumno', 'Alumno'),
         ('bibliotecaria', 'Bibliotecaria'),
+        ('docente', 'Docente'),
     )
     
     dni_validator = RegexValidator(
