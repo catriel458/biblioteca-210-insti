@@ -4,60 +4,60 @@
 <header class="{{ header_class }}">
     {% if request.resolver_match.url_name == 'home' %}
         <div class="header-home">
-            <h1 class="header-title" style="padding-top: 35px;">INICIO</h1>
+            <h1 class="header-title-centered">INICIO</h1>
         </div>
     {% elif request.resolver_match.url_name == 'alta_material' %}
         <div class="header-pantalla">
-            <h1 class="header-title" style="padding-top: 35px;">ALTA MATERIAL</h1>
+            <h1 class="header-title">ALTA MATERIAL</h1>
             <a href="{% url 'home' %}" class="logo-link">
                 <img src="{% static 'imagenes/Logo_inicio.png' %}" alt="Logo" class="cover-pic">
             </a>
         </div>
     {% elif request.resolver_match.url_name == 'modificacion_editar_material' %}
         <div class="header-pantalla">
-            <h1 class="header-title" style="padding-top: 35px;"> MODIFICACION </h1>
+            <h1 class="header-title-centered"> MODIFICACION </h1>
             <a href="{% url 'home' %}" class="logo-link">
                 <img src="{% static 'imagenes/Logo_inicio.png' %}" alt="Logo" class="cover-pic">
             </a>
         </div>
     {% elif request.resolver_match.url_name == 'modificacion_materiales' %}
         <div class="header-pantalla">
-            <h1 class="header-title" style="padding-top: 35px;"> MODIFICACION </h1>
+            <h1 class="header-title-centered"> MODIFICACION </h1>
             <a href="{% url 'home' %}" class="logo-link">
                 <img src="{% static 'imagenes/Logo_inicio.png' %}" alt="Logo" class="cover-pic">
             </a>
         </div>
     {% elif request.resolver_match.url_name == 'prestamos' %}
         <div class="header-pantalla">
-            <h1 class="header-title" style="padding-top: 35px;"> PRESTAMOS </h1>
+            <h1 class="header-title-centered"> PRESTAMOS </h1>
             <a href="{% url 'home' %}" class="logo-link">
                 <img src="{% static 'imagenes/Logo_inicio.png' %}" alt="Logo" class="cover-pic">
             </a>
         </div>
     {% elif request.resolver_match.url_name == 'gestion' %}
         <div class="header-pantalla">
-            <h1 class="header-title" style="padding-top: 35px;">GESTIÓN</h1>
+            <h1 class="header-title-centered">GESTIÓN</h1>
             <a href="{% url 'home' %}" class="logo-link">
                 <img src="{% static 'imagenes/Logo_inicio.png' %}" alt="Logo" class="cover-pic">
             </a>
         </div>
     {% elif request.resolver_match.url_name == 'gestion_usuarios' %}
         <div class="header-pantalla">
-            <h1 class="header-title" style="padding-top: 35px;">GESTIÓN USUARIOS</h1>
+            <h1 class="header-title-centered">GESTIÓN USUARIOS</h1>
             <a href="{% url 'home' %}" class="logo-link">
                 <img src="{% static 'imagenes/Logo_inicio.png' %}" alt="Logo" class="cover-pic">
             </a>
         </div>
     {% elif request.resolver_match.url_name == 'gestion_prestamos' %}
         <div class="header-pantalla">
-            <h1 class="header-title" style="padding-top: 35px;">GESTIÓN PRÉSTAMOS</h1>
+            <h1 class="header-title-centered">GESTIÓN PRÉSTAMOS</h1>
             <a href="{% url 'home' %}" class="logo-link">
                 <img src="{% static 'imagenes/Logo_inicio.png' %}" alt="Logo" class="cover-pic">
             </a>
         </div>
     {% elif request.resolver_match.url_name == 'gestion_sanciones' %}
         <div class="header-pantalla">
-            <h1 class="header-title" style="padding-top: 35px;">GESTIÓN SANCIONES</h1>
+            <h1 class="header-title-centered">GESTIÓN SANCIONES</h1>
             <a href="{% url 'home' %}" class="logo-link">
                 <img src="{% static 'imagenes/Logo_inicio.png' %}" alt="Logo" class="cover-pic">
             </a>
