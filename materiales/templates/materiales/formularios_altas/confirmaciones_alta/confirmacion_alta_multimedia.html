@@ -265,7 +265,7 @@
             {% if form_data.multimedia_list %}
                 {% for multimedia in form_data.multimedia_list %}
                 <div class="ejemplar-info">
-                    <h6>{{ multimedia.tipo }} - {{ forloop.counter }}</h6>
+                    <h6>{{ multimedia.tipo }}</h6>
                     <!-- Segunda fila: Título del Contenido y Enlace -->
                     <div class="row mb-3">
                         <div class="col-md-6">
@@ -292,9 +292,9 @@
                 </div>
                 {% endfor %}
             {% else %}
-                <!-- Fallback para datos básicos -->
+                <!-- Fallback para datos básicos cuando no hay multimedia_list -->
                 <div class="ejemplar-info">
-                    <h6>Principal - 1</h6>
+                    <h6>Material 1</h6>
                     <!-- Segunda fila: Título del Contenido y Enlace -->
                     <div class="row mb-3">
                         <div class="col-md-6">
@@ -333,12 +333,41 @@
 
 {% block extra_scripts %}
 <script>
+// Código de depuración para verificar los datos recibidos
+console.log('🔍 Datos recibidos en confirmación multimedia:');
+console.log('form_data completo:', {{ form_data|safe }});
+
+// Verificar todas las propiedades de form_data
+const formData = {{ form_data|safe }};
+console.log('📊 Propiedades de form_data:', Object.keys(formData));
+
+{% if form_data.multimedia_list %}
+    console.log('📋 multimedia_list encontrada con {{ form_data.multimedia_list|length }} elementos:');
+    {% for item in form_data.multimedia_list %}
+        console.log('Elemento {{ forloop.counter }}:', {
+            titulo: '{{ item.titulo_contenido|default:"Sin título" }}',
+            url: '{{ item.ingresar_enlace|default:"Sin URL" }}',
+            tipo: '{{ item.tipo|default:"Sin tipo" }}',
+            item_completo: {{ item|safe }}
+        });
+    {% endfor %}
+{% else %}
+    console.log('❌ No se encontró multimedia_list en form_data');
+    console.log('📋 Verificando si hay multimedia_list vacía...');
+    if (formData.multimedia_list !== undefined) {
+        console.log('multimedia_list existe pero está vacía:', formData.multimedia_list);
+    }
+{% endif %}
+
 // Variables globales para debugging
 let modalInstance = null;
 let isModalShown = false;
 
 document.addEventListener('DOMContentLoaded', function() {
     console.log('🚀 Página de confirmación MULTIMEDIA cargada');
+    
+    // El template Django ya maneja la visualización de elementos dinámicos correctamente
+    // No necesitamos buscar contenedores adicionales
     console.log('📋 Datos recibidos:', {
         profesor: '{{ form_data.profesor|escapejs }}',
         carrera: '{{ form_data.carrera|escapejs }}',
@@ -347,6 +376,20 @@ document.addEventListener('DOMContentLoaded', function() {
         ingresar_enlace: {% if form_data.ingresar_enlace %}'{{ form_data.ingresar_enlace|escapejs }}'{% else %}null{% endif %},
         multimedia_list: {% if form_data.multimedia_list %}{{ form_data.multimedia_list|safe }}{% else %}[]{% endif %}
     });
+    
+    // Debug adicional para multimedia_list
+    {% if form_data.multimedia_list %}
+        console.log('📦 Multimedia list encontrada con {{ form_data.multimedia_list|length }} elementos:');
+        {% for multimedia in form_data.multimedia_list %}
+            console.log('📋 Elemento {{ forloop.counter }}:', {
+                tipo: '{{ multimedia.tipo|escapejs }}',
+                titulo_contenido: '{{ multimedia.titulo_contenido|escapejs }}',
+                ingresar_enlace: '{{ multimedia.ingresar_enlace|escapejs }}'
+            });
+        {% endfor %}
+    {% else %}
+        console.log('❌ No se encontró multimedia_list en form_data');
+    {% endif %}
     
     // Verificar que Bootstrap está disponible
     if (typeof bootstrap === 'undefined') {

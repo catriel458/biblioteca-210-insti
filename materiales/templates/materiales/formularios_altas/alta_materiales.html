@@ -261,15 +261,83 @@ document.addEventListener("DOMContentLoaded", function () {
                     return response.text();
                 })
                 .then(html => {
-                    formularioEspecifico.innerHTML = html;
+                    console.log('📄 HTML recibido, longitud:', html.length);
+                    
+                    // 🔍 DEBUGGING EXHAUSTIVO DEL HTML RECIBIDO
+                    console.log('🔍 Primeros 500 caracteres del HTML:', html.substring(0, 500));
+                    console.log('🔍 ¿Contiene form_alta_multimedia?', html.includes('form_alta_multimedia'));
+                    console.log('🔍 ¿Contiene id="form_alta_multimedia"?', html.includes('id="form_alta_multimedia"'));
+                    
+                    // 🔥 SOLUCIÓN: Extraer solo el contenido interno del form para evitar formularios anidados
+                    const tempDiv = document.createElement('div');
+                    tempDiv.innerHTML = html;
+                    
+                    // Buscar el formulario en el HTML temporal
+                    const tempForm = tempDiv.querySelector('#form_alta_multimedia') || tempDiv.querySelector('form[data-form-id="multimedia"]');
+                    
+                    if (tempForm) {
+                        // Extraer solo el contenido interno del formulario (sin el tag <form>)
+                        const formContent = tempForm.innerHTML;
+                        console.log('✅ Contenido del formulario extraído, longitud:', formContent.length);
+                        
+                        // Insertar el contenido en el formulario principal
+                        formularioEspecifico.innerHTML = formContent;
+                        
+                        // Establecer el data-form-type para identificación
+                        formularioEspecifico.setAttribute('data-form-type', 'multimedia');
+                        
+                        console.log('🔍 Contenido insertado en formularioEspecifico');
+                    } else {
+                        console.error('❌ No se encontró el formulario en el HTML recibido');
+                        formularioEspecifico.innerHTML = html; // Fallback al método anterior
+                    }
+                    
                     buttonsContainer.style.display = 'flex';
                     
-                    // 🔥 IMPORTANTE: Establecer el action correcto para multimedia
-                    const form = document.getElementById('form_alta_material');
-                    if (form) {
-                        form.action = '/alta-multimedia/';
-                        console.log('🔧 Action del formulario multimedia establecido a:', form.action);
-                    }
+                    // 🔍 DEBUGGING DEL CONTENIDO INSERTADO
+                    console.log('🔍 Contenido de formularioEspecifico después de insertar:', formularioEspecifico.innerHTML.substring(0, 500));
+                    console.log('🔍 ¿formularioEspecifico contiene form_alta_multimedia?', formularioEspecifico.innerHTML.includes('form_alta_multimedia'));
+                    
+                    // 🔥 IMPORTANTE: Usar setTimeout para asegurar que el DOM esté completamente renderizado
+                    setTimeout(() => {
+                        // 🔥 NUEVA LÓGICA: Buscar el contenedor con data-form-type="multimedia"
+                        let multimediaContainer = formularioEspecifico.querySelector('[data-form-type="multimedia"]');
+                        
+                        // Si no se encuentra en formularioEspecifico, buscar en el propio formularioEspecifico
+                        if (!multimediaContainer && formularioEspecifico.getAttribute('data-form-type') === 'multimedia') {
+                            multimediaContainer = formularioEspecifico;
+                        }
+                        
+                        console.log('🔍 Contenedor multimedia encontrado:', !!multimediaContainer);
+                        
+                        if (multimediaContainer) {
+                            // Configurar el formulario principal para multimedia
+                            const mainForm = document.getElementById('form_alta_material');
+                            if (mainForm) {
+                                mainForm.action = '/alta-multimedia/';
+                                console.log('✅✅✅ FORMULARIO PRINCIPAL CONFIGURADO PARA MULTIMEDIA');
+                                console.log('🔧 Action del formulario establecido a:', mainForm.action);
+                            }
+                            
+                            console.log('✅ Contenedor multimedia configurado correctamente');
+                            console.log('🔧 Contenedor visible:', multimediaContainer.offsetParent !== null);
+                            console.log('🔧 Contenedor en DOM:', !!multimediaContainer.parentNode);
+                        } else {
+                            console.error('❌❌❌ No se encontró el contenedor multimedia después de cargar HTML');
+                            // Debugging adicional
+                            console.log('🔍 Todos los elementos con data-form-type:');
+                            const elementsWithFormType = document.querySelectorAll('[data-form-type]');
+                            elementsWithFormType.forEach((el, index) => {
+                                console.log(`📋 Elemento ${index}:`, el.getAttribute('data-form-type'), el.tagName, el);
+                            });
+                            
+                            console.log('🔍 Todos los elementos con ID en formularioEspecifico:');
+                            const elementsWithId = formularioEspecifico.querySelectorAll('[id]');
+                            elementsWithId.forEach((el, index) => {
+                                console.log(`🆔 Elemento ${index}:`, el.id, el.tagName, el);
+                            });
+                        }
+                    }, 200); // Aumentar timeout a 200ms para mejor compatibilidad
                     
                     // Ocultar el modal de confirmación genérico ya que multimedia tiene su propio modal
                     const contenedorModal = document.getElementById('contenedor-modal-confirmacion');
@@ -282,7 +350,18 @@ document.addEventListener("DOMContentLoaded", function () {
                     setTimeout(() => {
                         initCarreraMateriaFunctionality();
                         initMultimediaFunctionality(); // Inicializar funcionalidad del botón '+'
-                    }, 100); // Pequeño delay para asegurar que el DOM esté listo
+                        
+                        // Verificar nuevamente el formulario después de la inicialización
+                        let formAfterInit = document.getElementById('form_alta_multimedia');
+                        if (!formAfterInit) {
+                            formAfterInit = formularioEspecifico.querySelector('#form_alta_multimedia') ||
+                                          formularioEspecifico.querySelector('form[data-form-id="multimedia"]');
+                        }
+                        console.log('🔍 Formulario después de inicialización:', !!formAfterInit);
+                        if (formAfterInit) {
+                            console.log('✅ Formulario disponible y listo para envío');
+                        }
+                    }, 250); // Aumentar delay para asegurar que el DOM esté completamente listo
                     
                     // No mostrar carga masiva ni URL para multimedia
                     if (uploadSimple) uploadSimple.style.display = 'none';
@@ -387,6 +466,38 @@ document.addEventListener("DOMContentLoaded", function () {
                     setTimeout(() => {
                         initCarreraMateriaFunctionality();
                         initVariosFunctionality(); // Inicializar funcionalidad del botón '+' para varios
+                        
+                        // 🔥 AGREGAR EVENT LISTENER DE SUBMIT PARA VARIOS
+                        const form = document.getElementById('form_alta_material');
+                        if (form) {
+                            // Verificar si ya tiene el event listener para evitar duplicados
+                            if (!form.hasAttribute('data-varios-submit-listener')) {
+                                form.addEventListener('submit', function(e) {
+                                    console.log('🚀 SUBMIT VARIOS - Interceptando envío del formulario');
+                                    e.preventDefault(); // Prevenir envío automático
+                                    
+                                    // Llamar a prepararEnvioFormulario para serializar los datos
+                                    if (typeof prepararEnvioFormulario === 'function') {
+                                        console.log('📤 Llamando a prepararEnvioFormulario...');
+                                        prepararEnvioFormulario();
+                                    } else {
+                                        console.error('❌ Función prepararEnvioFormulario no encontrada');
+                                    }
+                                    
+                                    // Ahora enviar el formulario normalmente
+                                    console.log('📤 Enviando formulario de varios...');
+                                    // Remover temporalmente el event listener para evitar loop infinito
+                                    form.removeAttribute('data-varios-submit-listener');
+                                    form.submit();
+                                });
+                                
+                                // Marcar que ya tiene el event listener
+                                form.setAttribute('data-varios-submit-listener', 'true');
+                                console.log('✅ Event listener de submit agregado al formulario de varios');
+                            } else {
+                                console.log('ℹ️ Event listener de submit ya existe para varios');
+                            }
+                        }
                     }, 100); // Pequeño delay para asegurar que el DOM esté listo
                     
                     // Configurar la acción del formulario para varios
@@ -989,7 +1100,45 @@ function initNotebookDynamicFunctionality() {
         `;
         
         contenedor.insertAdjacentHTML('beforeend', grupoHTML);
-        console.log('✅ Nuevo grupo agregado exitosamente');
+        
+        // Agregar event listeners para actualizar automáticamente los datos
+        const tipoInput = document.getElementById(`tipo_varios_${index}`);
+        const cantidadInput = document.getElementById(`cant_ejemplares_${index}`);
+        
+        console.log(`🔍 Elementos dinámicos encontrados para índice ${index}:`, {
+            tipoInput: tipoInput,
+            cantidadInput: cantidadInput,
+            estadoArray: window.gruposTiposVariosNuevo,
+            longitudArray: window.gruposTiposVariosNuevo.length
+        });
+        
+        if (tipoInput && cantidadInput) {
+            tipoInput.addEventListener('input', function() {
+                if (window.gruposTiposVariosNuevo[index]) {
+                    window.gruposTiposVariosNuevo[index].tipo = this.value;
+                    console.log(`🔄 Actualizado tipo del grupo ${index}:`, this.value);
+                    console.log('📊 Estado completo gruposTiposVariosNuevo:', window.gruposTiposVariosNuevo);
+                } else {
+                    console.error(`❌ No existe gruposTiposVariosNuevo[${index}]`);
+                }
+            });
+            
+            cantidadInput.addEventListener('input', function() {
+                if (window.gruposTiposVariosNuevo[index]) {
+                    window.gruposTiposVariosNuevo[index].cantidad = parseInt(this.value) || 1;
+                    console.log(`🔄 Actualizada cantidad del grupo ${index}:`, this.value);
+                    console.log('📊 Estado completo gruposTiposVariosNuevo:', window.gruposTiposVariosNuevo);
+                } else {
+                    console.error(`❌ No existe gruposTiposVariosNuevo[${index}]`);
+                }
+            });
+            
+            console.log(`✅ Event listeners agregados para grupo ${index}`);
+        } else {
+            console.error(`❌ No se encontraron los inputs para el grupo ${index}`);
+        }
+        
+        console.log('✅ Nuevo grupo agregado exitosamente con event listeners');
     }
 
     // 🎯 FUNCIÓN PARA ELIMINAR MULTIMEDIA
@@ -1053,9 +1202,45 @@ function initNotebookDynamicFunctionality() {
     function initVariosFunctionality() {
         console.log('🚀 Inicializando funcionalidad varios...');
         
-        // Inicializar gruposTiposVarios si no existe
-        if (!window.gruposTiposVarios) {
-            window.gruposTiposVarios = [];
+        // Inicializar gruposTiposVariosNuevo si no existe
+        if (!window.gruposTiposVariosNuevo) {
+            window.gruposTiposVariosNuevo = [];
+        }
+        
+        // Agregar event listeners para el formulario principal
+        const tipoVariosPrincipal = document.getElementById('tipo-varios');
+        const cantEjemplaresPrincipal = document.getElementById('cant_ejemplares');
+        
+        console.log('🔍 Elementos principales encontrados:', {
+            tipoVariosPrincipal: tipoVariosPrincipal,
+            cantEjemplaresPrincipal: cantEjemplaresPrincipal
+        });
+        
+        if (tipoVariosPrincipal && cantEjemplaresPrincipal) {
+            // Asegurar que el primer elemento del array sea el formulario principal
+            if (window.gruposTiposVariosNuevo.length === 0) {
+                window.gruposTiposVariosNuevo.push({
+                    tipo: tipoVariosPrincipal.value || '',
+                    cantidad: parseInt(cantEjemplaresPrincipal.value) || 1
+                });
+                console.log('✅ Inicializado formulario principal en gruposTiposVariosNuevo[0]:', window.gruposTiposVariosNuevo[0]);
+            }
+            
+            tipoVariosPrincipal.addEventListener('input', function() {
+                window.gruposTiposVariosNuevo[0].tipo = this.value;
+                console.log('🔄 Actualizado tipo principal:', this.value);
+                console.log('📊 Estado actual gruposTiposVariosNuevo:', window.gruposTiposVariosNuevo);
+            });
+            
+            cantEjemplaresPrincipal.addEventListener('input', function() {
+                window.gruposTiposVariosNuevo[0].cantidad = parseInt(this.value) || 1;
+                console.log('🔄 Actualizada cantidad principal:', this.value);
+                console.log('📊 Estado actual gruposTiposVariosNuevo:', window.gruposTiposVariosNuevo);
+            });
+            
+            console.log('✅ Event listeners agregados al formulario principal');
+        } else {
+            console.error('❌ No se encontraron los elementos principales del formulario');
         }
         
         // Event listener para el botón de agregar varios
@@ -1088,7 +1273,7 @@ function initNotebookDynamicFunctionality() {
             return;
         }
         
-        const index = window.gruposTiposVarios.length;
+        const index = window.gruposTiposVariosNuevo.length;
         console.log('🔢 Índice actual:', index);
         
         // Crear nuevo grupo
@@ -1097,7 +1282,7 @@ function initNotebookDynamicFunctionality() {
             cantidad: 1
         };
         
-        window.gruposTiposVarios.push(nuevoGrupo);
+        window.gruposTiposVariosNuevo.push(nuevoGrupo);
         
         // Crear HTML para el nuevo grupo con la estructura exacta especificada
         const grupoHTML = `
@@ -1130,7 +1315,45 @@ function initNotebookDynamicFunctionality() {
         `;
         
         contenedor.insertAdjacentHTML('beforeend', grupoHTML);
-        console.log('✅ Nuevo grupo agregado exitosamente');
+        
+        // Agregar event listeners para actualizar automáticamente los datos
+        const tipoInput = document.getElementById(`tipo_varios_${index}`);
+        const cantidadInput = document.getElementById(`cant_ejemplares_${index}`);
+        
+        console.log(`🔍 Elementos dinámicos encontrados para índice ${index}:`, {
+            tipoInput: tipoInput,
+            cantidadInput: cantidadInput,
+            estadoArray: window.gruposTiposVariosNuevo,
+            longitudArray: window.gruposTiposVariosNuevo.length
+        });
+        
+        if (tipoInput && cantidadInput) {
+            tipoInput.addEventListener('input', function() {
+                if (window.gruposTiposVariosNuevo[index]) {
+                    window.gruposTiposVariosNuevo[index].tipo = this.value;
+                    console.log(`🔄 Actualizado tipo del grupo ${index}:`, this.value);
+                    console.log('📊 Estado completo gruposTiposVariosNuevo:', window.gruposTiposVariosNuevo);
+                } else {
+                    console.error(`❌ No existe gruposTiposVariosNuevo[${index}]`);
+                }
+            });
+            
+            cantidadInput.addEventListener('input', function() {
+                if (window.gruposTiposVariosNuevo[index]) {
+                    window.gruposTiposVariosNuevo[index].cantidad = parseInt(this.value) || 1;
+                    console.log(`🔄 Actualizada cantidad del grupo ${index}:`, this.value);
+                    console.log('📊 Estado completo gruposTiposVariosNuevo:', window.gruposTiposVariosNuevo);
+                } else {
+                    console.error(`❌ No existe gruposTiposVariosNuevo[${index}]`);
+                }
+            });
+            
+            console.log(`✅ Event listeners agregados para grupo ${index}`);
+        } else {
+            console.error(`❌ No se encontraron los inputs para el grupo ${index}`);
+        }
+        
+        console.log('✅ Nuevo grupo agregado exitosamente con event listeners');
     }
 
     // 🎯 FUNCIÓN PARA ELIMINAR VARIOS
@@ -1138,7 +1361,7 @@ function initNotebookDynamicFunctionality() {
         console.log('🗑️ Eliminando varios con índice:', index);
         
         // Eliminar del array
-        window.gruposTiposVarios.splice(index, 1);
+        window.gruposTiposVariosNuevo.splice(index, 1);
         
         // Eliminar del DOM
         const grupo = document.querySelector(`[data-index="${index}"]`);
@@ -1221,66 +1444,214 @@ window.prepararEnvioFormulario = function() {
         });
     }
     else if (tipoMaterial === 'multimedia') {
-        // Recopilar datos de multimedia de los inputs
-        const multimediaData = [];
-        let index = 0;
+        console.log('📤 Preparando datos de multimedia dinámicos...');
         
-        // Buscar todos los grupos de multimedia
-        while (true) {
-            const urlInput = document.getElementById(`url_contenido_${index}`);
-            const tituloInput = document.getElementById(`titulo_contenido_${index}`);
+        // Recopilar datos de multimedia desde los inputs del DOM
+        const gruposMultimedia = [];
+        
+        // Buscar en el contenedor correcto donde se agregan los elementos dinámicos
+        const contenedor = document.getElementById('contenedor-tipos-multimedia');
+        
+        if (contenedor) {
+            const grupos = contenedor.querySelectorAll('.grupo-multimedia');
+            console.log(`📦 Encontrados ${grupos.length} grupos multimedia dinámicos`);
             
-            if (!urlInput || !tituloInput) break;
+            // SIEMPRE agregar primero los datos principales del formulario si tienen contenido
+            const urlPrincipal = document.getElementById('ingresar_enlace');
+            const tituloPrincipal = document.getElementById('titulo_contenido');
             
-            if (urlInput.value.trim() && tituloInput.value.trim()) {
-                multimediaData.push({
-                    url: urlInput.value.trim(),
-                    titulo: tituloInput.value.trim()
+            if (urlPrincipal && tituloPrincipal && (urlPrincipal.value.trim() || tituloPrincipal.value.trim())) {
+                console.log('📋 Agregando datos principales del formulario PRIMERO');
+                gruposMultimedia.push({
+                    url: urlPrincipal.value.trim() || '',
+                    titulo: tituloPrincipal.value.trim() || ''
                 });
             }
-            index++;
+            
+            // LUEGO agregar los elementos dinámicos si existen
+            if (grupos.length > 0) {
+                console.log('📋 Agregando elementos dinámicos DESPUÉS del formulario principal');
+                
+                grupos.forEach((grupo, index) => {
+                    console.log(`🔍 Procesando grupo ${index}:`, grupo);
+                    
+                    // Obtener el índice real del data-index
+                    const dataIndex = grupo.getAttribute('data-index');
+                    console.log(`📊 Data-index del grupo: ${dataIndex}`);
+                    
+                    const urlInput = grupo.querySelector(`input[name="ingresar_enlace_${dataIndex}"]`);
+                    const tituloInput = grupo.querySelector(`input[name="titulo_contenido_${dataIndex}"]`);
+                    
+                    console.log(`📋 Grupo dinámico ${index} (data-index: ${dataIndex}):`, {
+                        urlInput: urlInput ? urlInput.value : 'no encontrado',
+                        tituloInput: tituloInput ? tituloInput.value : 'no encontrado',
+                        urlSelector: `input[name="ingresar_enlace_${dataIndex}"]`,
+                        tituloSelector: `input[name="titulo_contenido_${dataIndex}"]`
+                    });
+                    
+                    if (urlInput && tituloInput && (urlInput.value.trim() || tituloInput.value.trim())) {
+                        gruposMultimedia.push({
+                            url: urlInput.value.trim() || '',
+                            titulo: tituloInput.value.trim() || ''
+                        });
+                        console.log(`✅ Datos agregados del grupo ${dataIndex}`);
+                    }
+                });
+            }
+        } else {
+            console.log('❌ No se encontró el contenedor contenedor-tipos-multimedia');
         }
         
         // Actualizar window.gruposTiposMultimedia
-        window.gruposTiposMultimedia = multimediaData;
+        window.gruposTiposMultimedia = gruposMultimedia;
         
-        // Serializar en el input hidden
-        const gruposMultimediaInput = document.getElementById('gruposMultimedia');
-        if (gruposMultimediaInput) {
-            gruposMultimediaInput.value = JSON.stringify(multimediaData);
+        // Serializar los datos si existe el input hidden
+        const gruposTiposMultimediaInput = document.getElementById('gruposMultimedia');
+        if (gruposTiposMultimediaInput) {
+            gruposTiposMultimediaInput.value = JSON.stringify(window.gruposTiposMultimedia);
+            console.log('📤 Datos serializados en input hidden:', gruposTiposMultimediaInput.value);
+        } else {
+            console.log('❌ No se encontró el input hidden gruposMultimedia');
         }
         
-        console.log('📤 Datos de multimedia preparados para envío:', {
-            gruposTiposMultimedia: multimediaData
+        console.log('📤 Datos de multimedia preparados:', {
+            gruposTiposMultimedia: window.gruposTiposMultimedia,
+            totalElementos: gruposMultimedia.length
         });
     }
     else if (tipoMaterial === 'varios') {
-        // Filtrar solo elementos dinámicos (excluir el primer elemento que es del formulario estático)
-        const elementosDinamicos = window.gruposTiposVariosNuevo && window.gruposTiposVariosNuevo.length > 1 
-            ? window.gruposTiposVariosNuevo.slice(1) 
-            : [];
+        console.log('🔥 === PREPARANDO ENVÍO DE VARIOS ===');
+        console.log('📊 Estado inicial del array gruposTiposVariosNuevo:', window.gruposTiposVariosNuevo);
+        console.log('📊 Longitud del array:', window.gruposTiposVariosNuevo ? window.gruposTiposVariosNuevo.length : 'undefined');
         
-        // Serializar los datos de elementos dinámicos únicamente
-        const gruposTiposVariosInput = document.getElementById('gruposTiposVariosNuevo');
-        if (gruposTiposVariosInput) {
-            gruposTiposVariosInput.value = JSON.stringify(elementosDinamicos);
-        }
+        // Verificar elementos en el DOM
+        const contenedor = document.getElementById('contenedor-tipos-varios-dinamicos');
+        const gruposDinamicos = contenedor ? contenedor.querySelectorAll('.grupo-varios') : [];
+        console.log('🔍 Grupos dinámicos en DOM:', gruposDinamicos.length);
         
-        // Agregar campos ocultos para cada tipo de grupo dinámico
-        if (elementosDinamicos.length > 0) {
-            elementosDinamicos.forEach((grupo, idx) => {
-                const tipoInput = document.createElement('input');
-                tipoInput.type = 'hidden';
-                tipoInput.name = `tipo_grupo_${idx}`;
-                tipoInput.value = grupo.tipo;
-                document.getElementById('form_alta_material').appendChild(tipoInput);
+        // Verificar cada elemento del array
+        if (window.gruposTiposVariosNuevo && window.gruposTiposVariosNuevo.length > 0) {
+            window.gruposTiposVariosNuevo.forEach((elemento, index) => {
+                console.log(`📋 Elemento ${index}:`, elemento);
             });
+        } else {
+            console.error('❌ Array gruposTiposVariosNuevo está vacío o no existe');
         }
         
-        console.log('📤 Datos de varios preparados para envío:', {
-            gruposTiposVariosNuevo: elementosDinamicos,
+        // 🔥 VERIFICACIÓN DETALLADA DEL INPUT HIDDEN
+        const gruposTiposVariosInput = document.getElementById('gruposTiposVariosNuevo');
+        console.log('🔍 Input hidden encontrado:', gruposTiposVariosInput);
+        console.log('🔍 Valor actual del input hidden ANTES de serializar:', gruposTiposVariosInput ? gruposTiposVariosInput.value : 'NO ENCONTRADO');
+        
+        // CORRECCIÓN DEFINITIVA PARA VARIOS: Los datos ya se actualizan automáticamente
+        console.log('📤 Datos de varios preparados automáticamente:', {
+            gruposTiposVariosNuevo: window.gruposTiposVariosNuevo,
+            totalElementos: window.gruposTiposVariosNuevo ? window.gruposTiposVariosNuevo.length : 0,
             sede: document.getElementById('sede-varios')?.value
         });
+        
+        // Serializar los datos actualizados automáticamente
+        if (gruposTiposVariosInput && window.gruposTiposVariosNuevo) {
+            const jsonString = JSON.stringify(window.gruposTiposVariosNuevo);
+            gruposTiposVariosInput.value = jsonString;
+            console.log('📤 JSON serializado:', jsonString);
+            console.log('📤 Longitud del JSON:', jsonString.length);
+            console.log('📤 Valor final del input hidden:', gruposTiposVariosInput.value);
+            console.log('📤 ¿El input tiene el valor correcto?', gruposTiposVariosInput.value === jsonString);
+        } else {
+            console.error('❌ No se pudo serializar:');
+            console.error('  - Input hidden encontrado:', !!gruposTiposVariosInput);
+            console.error('  - Array existe:', !!window.gruposTiposVariosNuevo);
+            console.error('  - Array tiene elementos:', window.gruposTiposVariosNuevo ? window.gruposTiposVariosNuevo.length : 0);
+        }
+    }
+};
+
+// 🚀 FUNCIÓN GLOBAL PARA ENVIAR FORMULARIO MULTIMEDIA V3 - SIN DEPENDENCIA DEL TAG FORM
+window.enviarFormularioMultimediaV3 = function() {
+    console.log('🚀🚀🚀 BOTÓN GUARDAR CLICKEADO - FUNCIÓN GLOBAL V3');
+    console.log('🔍 === NUEVA ESTRATEGIA SIN TAG FORM ===');
+    
+    try {
+        // IMPORTANTE: Preparar los datos de multimedia dinámicos antes de enviar
+        if (typeof prepararEnvioFormulario === 'function') {
+            console.log('📤 Preparando datos de multimedia dinámicos...');
+            prepararEnvioFormulario();
+        } else {
+            console.warn('⚠️ Función prepararEnvioFormulario no encontrada');
+        }
+        
+        // Buscar el contenedor del formulario multimedia
+        const contenedor = document.querySelector('[data-form-type="multimedia"]');
+        if (!contenedor) {
+            console.error('❌❌❌ CONTENEDOR NO ENCONTRADO - [data-form-type="multimedia"]');
+            alert('Error: No se pudo encontrar el contenedor multimedia');
+            return;
+        }
+        
+        console.log('✅ Contenedor encontrado:', contenedor);
+        
+        // Recolectar todos los campos de entrada
+        const campos = contenedor.querySelectorAll('input, select, textarea');
+        console.log('🔍 Campos encontrados:', campos.length);
+        
+        // Crear FormData manualmente
+        const formData = new FormData();
+        
+        // Agregar CSRF token del formulario principal
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        formData.append('csrfmiddlewaretoken', csrfToken);
+        console.log('🔐 CSRF token agregado:', csrfToken);
+        
+        // Verificar campos requeridos y recolectar datos
+        let camposVacios = [];
+        campos.forEach(campo => {
+            const valor = campo.value.trim();
+            
+            // Verificar si es requerido y está vacío
+            if (campo.hasAttribute('required') && !valor) {
+                camposVacios.push(campo.name || campo.id);
+            }
+            
+            // Agregar al FormData si tiene nombre
+            if (campo.name) {
+                formData.append(campo.name, valor);
+                console.log(`📋 ${campo.name}: ${valor}`);
+            }
+        });
+        
+        if (camposVacios.length > 0) {
+            console.warn('⚠️ Campos requeridos vacíos:', camposVacios);
+            alert('Por favor complete los siguientes campos requeridos: ' + camposVacios.join(', '));
+            return;
+        }
+        
+        console.log('✅ Todos los campos requeridos están completos');
+        console.log('📤📤📤 ENVIANDO DATOS A /alta-multimedia/');
+        
+        // Crear un formulario temporal para envío tradicional (permite modal de confirmación)
+        const tempForm = document.createElement('form');
+        tempForm.method = 'POST';
+        tempForm.action = '/alta-multimedia/';
+        tempForm.style.display = 'none';
+        
+        // Agregar todos los datos del FormData al formulario temporal
+        for (let [key, value] of formData.entries()) {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = key;
+            input.value = value;
+            tempForm.appendChild(input);
+        }
+        
+        // Agregar al DOM y enviar
+        document.body.appendChild(tempForm);
+        console.log('📤📤📤 ENVIANDO FORMULARIO TRADICIONAL PARA MODAL DE CONFIRMACIÓN');
+        tempForm.submit();
+        
+    } catch (error) {
+        console.error('💥💥💥 ERROR EN enviarFormularioMultimediaV3:', error);
+        alert('Error al procesar el formulario: ' + error.message);
     }
 };
 </script>

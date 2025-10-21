@@ -2292,41 +2292,83 @@ def alta_multimedia(request):
                 
                 # Procesar datos dinámicos de multimedia
                 multimedia_list = []
+                material_counter = 1  # Contador para la numeración secuencial
                 
-                # Agregar el elemento principal (del formulario básico)
-                if form_data['titulo_contenido'] or form_data['ingresar_enlace']:
-                    multimedia_list.append({
-                        'titulo_contenido': form_data['titulo_contenido'],
-                        'ingresar_enlace': form_data['ingresar_enlace'],
-                        'tipo': 'Principal'
-                    })
-                
-                # Procesar elementos dinámicos
+                # Procesar elementos dinámicos primero
                 grupos_multimedia_json = request.POST.get('gruposMultimedia', '[]')
                 print(f"📦 Datos dinámicos recibidos: {grupos_multimedia_json}")
+                print(f"📦 Tipo de datos recibidos: {type(grupos_multimedia_json)}")
+                print(f"📦 Longitud de datos recibidos: {len(grupos_multimedia_json)}")
+                
+                elementos_dinamicos_validos = []
                 
                 try:
                     grupos_multimedia = json.loads(grupos_multimedia_json)
                     print(f"📦 Grupos multimedia parseados: {grupos_multimedia}")
+                    print(f"📦 Tipo de grupos parseados: {type(grupos_multimedia)}")
+                    print(f"📦 Cantidad de grupos parseados: {len(grupos_multimedia)}")
                     
                     for i, grupo in enumerate(grupos_multimedia):
-                        titulo_key = f'titulo_contenido_{i}'
-                        enlace_key = f'ingresar_enlace_{i}'
+                        print(f"📋 Grupo {i} completo: {grupo}")
+                        print(f"📋 Tipo del grupo {i}: {type(grupo)}")
+                        print(f"📋 Claves del grupo {i}: {list(grupo.keys()) if isinstance(grupo, dict) else 'No es dict'}")
                         
-                        titulo = request.POST.get(titulo_key, '').strip()
-                        enlace = request.POST.get(enlace_key, '').strip()
+                        # Obtener datos directamente del JSON parseado
+                        titulo = grupo.get('titulo', '').strip()
+                        enlace = grupo.get('url', '').strip()
                         
                         print(f"📋 Procesando grupo {i}: titulo='{titulo}', enlace='{enlace}'")
                         
+                        # SOLUCIÓN DEFINITIVA: Validación más estricta pero inclusiva
+                        # Aceptar elementos que tengan al menos título O enlace (no ambos vacíos)
                         if titulo or enlace:
-                            multimedia_list.append({
+                            multimedia_item = {
                                 'titulo_contenido': titulo,
                                 'ingresar_enlace': enlace,
-                                'tipo': 'Adicional'
-                            })
+                                'tipo': f'Material {material_counter}'
+                            }
+                            elementos_dinamicos_validos.append(multimedia_item)
+                            material_counter += 1  # Incrementar contador para el siguiente material
+                            print(f"✅ Elemento dinámico válido encontrado: {multimedia_item}")
+                        else:
+                            print(f"❌ Grupo {i} no agregado - ambos campos vacíos")
                             
                 except json.JSONDecodeError as e:
                     print(f"❌ Error al parsear JSON de grupos multimedia: {e}")
+                
+                # SOLUCIÓN DEFINITIVA FINAL: Lógica simplificada y correcta
+                print(f"🔍 Elementos dinámicos válidos encontrados: {len(elementos_dinamicos_validos)}")
+                print(f"🔍 Datos formulario principal: titulo='{form_data['titulo_contenido']}', enlace='{form_data['ingresar_enlace']}'")
+                
+                if elementos_dinamicos_validos:
+                    # CASO 1: Hay elementos dinámicos válidos
+                    # El frontend SIEMPRE incluye el formulario principal como primer elemento
+                    # Por lo tanto, usar TODOS los elementos dinámicos
+                    multimedia_list = elementos_dinamicos_validos
+                    print(f"✅ CASO 1: Usando TODOS los {len(multimedia_list)} elementos dinámicos (frontend incluye principal)")
+                    
+                elif form_data['titulo_contenido'].strip() or form_data['ingresar_enlace'].strip():
+                    # CASO 2: Solo formulario principal, sin elementos dinámicos
+                    multimedia_list.append({
+                        'titulo_contenido': form_data['titulo_contenido'],
+                        'ingresar_enlace': form_data['ingresar_enlace'],
+                        'tipo': 'Material 1'
+                    })
+                    print(f"✅ CASO 2: Usando solo formulario principal como Material 1")
+                    
+                else:
+                    # CASO 3: No hay datos válidos
+                    print(f"❌ CASO 3: No hay datos válidos ni en formulario principal ni en elementos dinámicos")
+                
+                # Renumerar todos los elementos secuencialmente
+                for i, elemento in enumerate(multimedia_list, 1):
+                    elemento['tipo'] = f'Material {i}'
+                
+                print(f"✅ Lista final con {len(multimedia_list)} elementos renumerados secuencialmente")
+                
+                # Verificar que hay al menos un elemento
+                if not multimedia_list:
+                    print(f"❌ No hay datos válidos ni en formulario principal ni en elementos dinámicos")
                 
                 # Agregar la lista de multimedia a form_data
                 form_data['multimedia_list'] = multimedia_list
@@ -2402,25 +2444,61 @@ def guardar_alta_multimedia(request):
             form_data = request.session['multimedia_data']
             print(f"📋 Datos de sesión: {form_data}")  # Debug
             
-            # Crear objeto Multimedia con todos los campos necesarios
-            multimedia = Multimedia(
-                estado='Disponible',
-                profesor=form_data.get('profesor', ''),
-                carrera=form_data.get('carrera', ''),
-                materia=form_data.get('materia', ''),
-                ingresar_enlace=form_data.get('ingresar_enlace', ''),
-                titulo_contenido=form_data.get('titulo_contenido', ''),
-                sede='La Plata'  # Agregar campo sede con valor por defecto
-            )
+            # Obtener datos comunes
+            profesor = form_data.get('profesor', '')
+            carrera = form_data.get('carrera', '')
+            materia = form_data.get('materia', '')
             
-            # GUARDAR EN BASE DE DATOS
-            multimedia.save()
-            print(f"✅ Multimedia guardado en BD con ID: {multimedia.id_multi}")  # Debug
+            # Obtener lista de multimedia
+            multimedia_list = form_data.get('multimedia_list', [])
+            print(f"📦 Lista de multimedia a guardar: {multimedia_list}")
+            
+            multimedia_guardados = []
+            
+            if multimedia_list:
+                # Guardar cada elemento de la lista
+                for i, multimedia_data in enumerate(multimedia_list):
+                    print(f"💾 Guardando elemento {i+1}: {multimedia_data}")
+                    
+                    multimedia = Multimedia(
+                        estado='Disponible',
+                        profesor=profesor,
+                        carrera=carrera,
+                        materia=materia,
+                        ingresar_enlace=multimedia_data.get('ingresar_enlace', ''),
+                        titulo_contenido=multimedia_data.get('titulo_contenido', ''),
+                        sede='La Plata'  # Agregar campo sede con valor por defecto
+                    )
+                    
+                    # GUARDAR EN BASE DE DATOS
+                    multimedia.save()
+                    multimedia_guardados.append(multimedia)
+                    print(f"✅ Multimedia {i+1} guardado en BD con ID: {multimedia.id_multi}")
+            else:
+                # Fallback: guardar datos básicos si no hay lista
+                print("⚠️ No hay multimedia_list, guardando datos básicos")
+                multimedia = Multimedia(
+                    estado='Disponible',
+                    profesor=profesor,
+                    carrera=carrera,
+                    materia=materia,
+                    ingresar_enlace=form_data.get('ingresar_enlace', ''),
+                    titulo_contenido=form_data.get('titulo_contenido', ''),
+                    sede='La Plata'
+                )
+                multimedia.save()
+                multimedia_guardados.append(multimedia)
+                print(f"✅ Multimedia básico guardado en BD con ID: {multimedia.id_multi}")
             
             # Limpiar sesión
             del request.session['multimedia_data']
             
-            # messages.success(request, f'✅ Multimedia "{multimedia.titulo_contenido}" registrado exitosamente.')
+            # Mensaje de éxito
+            if len(multimedia_guardados) > 1:
+                messages.success(request, f'✅ {len(multimedia_guardados)} elementos multimedia registrados exitosamente.')
+            else:
+                messages.success(request, f'✅ Multimedia "{multimedia_guardados[0].titulo_contenido}" registrado exitosamente.')
+            
             return redirect('alta_materiales')
             
         except Exception as e:
@@ -2472,10 +2550,21 @@ def confirmacion_alta_varios(request):
     print("🎯 Llegó a confirmacion_alta_varios")  # Debug
     
     if request.method == 'POST':
+        # 🔥 LOGS DE DEPURACIÓN DETALLADOS
+        print("🔥 === DATOS POST COMPLETOS RECIBIDOS ===")
+        print(f"🔥 Todas las claves POST: {list(request.POST.keys())}")
+        print(f"🔥 Todos los valores POST: {dict(request.POST)}")
+        print("🔥 =====================================")
+        
         # Obtener datos básicos
         cant_ejemplares = request.POST.get('cant_ejemplares')
         sede_varios = request.POST.get('sede_varios')
         tipo_varios = request.POST.get('tipo_varios')
+        
+        print(f"🔍 Datos básicos extraídos:")
+        print(f"  - cant_ejemplares: '{cant_ejemplares}'")
+        print(f"  - sede_varios: '{sede_varios}'")
+        print(f"  - tipo_varios: '{tipo_varios}'")
         
         # Mapeo de sede
         sede_mapping = {
@@ -2489,6 +2578,8 @@ def confirmacion_alta_varios(request):
         grupos_tipos_json = request.POST.get('gruposTiposVariosNuevo', '[]')
         
         print(f"🔍 gruposTiposVariosNuevo JSON recibido: '{grupos_tipos_json}'")  # Debug
+        print(f"🔍 Tipo de dato recibido: {type(grupos_tipos_json)}")
+        print(f"🔍 Longitud del string JSON: {len(grupos_tipos_json) if grupos_tipos_json else 0}")  # Debug
         
         try:
             grupos_tipos_data = json.loads(grupos_tipos_json) if grupos_tipos_json else []
@@ -2498,12 +2589,12 @@ def confirmacion_alta_varios(request):
         
         print(f"📋 Grupos tipos data decodificados: {grupos_tipos_data}")  # Debug
         
-        # APLICAR SLICE(1) PARA PROCESAR SOLO ELEMENTOS DINÁMICOS (excluir el primer elemento estático)
-        elementos_dinamicos = grupos_tipos_data[1:] if len(grupos_tipos_data) > 1 else []
-        print(f"🔄 Elementos dinámicos después de slice(1): {elementos_dinamicos}")  # Debug
+        # CORRECCIÓN DEFINITIVA PARA VARIOS: Procesar TODOS los elementos (principal + dinámicos)
+        elementos_todos = grupos_tipos_data if grupos_tipos_data else []
+        print(f"🔄 Procesando TODOS los elementos de VARIOS: {elementos_todos}")  # Debug
         
-        # Procesar cada grupo de tipos dinámicos
-        for grupo_idx, grupo_data in enumerate(elementos_dinamicos):
+        # Procesar cada grupo de tipos (principal + dinámicos)
+        for grupo_idx, grupo_data in enumerate(elementos_todos):
             tipo_grupo = grupo_data.get('tipo', '')
             cantidad_grupo = grupo_data.get('cantidad', 0)
             
@@ -2511,19 +2602,18 @@ def confirmacion_alta_varios(request):
             
             ejemplares = []
             
-            # Buscar ejemplares dinámicos para este grupo
+            # Buscar ejemplares para este grupo
             for ejemplar_idx in range(int(cantidad_grupo)):
-                # CORREGIR: Usar el índice original del array completo (grupo_idx + 1 porque aplicamos slice(1))
-                indice_original = grupo_idx + 1
-                registro_key = f'varios_{indice_original}_{ejemplar_idx}_registro'
-                denominacion_key = f'varios_{indice_original}_{ejemplar_idx}_denominacion'
-                descripcion_key = f'varios_{indice_original}_{ejemplar_idx}_descripcion'
+                # Usar el índice directo del array (ya no aplicamos slice)
+                registro_key = f'varios_{grupo_idx}_{ejemplar_idx}_registro'
+                denominacion_key = f'varios_{grupo_idx}_{ejemplar_idx}_denominacion'
+                descripcion_key = f'varios_{grupo_idx}_{ejemplar_idx}_descripcion'
                 
                 registro = request.POST.get(registro_key, '')
                 denominacion = request.POST.get(denominacion_key, '')
                 descripcion = request.POST.get(descripcion_key, '')
                 
-                print(f"  📝 Ejemplar {ejemplar_idx}: registro='{registro}', denominacion='{denominacion}', descripcion='{descripcion}' (índice original: {indice_original})")  # Debug
+                print(f"  📝 Ejemplar {ejemplar_idx}: registro='{registro}', denominacion='{denominacion}', descripcion='{descripcion}' (grupo: {grupo_idx})")  # Debug
                 
                 if registro or denominacion or descripcion:
                     ejemplares.append({
@@ -2534,9 +2624,9 @@ def confirmacion_alta_varios(request):
                         'disponibilidad': 'Disponible'
                     })
             
-            # Si no se encontraron ejemplares dinámicos, crear uno básico usando los datos de gruposTiposVariosNuevo
+            # Si no se encontraron ejemplares específicos, crear uno básico usando los datos de gruposTiposVariosNuevo
             if not ejemplares and cantidad_grupo > 0:
-                print(f"  ⚠️ No se encontraron ejemplares dinámicos para grupo {grupo_idx}, creando básicos")  # Debug
+                print(f"  ⚠️ No se encontraron ejemplares específicos para grupo {grupo_idx}, creando básicos")  # Debug
                 # Usar los datos de gruposTiposVariosNuevo para crear los tipos
                 for i in range(int(cantidad_grupo)):
                     ejemplares.append({

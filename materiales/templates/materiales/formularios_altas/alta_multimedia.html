@@ -72,7 +72,7 @@
     <div class="row mt-4">
         <div class="col-12 text-end">
             <a href="{% url 'alta_materiales' %}" class="btn btn-secondary me-2">Cancelar</a>
-            <button type="submit" class="btn btn-primary" onclick="prepararEnvioFormulario()">Guardar</button>
+            <button type="button" class="btn btn-primary" onclick="window.enviarFormularioMultimediaV3()">Guardar</button>
         </div>
     </div>
     <!-- Fin de botones -->
@@ -517,41 +517,82 @@
     }
 
     // Función para preparar el envío del formulario de multimedia
-    function prepararEnvioFormulario() {
+    window.prepararEnvioFormulario = function() {
         console.log('📤 Preparando envío del formulario de multimedia...');
         
         // Recopilar datos de multimedia desde los inputs del DOM
         const gruposMultimedia = [];
-        const contenedor = document.getElementById('contenedor-ejemplares-multimedia');
+        
+        // Primero, agregar los datos principales del formulario si tienen contenido
+        const urlPrincipal = document.getElementById('ingresar_enlace');
+        const tituloPrincipal = document.getElementById('titulo_contenido');
+        
+        if (urlPrincipal && tituloPrincipal && (urlPrincipal.value.trim() || tituloPrincipal.value.trim())) {
+            console.log('📋 Agregando datos principales del formulario');
+            gruposMultimedia.push({
+                url: urlPrincipal.value.trim() || '',
+                titulo: tituloPrincipal.value.trim() || ''
+            });
+        }
+        
+        // Buscar en el contenedor correcto donde se agregan los elementos dinámicos
+        const contenedor = document.getElementById('contenedor-tipos-multimedia');
         
         if (contenedor) {
             const grupos = contenedor.querySelectorAll('.grupo-multimedia');
+            console.log(`📦 Encontrados ${grupos.length} grupos multimedia dinámicos`);
+            console.log('🔍 Contenedor HTML:', contenedor.innerHTML);
+            
             grupos.forEach((grupo, index) => {
-                const urlInput = grupo.querySelector(`input[name="ingresar_enlace_${index}"]`);
-                const tituloInput = grupo.querySelector(`input[name="titulo_contenido_${index}"]`);
+                console.log(`🔍 Procesando grupo ${index}:`, grupo);
                 
-                if (urlInput && tituloInput) {
+                // Obtener el índice real del data-index
+                const dataIndex = grupo.getAttribute('data-index');
+                console.log(`📊 Data-index del grupo: ${dataIndex}`);
+                
+                const urlInput = grupo.querySelector(`input[name="ingresar_enlace_${dataIndex}"]`);
+                const tituloInput = grupo.querySelector(`input[name="titulo_contenido_${dataIndex}"]`);
+                
+                console.log(`📋 Grupo dinámico ${index} (data-index: ${dataIndex}):`, {
+                    urlInput: urlInput ? urlInput.value : 'no encontrado',
+                    tituloInput: tituloInput ? tituloInput.value : 'no encontrado',
+                    urlSelector: `input[name="ingresar_enlace_${dataIndex}"]`,
+                    tituloSelector: `input[name="titulo_contenido_${dataIndex}"]`
+                });
+                
+                if (urlInput && tituloInput && (urlInput.value.trim() || tituloInput.value.trim())) {
                     gruposMultimedia.push({
-                        url: urlInput.value || '',
-                        titulo: tituloInput.value || ''
+                        url: urlInput.value.trim() || '',
+                        titulo: tituloInput.value.trim() || ''
                     });
+                    console.log(`✅ Datos agregados del grupo ${dataIndex}`);
+                } else {
+                    console.log(`❌ No se agregaron datos del grupo ${dataIndex} - campos vacíos o no encontrados`);
                 }
             });
+        } else {
+            console.log('❌ No se encontró el contenedor contenedor-tipos-multimedia');
         }
         
         // Actualizar window.gruposTiposMultimedia
         window.gruposTiposMultimedia = gruposMultimedia;
         
         // Serializar los datos si existe el input hidden
-        const gruposTiposMultimediaInput = document.getElementById('gruposTiposMultimedia');
+        const gruposTiposMultimediaInput = document.getElementById('gruposMultimedia');
         if (gruposTiposMultimediaInput) {
             gruposTiposMultimediaInput.value = JSON.stringify(window.gruposTiposMultimedia);
+            console.log('📤 Datos serializados en input hidden:', gruposTiposMultimediaInput.value);
+        } else {
+            console.log('❌ No se encontró el input hidden gruposMultimedia');
         }
         
         console.log('📤 Datos de multimedia preparados:', {
-            gruposTiposMultimedia: window.gruposTiposMultimedia
+            gruposTiposMultimedia: window.gruposTiposMultimedia,
+            totalElementos: gruposMultimedia.length
         });
     }
+
+    // Función local eliminada - ahora se usa la función global enviarFormularioMultimediaV2
     
     // Inicializar cuando el DOM esté listo
     document.addEventListener('DOMContentLoaded', function() {
@@ -559,3 +600,4 @@
         inicializarFuncionalidadMultimedia();
     });
 </script>
+</form>
