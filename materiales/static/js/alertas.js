@@ -129,31 +129,52 @@ function confirmarVaciarCampos() {
 // Función para vaciar los campos del formulario
 function vaciarCamposFormulario() {
     let formulario_elegido= $('#tipo_material').val();
+    console.log("Vaciando campos del formulario tipo: " + formulario_elegido);
+    
+    // Para el caso de proyector, vamos a usar un enfoque directo
+    if (formulario_elegido === 'proyector') {
+        console.log("Formulario proyector seleccionado - usando método directo");
+        // Resetear todos los inputs visibles en el formulario actual
+        $('input:visible').not('[type="button"], [type="submit"]').val('');
+        $('select:visible').prop('selectedIndex', 0);
+        $('textarea:visible').val('');
+        
+        // Mantener el tipo de material como proyector
+        $('#tipo_material').val('proyector');
+        
+        // Resetear a valores por defecto específicos
+        $('#cant_ejemplares').val('1');
+        
+        console.log('✅ Campos del formulario proyector vaciados correctamente');
+        return;
+    }
+    
+    // Para los demás tipos de materiales, seguir con el switch original
     switch (formulario_elegido) {
-        case 'proyector':
-            console.log("Formulario 1 seleccionado");
-            borrarProyector();
-            break;
         case 'notebook':
-            console.log("Formulario 2 seleccionado");
+            console.log("Formulario notebook seleccionado");
             borrarNotebook();
             break;
         case 'multimedia':
-            console.log("Formulario 3 seleccionado");
+            console.log("Formulario multimedia seleccionado");
             borrarMultimedia();
             break;
         case 'varios':
-            console.log("Formulario 4 seleccionado");
+            console.log("Formulario varios seleccionado");
             borrarVarios();
             break;
         case 'mapa':
-            console.log("Formulario 4 seleccionado");
+            console.log("Formulario mapa seleccionado");
             borrarMapa();
             break;
         case 'programa':
-            console.log("Formulario 5 seleccionado");
+            console.log("Formulario programa seleccionado");
             borrarPrograma();
-            break;            
+            break;    
+        case 'libro':
+            console.log("Formulario libro seleccionado");
+            borrarLibro();
+            break;  
         default:
             console.log("Formulario no reconocido");
             break;
@@ -387,41 +408,51 @@ function borrarNotebook(){
 }
 
 function borrarProyector() {
-    // Intentar encontrar el formulario de diferentes maneras
-    let formulario = document.getElementById('alta-proyector-form');
-    // Si no lo encuentra por ID, buscar por selector más general
-    if (!formulario) {
-        formulario = document.querySelector('form[data-form-type="proyector"]');
+    console.log('Limpiando campos del formulario proyector...');
+    
+    // Intentar encontrar el formulario - usar document.forms para mayor compatibilidad
+    const forms = document.forms;
+    let form = null;
+    
+    // Buscar el formulario por su ID o por atributos
+    for (let i = 0; i < forms.length; i++) {
+        if (forms[i].id === 'alta-proyector-form' || 
+            (forms[i].querySelector('[data-form-type="proyector"]'))) {
+            form = forms[i];
+            break;
+        }
     }
-    // Si aún no lo encuentra, buscar cualquier formulario en la página
-    if (!formulario) {
-        formulario = document.querySelector('form');
-    }
-    if (formulario) {
-        console.log('Formulario encontrado:', formulario);  
+    
+    if (form) {
+        console.log('Formulario de proyector encontrado');
         // Resetear el formulario completo primero
-        formulario.reset();
-        // Luego forzar el reseteo manual de campos específicos
-        // Limpiar inputs de texto y número
-        const inputs = formulario.querySelectorAll('input[type="text"], input[type="number"], input[type="email"], input[type="tel"], input[type="date"]');
+        form.reset();
+        
+        // Mantener seleccionado "proyector" en el select tipo_material
+        const tipoMaterial = document.getElementById('tipo_material');
+        if (tipoMaterial) {
+            tipoMaterial.value = 'proyector';
+            console.log('Tipo de material mantenido como "proyector"');
+        }
+        const inputs = form.querySelectorAll('input[type="text"], input[type="number"], input[type="email"], input[type="tel"], input[type="date"]');
         inputs.forEach(input => {
             input.value = '';
         });
         
         // Resetear selects a su valor por defecto
-        const selects = formulario.querySelectorAll('select');
+        const selects = form.querySelectorAll('select');
         selects.forEach(select => {
             select.selectedIndex = 0;
         });
         
         // Limpiar textareas
-        const textareas = formulario.querySelectorAll('textarea');
+        const textareas = form.querySelectorAll('textarea');
         textareas.forEach(textarea => {
             textarea.value = '';
         });
         
         // Desmarcar checkboxes y radio buttons
-        const checkboxesRadios = formulario.querySelectorAll('input[type="checkbox"], input[type="radio"]');
+        const checkboxesRadios = form.querySelectorAll('input[type="checkbox"], input[type="radio"]');
         checkboxesRadios.forEach(input => {
             input.checked = false;
         });
@@ -455,8 +486,8 @@ function borrarProyector() {
         console.log('Elementos disponibles:', document.querySelectorAll('form'));
     }
     
-    // Cerrar el modal
-    ocultarModalAlerta();
+    // No cerramos el modal aquí, ya que confirmarModal() se encargará de cerrarlo
+    // ocultarModalAlerta();
 }
 
 function borrarMultimedia() {
@@ -513,6 +544,104 @@ function borrarMultimedia() {
         }
 
         console.log('✅ Campos del formulario multimedia vaciados correctamente');
+}
+
+function borrarLibro() {
+    console.log('Limpiando campos del formulario libro...');
+    
+    // Intentar encontrar el formulario
+    const form = document.getElementById('form_alta_material');
+    
+    if (form) {
+        // Resetear el formulario completo primero
+        form.reset();
+        
+        // Mantener seleccionado "libro" en el select tipo_material
+        const tipoMaterial = document.getElementById('tipo_material');
+        if (tipoMaterial) {
+            tipoMaterial.value = 'libro';
+            console.log('Tipo de material mantenido como "libro"');
+        }
+        
+        // Limpiar campos principales
+        const titulo = form.querySelector('[name="titulo"]');
+        if (titulo) {
+            titulo.value = '';
+        }
+        
+        const autor = form.querySelector('[name="autor"]');
+        if (autor) {
+            autor.value = '';
+        }
+        
+        const editorial = form.querySelector('[name="editorial"]');
+        if (editorial) {
+            editorial.value = '';
+        }
+        
+        const descripcion = form.querySelector('[name="descripcion"]');
+        if (descripcion) {
+            descripcion.value = '';
+        }
+        
+        const siglasAutorTitulo = form.querySelector('[name="siglas_autor_titulo"]');
+        if (siglasAutorTitulo) {
+            siglasAutorTitulo.value = '';
+        }
+        
+        const clasificacionCdu = form.querySelector('[name="clasificacion_cdu"]');
+        if (clasificacionCdu) {
+            clasificacionCdu.value = '';
+        }
+        
+        const etiquetaPalabraClave = form.querySelector('[name="etiqueta_palabra_clave"]');
+        if (etiquetaPalabraClave) {
+            etiquetaPalabraClave.value = '';
+        }
+        
+        // Restablecer cantidad de ejemplares a 1
+        const cantEjemplares = document.getElementById('cant_ejemplares');
+        if (cantEjemplares) {
+            cantEjemplares.value = '1';
+            
+            // Disparar evento change para actualizar los ejemplares
+            const event = new Event('change', { bubbles: true });
+            cantEjemplares.dispatchEvent(event);
+        }
+        
+        // Limpiar el contenedor de ejemplares
+        const contenedorEjemplares = document.getElementById('contenedor-ejemplares-libro');
+        if (contenedorEjemplares) {
+            // Mantener solo un ejemplar vacío
+            const ejemplaresActuales = contenedorEjemplares.querySelectorAll('.row.mb-3');
+            if (ejemplaresActuales.length > 1) {
+                // Conservar solo el primer ejemplar
+                const primerEjemplar = ejemplaresActuales[0];
+                contenedorEjemplares.innerHTML = '';
+                contenedorEjemplares.appendChild(primerEjemplar);
+                
+                // Limpiar los campos del primer ejemplar
+                const inputs = primerEjemplar.querySelectorAll('input, select, textarea');
+                inputs.forEach(input => {
+                    if (input.type !== 'hidden') {
+                        input.value = '';
+                    }
+                });
+            }
+        }
+        
+        // Si existe la función updateRowsMaterial, usarla para regenerar los ejemplares
+        if (window.updateRowsMaterial) {
+            window.updateRowsMaterial('libro');
+        }
+        
+        console.log('✅ Campos del formulario libro vaciados correctamente');
+    } else {
+        console.error('❌ No se encontró el formulario de libro');
+    }
+    
+    // Cerrar el modal de alerta
+    ocultarModalAlerta();
 }
 
 // Funciones para verificar y actualizar ejemplares (usadas en form_altas.js)

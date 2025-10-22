@@ -93,6 +93,7 @@
 {% endblock %}
 
 {% block content %}
+{% include 'modals/alertas/vaciar_campos.html' %}
 <div class="container-fluid">
     {% if success %}
         <div class="alert alert-success">{{ success }}</div>
@@ -186,7 +187,7 @@
         <!-- Botones -->
         <div class="row" style="margin-bottom: 80px;">
             <div class="col-12 d-flex justify-content-end gap-3">
-                <button type="reset" class="btn btn-outline-danger btn-sm">CANCELAR</button>
+                <button type="button" class="btn btn-outline-danger btn-sm" onclick="cancelarFormulario()">CANCELAR</button>
                 <button type="submit" class="btn btn-primary btn-sm">GUARDAR</button>
             </div>
         </div>
@@ -297,6 +298,8 @@
 {% block extra_scripts %}
 <!-- Incluir el script centralizado de form_altas.js -->
 <script src="{% static 'js/form_altas.js' %}"></script>
+<!-- Incluir el script de alertas.js para la funcionalidad de vaciar campos -->
+<script src="{% static 'js/alertas.js' %}"></script>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
