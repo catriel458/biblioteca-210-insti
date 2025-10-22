@@ -134,18 +134,7 @@ function vaciarCamposFormulario() {
     // Para el caso de proyector, vamos a usar un enfoque directo
     if (formulario_elegido === 'proyector') {
         console.log("Formulario proyector seleccionado - usando método directo");
-        // Resetear todos los inputs visibles en el formulario actual
-        $('input:visible').not('[type="button"], [type="submit"]').val('');
-        $('select:visible').prop('selectedIndex', 0);
-        $('textarea:visible').val('');
-        
-        // Mantener el tipo de material como proyector
-        $('#tipo_material').val('proyector');
-        
-        // Resetear a valores por defecto específicos
-        $('#cant_ejemplares').val('1');
-        
-        console.log('✅ Campos del formulario proyector vaciados correctamente');
+        borrarProyector();
         return;
     }
     
@@ -410,6 +399,10 @@ function borrarNotebook(){
 function borrarProyector() {
     console.log('Limpiando campos del formulario proyector...');
     
+    // Guardar el valor actual del tipo de material antes de resetear
+    const tipoMaterial = document.getElementById('tipo_material');
+    const valorTipoMaterial = tipoMaterial ? tipoMaterial.value : 'proyector';
+    
     // Intentar encontrar el formulario - usar document.forms para mayor compatibilidad
     const forms = document.forms;
     let form = null;
@@ -428,21 +421,28 @@ function borrarProyector() {
         // Resetear el formulario completo primero
         form.reset();
         
-        // Mantener seleccionado "proyector" en el select tipo_material
-        const tipoMaterial = document.getElementById('tipo_material');
+        // Restaurar el tipo de material a proyector
         if (tipoMaterial) {
-            tipoMaterial.value = 'proyector';
-            console.log('Tipo de material mantenido como "proyector"');
+            tipoMaterial.value = valorTipoMaterial;
+            console.log('Tipo de material mantenido como "' + valorTipoMaterial + '"');
+            
+            // Asegurar que se muestre el formulario correcto
+            if (window.mostrarFormulario) {
+                window.mostrarFormulario(valorTipoMaterial);
+            }
         }
+        
         const inputs = form.querySelectorAll('input[type="text"], input[type="number"], input[type="email"], input[type="tel"], input[type="date"]');
         inputs.forEach(input => {
             input.value = '';
         });
         
-        // Resetear selects a su valor por defecto
+        // Resetear selects a su valor por defecto (excepto tipo_material)
         const selects = form.querySelectorAll('select');
         selects.forEach(select => {
-            select.selectedIndex = 0;
+            if (select.id !== 'tipo_material') {
+                select.selectedIndex = 0;
+            }
         });
         
         // Limpiar textareas
