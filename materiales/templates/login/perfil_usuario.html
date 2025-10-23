@@ -1,0 +1,209 @@
+{% extends 'components/baseb.html' %}
+{% load static %}
+
+{% block title %}Mi Perfil - Biblioteca{% endblock %}
+
+{% block extra_styles %}
+    <style>
+        .profile-container {
+            max-width: 580px !important;
+            width: 580px !important;
+            margin: 5px auto 50px auto !important;
+            background-color: white;
+            padding: 20px 80px !important;
+            border-radius: 15px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        
+        .profile-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        /* Logo transparente */
+        .logo-transparente {
+            width: 100%;
+            max-width: 280px;
+            height: auto;
+            margin-bottom: 0px;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            opacity: 0.1; /* 10% transparencia = 10% opacidad */
+        }
+        
+        .profile-title {
+            font-size: 40px;
+            font-weight: bold;
+            color: #000000ff;
+            margin-bottom: 30px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 2px solid #000000;
+            padding-bottom: 5px;
+            width: 100%;
+            text-align: center;
+        }
+        
+        .profile-info {
+            text-align: left;
+        }
+        
+        .info-field {
+            margin-bottom: 20px;
+        }
+        
+        .info-field label {
+            display: block;
+            font-size: 14px;
+            font-weight: bold;
+            color: #000000ff;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+        
+        .info-field .value {
+             display: block;
+             padding: 10px 0;
+             border-bottom: 1px solid #ddd;
+             font-size: 16px;
+             color: #000000ff;
+         }
+        
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: bold;
+            margin: 5px;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: #17a2b8 !important;
+            color: white !important;
+            border-color: #17a2b8 !important;
+            width: 100% !important;
+        }
+        
+        .btn-primary:hover {
+            background: #138496 !important;
+            border-color: #138496 !important;
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+        
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #c82333;
+        }
+        
+        .actions {
+            text-align: center;
+            margin-top: 10px;
+            padding-top: 5px;
+        }
+        
+        .messages {
+            margin-bottom: 20px;
+        }
+        
+        .alert {
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+        
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        footer {
+            background-color: #004c8c;
+            color: white;
+            text-align: center;
+            padding: 10px 0;
+            font-size: 1rem;
+            margin-top: 30px;
+        }
+        
+        @media (max-width: 768px) {
+            .profile-container {
+                margin: 15px !important;
+                padding: 20px 15px !important;
+                max-width: 260px !important;
+                width: 260px !important;
+            }
+            
+            .logo-transparente {
+                width: 60px;
+                margin-bottom: 15px;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <header class="header-pantalla">
+        <h1 class="header-title-centered">MI PERFIL</h1>
+        <a href="{% url 'home' %}" class="logo-link">
+            <img src="{% static 'imagenes/Logo_inicio.png' %}" alt="Logo" class="cover-pic">
+        </a>
+    </header>
+    
+    <div class="profile-container">
+        <div class="profile-header">
+            <img src="{% static 'imagenes/registro_logo.png' %}" alt="Logo" class="logo-transparente">
+            <h2 class="profile-title">
+                {% if user.is_superuser or user.is_staff %}
+                    BIBLIOTECARIA
+                {% else %}
+                    ESTUDIANTE
+                {% endif %}
+            </h2>
+        </div>
+        
+        <div class="profile-info">
+            <div class="info-field">
+                <label>DNI</label>
+                <span class="value">{{ usuario.dni|default:"No especificado" }}</span>
+            </div>
+            
+            <div class="info-field">
+                <label>Nombre Completo</label>
+                <span class="value">{{ usuario.get_full_name|default:usuario.email }}</span>
+            </div>
+            
+            <div class="info-field">
+                <label>Email</label>
+                <span class="value">{{ usuario.email }}</span>
+            </div>
+            
+            <div class="info-field">
+                <label>Fecha de Registro</label>
+                <span class="value">{{ usuario.fecha_registro|date:"d/m/Y" }}</span>
+            </div>
+        </div>
+        
+        <div class="actions">
+            <a href="{% url 'cambiar_password' %}" class="btn btn-primary">
+                CAMBIAR CONTRASEÑA
+            </a>
+        </div>
+    </div>
+{% endblock %}

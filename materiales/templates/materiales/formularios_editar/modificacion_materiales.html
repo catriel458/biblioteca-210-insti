@@ -1,0 +1,3763 @@
+{% extends 'components/baseb.html' %}
+{% load static %}
+{% csrf_token %}
+
+<!-- Agregar esto justo después de {% load static %} en tu template -->
+<input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+{% block title %}Modificación de Materiales | Biblioteca Digital{% endblock %}
+
+{% block extra_styles %}
+<link rel="stylesheet" href="{% static 'css/modificacion_material.css' %}">
+<link rel="stylesheet" href="{% static 'css/style_form.css' %}">
+<link rel="stylesheet" href="{% static 'css/manual_modal.css' %}">
+<link rel="stylesheet" href="{% static 'css/main.css' %}">
+<link rel="stylesheet" href="{% static 'css/botones.css' %}">
+<style>
+    .page-header {
+        background: linear-gradient(135deg, #4ECDC4, #44A08D);
+        color: white;
+        padding: 1.5rem 0;
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .page-title {
+        font-size: 2rem;
+        font-weight: 600;
+        margin: 0;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .controls-row {
+        background: white;
+        padding: 1rem;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        margin-bottom: 1.5rem;
+    }
+
+    .buscar {
+        position: relative;
+        width: 100%;
+    }
+
+    .buscar input[type="text"] {
+        width: 100%;
+        padding: 8px 40px 8px 12px;
+        border: 1px solid #ddd;
+        border-radius: 20px;
+        font-size: 14px;
+        outline: none;
+        transition: border-color 0.3s ease;
+    }
+
+    .buscar input[type="text"]:focus {
+        border-color: #4ECDC4;
+        box-shadow: 0 0 0 2px rgba(78, 205, 196, 0.2);
+    }
+
+    .buscar button {
+        position: absolute;
+        right: 5px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        padding: 5px 10px;
+        cursor: pointer;
+        border-radius: 15px;
+        transition: background-color 0.3s ease;
+    }
+
+    .buscar button:hover {
+        background-color: #f0f0f0;
+    }
+
+    .icono-buscar {
+        font-size: 16px;
+    }
+
+    /* ===== ESTILOS PARA EL FILTRO DE NO DISPONIBLES ===== */
+    .mostrar-no-disponibles {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 12px;
+        background: #f8f9fa;
+        border-radius: 6px;
+        border: 1px solid #dee2e6;
+        transition: all 0.2s ease;
+    }
+
+    .mostrar-no-disponibles:hover {
+        background: #e9ecef;
+        border-color: #adb5bd;
+    }
+
+    .mostrar-no-disponibles input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+        cursor: pointer;
+        accent-color: #dc3545; /* Color rojo para indicar "no disponibles" */
+    }
+
+    .mostrar-no-disponibles label {
+        font-size: 14px;
+        font-weight: 500;
+        color: #495057;
+        cursor: pointer;
+        margin: 0;
+        user-select: none;
+    }
+
+    .mostrar-no-disponibles input[type="checkbox"]:checked + label {
+        color: #dc3545;
+        font-weight: 600;
+    }
+
+    /* Indicador visual cuando el filtro está activo */
+    .mostrar-no-disponibles input[type="checkbox"]:checked {
+        transform: scale(1.1);
+    }
+
+    .manual-button {
+        background-color: #8B1D69 !important;
+        color: white;
+        border: none;
+        padding: 8px 20px;
+        border-radius: 20px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        transition: all 0.3s ease;
+    }
+
+    .manual-button:hover {
+        background-color: #6d1552 !important;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+
+    .tipo-material-container label {
+        font-weight: 600;
+        margin-bottom: 5px;
+        display: block;
+        color: #25898D;
+    }
+
+    /* Comentamos estos estilos para que use los del main.css */
+    /*
+    .tipo-material-container select {
+        width: 100%;
+        padding: 8px 12px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 14px;
+        background: white;
+    }
+    */
+
+    /* Tabla de materiales */
+    .tabla-container {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 5px 25px rgba(0,0,0,0.1);
+        overflow: hidden;
+    }
+
+    .libros-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 14px;
+    }
+
+    .libros-table thead {
+        background: linear-gradient(135deg, #4ECDC4, #44A08D);
+        color: white;
+    }
+
+    .libros-table th {
+        padding: 15px 10px;
+        text-align: left;
+        font-weight: 600;
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .libros-table th.text-center {
+        text-align: center;
+    }
+
+    .libros-table tbody tr {
+        border-bottom: 1px solid #f0f0f0;
+        transition: all 0.2s ease;
+    }
+
+    .libros-table tbody tr:nth-child(odd) {
+        background-color: #f8f9fa;
+    }
+
+    .libros-table tbody tr:nth-child(even) {
+        background-color: white;
+    }
+
+    .libros-table tbody tr:hover {
+        background-color: #e8f8f5;
+        transform: scale(1.002);
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .libros-table td {
+        padding: 12px 10px;
+        vertical-align: middle;
+        font-size: 13px;
+    }
+
+    .titulo-cell {
+        font-weight: 600;
+        color: #2c3e50;
+        max-width: 200px;
+        word-wrap: break-word;
+    }
+
+    .disponibilidad-cell {
+        text-align: center;
+    }
+
+    .disponible {
+        background: linear-gradient(135deg, #27ae60, #2ecc71);
+        color: white;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        display: inline-block;
+        box-shadow: 0 2px 8px rgba(39, 174, 96, 0.3);
+    }
+
+    .reservado {
+        background: linear-gradient(135deg, #f39c12, #e67e22);
+        color: white;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        display: inline-block;
+        box-shadow: 0 2px 8px rgba(243, 156, 18, 0.3);
+    }
+
+    .no-disponible {
+        background: linear-gradient(135deg, #e74c3c, #c0392b);
+        color: white;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        display: inline-block;
+        box-shadow: 0 2px 8px rgba(231, 76, 60, 0.3);
+    }
+
+    .acciones-cell {
+        text-align: center;
+        white-space: nowrap;
+    }
+
+    .btn-icon {
+        background: none;
+        border: none;
+        font-size: 16px;
+        margin: 0 3px;
+        padding: 8px;
+        border-radius: 50%;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 35px;
+        height: 35px;
+    }
+
+    .btn-detalle:hover {
+        background: linear-gradient(135deg, #3498db, #2980b9);
+        color: white;
+        transform: scale(1.1);
+        box-shadow: 0 4px 12px rgba(52, 152, 219, 0.4);
+    }
+
+    .btn-editar:hover {
+        background: linear-gradient(135deg, #f39c12, #e67e22);
+        color: white;
+        transform: scale(1.1);
+        box-shadow: 0 4px 12px rgba(243, 156, 18, 0.4);
+    }
+
+    .btn-imprimir:hover {
+        background: linear-gradient(135deg, #9b59b6, #8e44ad);
+        color: white;
+        transform: scale(1.1);
+        box-shadow: 0 4px 12px rgba(155, 89, 182, 0.4);
+    }
+
+    .btn-eliminar:hover {
+        background: linear-gradient(135deg, #e74c3c, #c0392b);
+        color: white;
+        transform: scale(1.1);
+        box-shadow: 0 4px 12px rgba(231, 76, 60, 0.4);
+    }
+
+    .btn-ver-informe:hover {
+        background: linear-gradient(135deg, #34495e, #2c3e50);
+        color: white;
+        transform: scale(1.1);
+        box-shadow: 0 4px 12px rgba(52, 73, 94, 0.4);
+    }
+
+    .no-results {
+        text-align: center;
+        color: #7f8c8d;
+        font-style: italic;
+        padding: 30px;
+        font-size: 16px;
+    }
+
+    /* Estilos para libros no disponibles */
+    .libro-no-disponible {
+        opacity: 0.6;
+        background-color: #fdf2f2 !important;
+    }
+
+    .libro-no-disponible:hover {
+        background-color: #f8d7da !important;
+    }
+
+    /* Estilos para ordenamiento */
+    .ordenar-por {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .ordenar-por label {
+        font-weight: 600;
+        margin-bottom: 0;
+        color: #25898D;
+        font-size: 14px;
+        white-space: nowrap;
+    }
+
+    .ordenar-por select {
+        flex: 1;
+        padding: 8px 12px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 14px;
+        background: white;
+        min-width: 150px;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .libros-table {
+            font-size: 12px;
+        }
+        
+        .libros-table th,
+        .libros-table td {
+            padding: 8px 5px;
+        }
+        
+        .btn-icon {
+            width: 30px;
+            height: 30px;
+            font-size: 14px;
+            margin: 0 2px;
+        }
+        
+        .page-title {
+            font-size: 1.5rem;
+        }
+        
+        .controls-row {
+            padding: 0.8rem;
+        }
+    }
+
+    /* ===== ESTILOS PARA EL MODAL DE OBLEAS ===== */
+
+    /* Modal de obleas */
+    #obleasModal .modal-dialog {
+        max-width: 95%;
+        width: 1200px;
+    }
+
+    /* Estilos para las obleas */
+    .oblea {
+        width: 100px;
+        height: 140px;
+        border: 2px solid #2c3e50;
+        border-radius: 8px;
+        padding: 8px;
+        background: white;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        text-align: center;
+        font-family: 'Courier New', monospace;
+        font-weight: bold;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        position: relative;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .oblea:hover {
+        transform: scale(1.05);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+
+    .oblea .cdu {
+        font-size: 14px;
+        color: #2c3e50;
+        font-weight: 900;
+        line-height: 1.2;
+        margin-bottom: 8px;
+        padding: 4px;
+        border-bottom: 1px solid #bdc3c7;
+    }
+
+    .oblea .siglas {
+        font-size: 12px;
+        color: #34495e;
+        font-weight: 700;
+        margin-bottom: 8px;
+        word-wrap: break-word;
+        line-height: 1.1;
+    }
+
+    .oblea .ejemplar {
+        font-size: 16px;
+        color: #e74c3c;
+        font-weight: 900;
+        background: #ecf0f1;
+        padding: 4px;
+        border-radius: 4px;
+        margin-top: auto;
+    }
+
+    .oblea .eliminar {
+        position: absolute;
+        top: -8px;
+        right: -8px;
+        background: #e74c3c;
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 20px;
+        height: 20px;
+        font-size: 12px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+    .oblea .eliminar:hover {
+        background: #c0392b;
+        transform: scale(1.1);
+    }
+
+    /* Notificaciones */
+    .notificacion-obleas {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: #2ecc71;
+        color: white;
+        padding: 15px 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        z-index: 9999;
+        font-weight: 600;
+        font-size: 14px;
+        max-width: 300px;
+        animation: slideInRight 0.3s ease;
+    }
+
+    .notificacion-obleas.warning {
+        background: #f39c12;
+    }
+
+    .notificacion-obleas.info {
+        background: #3498db;
+    }
+
+    @keyframes slideInRight {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+
+    /* Botones del modal */
+    #obleasModal .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+
+    /* ===== ESTILOS PARA EL MODAL DE DAR DE ALTA ===== */
+    .modal-dar-alta .modal-content {
+        border: none;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+
+    .modal-dar-alta .modal-header {
+        background: linear-gradient(135deg, #28a745, #20c997);
+        color: white;
+        padding: 1.5rem;
+        border: none;
+        text-align: center;
+    }
+
+    .modal-dar-alta .modal-title {
+        font-weight: 700;
+        font-size: 1.1rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin: 0;
+        line-height: 1.3;
+    }
+
+    .modal-dar-alta .form-group-custom {
+        margin-bottom: 1.5rem;
+    }
+
+    .modal-dar-alta .form-group-custom label {
+        font-weight: 600;
+        color: #28a745;
+        font-size: 14px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+
+    .modal-dar-alta .form-control-custom {
+        width: 100%;
+        padding: 12px 15px;
+        border: 2px solid #e9ecef;
+        border-radius: 8px;
+        font-size: 14px;
+        transition: all 0.3s ease;
+        background: white;
+    }
+
+    .modal-dar-alta .form-control-custom:focus {
+        border-color: #28a745;
+        box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.1);
+        outline: none;
+    }
+
+    .modal-dar-alta .select-custom {
+        appearance: none;
+        background-image: url('data:image/svg+xml;charset=US-ASCII,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 4 5"><path fill="%23666" d="M2 0L0 2h4zm0 5L0 3h4z"/></svg>');
+        background-repeat: no-repeat;
+        background-position: right 12px center;
+        background-size: 12px;
+        padding-right: 40px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid">
+    <!-- Controles principales -->
+    <div class="controls-row">
+        <div class="row align-items-center">
+            <!-- Buscador -->
+            <div class="col-12 col-md-3 col-lg-2">
+                <form method="get" class="buscar">
+                    <input type="text" name="q" placeholder="Buscar por..." value="{{ request.GET.q }}" id="searchInput">
+                    <button type="submit" title="Buscar">
+                        <span class="icono-buscar">🔍</span>
+                    </button>
+                </form>
+            </div>
+
+            <!-- Espacio en blanco -->
+            <div class="col-md-3 col-lg-4 d-none d-md-block"></div>
+
+            <!-- Mostrar no disponibles -->
+            <div class="col-12 col-md-3 col-lg-2">
+                <div class="mostrar-no-disponibles">
+                    <input type="checkbox" id="mostrar_no_disponibles" name="mostrar_no_disponibles">
+                    <label for="mostrar_no_disponibles">Mostrar no disponibles</label>
+                </div>
+            </div>
+
+            <!-- Ordenar por -->
+            <div class="col-12 col-md-2 col-lg-2">
+                <div class="ordenar-por">
+                    <label for="ordenar_por">Ordenar por:</label>
+                    <select id="ordenar_por" name="ordenar_por">
+                        <option value="titulo">Título</option>
+                        <option value="autor">Autor</option>
+                        <option value="fecha">Fecha</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Manual de usuario -->
+            <div class="col-12 col-md-1 col-lg-2 text-end">
+                <button type="button" class="btn btn-dark btn-sm manual-button w-100" onclick="document.getElementById('manualModal').style.display='flex'">
+                    MANUAL
+                </button>
+            </div>
+        </div>
+
+        <!-- Segunda fila: Tipo de material -->
+        <div class="row mt-3">
+            <div class="col-12 col-md-3 col-lg-2">
+                <div class="tipo-material-container">
+                    <label for="tipo_material" class="text-input" style="color:#25898D;">Tipo de Material:</label>
+                    <select class="form-control form-control-sm" id="tipo_material" name="tipo_material">
+                        <option value="" selected>Selecciona un tipo de material</option>
+                        <option value="libro">LIBRO</option>
+                        <option value="mapa">MAPA</option>
+                        <option value="multimedia">MULTIMEDIA</option>
+                        <option value="notebook">NOTEBOOK</option>
+                        <option value="programa">PROGRAMA</option>
+                        <option value="proyector">PROYECTOR</option>
+                        <option value="varios">VARIOS</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabla de libros -->
+    <div class="tabla-container" id="libros-container" style="display: none;">
+        <table class="libros-table">
+            <thead>
+                <tr>
+                    <th class="text-center">N° Inv.</th>
+                    <th>Título</th>
+                    <th>Autor</th>
+                    <th>Editorial</th>
+                    <th>Clasificación</th>
+                    <th>Etiquetas</th>
+                    <th class="text-center">Sede</th>
+                    <th class="text-center">N° Ejemplar</th>
+                    <th>Observaciones</th>
+                    <th class="text-center">Disponibilidad</th>
+                    <th class="text-center">Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="libros-table">
+                {% if libros %}
+                    {% for libro in libros %}
+                    <tr class="libro-row{% if libro.estado == 'No disponible' %} libro-no-disponible{% endif %}" 
+                        data-estado="{{ libro.estado|lower }}"
+                        data-titulo="{{ libro.titulo|lower }}"
+                        data-autor="{{ libro.autor|lower }}"
+                        data-editorial="{{ libro.editorial|lower }}">
+                        <td class="text-center">{{ libro.id_inventario|default:'' }}</td>
+                        <td class="titulo-cell">{{ libro.titulo }}</td>
+                        <td>{{ libro.autor }}</td>
+                        <td>{{ libro.editorial }}</td>
+                        <td class="text-center">{{ libro.clasificacion_cdu|default:'' }}</td>
+                        <td>{{ libro.etiqueta_palabra_clave|default:'' }}</td>
+                        <td class="text-center">{{ libro.sede|default:'LA PLATA' }}</td>
+                        <td class="text-center">{{ libro.num_ejemplar|default:'' }}</td>
+                        <td>{{ libro.observaciones|default:'' }}</td>
+                        <td class="disponibilidad-cell">
+                            {% if libro.estado == 'Disponible' %}
+                                <span class="disponible">Disponible para préstamo</span>
+                            {% elif libro.estado == 'Reservado' %}
+                                <span class="reservado">{{ libro.estado }}</span>
+                            {% else %}
+                                <span class="no-disponible">{{ libro.estado }}</span>
+                            {% endif %}
+                        </td>
+                        <td class="acciones-cell">
+                            <button class="btn-icon btn-detalle" title="Ver detalles" onclick="verDetalles({{ libro.id_libro }})">
+                                📋
+                            </button>
+                            <a href="{% url 'editar_libro' libro.id_libro %}" class="btn-icon btn-editar" title="Editar">
+                                ✏️
+                            </a>
+                            <button class="btn-icon btn-imprimir" title="Imprimir" onclick="imprimirLibro({{ libro.id_libro }})">
+                                🖨️
+                            </button>
+                            {% if libro.estado == 'Disponible' %}
+                                <button class="btn-icon btn-eliminar" title="Dar de baja" 
+                                        onclick="darDeBaja({{ libro.id_libro }}, '{{ libro.titulo|escapejs }}')">
+                                    🗑️
+                                </button>
+                            {% elif libro.estado == 'No disponible' %}
+                                <button class="btn-icon btn-ver-informe" title="Ver informe de baja" 
+                                        onclick="verInformeBaja({{ libro.id_libro }})">
+                                    📄
+                                </button>
+                                
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="12" class="no-results">No se encontraron libros disponibles.</td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- Tabla de mapas -->
+    <div class="tabla-container" id="mapas-container" style="display: none;">
+        <table class="libros-table">
+            <thead>
+                <tr>
+                    <th class="text-center">ID</th>
+                    <th>Tipo</th>
+                    <th>Denominación</th>
+                    <th class="text-center">N° Registro</th>
+                    <th class="text-center">Sede</th>
+                    <th class="text-center">Disponibilidad</th>
+                    <th class="text-center">Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="mapas-table">
+                {% if mapas %}
+                    {% for mapa in mapas %}
+                    <tr class="mapa-row{% if mapa.estado == 'No disponible' %} libro-no-disponible{% endif %}" 
+                        data-estado="{{ mapa.estado|lower }}"
+                        data-tipo="{{ mapa.tipo|lower }}"
+                        data-titulo="{{ mapa.tipo|lower }}"
+                        data-denominacion="{{ mapa.denominacion|lower }}">
+                        <td class="text-center">{{ mapa.id_mapa|default:'' }}</td>
+                        <td class="titulo-cell">{{ mapa.tipo }}</td>
+                        <td>{{ mapa.denominacion }}</td>
+                        <td class="text-center">{{ mapa.num_registro|default:'' }}</td>
+                        <td class="text-center">{{ mapa.sede|default:'LA PLATA' }}</td>
+                        <td class="disponibilidad-cell">
+                            {% if mapa.estado == 'Disponible' %}
+                                <span class="disponible">Disponible para préstamo</span>
+                            {% elif mapa.estado == 'Reservado' %}
+                                <span class="reservado">{{ mapa.estado }}</span>
+                            {% else %}
+                                <span class="no-disponible">{{ mapa.estado }}</span>
+                            {% endif %}
+                        </td>
+                        <td class="acciones-cell">
+                            <button class="btn-icon btn-detalle" title="Ver detalles" onclick="verDetallesMapa({{ mapa.id_mapa }})">
+                                📋
+                            </button>
+                            <a href="{% url 'editar_mapa' mapa.id_mapa %}" class="btn-icon btn-editar" title="Editar">
+                                ✏️
+                            </a>
+                            <button class="btn-icon btn-imprimir" title="Imprimir" onclick="imprimirMapa({{ mapa.id_mapa }})">
+                                🖨️
+                            </button>
+                            {% if mapa.estado == 'Disponible' %}
+                                <button class="btn-icon btn-eliminar" title="Dar de baja" 
+                                        onclick="darDeBajaMapa({{ mapa.id_mapa }}, '{{ mapa.tipo|escapejs }}')">
+                                    🗑️
+                                </button>
+                            {% elif mapa.estado == 'No disponible' %}
+                                <button class="btn-icon btn-ver-informe" title="Ver informe de baja" 
+                                        onclick="verInformeBajaMapa({{ mapa.id_mapa }})">
+                                    📄
+                                </button>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="7" class="no-results">No se encontraron mapas disponibles.</td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- Tabla de programas -->
+    <div class="tabla-container" id="programas-container" style="display: none;">
+        <table class="libros-table">
+            <thead>
+                <tr>
+                    <th class="text-center">ID</th>
+                    <th>Materia</th>
+                    <th>Profesor</th>
+                    <th>Carrera</th>
+                    <th>Ciclo Lectivo</th>
+                    <th>Enlace</th>
+                    <th class="text-center">Sede</th>
+                    <th class="text-center">Disponibilidad</th>
+                    <th class="text-center">Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="programas-table">
+                {% if programas %}
+                    {% for programa in programas %}
+                    <tr class="programa-row{% if programa.estado == 'No disponible' %} libro-no-disponible{% endif %}" 
+                        data-estado="{{ programa.estado|lower }}"
+                        data-materia="{{ programa.materia|lower }}"
+                        data-profesor="{{ programa.profesor|lower }}"
+                        data-carrera="{{ programa.carrera|lower }}">
+                        <td class="text-center">{{ programa.id_programa|default:'' }}</td>
+                        <td class="titulo-cell">{{ programa.materia }}</td>
+                        <td>{{ programa.profesor }}</td>
+                        <td>{{ programa.carrera }}</td>
+                        <td class="text-center">{{ programa.ciclo_lectivo }}</td>
+                        <td>
+                            {% if programa.ingresar_enlace %}
+                                <a href="{{ programa.ingresar_enlace }}" target="_blank" title="Ver enlace">🔗</a>
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+                        <td class="text-center">{{ programa.sede|default:'LA PLATA' }}</td>
+                        <td class="disponibilidad-cell">
+                            {% if programa.estado == 'Disponible' %}
+                                <span class="disponible">Disponible para préstamo</span>
+                            {% elif programa.estado == 'Reservado' %}
+                                <span class="reservado">{{ programa.estado }}</span>
+                            {% else %}
+                                <span class="no-disponible">{{ programa.estado }}</span>
+                            {% endif %}
+                        </td>
+                        <td class="acciones-cell">
+                            <button class="btn-icon btn-detalle" title="Ver detalles" onclick="verDetallesPrograma({{ programa.id_programa }})">
+                                📋
+                            </button>
+                            <a href="{% url 'editar_programa' programa.id_programa %}" class="btn-icon btn-editar" title="Editar">
+                                ✏️
+                            </a>
+                            <button class="btn-icon btn-imprimir" title="Imprimir" onclick="imprimirPrograma({{ programa.id_programa }})">
+                                🖨️
+                            </button>
+                            {% if programa.estado == 'Disponible' %}
+                                <button class="btn-icon btn-eliminar" title="Dar de baja" 
+                                        onclick="darDeBajaPrograma({{ programa.id_programa }}, '{{ programa.materia|escapejs }}')">
+                                    🗑️
+                                </button>
+                            {% elif programa.estado == 'No disponible' %}
+                                <button class="btn-icon btn-ver-informe" title="Ver informe de baja" 
+                                        onclick="verInformeBajaPrograma({{ programa.id_programa }})">
+                                    📄
+                                </button>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="9" class="no-results">No se encontraron programas disponibles.</td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- Tabla de multimedia -->
+    <div class="tabla-container" id="multimedia-container" style="display: none;">
+        <table class="libros-table">
+            <thead>
+                <tr>
+                    <th class="text-center">ID</th>
+                    <th>Materia</th>
+                    <th>Profesor</th>
+                    <th>Carrera</th>
+                    <th>Título Contenido</th>
+                    <th>Enlace</th>
+                    <th class="text-center">Disponibilidad</th>
+                    <th class="text-center">Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="multimedia-table">
+                {% if multimedia %}
+                    {% for multi in multimedia %}
+                    <tr class="multimedia-row{% if multi.estado == 'No disponible' %} libro-no-disponible{% endif %}" 
+                        data-estado="{{ multi.estado|lower }}"
+                        data-tipo="{{ multi.tipo|lower }}"
+                        data-denominacion="{{ multi.denominacion|lower }}">
+                        <td class="text-center">{{ multi.id_multi|default:'' }}</td>
+                        <td class="titulo-cell">{{ multi.materia }}</td>
+                        <td>{{ multi.profesor }}</td>
+                        <td>{{ multi.carrera }}</td>
+                        <td>{{ multi.titulo_contenido }}</td>
+                        <td>
+                            {% if multi.ingresar_enlace %}
+                                <a href="{{ multi.ingresar_enlace }}" target="_blank" title="Ver enlace">🔗</a>
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+                        <td class="disponibilidad-cell">
+                            {% if multi.estado == 'Disponible' %}
+                                <span class="disponible">Disponible para préstamo</span>
+                            {% elif multi.estado == 'Reservado' %}
+                                <span class="reservado">{{ multi.estado }}</span>
+                            {% else %}
+                                <span class="no-disponible">{{ multi.estado }}</span>
+                            {% endif %}
+                        </td>
+                        <td class="acciones-cell">
+                            <button class="btn-icon btn-detalle" title="Ver detalles" onclick="verDetallesMultimedia({{ multi.id_multi }})">
+                                📋
+                            </button>
+                            <a href="{% url 'editar_multimedia' multi.id_multi %}" class="btn-icon btn-editar" title="Editar">
+                                ✏️
+                            </a>
+                            <button class="btn-icon btn-imprimir" title="Imprimir" onclick="imprimirMultimedia({{ multi.id_multi }})">
+                                🖨️
+                            </button>
+                            {% if multi.estado == 'Disponible' %}
+                                <button class="btn-icon btn-eliminar" title="Dar de baja" 
+                                        onclick="darDeBajaMultimedia({{ multi.id_multi }}, '{{ multi.tipo|escapejs }}')">
+                                    🗑️
+                                </button>
+                            {% elif multi.estado == 'No disponible' %}
+                                <button class="btn-icon btn-ver-informe" title="Ver informe de baja" 
+                                        onclick="verInformeBajaMultimedia({{ multi.id_multi }})">
+                                    📄
+                                </button>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="8" class="no-results">No se encontraron elementos multimedia disponibles.</td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- Tabla de notebook -->
+    <div class="tabla-container" id="notebook-container" style="display: none;">
+        <table class="libros-table">
+            <thead>
+                <tr>
+                    <th class="text-center">ID</th>
+                    <th class="text-center">N° Registro</th>
+                    <th>Modelo</th>
+                    <th class="text-center">Sede</th>
+                    <th class="text-center">Disponibilidad</th>
+                    <th class="text-center">Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="notebook-table">
+                {% if notebooks %}
+                    {% for not in notebooks %}
+                    <tr class="notebook-row{% if not.estado == 'No disponible' %} libro-no-disponible{% endif %}" 
+                        data-estado="{{ not.estado|lower }}"
+                        data-tipo="{{ not.tipo|lower }}"
+                        data-denominacion="{{ not.denominacion|lower }}">
+                        <td class="text-center">{{ not.id_not|default:'' }}</td>
+                        <td class="text-center">{{ not.num_registro|default:'' }}</td>
+                        <td class="titulo-cell">{{ not.modelo_not }}</td>
+                        <td class="text-center">{{ not.sede|default:'LA PLATA' }}</td>
+                        <td class="disponibilidad-cell">
+                            {% if not.estado == 'Disponible' %}
+                                <span class="disponible">Disponible para préstamo</span>
+                            {% elif not.estado == 'Reservado' %}
+                                <span class="reservado">{{ not.estado }}</span>
+                            {% else %}
+                                <span class="no-disponible">{{ not.estado }}</span>
+                            {% endif %}
+                        </td>
+                        <td class="acciones-cell">
+                            <button class="btn-icon btn-detalle" title="Ver detalles" onclick="verDetallesNotebook({{ not.id_not }})">
+                                📋
+                            </button>
+                            <a href="{% url 'editar_notebook' not.id_not %}" class="btn-icon btn-editar" title="Editar">
+                                ✏️
+                            </a>
+                            <button class="btn-icon btn-imprimir" title="Imprimir" onclick="imprimirNotebook({{ not.id_not }})">
+                                🖨️
+                            </button>
+                            {% if not.estado == 'Disponible' %}
+                                <button class="btn-icon btn-eliminar" title="Dar de baja" 
+                                        onclick="darDeBajaNotebook({{ not.id_not }}, '{{ not.tipo|escapejs }}')">
+                                    🗑️
+                                </button>
+                            {% elif not.estado == 'No disponible' %}
+                                <button class="btn-icon btn-ver-informe" title="Ver informe de baja" 
+                                        onclick="verInformeBajaNotebook({{ not.id_not }})">
+                                    📄
+                                </button>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="7" class="no-results">No se encontraron notebooks disponibles.</td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- Tabla de proyector -->
+    <div class="tabla-container" id="proyector-container" style="display: none;">
+        <table class="libros-table">
+            <thead>
+                <tr>
+                    <th class="text-center">ID</th>
+                    <th class="text-center">N° Registro</th>
+                    <th>Modelo</th>
+                    <th class="text-center">Sede</th>
+                    <th class="text-center">Disponibilidad</th>
+                    <th class="text-center">Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="proyector-table">
+                {% if proyectores %}
+                    {% for pro in proyectores %}
+                    <tr class="proyector-row{% if pro.estado == 'No disponible' %} libro-no-disponible{% endif %}" 
+                        data-estado="{{ pro.estado|lower }}"
+                        data-tipo="{{ pro.tipo|lower }}"
+                        data-denominacion="{{ pro.denominacion|lower }}">
+                        <td class="text-center">{{ pro.id_proyector|default:'' }}</td>
+                        <td class="text-center">{{ pro.num_registro|default:'' }}</td>
+                        <td class="titulo-cell">{{ pro.modelo_pro }}</td>
+                        <td class="text-center">{{ pro.sede|default:'LA PLATA' }}</td>
+                        <td class="disponibilidad-cell">
+                            {% if pro.estado == 'Disponible' %}
+                                <span class="disponible">Disponible para préstamo</span>
+                            {% elif pro.estado == 'Reservado' %}
+                                <span class="reservado">{{ pro.estado }}</span>
+                            {% else %}
+                                <span class="no-disponible">{{ pro.estado }}</span>
+                            {% endif %}
+                        </td>
+                        <td class="acciones-cell">
+                            <button class="btn-icon btn-detalle" title="Ver detalles" onclick="verDetallesProyector({{ pro.id_proyector }})">
+                                📋
+                            </button>
+                            <a href="{% url 'editar_proyector' pro.id_proyector %}" class="btn-icon btn-editar" title="Editar">
+                                ✏️
+                            </a>
+                            <button class="btn-icon btn-imprimir" title="Imprimir" onclick="imprimirProyector({{ pro.id_proyector }})">
+                                🖨️
+                            </button>
+                            {% if pro.estado == 'Disponible' %}
+                                <button class="btn-icon btn-eliminar" title="Dar de baja" 
+                                        onclick="darDeBajaProyector({{ pro.id_proyector }}, '{{ pro.tipo|escapejs }}')">
+                                    🗑️
+                                </button>
+                            {% elif pro.estado == 'No disponible' %}
+                                <button class="btn-icon btn-ver-informe" title="Ver informe de baja" 
+                                        onclick="verInformeBajaProyector({{ pro.id_proyector }})">
+                                    📄
+                                </button>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="6" class="no-results">No se encontraron proyectores disponibles.</td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- Tabla de varios -->
+    <div class="tabla-container" id="varios-container" style="display: none;">
+        <table class="libros-table">
+            <thead>
+                <tr>
+                    <th class="text-center">ID</th>
+                    <th>Tipo</th>
+                    <th class="text-center">Sede</th>
+                    <th class="text-center">Cantidad</th>
+                    <th class="text-center">Disponible</th>
+                    <th class="text-center">Disponibilidad</th>
+                    <th class="text-center">Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="varios-table">
+                {% if varios %}
+                    {% for var in varios %}
+                    <tr class="varios-row{% if var.estado == 'No disponible' %} libro-no-disponible{% endif %}" 
+                        data-estado="{{ var.estado|lower }}"
+                        data-tipo="{{ var.tipo|lower }}">
+                        <td class="text-center">{{ var.id_varios|default:'' }}</td>
+                        <td class="titulo-cell">{{ var.tipo }}</td>
+                        <td class="text-center">{{ var.sede|default:'LA PLATA' }}</td>
+                        <td class="text-center">{{ var.cantidad|default:'1' }}</td>
+                        <td class="text-center">{{ var.cantidad_disponible|default:'1' }}</td>
+                        <td class="disponibilidad-cell">
+                            {% if var.estado == 'Disponible' %}
+                                <span class="disponible">Disponible para préstamo</span>
+                            {% elif var.estado == 'Reservado' %}
+                                <span class="reservado">{{ var.estado }}</span>
+                            {% else %}
+                                <span class="no-disponible">{{ var.estado }}</span>
+                            {% endif %}
+                        </td>
+                        <td class="acciones-cell">
+                            <button class="btn-icon btn-detalle" title="Ver detalles" onclick="verDetallesVarios({{ var.id_varios }})">
+                                📋
+                            </button>
+                            <a href="{% url 'editar_varios' var.id_varios %}" class="btn-icon btn-editar" title="Editar">
+                                ✏️
+                            </a>
+                            <button class="btn-icon btn-imprimir" title="Imprimir" onclick="imprimirVarios({{ var.id_varios }})">
+                                🖨️
+                            </button>
+                            {% if var.estado == 'Disponible' %}
+                                <button class="btn-icon btn-eliminar" title="Dar de baja" 
+                                        onclick="darDeBajaVarios({{ var.id_varios }}, '{{ var.tipo|escapejs }}')">
+                                    🗑️
+                                </button>
+                            {% elif var.estado == 'No disponible' %}
+                                <button class="btn-icon btn-ver-informe" title="Ver informe de baja" 
+                                        onclick="verInformeBajaVarios({{ var.id_varios }})">
+                                    📄
+                                </button>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="5" class="no-results">No se encontraron elementos varios disponibles.</td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Script para manejar la interacción con las tablas -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Obtener el selector de tipo de material
+        const tipoMaterialSelect = document.getElementById('tipo_material');
+        
+        // Obtener los contenedores de tablas
+        const librosContainer = document.getElementById('libros-container');
+        const mapasContainer = document.getElementById('mapas-container');
+        const multimediaContainer = document.getElementById('multimedia-container');
+        const notebookContainer = document.getElementById('notebook-container');
+        const proyectorContainer = document.getElementById('proyector-container');
+        const variosContainer = document.getElementById('varios-container');
+        
+        // Obtener el contenedor de programas
+        const programasContainer = document.getElementById('programas-container');
+        
+        // Manejar el cambio en el selector de tipo de material
+        tipoMaterialSelect.addEventListener('change', function() {
+            // Ocultar todas las tablas
+            librosContainer.style.display = 'none';
+            mapasContainer.style.display = 'none';
+            multimediaContainer.style.display = 'none';
+            notebookContainer.style.display = 'none';
+            proyectorContainer.style.display = 'none';
+            variosContainer.style.display = 'none';
+            programasContainer.style.display = 'none';
+            
+            // Mostrar la tabla correspondiente al tipo seleccionado
+            if (this.value === 'libro') {
+                librosContainer.style.display = 'block';
+            } else if (this.value === 'mapa') {
+                mapasContainer.style.display = 'block';
+            } else if (this.value === 'multimedia') {
+                multimediaContainer.style.display = 'block';
+            } else if (this.value === 'notebook') {
+                notebookContainer.style.display = 'block';
+            } else if (this.value === 'proyector') {
+                proyectorContainer.style.display = 'block';
+            } else if (this.value === 'varios') {
+                variosContainer.style.display = 'block';
+            } else if (this.value === 'programa') {
+                programasContainer.style.display = 'block';
+            }
+            
+            // Reaplicar filtros después de cambiar de tabla
+            setTimeout(() => {
+                filtrarLibros();
+            }, 100);
+        });
+        
+        // Funciones para mapas
+        window.verDetallesMapa = function(id) {
+            try {
+                const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+                
+                fetch(`/ver-detalles-material/${id}/?tipo=mapa`, {
+                    method: 'GET',
+                    headers: {
+                        'X-CSRFToken': csrfToken
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const detalles = data.detalles;
+                        
+                        // Llenar datos en el modal de mapa
+                        document.getElementById('detalle_mapa_id').textContent = detalles.detalle_mapa_id || '-';
+                        document.getElementById('detalle_mapa_num_registro').textContent = detalles.detalle_mapa_num_registro || '-';
+                        document.getElementById('detalle_mapa_tipo').textContent = detalles.detalle_mapa_tipo || '-';
+                        document.getElementById('detalle_mapa_denominacion').textContent = detalles.detalle_mapa_denominacion || '-';
+                        document.getElementById('detalle_mapa_sede').textContent = detalles.detalle_mapa_sede || '-';
+                        document.getElementById('detalle_mapa_estado').textContent = detalles.detalle_mapa_estado || '-';
+                        
+                        // Mostrar el modal
+                        const modal = new bootstrap.Modal(document.getElementById('detallesMapaModal'));
+                        modal.show();
+                    } else {
+                        alert('Error al cargar los detalles del mapa: ' + (data.error || 'Error desconocido'));
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error al cargar los detalles del mapa');
+                });
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error al cargar los detalles del mapa');
+            }
+        };
+        
+        // Funciones para programas
+        window.verDetallesPrograma = function(id) {
+            try {
+                const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+                
+                fetch(`/ver-detalles-material/${id}/?tipo=programa`, {
+                    method: 'GET',
+                    headers: {
+                        'X-CSRFToken': csrfToken
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const detalles = data.detalles;
+                        
+                        // Función helper para validar elementos DOM
+                        const setTextContent = (id, value) => {
+                            const element = document.getElementById(id);
+                            if (element) {
+                                element.textContent = value || '-';
+                            } else {
+                                console.warn(`Elemento con ID '${id}' no encontrado`);
+                            }
+                        };
+                        
+                        // Llenar datos en el modal de programa con validación
+                        setTextContent('detalle_programa_id', detalles.detalle_programa_id);
+                        setTextContent('detalle_programa_num_registro', detalles.detalle_programa_num_registro);
+                        setTextContent('detalle_programa_tipo', detalles.detalle_programa_tipo);
+                        setTextContent('detalle_programa_denominacion', detalles.detalle_programa_denominacion);
+                        setTextContent('detalle_programa_enlace', detalles.detalle_programa_enlace);
+                        setTextContent('detalle_programa_sede', detalles.detalle_programa_sede);
+                        setTextContent('detalle_programa_disponibilidad', detalles.detalle_programa_disponibilidad);
+                        setTextContent('detalle_programa_observaciones', detalles.detalle_programa_observaciones || 'Sin observaciones');
+                        
+                        // Mostrar el modal
+                        const modalElement = document.getElementById('detallesProgramaModal');
+                        if (modalElement) {
+                            const modal = new bootstrap.Modal(modalElement);
+                            modal.show();
+                        } else {
+                            console.error('Modal detallesProgramaModal no encontrado');
+                            alert('Error: Modal no encontrado');
+                        }
+                    } else {
+                        alert('Error al cargar los detalles del programa: ' + (data.error || 'Error desconocido'));
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error al cargar los detalles del programa');
+                });
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error al cargar los detalles del programa');
+            }
+        };
+        
+        // Funciones para notebook
+        window.verDetallesNotebook = function(id) {
+            try {
+                const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+                
+                fetch(`/ver-detalles-material/${id}/?tipo=notebook`, {
+                    method: 'GET',
+                    headers: {
+                        'X-CSRFToken': csrfToken
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const detalles = data.detalles;
+                        
+                        // Llenar datos en el modal de notebook
+                        document.getElementById('detalle_notebook_id').textContent = detalles.detalle_notebook_id || '-';
+                        document.getElementById('detalle_notebook_num_registro').textContent = detalles.detalle_notebook_num_registro || '-';
+                        document.getElementById('detalle_notebook_modelo').textContent = detalles.detalle_notebook_modelo || '-';
+                        document.getElementById('detalle_notebook_marca').textContent = detalles.detalle_notebook_marca || '-';
+                        document.getElementById('detalle_notebook_sede').textContent = detalles.detalle_notebook_sede || '-';
+                        document.getElementById('detalle_notebook_estado').textContent = detalles.detalle_notebook_estado || '-';
+                        
+                        // Mostrar el modal
+                        const modal = new bootstrap.Modal(document.getElementById('detallesNotebookModal'));
+                        modal.show();
+                    } else {
+                        alert('Error al cargar los detalles del notebook: ' + (data.error || 'Error desconocido'));
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error al cargar los detalles del notebook');
+                });
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error al cargar los detalles del notebook');
+            }
+        };
+        
+        // Funciones para proyector
+        window.verDetallesProyector = function(id) {
+            try {
+                const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+                
+                fetch(`/ver-detalles-material/${id}/?tipo=proyector`, {
+                    method: 'GET',
+                    headers: {
+                        'X-CSRFToken': csrfToken
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const detalles = data.detalles;
+                        
+                        // Llenar datos en el modal de proyector
+                        document.getElementById('detalle_proyector_id').textContent = detalles.detalle_proyector_id || '-';
+                        document.getElementById('detalle_proyector_num_registro').textContent = detalles.detalle_proyector_num_registro || '-';
+                        document.getElementById('detalle_proyector_modelo').textContent = detalles.detalle_proyector_modelo || '-';
+                        document.getElementById('detalle_proyector_sede').textContent = detalles.detalle_proyector_sede || '-';
+                        document.getElementById('detalle_proyector_estado').textContent = detalles.detalle_proyector_estado || '-';
+                        
+                        // Mostrar el modal
+                        const modal = new bootstrap.Modal(document.getElementById('detallesProyectorModal'));
+                        modal.show();
+                    } else {
+                        alert('Error al cargar los detalles del proyector: ' + (data.error || 'Error desconocido'));
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error al cargar los detalles del proyector');
+                });
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error al cargar los detalles del proyector');
+            }
+        };
+        
+        // Funciones para multimedia
+        window.verDetallesMultimedia = function(id) {
+            try {
+                const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+                
+                fetch(`/ver-detalles-material/${id}/?tipo=multimedia`, {
+                    method: 'GET',
+                    headers: {
+                        'X-CSRFToken': csrfToken
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const detalles = data.detalles;
+                        
+                        // Llenar datos en el modal de multimedia
+                        document.getElementById('detalle_multimedia_id').textContent = detalles.detalle_multimedia_id || '-';
+                        document.getElementById('detalle_multimedia_materia').textContent = detalles.detalle_multimedia_materia || '-';
+                        document.getElementById('detalle_multimedia_profesor').textContent = detalles.detalle_multimedia_profesor || '-';
+                        document.getElementById('detalle_multimedia_carrera').textContent = detalles.detalle_multimedia_carrera || '-';
+                        document.getElementById('detalle_multimedia_titulo_contenido').textContent = detalles.detalle_multimedia_titulo_contenido || '-';
+                        document.getElementById('detalle_multimedia_estado').textContent = detalles.detalle_multimedia_estado || '-';
+                        
+                        // Mostrar el modal
+                        const modal = new bootstrap.Modal(document.getElementById('detallesMultimediaModal'));
+                        modal.show();
+                    } else {
+                        alert('Error al cargar los detalles del multimedia: ' + (data.error || 'Error desconocido'));
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error al cargar los detalles del multimedia');
+                });
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error al cargar los detalles del multimedia');
+            }
+        };
+        
+        // Funciones para varios
+        window.verDetallesVarios = function(id) {
+            try {
+                const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+                
+                fetch(`/ver-detalles-material/${id}/?tipo=varios`, {
+                    method: 'GET',
+                    headers: {
+                        'X-CSRFToken': csrfToken
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const detalles = data.detalles;
+                        
+                        // Llenar datos en el modal de varios
+                        document.getElementById('detalle_varios_id').textContent = detalles.detalle_varios_id || '-';
+                        document.getElementById('detalle_varios_num_registro').textContent = detalles.detalle_varios_num_registro || '-';
+                        document.getElementById('detalle_varios_tipo').textContent = detalles.detalle_varios_tipo || '-';
+                        document.getElementById('detalle_varios_denominacion').textContent = detalles.detalle_varios_denominacion || '-';
+                        document.getElementById('detalle_varios_sede').textContent = detalles.detalle_varios_sede || '-';
+                        document.getElementById('detalle_varios_cantidad').textContent = detalles.detalle_varios_cantidad || '-';
+                        document.getElementById('detalle_varios_cantidad_disponible').textContent = detalles.detalle_varios_cantidad_disponible || '-';
+                        document.getElementById('detalle_varios_estado').textContent = detalles.detalle_varios_estado || '-';
+                        
+                        // Mostrar el modal
+                        const modal = new bootstrap.Modal(document.getElementById('detallesVariosModal'));
+                        modal.show();
+                    } else {
+                        alert('Error al cargar los detalles del elemento varios: ' + (data.error || 'Error desconocido'));
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error al cargar los detalles del elemento varios');
+                });
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error al cargar los detalles del elemento varios');
+            }
+        };
+        
+        // Función para libros (detallesModal general)
+        window.verDetalles = function(id) {
+            try {
+                const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+                
+                fetch(`/ver-detalles-material/${id}/?tipo=libro`, {
+                    method: 'GET',
+                    headers: {
+                        'X-CSRFToken': csrfToken
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const detalles = data.detalles;
+                        
+                        // Llenar datos en el modal general de detalles
+                        const setTextContent = (id, value) => {
+                            const element = document.getElementById(id);
+                            if (element) {
+                                element.textContent = value || '-';
+                            }
+                        };
+                        
+                        setTextContent('detalle_num_inventario', detalles.detalle_num_inventario);
+                        setTextContent('detalle_titulo', detalles.detalle_titulo);
+                        setTextContent('detalle_autor', detalles.detalle_autor);
+                        setTextContent('detalle_editorial', detalles.detalle_editorial);
+                        setTextContent('detalle_cdu', detalles.detalle_cdu);
+                        setTextContent('detalle_siglas', detalles.detalle_siglas);
+                        setTextContent('detalle_sede', detalles.detalle_sede);
+                        setTextContent('detalle_disponibilidad', detalles.detalle_disponibilidad);
+                        setTextContent('detalle_estado', detalles.detalle_estado);
+                        setTextContent('detalle_descripcion', detalles.detalle_descripcion || 'Sin descripción disponible');
+                        setTextContent('detalle_observaciones', detalles.detalle_observaciones || 'Sin observaciones');
+                        
+                        // Manejar imagen
+                        const imagenElement = document.getElementById('detalle_imagen_principal');
+                        const placeholderElement = document.getElementById('detalle_placeholder_principal');
+                        if (detalles.detalle_imagen && imagenElement && placeholderElement) {
+                            imagenElement.src = detalles.detalle_imagen;
+                            imagenElement.style.display = 'block';
+                            placeholderElement.style.display = 'none';
+                        } else if (imagenElement && placeholderElement) {
+                            imagenElement.style.display = 'none';
+                            placeholderElement.style.display = 'flex';
+                        }
+                        
+                        // Manejar etiquetas
+                        const etiquetasContainer = document.getElementById('detalle_etiquetas');
+                        if (etiquetasContainer) {
+                            etiquetasContainer.innerHTML = '';
+                            if (detalles.detalle_etiquetas && detalles.detalle_etiquetas.length > 0) {
+                                detalles.detalle_etiquetas.forEach(etiqueta => {
+                                    const span = document.createElement('span');
+                                    span.style.cssText = 'background: #3498db; color: white; padding: 4px 12px; border-radius: 15px; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;';
+                                    span.textContent = etiqueta;
+                                    etiquetasContainer.appendChild(span);
+                                });
+                            } else {
+                                const span = document.createElement('span');
+                                span.style.cssText = 'color: #95a5a6; font-style: italic; font-size: 14px;';
+                                span.textContent = 'Sin etiquetas asignadas';
+                                etiquetasContainer.appendChild(span);
+                            }
+                        }
+                        
+                        // Mostrar el modal
+                        const modal = new bootstrap.Modal(document.getElementById('detallesModal'));
+                        modal.show();
+                    } else {
+                        alert('Error al cargar los detalles del material: ' + (data.error || 'Error desconocido'));
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error al cargar los detalles del material');
+                });
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error al cargar los detalles del material');
+            }
+        };
+
+    // ===== FUNCIONALIDAD DE FILTRADO Y BÚSQUEDA CORREGIDA =====
+    const searchInput = document.getElementById('searchInput');
+    const mostrarNoDisponibles = document.getElementById('mostrar_no_disponibles');
+    const ordenarPor = document.getElementById('ordenar_por');
+
+    function filtrarLibros() {
+        const searchTerm = searchInput.value.toLowerCase();
+        const showOnlyUnavailable = mostrarNoDisponibles.checked; // Cambio de nombre para claridad
+        let visibleCount = 0;
+
+        // Obtener todas las filas de todas las tablas
+        const allRows = document.querySelectorAll('.libro-row, .mapa-row, .programa-row, .multimedia-row, .notebook-row, .proyector-row, .varios-row');
+
+        allRows.forEach(row => {
+            const titulo = row.dataset.titulo || '';
+            const autor = row.dataset.autor || '';
+            const editorial = row.dataset.editorial || '';
+            const denominacion = row.dataset.denominacion || '';
+            const materia = row.dataset.materia || '';
+            const tipo = row.dataset.tipo || '';
+            const modelo = row.dataset.modelo || '';
+            const estado = row.dataset.estado;
+            
+            // Buscar en todos los campos relevantes según el tipo de material
+            const matchesSearch = titulo.includes(searchTerm) || 
+                                 autor.includes(searchTerm) || 
+                                 editorial.includes(searchTerm) ||
+                                 denominacion.includes(searchTerm) ||
+                                 materia.includes(searchTerm) ||
+                                 tipo.includes(searchTerm) ||
+                                 modelo.includes(searchTerm);
+            
+            // Lógica corregida del filtro de estado
+            let showByState;
+            if (showOnlyUnavailable) {
+                // Si el checkbox está marcado, mostrar SOLO los no disponibles
+                showByState = estado === 'no disponible';
+            } else {
+                // Si el checkbox NO está marcado, mostrar SOLO los disponibles y reservados
+                showByState = estado === 'disponible' || estado === 'reservado';
+            }
+            
+            const showRow = matchesSearch && showByState;
+            
+            row.style.display = showRow ? '' : 'none';
+            if (showRow) visibleCount++;
+        });
+
+        updateNoResultsMessage(visibleCount);
+        updateTabCounts(); // Actualizar contadores de pestañas
+    }
+
+    function updateNoResultsMessage(count) {
+        // Actualizar mensaje para todas las tablas
+        const tables = ['libros', 'mapas', 'programas', 'multimedia', 'notebook', 'proyector', 'varios'];
+        
+        tables.forEach(tableType => {
+            const tbody = document.getElementById(`${tableType}-table`);
+            if (!tbody) return;
+            
+            let noResultsRow = tbody.querySelector('.no-results-row');
+            const visibleRows = tbody.querySelectorAll('tr:not(.no-results-row)').length;
+            const actuallyVisibleRows = Array.from(tbody.querySelectorAll('tr:not(.no-results-row)')).filter(row => row.style.display !== 'none').length;
+            
+            if (actuallyVisibleRows === 0 && visibleRows > 0) {
+                if (!noResultsRow) {
+                    noResultsRow = document.createElement('tr');
+                    noResultsRow.className = 'no-results-row';
+                    const colspan = tbody.closest('table').querySelector('thead tr').children.length;
+                    noResultsRow.innerHTML = `<td colspan="${colspan}" class="no-results">No se encontraron resultados con los filtros aplicados.</td>`;
+                    tbody.appendChild(noResultsRow);
+                }
+            } else {
+                if (noResultsRow) {
+                    noResultsRow.remove();
+                }
+            }
+        });
+    }
+
+    function updateTabCounts() {
+        // Actualizar contadores en las pestañas si existen
+        const tabs = document.querySelectorAll('.nav-link');
+        tabs.forEach(tab => {
+            const tabType = tab.getAttribute('data-tab');
+            if (tabType) {
+                const rows = document.querySelectorAll(`.${tabType}-row`);
+                const visibleRows = Array.from(rows).filter(row => row.style.display !== 'none').length;
+                
+                // Actualizar texto del tab si tiene contador
+                const tabText = tab.textContent.replace(/\(\d+\)/, '');
+                tab.textContent = `${tabText} (${visibleRows})`;
+            }
+        });
+    }
+
+    // Event listeners para filtros
+    searchInput.addEventListener('input', filtrarLibros);
+    mostrarNoDisponibles.addEventListener('change', function() {
+        console.log('Checkbox "mostrar no disponibles" cambiado a:', this.checked);
+        filtrarLibros();
+    });
+
+    // ===== APLICAR FILTRO INICIAL AL CARGAR LA PÁGINA =====
+    filtrarLibros(); // <- AGREGAR ESTA LÍNEA
+    
+    // Agregar event listener para cambio de pestañas
+    const tabButtons = document.querySelectorAll('.nav-link');
+    tabButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            setTimeout(() => {
+                filtrarLibros(); // Aplicar filtros después de cambiar de pestaña
+            }, 100);
+        });
+    });
+
+    // ===== FUNCIONALIDAD DE ORDENAMIENTO =====
+    ordenarPor.addEventListener('change', function() {
+        // Obtener la tabla activa actualmente
+        const activeContainer = document.querySelector('.tabla-container:not([style*="display: none"])');
+        if (!activeContainer) return;
+        
+        const tbody = activeContainer.querySelector('tbody');
+        const rows = Array.from(tbody.querySelectorAll('tr:not(.no-results-row)'));
+        
+        rows.sort((a, b) => {
+            let aValue, bValue;
+            
+            switch (this.value) {
+                case 'autor':
+                    aValue = a.dataset.autor || a.dataset.profesor || '';
+                    bValue = b.dataset.autor || b.dataset.profesor || '';
+                    break;
+                case 'fecha':
+                    aValue = parseInt(a.querySelector('td:first-child').textContent) || 0;
+                    bValue = parseInt(b.querySelector('td:first-child').textContent) || 0;
+                    return bValue - aValue; // Descendente para fechas
+                default: // titulo
+                    aValue = a.dataset.titulo || a.dataset.tipo || a.dataset.materia || '';
+                    bValue = b.dataset.titulo || b.dataset.tipo || b.dataset.materia || '';
+            }
+            
+            return aValue.localeCompare(bValue);
+        });
+        
+        rows.forEach(row => tbody.appendChild(row));
+        
+        // Reaplicar filtros después del ordenamiento
+        filtrarLibros();
+    });
+
+    // ===== MANEJO DE SUBIDA DE IMÁGENES EN MODAL DE BAJA =====
+    const inputImagen = document.getElementById('imagen_rota');
+    
+    if (inputImagen) {
+        inputImagen.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            const uploadZone = document.querySelector('[onclick="document.getElementById(\'imagen_rota\').click()"]');
+            
+            if (file) {
+                uploadZone.innerHTML = `
+                    <div style="text-align: center; color: #27ae60;">
+                        <div style="font-size: 20px; margin-bottom: 4px;">✅</div>
+                        <div style="font-size: 10px; font-weight: 600;">${file.name}</div>
+                    </div>
+                `;
+                uploadZone.style.background = '#d5f4e6';
+                uploadZone.style.borderColor = '#27ae60';
+            } else {
+                uploadZone.innerHTML = `
+                    <div style="text-align: center; color: #f39c12;">
+                        <div style="font-size: 24px; margin-bottom: 4px;">📁</div>
+                        <div style="font-size: 11px; font-weight: 600;">SUBIR ARCHIVO</div>
+                    </div>
+                `;
+                uploadZone.style.background = '#fef9e7';
+                uploadZone.style.borderColor = '#f39c12';
+            }
+        });
+    }
+
+    // ===== SISTEMA DE GESTIÓN DE OBLEAS =====
+    class SistemaObleas {
+        constructor() {
+            this.obleas = [];
+            this.contadorEjemplar = {};
+            this.init();
+        }
+        
+        init() {
+            // Event listeners para el modal de obleas
+            document.getElementById('limpiarObleas').addEventListener('click', () => this.limpiarTodo());
+            document.getElementById('imprimirPDF').addEventListener('click', () => this.generarPDF());
+            
+            // Cerrar modal con escape
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && document.getElementById('obleasModal').classList.contains('show')) {
+                    this.cerrarModal();
+                }
+            });
+            
+            // Inicializar estado del botón imprimir
+            this.actualizarContador();
+        }
+        
+        agregarOblea(libroData) {
+            // Generar número de ejemplar único por CDU + Siglas
+            const clave = `${libroData.cdu}_${libroData.siglas}`;
+            if (!this.contadorEjemplar[clave]) {
+                this.contadorEjemplar[clave] = 0;
+            }
+            this.contadorEjemplar[clave]++;
+            
+            // Crear oblea con datos del libro
+            const oblea = {
+                id: Date.now() + Math.random(),
+                cdu: libroData.cdu || 'SIN CDU',
+                siglas: libroData.siglas || 'ABC',
+                ejemplar: this.contadorEjemplar[clave],
+                titulo: libroData.titulo,
+                autor: libroData.autor
+            };
+            
+            // Agregar a la colección y actualizar vista
+            this.obleas.push(oblea);
+            this.renderizarObleas();
+            this.actualizarContador();
+            this.mostrarModal();
+            
+            // Mostrar notificación de éxito
+            this.mostrarNotificacion(`Oblea agregada: ${oblea.cdu} - ${oblea.siglas} (Ej. ${oblea.ejemplar})`);
+        }
+        
+        eliminarOblea(id) {
+            // Encontrar la oblea a eliminar
+            const obleaAEliminar = this.obleas.find(oblea => oblea.id === id);
+            if (!obleaAEliminar) return;
+            
+            // Confirmar eliminación
+            if (confirm(`¿Eliminar oblea ${obleaAEliminar.cdu} - ${obleaAEliminar.siglas}?`)) {
+                this.obleas = this.obleas.filter(oblea => oblea.id !== id);
+                this.renderizarObleas();
+                this.actualizarContador();
+                
+                // Mostrar notificación
+                this.mostrarNotificacion(`Oblea eliminada: ${obleaAEliminar.cdu} - ${obleaAEliminar.siglas}`, 'warning');
+            }
+        }
+        
+        limpiarTodo() {
+            if (this.obleas.length === 0) {
+                alert('No hay obleas para limpiar');
+                return;
+            }
+            
+            if (confirm(`¿Está seguro de eliminar todas las ${this.obleas.length} obleas?`)) {
+                this.obleas = [];
+                this.contadorEjemplar = {};
+                this.renderizarObleas();
+                this.actualizarContador();
+                
+                // Mostrar notificación
+                this.mostrarNotificacion('Todas las obleas han sido eliminadas', 'info');
+            }
+        }
+        
+        renderizarObleas() {
+            const container = document.getElementById('obleasContainer');
+            
+            if (this.obleas.length === 0) {
+                container.innerHTML = `
+                    <div id="placeholder" style="grid-column: 1 / -1; text-align: center; color: #95a5a6; font-style: italic; padding: 40px;">
+                        Haz clic en "Imprimir" de cualquier libro para agregar obleas aquí
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = this.obleas.map(oblea => `
+                <div class="oblea" title="Clic para eliminar">
+                    <button class="eliminar" onclick="sistemaObleas.eliminarOblea(${oblea.id})">×</button>
+                    <div class="cdu">${oblea.cdu}</div>
+                    <div class="siglas">${oblea.siglas}</div>
+                    <div class="ejemplar">Ej. ${oblea.ejemplar}</div>
+                </div>
+            `).join('');
+        }
+        
+        actualizarContador() {
+            document.getElementById('contadorObleas').textContent = this.obleas.length;
+            
+            // Habilitar/deshabilitar botón de imprimir
+            const btnImprimir = document.getElementById('imprimirPDF');
+            if (btnImprimir) {
+                btnImprimir.disabled = this.obleas.length === 0;
+                btnImprimir.style.opacity = this.obleas.length === 0 ? '0.5' : '1';
+            }
+        }
+        
+        mostrarModal() {
+            const modal = new bootstrap.Modal(document.getElementById('obleasModal'));
+            modal.show();
+        }
+        
+        cerrarModal() {
+            const modal = bootstrap.Modal.getInstance(document.getElementById('obleasModal'));
+            if (modal) modal.hide();
+        }
+        
+        mostrarNotificacion(mensaje, tipo = 'success') {
+            const notificacion = document.createElement('div');
+            notificacion.className = `notificacion-obleas ${tipo}`;
+            notificacion.textContent = mensaje;
+            
+            document.body.appendChild(notificacion);
+            
+            setTimeout(() => {
+                notificacion.remove();
+            }, 3000);
+        }
+        
+        generarPDF() {
+            if (this.obleas.length === 0) {
+                alert('No hay obleas para imprimir');
+                return;
+            }
+            
+            // Simular generación de PDF
+            this.mostrarNotificacion(`PDF generado con ${this.obleas.length} obleas`, 'success');
+            
+            // Aquí se implementaría la lógica real de generación de PDF
+            console.log('Generando PDF con obleas:', this.obleas);
+            
+            // Cerrar modal después de generar
+            setTimeout(() => {
+                this.cerrarModal();
+            }, 1500);
+        }
+    }
+
+    // Inicializar sistema de obleas
+    window.sistemaObleas = null;
+    document.addEventListener('DOMContentLoaded', function() {
+        try {
+            window.sistemaObleas = new SistemaObleas();
+            console.log('Sistema de obleas inicializado correctamente');
+        } catch (error) {
+            console.error('Error al inicializar sistema de obleas:', error);
+        }
+    });
+
+    // ===== FUNCIÓN PARA IMPRIMIR LIBRO ACTUALIZADA =====
+    window.imprimirLibro = function(libroId) {
+        try {
+            console.log('🖨️ Imprimiendo libro con ID:', libroId);
+            
+            // Verificar si sistemaObleas está inicializado
+            if (!window.sistemaObleas) {
+                console.log('Inicializando sistema de obleas...');
+                window.sistemaObleas = new SistemaObleas();
+            }
+            
+            // Buscar la fila del libro en la tabla
+            const botonImprimir = document.querySelector(`button[onclick*="imprimirLibro(${libroId})"]`);
+            if (!botonImprimir) {
+                console.error('No se encontró el botón de imprimir para el libro ID:', libroId);
+                alert('Error: No se pudo encontrar la información del libro');
+                return;
+            }
+            
+            const filaLibro = botonImprimir.closest('tr');
+            const celdas = filaLibro.querySelectorAll('td');
+            
+            // Verificar que tenemos suficientes celdas
+            if (celdas.length < 7) {
+                console.error('No se encontraron suficientes celdas en la fila del libro');
+                alert('Error: No se pudo extraer la información del libro de la tabla');
+                return;
+            }
+            
+            // Extraer datos del libro de la tabla
+            const libroData = {
+                id: libroId,
+                numInventario: celdas[0].textContent.trim(),
+                titulo: celdas[1].textContent.trim(),
+                autor: celdas[2].textContent.trim(),
+                editorial: celdas[3].textContent.trim(),
+                cdu: celdas[4].textContent.trim(),
+                siglas: celdas[5].textContent.trim(),
+                sede: celdas[6].textContent.trim()
+            };
+            
+            console.log('Datos del libro extraídos:', libroData);
+            
+            // Agregar oblea al sistema
+            window.sistemaObleas.agregarOblea(libroData);
+            
+        } catch (error) {
+            console.error('Error al imprimir libro:', error);
+            alert('Error al procesar la impresión del libro: ' + error.message);
+        }
+    };
+
+    // ===== FUNCIÓN PARA DAR DE BAJA LIBRO ACTUALIZADA =====
+    window.darDeBaja = function(libroId, titulo) {
+        try {
+            console.log('🗑️ Dando de baja libro con ID:', libroId, 'Título:', titulo);
+            
+            const filaLibro = document.querySelector(`tr[data-titulo*="${titulo.toLowerCase()}"]`);
+            
+            if (!filaLibro) {
+                console.error('No se pudo encontrar la fila del libro');
+                return;
+            }
+            
+            // Extraer datos de la fila
+            const celdas = filaLibro.querySelectorAll('td');
+            const numInventario = celdas[0].textContent.trim();
+            const tituloLibro = celdas[1].textContent.trim();
+            const autor = celdas[2].textContent.trim();
+            const editorial = celdas[3].textContent.trim();
+            const cdu = celdas[4].textContent.trim();
+            const siglas = celdas[5].textContent.trim();
+            const sede = celdas[6].textContent.trim();
+            
+            // Obtener imagen del libro
+            const imagenElement = filaLibro.querySelector('.libro-thumbnail');
+            const imagenSrc = imagenElement ? imagenElement.src : '';
+            
+            // Llenar el formulario oculto
+            document.getElementById('libro_id').value = libroId;
+            
+            // Llenar los datos en el modal
+            document.getElementById('modal_num_inventario').textContent = numInventario || '1';
+            document.getElementById('modal_titulo').textContent = tituloLibro;
+            document.getElementById('modal_autor').textContent = autor || 'Sin autor';
+            document.getElementById('modal_editorial').textContent = editorial || 'Sin editorial';
+            document.getElementById('modal_cdu').textContent = cdu || 'Sin CDU';
+            document.getElementById('modal_siglas').textContent = siglas || 'ABC';
+            document.getElementById('modal_sede').textContent = sede || 'LA PLATA';
+            
+            // Manejar la imagen
+            const imagenModal = document.getElementById('libro_imagen_modal');
+            const placeholderModal = document.getElementById('libro_placeholder');
+            
+            if (imagenSrc && !imagenSrc.includes('placeholder')) {
+                imagenModal.src = imagenSrc;
+                imagenModal.style.display = 'block';
+                placeholderModal.style.display = 'none';
+            } else {
+                imagenModal.style.display = 'none';
+                placeholderModal.style.display = 'flex';
+            }
+            
+            // Limpiar el formulario
+            document.getElementById('motivo_baja').value = '';
+            document.getElementById('imagen_rota').value = '';
+            
+            // Mostrar el modal
+            const modal = new bootstrap.Modal(document.getElementById('bajaModal'));
+            modal.show();
+            
+        } catch (error) {
+            console.error('Error al dar de baja libro:', error);
+            alert('Error al abrir el modal de baja');
+        }
+    };
+
+    // ===== FUNCIÓN PARA VER INFORME DE BAJA ACTUALIZADA CON DATOS REALES =====
+    window.verInformeBaja = function(libroId) {
+        try {
+            console.log('📋 Viendo informe de baja para libro ID:', libroId);
+            
+            // Buscar la fila del libro en la tabla
+            const botonInforme = document.querySelector(`button[onclick*="verInformeBaja(${libroId})"]`);
+            if (!botonInforme) {
+                console.error('No se encontró el botón de informe para el libro ID:', libroId);
+                alert('Error: No se pudo encontrar la información del libro');
+                return;
+            }
+            
+            const filaLibro = botonInforme.closest('tr');
+            const celdas = filaLibro.querySelectorAll('td');
+            
+            // Extraer datos del libro de la tabla
+            const datosLibro = {
+                id: libroId,
+                numInventario: celdas[0]?.textContent.trim() || 'N/A',
+                titulo: celdas[1]?.textContent.trim() || 'N/A',
+                autor: celdas[2]?.textContent.trim() || 'N/A',
+                editorial: celdas[3]?.textContent.trim() || 'N/A',
+                cdu: celdas[4]?.textContent.trim() || 'N/A',
+                siglas: celdas[5]?.textContent.trim() || 'N/A',
+                sede: celdas[6]?.textContent.trim() || 'N/A'
+            };
+            
+            // Guardar el ID del libro para usar en el botón DAR DE ALTA
+            window.currentLibroId = libroId;
+            
+            // Llenar los datos básicos en el modal
+            document.getElementById('informe_num_inventario').textContent = datosLibro.numInventario;
+            document.getElementById('informe_titulo').textContent = datosLibro.titulo;
+            document.getElementById('informe_autor').textContent = datosLibro.autor;
+            document.getElementById('informe_cdu').textContent = datosLibro.cdu;
+            document.getElementById('informe_siglas').textContent = datosLibro.siglas;
+            
+            // Manejar imagen del libro
+            const imagenModal = document.getElementById('informe_imagen');
+            const placeholderModal = document.getElementById('informe_placeholder');
+            
+            // Buscar imagen en la fila (si existe)
+            const imagenEnFila = filaLibro.querySelector('img');
+            const imagenSrc = imagenEnFila ? imagenEnFila.src : null;
+            
+            if (imagenSrc && !imagenSrc.includes('placeholder')) {
+                imagenModal.src = imagenSrc;
+                imagenModal.style.display = 'block';
+                placeholderModal.style.display = 'none';
+            } else {
+                imagenModal.style.display = 'none';
+                placeholderModal.style.display = 'flex';
+            }
+            
+            // Mostrar el modal
+            const modal = new bootstrap.Modal(document.getElementById('verInformeModal'));
+            modal.show();
+            
+            // ===== OBTENER DATOS REALES DEL BACKEND =====
+            obtenerInformeBajaReal(libroId);
+            
+            console.log('Informe mostrado para libro:', datosLibro);
+            
+        } catch (error) {
+            console.error('Error al ver informe de baja:', error);
+            alert('Error al acceder al informe de baja');
+        }
+    };
+
+    // ===== FUNCIÓN PARA OBTENER DATOS REALES DEL INFORME DE BAJA =====
+    function obtenerInformeBajaReal(libroId) {
+        // Mostrar indicadores de carga
+        document.getElementById('informe_motivo').innerHTML = '<div style="text-align: center; color: #6c757d;"><i class="fas fa-spinner fa-spin"></i> Cargando motivo de baja...</div>';
+        document.getElementById('informe_fecha_baja').textContent = 'Cargando...';
+        
+        // Preparar datos para la petición
+        const formData = new FormData();
+        formData.append('libro_id', libroId);
+        
+        // Obtener token CSRF
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        formData.append('csrfmiddlewaretoken', csrfToken);
+        
+        // Realizar petición AJAX al backend
+        fetch('/obtener-informe-baja/', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': csrfToken
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('📋 Datos del informe recibidos:', data);
+            
+            if (data.success) {
+                // Actualizar motivo de baja con el dato real
+                const motivoElement = document.getElementById('informe_motivo');
+                if (data.informe.motivo && data.informe.motivo.trim() !== '') {
+                    motivoElement.textContent = data.informe.motivo;
+                    motivoElement.style.color = '#495057';
+                } else {
+                    motivoElement.textContent = 'Motivo no registrado';
+                    motivoElement.style.color = '#6c757d';
+                    motivoElement.style.fontStyle = 'italic';
+                }
+                
+                // Actualizar fecha de baja si está disponible
+                if (data.informe.fecha_baja) {
+                    document.getElementById('informe_fecha_baja').textContent = data.informe.fecha_baja;
+                } else {
+                    document.getElementById('informe_fecha_baja').textContent = 'Fecha no registrada';
+                }
+                
+                // Manejar imagen de baja si existe
+                const imagenBajaContainer = document.getElementById('imagen_baja_container');
+                const imagenBaja = document.getElementById('imagen_baja');
+                
+                if (data.informe.imagen_baja) {
+                    imagenBaja.src = data.informe.imagen_baja;
+                    imagenBajaContainer.style.display = 'block';
+                    console.log('🖼️ Imagen de baja cargada:', data.informe.imagen_baja);
+                } else {
+                    imagenBajaContainer.style.display = 'none';
+                    console.log('❌ No hay imagen de baja disponible');
+                }
+                
+            } else {
+                // Error del servidor
+                console.error('❌ Error del servidor:', data.error);
+                document.getElementById('informe_motivo').innerHTML = `<span style="color: #dc3545; font-style: italic;">Error al cargar: ${data.error}</span>`;
+                document.getElementById('informe_fecha_baja').textContent = 'Error al cargar';
+            }
+        })
+        .catch(error => {
+            console.error('❌ Error en la petición:', error);
+            document.getElementById('informe_motivo').innerHTML = '<span style="color: #dc3545; font-style: italic;">Error de conexión al cargar el motivo</span>';
+            document.getElementById('informe_fecha_baja').textContent = 'Error de conexión';
+        });
+    }
+
+    // ===== FUNCIONES PARA OTROS TIPOS DE MATERIALES =====
+    window.imprimirMapa = function(id) {
+        alert(`Imprimir Mapa ID: ${id} - Funcionalidad en desarrollo`);
+    };
+
+    window.imprimirPrograma = function(id) {
+        alert(`Imprimir Programa ID: ${id} - Funcionalidad en desarrollo`);
+    };
+
+    window.imprimirMultimedia = function(id) {
+        alert(`Imprimir Multimedia ID: ${id} - Funcionalidad en desarrollo`);
+    };
+
+    window.imprimirNotebook = function(id) {
+        alert(`Imprimir Notebook ID: ${id} - Funcionalidad en desarrollo`);
+    };
+
+    window.imprimirProyector = function(id) {
+        alert(`Imprimir Proyector ID: ${id} - Funcionalidad en desarrollo`);
+    };
+
+    window.imprimirVarios = function(id) {
+        alert(`Imprimir Varios ID: ${id} - Funcionalidad en desarrollo`);
+    };
+
+    window.darDeBajaMapa = function(id, tipo) {
+        try {
+            // Obtener datos del mapa desde la fila de la tabla
+            const filasMapa = document.querySelectorAll('#mapas-table tr');
+            let mapaData = null;
+            
+            filasMapa.forEach(fila => {
+                const celdas = fila.querySelectorAll('td');
+                if (celdas.length > 0 && celdas[0].textContent.trim() === id.toString()) {
+                    mapaData = {
+                        id: celdas[0].textContent.trim(),
+                        tipo: celdas[1].textContent.trim(),
+                        denominacion: celdas[2].textContent.trim(),
+                        num_registro: celdas[3].textContent.trim(),
+                        sede: celdas[4].textContent.trim()
+                    };
+                }
+            });
+            
+            if (!mapaData) {
+                alert('Error: No se pudieron obtener los datos del mapa');
+                return;
+            }
+            
+            // Llenar datos en el modal de baja
+            document.getElementById('modal_num_inventario').textContent = mapaData.num_registro;
+            document.getElementById('modal_titulo').textContent = mapaData.denominacion;
+            document.getElementById('modal_autor').textContent = mapaData.tipo;
+            document.getElementById('modal_editorial').textContent = '-';
+            document.getElementById('modal_cdu').textContent = '-';
+            document.getElementById('modal_siglas').textContent = '-';
+            document.getElementById('modal_sede').textContent = mapaData.sede;
+            
+            // Configurar el formulario para mapas
+            const form = document.querySelector('#bajaModal form');
+            form.action = '/baja-mapa/';
+            
+            // Agregar campo oculto para el ID del mapa
+            let hiddenInput = document.getElementById('mapa_id_hidden');
+            if (!hiddenInput) {
+                hiddenInput = document.createElement('input');
+                hiddenInput.type = 'hidden';
+                hiddenInput.name = 'mapa_id';
+                hiddenInput.id = 'mapa_id_hidden';
+                form.appendChild(hiddenInput);
+            }
+            hiddenInput.value = id;
+            
+            // Limpiar el campo libro_id para evitar conflictos
+            document.getElementById('libro_id').value = '';
+            
+            // Mostrar el modal
+            const modal = new bootstrap.Modal(document.getElementById('bajaModal'));
+            modal.show();
+            
+        } catch (error) {
+            console.error('Error en darDeBajaMapa:', error);
+            alert('Error al procesar la baja del mapa');
+        }
+    };
+
+    window.darDeBajaPrograma = function(id, materia) {
+        alert(`Dar de baja Programa ID: ${id}, Materia: ${materia} - Funcionalidad en desarrollo`);
+    };
+
+    window.darDeBajaMultimedia = function(id, tipo) {
+        try {
+            console.log('🎬 Iniciando proceso de baja para multimedia:', id);
+            
+            // Buscar los datos del multimedia en la tabla
+            const multimediaData = window.multimediaTableData?.find(item => item.id_multi == id);
+            
+            if (!multimediaData) {
+                console.error('❌ No se encontraron datos para multimedia ID:', id);
+                alert('Error: No se encontraron los datos del multimedia');
+                return;
+            }
+            
+            console.log('📊 Datos del multimedia encontrados:', multimediaData);
+            
+            // Llenar datos en el modal de baja
+            document.getElementById('modal_num_inventario').textContent = multimediaData.id_multi || 'N/A';
+            document.getElementById('modal_titulo').textContent = multimediaData.titulo_contenido || 'Sin título';
+            document.getElementById('modal_autor').textContent = multimediaData.profesor || 'Sin especificar';
+            document.getElementById('modal_editorial').textContent = multimediaData.carrera || 'Sin especificar';
+            document.getElementById('modal_cdu').textContent = multimediaData.materia || 'Sin especificar';
+            document.getElementById('modal_siglas').textContent = multimediaData.ingresar_enlace || 'Sin enlace';
+            document.getElementById('modal_sede').textContent = multimediaData.sede || 'Sin especificar';
+            
+            // Configurar el formulario para multimedia
+            const form = document.querySelector('#bajaModal form');
+            form.action = '/baja-multimedia/';
+            
+            // Agregar campo oculto para el ID del multimedia
+            let hiddenInput = document.getElementById('multimedia_id_hidden');
+            if (!hiddenInput) {
+                hiddenInput = document.createElement('input');
+                hiddenInput.type = 'hidden';
+                hiddenInput.name = 'id_multi';
+                hiddenInput.id = 'multimedia_id_hidden';
+                form.appendChild(hiddenInput);
+            }
+            hiddenInput.value = id;
+            
+            // Limpiar el campo libro_id para evitar conflictos
+            document.getElementById('libro_id').value = '';
+            
+            // Mostrar el modal
+            const modal = new bootstrap.Modal(document.getElementById('bajaModal'));
+            modal.show();
+            
+        } catch (error) {
+            console.error('Error en darDeBajaMultimedia:', error);
+            alert('Error al procesar la baja del multimedia');
+        }
+    };
+
+    window.darDeBajaNotebook = function(id, tipo) {
+        alert(`Dar de baja Notebook ID: ${id}, Tipo: ${tipo} - Funcionalidad en desarrollo`);
+    };
+
+    window.darDeBajaProyector = function(id, tipo) {
+        alert(`Dar de baja Proyector ID: ${id}, Tipo: ${tipo} - Funcionalidad en desarrollo`);
+    };
+
+    window.darDeBajaVarios = function(id, tipo) {
+        alert(`Dar de baja Varios ID: ${id}, Tipo: ${tipo} - Funcionalidad en desarrollo`);
+    };
+
+    window.verInformeBajaMapa = function(id) {
+        try {
+            // Obtener datos del mapa desde la fila de la tabla
+            const filasMapa = document.querySelectorAll('#mapas-table tr');
+            let mapaData = null;
+            
+            filasMapa.forEach(fila => {
+                const celdas = fila.querySelectorAll('td');
+                if (celdas.length > 0 && celdas[0].textContent.trim() === id.toString()) {
+                    mapaData = {
+                        id: celdas[0].textContent.trim(),
+                        tipo: celdas[1].textContent.trim(),
+                        denominacion: celdas[2].textContent.trim(),
+                        num_registro: celdas[3].textContent.trim(),
+                        sede: celdas[4].textContent.trim()
+                    };
+                }
+            });
+            
+            if (!mapaData) {
+                alert('Error: No se pudieron obtener los datos del mapa');
+                return;
+            }
+            
+            // Llenar datos básicos del mapa en el modal
+            document.getElementById('informe_num_inventario').textContent = mapaData.num_registro;
+            document.getElementById('informe_titulo').textContent = mapaData.denominacion;
+            document.getElementById('informe_autor').textContent = mapaData.tipo;
+            document.getElementById('informe_cdu').textContent = '-';
+            document.getElementById('informe_siglas').textContent = mapaData.sede;
+            
+            // Mostrar indicador de carga
+            const motivoElement = document.getElementById('informe_motivo');
+            const fechaElement = document.getElementById('informe_fecha_baja');
+            
+            motivoElement.textContent = 'Cargando motivo de baja...';
+            fechaElement.textContent = 'Cargando...';
+            
+            // Manejar imagen del mapa
+            const imagenModal = document.getElementById('informe_imagen');
+            const placeholderModal = document.getElementById('informe_placeholder');
+            
+            if (imagenModal && placeholderModal) {
+                imagenModal.style.display = 'none';
+                placeholderModal.style.display = 'flex';
+            }
+            
+            // Guardar ID del mapa actual para el botón de dar de alta
+            window.currentMapaId = id;
+            window.currentLibroId = null; // Limpiar ID de libro
+            
+            // Mostrar el modal
+            const modal = new bootstrap.Modal(document.getElementById('verInformeModal'));
+            modal.show();
+            
+            // Obtener datos reales del informe de baja
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+            
+            fetch('/obtener-informe-baja-mapa/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken
+                },
+                body: JSON.stringify({
+                    mapa_id: id
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const informe = data.informe;
+                    
+                    // Actualizar motivo de baja
+                    if (informe.motivo && informe.motivo.trim() !== '') {
+                        motivoElement.textContent = informe.motivo;
+                        motivoElement.style.color = '#495057';
+                        motivoElement.style.fontStyle = 'normal';
+                    } else {
+                        motivoElement.textContent = 'Motivo no registrado';
+                        motivoElement.style.color = '#6c757d';
+                        motivoElement.style.fontStyle = 'italic';
+                    }
+                    
+                    // Actualizar fecha de baja
+                    if (informe.fecha_baja) {
+                        fechaElement.textContent = informe.fecha_baja;
+                    } else {
+                        fechaElement.textContent = 'Fecha no registrada';
+                    }
+                    
+                    // Manejar imagen de baja
+                    const imagenBajaContainer = document.getElementById('imagen_baja_container');
+                    const imagenBaja = document.getElementById('imagen_baja');
+                    
+                    if (informe.imagen_baja && imagenBaja && imagenBajaContainer) {
+                        imagenBaja.src = informe.imagen_baja;
+                        imagenBajaContainer.style.display = 'block';
+                    } else if (imagenBajaContainer) {
+                        imagenBajaContainer.style.display = 'none';
+                    }
+                } else {
+                    motivoElement.innerHTML = `<span style="color: #dc3545; font-style: italic;">Error al cargar: ${data.error}</span>`;
+                    fechaElement.textContent = 'Error al cargar';
+                    console.error('Error:', data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                motivoElement.innerHTML = '<span style="color: #dc3545; font-style: italic;">Error de conexión al cargar el motivo</span>';
+                fechaElement.textContent = 'Error de conexión';
+            });
+            
+        } catch (error) {
+            console.error('Error en verInformeBajaMapa:', error);
+            alert('Error al mostrar el informe de baja del mapa');
+        }
+    };
+
+    window.verInformeBajaPrograma = function(id) {
+        alert(`Informe de baja para Programa ID: ${id} - Funcionalidad en desarrollo`);
+    };
+
+    window.verInformeBajaMultimedia = function(id) {
+        try {
+            // Obtener datos del multimedia desde la fila de la tabla
+            const filasMultimedia = document.querySelectorAll('#multimedia-table tr');
+            let multimediaData = null;
+            
+            filasMultimedia.forEach(fila => {
+                const celdas = fila.querySelectorAll('td');
+                if (celdas.length > 0 && celdas[0].textContent.trim() === id.toString()) {
+                    multimediaData = {
+                        id: celdas[0].textContent.trim(),
+                        titulo_contenido: celdas[1].textContent.trim(),
+                        profesor: celdas[2].textContent.trim(),
+                        carrera: celdas[3].textContent.trim(),
+                        materia: celdas[4].textContent.trim(),
+                        enlace: celdas[5].textContent.trim(),
+                        sede: celdas[6].textContent.trim()
+                    };
+                }
+            });
+            
+            if (!multimediaData) {
+                alert('Error: No se pudieron obtener los datos del multimedia');
+                return;
+            }
+            
+            // Llenar datos básicos del multimedia en el modal
+            document.getElementById('informe_num_inventario').textContent = multimediaData.id;
+            document.getElementById('informe_titulo').textContent = multimediaData.titulo_contenido;
+            document.getElementById('informe_autor').textContent = multimediaData.profesor;
+            document.getElementById('informe_cdu').textContent = multimediaData.carrera;
+            document.getElementById('informe_siglas').textContent = multimediaData.sede;
+            
+            // Mostrar indicador de carga
+            const motivoElement = document.getElementById('informe_motivo');
+            const fechaElement = document.getElementById('informe_fecha_baja');
+            
+            motivoElement.textContent = 'Cargando motivo de baja...';
+            fechaElement.textContent = 'Cargando...';
+            
+            // Manejar imagen del multimedia
+            const imagenModal = document.getElementById('informe_imagen');
+            const placeholderModal = document.getElementById('informe_placeholder');
+            
+            if (imagenModal && placeholderModal) {
+                imagenModal.style.display = 'none';
+                placeholderModal.style.display = 'flex';
+            }
+            
+            // Guardar ID del multimedia actual para el botón de dar de alta
+            window.currentMultimediaId = id;
+            window.currentLibroId = null; // Limpiar ID de libro
+            window.currentMapaId = null; // Limpiar ID de mapa
+            
+            // Mostrar el modal
+            const modal = new bootstrap.Modal(document.getElementById('verInformeModal'));
+            modal.show();
+            
+            // Obtener datos reales del informe de baja
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+            const formData = new FormData();
+            formData.append('multimedia_id', id);
+            formData.append('csrfmiddlewaretoken', csrfToken);
+            
+            fetch('/obtener-informe-baja-multimedia/', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': csrfToken
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const informe = data.informe;
+                    
+                    // Actualizar motivo de baja
+                    if (informe.motivo_baja && informe.motivo_baja.trim() !== '') {
+                        motivoElement.textContent = informe.motivo_baja;
+                        motivoElement.style.color = '#495057';
+                        motivoElement.style.fontStyle = 'normal';
+                    } else {
+                        motivoElement.textContent = 'Motivo no registrado';
+                        motivoElement.style.color = '#6c757d';
+                        motivoElement.style.fontStyle = 'italic';
+                    }
+                    
+                    // Actualizar fecha de baja
+                    if (informe.fecha_baja) {
+                        fechaElement.textContent = informe.fecha_baja;
+                    } else {
+                        fechaElement.textContent = 'Fecha no registrada';
+                    }
+                    
+                    // Manejar imagen de baja
+                    const imagenBajaContainer = document.getElementById('imagen_baja_container');
+                    const imagenBaja = document.getElementById('imagen_baja');
+                    
+                    if (informe.imagen_url && imagenBaja && imagenBajaContainer) {
+                        imagenBaja.src = informe.imagen_url;
+                        imagenBajaContainer.style.display = 'block';
+                    } else if (imagenBajaContainer) {
+                        imagenBajaContainer.style.display = 'none';
+                    }
+                } else {
+                    motivoElement.innerHTML = `<span style="color: #dc3545; font-style: italic;">Error al cargar: ${data.error}</span>`;
+                    fechaElement.textContent = 'Error al cargar';
+                    console.error('Error:', data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                motivoElement.innerHTML = '<span style="color: #dc3545; font-style: italic;">Error de conexión al cargar el motivo</span>';
+                fechaElement.textContent = 'Error de conexión';
+            });
+            
+        } catch (error) {
+            console.error('Error en verInformeBajaMultimedia:', error);
+            alert('Error al mostrar el informe de baja del multimedia');
+        }
+    };
+
+    window.verInformeBajaNotebook = function(id) {
+        alert(`Informe de baja para Notebook ID: ${id} - Funcionalidad en desarrollo`);
+    };
+
+    window.verInformeBajaProyector = function(id) {
+        alert(`Informe de baja para Proyector ID: ${id} - Funcionalidad en desarrollo`);
+    };
+
+    window.verInformeBajaVarios = function(id) {
+        alert(`Informe de baja para Varios ID: ${id} - Funcionalidad en desarrollo`);
+    };
+
+    // Event listener para el botón "DAR DE ALTA" - IMPLEMENTACIÓN COMPLETA
+    const btnDarDeAlta = document.getElementById('btnDarDeAlta');
+    if (btnDarDeAlta) {
+        btnDarDeAlta.addEventListener('click', function() {
+            // Verificar si es un libro, mapa o multimedia
+            if (window.currentLibroId) {
+                // Lógica para libros
+                const confirmarModal = new bootstrap.Modal(document.getElementById('confirmarAltaModal'));
+                const tituloLibro = document.getElementById('informe_titulo').textContent;
+                document.getElementById('confirm_titulo_libro').textContent = tituloLibro;
+                
+                const informeModal = bootstrap.Modal.getInstance(document.getElementById('verInformeModal'));
+                if (informeModal) informeModal.hide();
+                
+                confirmarModal.show();
+            } else if (window.currentMapaId) {
+                // Lógica para mapas - IMPLEMENTACIÓN COMPLETA
+                const confirmarModal = new bootstrap.Modal(document.getElementById('confirmarAltaModal'));
+                const denominacionMapa = document.getElementById('informe_titulo').textContent;
+                document.getElementById('confirm_titulo_libro').textContent = denominacionMapa;
+                
+                const informeModal = bootstrap.Modal.getInstance(document.getElementById('verInformeModal'));
+                if (informeModal) informeModal.hide();
+                
+                confirmarModal.show();
+            } else if (window.currentMultimediaId) {
+                // Lógica para multimedia - IMPLEMENTACIÓN COMPLETA
+                const confirmarModal = new bootstrap.Modal(document.getElementById('confirmarAltaModal'));
+                const tituloMultimedia = document.getElementById('informe_titulo').textContent;
+                document.getElementById('confirm_titulo_libro').textContent = tituloMultimedia;
+                
+                const informeModal = bootstrap.Modal.getInstance(document.getElementById('verInformeModal'));
+                if (informeModal) informeModal.hide();
+                
+                confirmarModal.show();
+            } else {
+                alert('Error: No se pudo identificar el material a reactivar');
+            }
+        });
+    }
+    
+    // Event listener para el botón CONFIRMAR del modal de confirmación
+    const btnConfirmarAlta = document.getElementById('confirmarDarAlta');
+    if (btnConfirmarAlta) {
+        btnConfirmarAlta.addEventListener('click', function() {
+            if (window.currentLibroId) {
+                darDeAltaLibro(window.currentLibroId);
+            } else if (window.currentMapaId) {
+                darDeAltaMapa(window.currentMapaId);
+            } else if (window.currentMultimediaId) {
+                darDeAltaMultimedia(window.currentMultimediaId);
+            }
+        });
+    }
+
+    // ===== FUNCIÓN PARA DAR DE ALTA LIBRO (COMUNICACIÓN CON BACKEND) =====
+    function darDeAltaLibro(libroId) {
+        if (!libroId) {
+            alert('Error: ID de libro no válido');
+            return;
+        }
+        
+        // Mostrar indicador de carga
+        const btnConfirmar = document.getElementById('confirmarDarAlta');
+        const textoOriginal = btnConfirmar.textContent;
+        btnConfirmar.textContent = 'PROCESANDO...';
+        btnConfirmar.disabled = true;
+        
+        // Preparar datos para enviar
+        const formData = new FormData();
+        formData.append('libro_id', libroId);
+        formData.append('sede', 'LA PLATA'); // Valor por defecto
+        formData.append('disponibilidad', 'Domicilio'); // Valor por defecto
+        formData.append('observaciones', 'Material reactivado desde sistema de gestión');
+        
+        // Obtener token CSRF
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        formData.append('csrfmiddlewaretoken', csrfToken);
+        
+        // Realizar petición AJAX
+        fetch('/dar-alta-libro/', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': csrfToken
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Restaurar botón
+            btnConfirmar.textContent = textoOriginal;
+            btnConfirmar.disabled = false;
+            
+            if (data.success) {
+                // Cerrar modal de confirmación
+                const confirmarModal = bootstrap.Modal.getInstance(document.getElementById('confirmarAltaModal'));
+                if (confirmarModal) confirmarModal.hide();
+                
+                // Mostrar modal de éxito
+                const exitoModal = new bootstrap.Modal(document.getElementById('exitoModal'));
+                exitoModal.show();
+                
+                // Recargar la página después de 2 segundos para actualizar la tabla
+                setTimeout(() => {
+                    window.location.reload();
+                }, 2000);
+                
+                console.log('✅ Libro dado de alta exitosamente:', data);
+            } else {
+                alert('Error al dar de alta el libro: ' + (data.error || 'Error desconocido'));
+                console.error('❌ Error del servidor:', data);
+            }
+        })
+        .catch(error => {
+            // Restaurar botón
+            btnConfirmar.textContent = textoOriginal;
+            btnConfirmar.disabled = false;
+            
+            console.error('❌ Error en la petición:', error);
+            alert('Error de conexión. Por favor, intente nuevamente.');
+        });
+    }
+
+    // ===== FUNCIÓN PARA DAR DE ALTA MULTIMEDIA (COMUNICACIÓN CON BACKEND) =====
+    function darDeAltaMultimedia(multimediaId) {
+        if (!multimediaId) {
+            alert('Error: ID de multimedia no válido');
+            return;
+        }
+        
+        // Mostrar indicador de carga
+        const btnConfirmar = document.getElementById('confirmarDarAlta');
+        const textoOriginal = btnConfirmar.textContent;
+        btnConfirmar.textContent = 'PROCESANDO...';
+        btnConfirmar.disabled = true;
+        
+        // Preparar datos para enviar
+        const formData = new FormData();
+        formData.append('multimedia_id', multimediaId);
+        formData.append('sede', 'LA PLATA'); // Valor por defecto
+        formData.append('observaciones', 'Material reactivado desde sistema de gestión');
+        
+        // Obtener token CSRF
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        formData.append('csrfmiddlewaretoken', csrfToken);
+        
+        // Realizar petición AJAX
+        fetch('/dar-alta-multimedia/', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': csrfToken
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Restaurar botón
+            btnConfirmar.textContent = textoOriginal;
+            btnConfirmar.disabled = false;
+            
+            if (data.success) {
+                // Cerrar modal de confirmación
+                const confirmarModal = bootstrap.Modal.getInstance(document.getElementById('confirmarAltaModal'));
+                if (confirmarModal) confirmarModal.hide();
+                
+                // Mostrar modal de éxito
+                const exitoModal = new bootstrap.Modal(document.getElementById('exitoModal'));
+                exitoModal.show();
+                
+                // Recargar la página después de 2 segundos para actualizar la tabla
+                setTimeout(() => {
+                    window.location.reload();
+                }, 2000);
+                
+                console.log('✅ Multimedia dado de alta exitosamente:', data);
+            } else {
+                alert('Error al dar de alta el multimedia: ' + (data.error || 'Error desconocido'));
+                console.error('❌ Error del servidor:', data);
+            }
+        })
+        .catch(error => {
+            // Restaurar botón
+            btnConfirmar.textContent = textoOriginal;
+            btnConfirmar.disabled = false;
+            
+            console.error('❌ Error en la petición:', error);
+            alert('Error de conexión. Por favor, intente nuevamente.');
+        });
+    }
+
+    // ===== FUNCIÓN PARA DAR DE ALTA MAPA (COMUNICACIÓN CON BACKEND) =====
+    function darDeAltaMapa(mapaId) {
+        if (!mapaId) {
+            alert('Error: ID de mapa no válido');
+            return;
+        }
+        
+        // Mostrar indicador de carga
+        const btnConfirmar = document.getElementById('confirmarDarAlta');
+        const textoOriginal = btnConfirmar.textContent;
+        btnConfirmar.textContent = 'PROCESANDO...';
+        btnConfirmar.disabled = true;
+        
+        // Preparar datos para enviar
+        const formData = new FormData();
+        formData.append('mapa_id', mapaId);
+        formData.append('sede', 'LA PLATA'); // Valor por defecto
+        formData.append('observaciones', 'Material reactivado desde sistema de gestión');
+        
+        // Obtener token CSRF
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        formData.append('csrfmiddlewaretoken', csrfToken);
+        
+        // Realizar petición AJAX
+        fetch('/dar-alta-mapa/', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': csrfToken
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Restaurar botón
+            btnConfirmar.textContent = textoOriginal;
+            btnConfirmar.disabled = false;
+            
+            if (data.success) {
+                // Cerrar modal de confirmación
+                const confirmarModal = bootstrap.Modal.getInstance(document.getElementById('confirmarAltaModal'));
+                if (confirmarModal) confirmarModal.hide();
+                
+                // Mostrar modal de éxito
+                const exitoModal = new bootstrap.Modal(document.getElementById('exitoModal'));
+                exitoModal.show();
+                
+                // Recargar la página después de 2 segundos para actualizar la tabla
+                setTimeout(() => {
+                    window.location.reload();
+                }, 2000);
+                
+                console.log('✅ Mapa dado de alta exitosamente:', data);
+            } else {
+                alert('Error al dar de alta el mapa: ' + (data.error || 'Error desconocido'));
+                console.error('❌ Error del servidor:', data);
+            }
+        })
+        .catch(error => {
+            // Restaurar botón
+            btnConfirmar.textContent = textoOriginal;
+            btnConfirmar.disabled = false;
+            
+            console.error('❌ Error en la petición:', error);
+            alert('Error de conexión. Por favor, intente nuevamente.');
+        });
+    }
+});
+</script>
+
+<!-- Modal de Detalles para Mapas -->
+<div class="modal fade" id="detallesMapaModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content" style="border: none; border-radius: 15px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
+            <!-- Header del modal -->
+            <div class="modal-header" style="background: linear-gradient(135deg, #27ae60, #229954); color: white; padding: 1.5rem; border: none;">
+                <h5 class="modal-title" style="font-weight: 700; font-size: 1.2rem; text-transform: uppercase; letter-spacing: 1px; margin: 0;">
+                    🗺️ DETALLES DEL MAPA
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" 
+                        style="filter: brightness(0) invert(1); opacity: 0.8; font-size: 1.2rem;"></button>
+            </div>
+
+            <div class="modal-body" style="padding: 2rem; background: #f8f9fa; max-height: 80vh; overflow-y: auto;">
+                <!-- Información principal -->
+                <div class="row mb-4">
+                    <!-- Información detallada -->
+                    <div class="col-12">
+                        <div style="background: white; padding: 1.5rem; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+                            <h6 style="color: #27ae60; font-weight: 700; text-transform: uppercase; margin-bottom: 1rem; font-size: 14px;">
+                                Información del Mapa
+                            </h6>
+                            
+                            <table style="width: 100%; font-size: 14px; color: #2c3e50;">
+                                <tr style="border-bottom: 1px solid #dee2e6;">
+                                    <td style="padding: 12px 0; font-weight: 600; width: 35%;">ID:</td>
+                                    <td style="padding: 12px 0;" id="detalle_mapa_id">-</td>
+                                </tr>
+                                <tr style="border-bottom: 1px solid #dee2e6;">
+                                    <td style="padding: 12px 0; font-weight: 600;">N° Registro:</td>
+                                    <td style="padding: 12px 0;" id="detalle_mapa_num_registro">-</td>
+                                </tr>
+                                <tr style="border-bottom: 1px solid #dee2e6;">
+                                    <td style="padding: 12px 0; font-weight: 600;">Tipo:</td>
+                                    <td style="padding: 12px 0; font-weight: 600; color: #27ae60;" id="detalle_mapa_tipo">-</td>
+                                </tr>
+                                <tr style="border-bottom: 1px solid #dee2e6;">
+                                    <td style="padding: 12px 0; font-weight: 600;">Denominación:</td>
+                                    <td style="padding: 12px 0;" id="detalle_mapa_denominacion">-</td>
+                                </tr>
+                                <tr style="border-bottom: 1px solid #dee2e6;">
+                                    <td style="padding: 12px 0; font-weight: 600;">Sede:</td>
+                                    <td style="padding: 12px 0;" id="detalle_mapa_sede">-</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 12px 0; font-weight: 600;">Estado:</td>
+                                    <td style="padding: 12px 0;" id="detalle_mapa_estado">-</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer del modal -->
+            <div class="modal-footer" style="background: #f8f9fa; padding: 1rem 2rem; border: none; justify-content: center;">
+                <button type="button" class="btn" data-bs-dismiss="modal" 
+                        style="background: #6c757d; color: white; border: none; padding: 10px 30px; border-radius: 25px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; font-size: 13px;">
+                    CERRAR
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Detalles para Programas -->
+<div class="modal fade" id="detallesProgramaModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content" style="border: none; border-radius: 15px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
+            <!-- Header del modal -->
+            <div class="modal-header" style="background: linear-gradient(135deg, #8e44ad, #7d3c98); color: white; padding: 1.5rem; border: none;">
+                <h5 class="modal-title" style="font-weight: 700; font-size: 1.2rem; text-transform: uppercase; letter-spacing: 1px; margin: 0;">
+                    💻 DETALLES DEL PROGRAMA
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" 
+                        style="filter: brightness(0) invert(1); opacity: 0.8; font-size: 1.2rem;"></button>
+            </div>
+
+            <div class="modal-body" style="padding: 2rem; background: #f8f9fa; max-height: 80vh; overflow-y: auto;">
+                <!-- Información principal -->
+                <div class="row mb-4">
+                    <!-- Información detallada -->
+                    <div class="col-12">
+                        <div style="background: white; padding: 1.5rem; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+                            <h6 style="color: #8e44ad; font-weight: 700; text-transform: uppercase; margin-bottom: 1rem; font-size: 14px;">
+                                Información del Programa
+                            </h6>
+                            
+                            <table style="width: 100%; font-size: 14px; color: #2c3e50;">
+                                <tr style="border-bottom: 1px solid #dee2e6;">
+                                    <td style="padding: 12px 0; font-weight: 600; width: 35%;">ID:</td>
+                                    <td style="padding: 12px 0;" id="detalle_programa_id">-</td>
+                                </tr>
+                                <tr style="border-bottom: 1px solid #dee2e6;">
+                                    <td style="padding: 12px 0; font-weight: 600;">N° Registro:</td>
+                                    <td style="padding: 12px 0;" id="detalle_programa_num_registro">-</td>
+                                </tr>
+                                <tr style="border-bottom: 1px solid #dee2e6;">
+                                    <td style="padding: 12px 0; font-weight: 600;">Tipo:</td>
+                                    <td style="padding: 12px 0; font-weight: 600; color: #8e44ad;" id="detalle_programa_tipo">-</td>
+                                </tr>
+                                <tr style="border-bottom: 1px solid #dee2e6;">
+                                    <td style="padding: 12px 0; font-weight: 600;">Denominación:</td>
+                                    <td style="padding: 12px 0;" id="detalle_programa_denominacion">-</td>
+                                </tr>
+                                <tr style="border-bottom: 1px solid #dee2e6;">
+                                    <td style="padding: 12px 0; font-weight: 600;">Enlace:</td>
+                                    <td style="padding: 12px 0;" id="detalle_programa_enlace">-</td>
+                                </tr>
+                                <tr style="border-bottom: 1px solid #dee2e6;">
+                                    <td style="padding: 12px 0; font-weight: 600;">Sede:</td>
+                                    <td style="padding: 12px 0;" id="detalle_programa_sede">-</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 12px 0; font-weight: 600;">Disponibilidad:</td>
+                                    <td style="padding: 12px 0;" id="detalle_programa_disponibilidad">-</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Observaciones -->
+                <div class="row">
+                    <div class="col-12">
+                        <div style="background: white; padding: 1.5rem; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+                            <h6 style="color: #8e44ad; font-weight: 700; text-transform: uppercase; margin-bottom: 1rem; font-size: 14px;">
+                                Observaciones
+                            </h6>
+                            <div id="detalle_programa_observaciones" style="padding: 1rem; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #8e44ad; font-size: 14px; line-height: 1.5; min-height: 80px;">
+                                Cargando observaciones...
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer del modal -->
+            <div class="modal-footer" style="background: #f8f9fa; padding: 1rem 2rem; border: none; justify-content: center;">
+                <button type="button" class="btn" data-bs-dismiss="modal" 
+                        style="background: #6c757d; color: white; border: none; padding: 10px 30px; border-radius: 25px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; font-size: 13px;">
+                    CERRAR
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Detalles para Multimedia -->
+<div class="modal fade" id="detallesMultimediaModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content" style="border: none; border-radius: 15px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
+            <!-- Header del modal -->
+            <div class="modal-header" style="background: linear-gradient(135deg, #e74c3c, #c0392b); color: white; padding: 1.5rem; border: none;">
+                <h5 class="modal-title" style="font-weight: 700; font-size: 1.2rem; text-transform: uppercase; letter-spacing: 1px; margin: 0;">
+                    🎬 DETALLES DEL MULTIMEDIA
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" 
+                        style="filter: brightness(0) invert(1); opacity: 0.8; font-size: 1.2rem;"></button>
+            </div>
+
+            <div class="modal-body" style="padding: 2rem; background: #f8f9fa; max-height: 80vh; overflow-y: auto;">
+                <!-- Información principal -->
+                <div class="row mb-4">
+                    <!-- Información detallada -->
+                    <div class="col-12">
+                        <div style="background: white; padding: 1.5rem; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+                            <h6 style="color: #e74c3c; font-weight: 700; text-transform: uppercase; margin-bottom: 1rem; font-size: 14px;">
+                                Información del Multimedia
+                            </h6>
+                            
+                            <table style="width: 100%; font-size: 14px; color: #2c3e50;">
+                                <tr style="border-bottom: 1px solid #dee2e6;">
+                                    <td style="padding: 12px 0; font-weight: 600; width: 35%;">ID:</td>
+                                    <td style="padding: 12px 0;" id="detalle_multimedia_id">-</td>
+                                </tr>
+                                <tr style="border-bottom: 1px solid #dee2e6;">
+                                    <td style="padding: 12px 0; font-weight: 600;">Materia:</td>
+                                    <td style="padding: 12px 0; font-weight: 600; color: #e74c3c;" id="detalle_multimedia_materia">-</td>
+                                </tr>
+                                <tr style="border-bottom: 1px solid #dee2e6;">
+                                    <td style="padding: 12px 0; font-weight: 600;">Profesor:</td>
+                                    <td style="padding: 12px 0;" id="detalle_multimedia_profesor">-</td>
+                                </tr>
+                                <tr style="border-bottom: 1px solid #dee2e6;">
+                                    <td style="padding: 12px 0; font-weight: 600;">Carrera:</td>
+                                    <td style="padding: 12px 0;" id="detalle_multimedia_carrera">-</td>
+                                </tr>
+                                <tr style="border-bottom: 1px solid #dee2e6;">
+                                    <td style="padding: 12px 0; font-weight: 600;">Título Contenido:</td>
+                                    <td style="padding: 12px 0;" id="detalle_multimedia_titulo_contenido">-</td>
+                                </tr>
+                                <tr style="border-bottom: 1px solid #dee2e6;">
+                                    <td style="padding: 12px 0; font-weight: 600;">Enlace:</td>
+                                    <td style="padding: 12px 0;" id="detalle_multimedia_enlace">-</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 12px 0; font-weight: 600;">Estado:</td>
+                                    <td style="padding: 12px 0;" id="detalle_multimedia_estado">-</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer del modal -->
+            <div class="modal-footer" style="background: #f8f9fa; padding: 1rem 2rem; border: none; justify-content: center;">
+                <button type="button" class="btn" data-bs-dismiss="modal" 
+                        style="background: #6c757d; color: white; border: none; padding: 10px 30px; border-radius: 25px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; font-size: 13px;">
+                    CERRAR
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Detalles para Notebook -->
+<div class="modal fade" id="detallesNotebookModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content" style="border: none; border-radius: 15px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
+            <!-- Header del modal -->
+            <div class="modal-header" style="background: linear-gradient(135deg, #f39c12, #e67e22); color: white; padding: 1.5rem; border: none;">
+                <h5 class="modal-title" style="font-weight: 700; font-size: 1.2rem; text-transform: uppercase; letter-spacing: 1px; margin: 0;">
+                    💻 DETALLES DEL NOTEBOOK
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" 
+                        style="filter: brightness(0) invert(1); opacity: 0.8; font-size: 1.2rem;"></button>
+            </div>
+
+            <div class="modal-body" style="padding: 2rem; background: #f8f9fa; max-height: 80vh; overflow-y: auto;">
+                <!-- Información principal -->
+                <div class="row mb-4">
+                    <!-- Información detallada -->
+                    <div class="col-12">
+                        <div style="background: white; padding: 1.5rem; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+                            <h6 style="color: #f39c12; font-weight: 700; text-transform: uppercase; margin-bottom: 1rem; font-size: 14px;">
+                                Información del Notebook
+                            </h6>
+                            
+                            <table style="width: 100%; font-size: 14px; color: #2c3e50;">
+                                <tr style="border-bottom: 1px solid #dee2e6;">
+                                    <td style="padding: 12px 0; font-weight: 600; width: 35%;">ID:</td>
+                                    <td style="padding: 12px 0;" id="detalle_notebook_id">-</td>
+                                </tr>
+                                <tr style="border-bottom: 1px solid #dee2e6;">
+                                    <td style="padding: 12px 0; font-weight: 600;">N° Registro:</td>
+                                    <td style="padding: 12px 0;" id="detalle_notebook_num_registro">-</td>
+                                </tr>
+                                <tr style="border-bottom: 1px solid #dee2e6;">
+                                    <td style="padding: 12px 0; font-weight: 600;">Modelo:</td>
+                                    <td style="padding: 12px 0; font-weight: 600; color: #f39c12;" id="detalle_notebook_modelo">-</td>
+                                </tr>
+                                <tr style="border-bottom: 1px solid #dee2e6;">
+                                <tr style="border-bottom: 1px solid #dee2e6;">
+                                    <td style="padding: 12px 0; font-weight: 600;">Sede:</td>
+                                    <td style="padding: 12px 0;" id="detalle_notebook_sede">-</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 12px 0; font-weight: 600;">Estado:</td>
+                                    <td style="padding: 12px 0;" id="detalle_notebook_estado">-</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer del modal -->
+            <div class="modal-footer" style="background: #f8f9fa; padding: 1rem 2rem; border: none; justify-content: center;">
+                <button type="button" class="btn" data-bs-dismiss="modal" 
+                        style="background: #6c757d; color: white; border: none; padding: 10px 30px; border-radius: 25px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; font-size: 13px;">
+                    CERRAR
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Detalles para Proyector -->
+<div class="modal fade" id="detallesProyectorModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content" style="border: none; border-radius: 15px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
+            <!-- Header del modal -->
+            <div class="modal-header" style="background: linear-gradient(135deg, #16a085, #138d75); color: white; padding: 1.5rem; border: none;">
+                <h5 class="modal-title" style="font-weight: 700; font-size: 1.2rem; text-transform: uppercase; letter-spacing: 1px; margin: 0;">
+                    📽️ DETALLES DEL PROYECTOR
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" 
+                        style="filter: brightness(0) invert(1); opacity: 0.8; font-size: 1.2rem;"></button>
+            </div>
+
+            <div class="modal-body" style="padding: 2rem; background: #f8f9fa; max-height: 80vh; overflow-y: auto;">
+                <!-- Información principal -->
+                <div class="row mb-4">
+                    <!-- Información detallada -->
+                    <div class="col-12">
+                        <div style="background: white; padding: 1.5rem; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+                            <h6 style="color: #16a085; font-weight: 700; text-transform: uppercase; margin-bottom: 1rem; font-size: 14px;">
+                                Información del Proyector
+                            </h6>
+                            
+                            <table style="width: 100%; font-size: 14px; color: #2c3e50;">
+                                <tr style="border-bottom: 1px solid #dee2e6;">
+                                    <td style="padding: 12px 0; font-weight: 600; width: 35%;">ID:</td>
+                                    <td style="padding: 12px 0;" id="detalle_proyector_id">-</td>
+                                </tr>
+                                <tr style="border-bottom: 1px solid #dee2e6;">
+                                    <td style="padding: 12px 0; font-weight: 600;">N° Registro:</td>
+                                    <td style="padding: 12px 0;" id="detalle_proyector_num_registro">-</td>
+                                </tr>
+                                <tr style="border-bottom: 1px solid #dee2e6;">
+                                    <td style="padding: 12px 0; font-weight: 600;">Modelo:</td>
+                                    <td style="padding: 12px 0; font-weight: 600; color: #16a085;" id="detalle_proyector_modelo">-</td>
+                                </tr>
+                                <tr style="border-bottom: 1px solid #dee2e6;">
+                                    <td style="padding: 12px 0; font-weight: 600;">Sede:</td>
+                                    <td style="padding: 12px 0;" id="detalle_proyector_sede">-</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 12px 0; font-weight: 600;">Estado:</td>
+                                    <td style="padding: 12px 0;" id="detalle_proyector_estado">-</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer del modal -->
+            <div class="modal-footer" style="background: #f8f9fa; padding: 1rem 2rem; border: none; justify-content: center;">
+                <button type="button" class="btn" data-bs-dismiss="modal" 
+                        style="background: #6c757d; color: white; border: none; padding: 10px 30px; border-radius: 25px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; font-size: 13px;">
+                    CERRAR
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Detalles para Varios -->
+<div class="modal fade" id="detallesVariosModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content" style="border: none; border-radius: 15px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
+            <!-- Header del modal -->
+            <div class="modal-header" style="background: linear-gradient(135deg, #9b59b6, #8e44ad); color: white; padding: 1.5rem; border: none;">
+                <h5 class="modal-title" style="font-weight: 700; font-size: 1.2rem; text-transform: uppercase; letter-spacing: 1px; margin: 0;">
+                    📦 DETALLES DEL MATERIAL VARIOS
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" 
+                        style="filter: brightness(0) invert(1); opacity: 0.8; font-size: 1.2rem;"></button>
+            </div>
+
+            <div class="modal-body" style="padding: 2rem; background: #f8f9fa; max-height: 80vh; overflow-y: auto;">
+                <!-- Información principal -->
+                <div class="row mb-4">
+                    <!-- Información detallada -->
+                    <div class="col-12">
+                        <div style="background: white; padding: 1.5rem; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+                            <h6 style="color: #9b59b6; font-weight: 700; text-transform: uppercase; margin-bottom: 1rem; font-size: 14px;">
+                                Información del Material Varios
+                            </h6>
+                            
+                            <table style="width: 100%; font-size: 14px; color: #2c3e50;">
+                                <tr style="border-bottom: 1px solid #dee2e6;">
+                                    <td style="padding: 12px 0; font-weight: 600; width: 35%;">ID:</td>
+                                    <td style="padding: 12px 0;" id="detalle_varios_id">-</td>
+                                </tr>
+                                <tr style="border-bottom: 1px solid #dee2e6;">
+                                    <td style="padding: 12px 0; font-weight: 600;">N° Registro:</td>
+                                    <td style="padding: 12px 0;" id="detalle_varios_num_registro">-</td>
+                                </tr>
+                                <tr style="border-bottom: 1px solid #dee2e6;">
+                                    <td style="padding: 12px 0; font-weight: 600;">Tipo:</td>
+                                    <td style="padding: 12px 0; font-weight: 600; color: #9b59b6;" id="detalle_varios_tipo">-</td>
+                                </tr>
+                                <tr style="border-bottom: 1px solid #dee2e6;">
+                                    <td style="padding: 12px 0; font-weight: 600;">Denominación:</td>
+                                    <td style="padding: 12px 0;" id="detalle_varios_denominacion">-</td>
+                                </tr>
+                                <tr style="border-bottom: 1px solid #dee2e6;">
+                                    <td style="padding: 12px 0; font-weight: 600;">Sede:</td>
+                                    <td style="padding: 12px 0;" id="detalle_varios_sede">-</td>
+                                </tr>
+                                <tr style="border-bottom: 1px solid #dee2e6;">
+                                    <td style="padding: 12px 0; font-weight: 600;">Cantidad Total:</td>
+                                    <td style="padding: 12px 0;" id="detalle_varios_cantidad">-</td>
+                                </tr>
+                                <tr style="border-bottom: 1px solid #dee2e6;">
+                                    <td style="padding: 12px 0; font-weight: 600;">Cantidad Disponible:</td>
+                                    <td style="padding: 12px 0;" id="detalle_varios_cantidad_disponible">-</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 12px 0; font-weight: 600;">Estado:</td>
+                                    <td style="padding: 12px 0;" id="detalle_varios_estado">-</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer del modal -->
+            <div class="modal-footer" style="background: #f8f9fa; padding: 1rem 2rem; border: none; justify-content: center;">
+                <button type="button" class="btn" data-bs-dismiss="modal" 
+                        style="background: #6c757d; color: white; border: none; padding: 10px 30px; border-radius: 25px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; font-size: 13px;">
+                    CERRAR
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para ver detalles del material -->
+<div class="modal fade" id="detallesModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content" style="border: none; border-radius: 15px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
+            <!-- Header del modal -->
+            <div class="modal-header" style="background: linear-gradient(135deg, #3498db, #2980b9); color: white; padding: 1.5rem; border: none;">
+                <h5 class="modal-title" style="font-weight: 700; font-size: 1.2rem; text-transform: uppercase; letter-spacing: 1px; margin: 0;">
+                    📋 DETALLES DEL MATERIAL
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" 
+                        style="filter: brightness(0) invert(1); opacity: 0.8; font-size: 1.2rem;"></button>
+            </div>
+
+            <div class="modal-body" style="padding: 2rem; background: #f8f9fa; max-height: 80vh; overflow-y: auto;">
+                <!-- Información principal con imagen -->
+                <div class="row mb-4">
+                    <!-- Imagen del libro -->
+                    <div class="col-md-4 text-center">
+                        <div style="background: white; padding: 1.5rem; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+                            <h6 style="color: #3498db; font-weight: 700; text-transform: uppercase; margin-bottom: 1rem; font-size: 14px;">
+                                Imagen del Material
+                            </h6>
+                            <div style="width: 200px; height: 280px; margin: 0 auto; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.15); position: relative;">
+                                <img id="detalle_imagen_principal" src="" alt="Material" style="width: 100%; height: 100%; object-fit: cover; display: none;">
+                                <div id="detalle_placeholder_principal" style="width: 100%; height: 100%; background: linear-gradient(135deg, #bdc3c7, #95a5a6); display: flex; align-items: center; justify-content: center; color: white; font-size: 16px; text-align: center; font-weight: 600;">
+                                    Sin<br>Imagen<br>Disponible
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Información detallada -->
+                    <div class="col-md-8">
+                        <div style="background: white; padding: 1.5rem; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+                            <h6 style="color: #3498db; font-weight: 700; text-transform: uppercase; margin-bottom: 1rem; font-size: 14px;">
+                                Información del Material
+                            </h6>
+                            
+                            <table style="width: 100%; font-size: 14px; color: #2c3e50;">
+                                <tr style="border-bottom: 1px solid #dee2e6;">
+                                    <td style="padding: 12px 0; font-weight: 600; width: 35%;">N° Inventario:</td>
+                                    <td style="padding: 12px 0;" id="detalle_num_inventario">-</td>
+                                </tr>
+                                <tr style="border-bottom: 1px solid #dee2e6;">
+                                    <td style="padding: 12px 0; font-weight: 600;">Título:</td>
+                                    <td style="padding: 12px 0; font-weight: 600; color: #3498db;" id="detalle_titulo">-</td>
+                                </tr>
+                                <tr style="border-bottom: 1px solid #dee2e6;">
+                                    <td style="padding: 12px 0; font-weight: 600;">Autor:</td>
+                                    <td style="padding: 12px 0;" id="detalle_autor">-</td>
+                                </tr>
+                                <tr style="border-bottom: 1px solid #dee2e6;">
+                                    <td style="padding: 12px 0; font-weight: 600;">Editorial:</td>
+                                    <td style="padding: 12px 0;" id="detalle_editorial">-</td>
+                                </tr>
+                                <tr style="border-bottom: 1px solid #dee2e6;">
+                                    <td style="padding: 12px 0; font-weight: 600;">CDU:</td>
+                                    <td style="padding: 12px 0;" id="detalle_cdu">-</td>
+                                </tr>
+                                <tr style="border-bottom: 1px solid #dee2e6;">
+                                    <td style="padding: 12px 0; font-weight: 600;">Siglas:</td>
+                                    <td style="padding: 12px 0;" id="detalle_siglas">-</td>
+                                </tr>
+                                <tr style="border-bottom: 1px solid #dee2e6;">
+                                    <td style="padding: 12px 0; font-weight: 600;">Sede:</td>
+                                    <td style="padding: 12px 0;" id="detalle_sede">-</td>
+                                </tr>
+                                <tr style="border-bottom: 1px solid #dee2e6;">
+                                    <td style="padding: 12px 0; font-weight: 600;">Disponibilidad:</td>
+                                    <td style="padding: 12px 0;" id="detalle_disponibilidad">-</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 12px 0; font-weight: 600;">Estado:</td>
+                                    <td style="padding: 12px 0;" id="detalle_estado">-</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Descripción y detalles adicionales -->
+                <div class="row">
+                    <!-- Descripción -->
+                    <div class="col-md-6 mb-3">
+                        <div style="background: white; padding: 1.5rem; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); height: 100%;">
+                            <h6 style="color: #3498db; font-weight: 700; text-transform: uppercase; margin-bottom: 1rem; font-size: 14px;">
+                                Descripción
+                            </h6>
+                            <div id="detalle_descripcion" style="padding: 1rem; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #3498db; font-size: 14px; line-height: 1.5; min-height: 80px;">
+                                Cargando descripción...
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Observaciones -->
+                    <div class="col-md-6 mb-3">
+                        <div style="background: white; padding: 1.5rem; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); height: 100%;">
+                            <h6 style="color: #3498db; font-weight: 700; text-transform: uppercase; margin-bottom: 1rem; font-size: 14px;">
+                                Observaciones
+                            </h6>
+                            <div id="detalle_observaciones" style="padding: 1rem; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #28a745; font-size: 14px; line-height: 1.5; min-height: 80px;">
+                                Cargando observaciones...
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Palabras clave -->
+                <div class="row">
+                    <div class="col-12">
+                        <div style="background: white; padding: 1.5rem; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+                            <h6 style="color: #3498db; font-weight: 700; text-transform: uppercase; margin-bottom: 1rem; font-size: 14px;">
+                                Etiquetas / Palabras Clave
+                            </h6>
+                            <div id="detalle_etiquetas" style="display: flex; flex-wrap: wrap; gap: 8px;">
+                                <!-- Las etiquetas se cargarán dinámicamente -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer del modal -->
+            <div class="modal-footer" style="background: #f8f9fa; padding: 1rem 2rem; border: none; justify-content: center;">
+                <button type="button" class="btn" data-bs-dismiss="modal" 
+                        style="background: #6c757d; color: white; border: none; padding: 10px 30px; border-radius: 25px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; font-size: 13px;">
+                    CERRAR
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Obleas -->
+<div class="modal fade" id="obleasModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content" style="border: none; border-radius: 15px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
+            <!-- Header del modal -->
+            <div class="modal-header" style="background: linear-gradient(135deg, #4ECDC4, #44A08D); color: white; padding: 1.5rem; border: none;">
+                <h5 class="modal-title" style="font-weight: 700; font-size: 1.2rem; text-transform: uppercase; letter-spacing: 1px; margin: 0;">
+                    📋 IMPRIMIR OBLEAS - <span id="contadorObleas">0</span> OBLEAS SELECCIONADAS
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" 
+                        style="filter: brightness(0) invert(1); opacity: 0.8; font-size: 1.2rem;"></button>
+            </div>
+
+            <div class="modal-body" style="padding: 2rem; background: #f8f9fa; max-height: 70vh; overflow-y: auto;">
+                <!-- Área de vista previa de obleas -->
+                <div id="obleasContainer" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 15px; min-height: 200px; background: white; padding: 20px; border-radius: 10px; border: 2px dashed #4ECDC4;">
+                    <div id="placeholder" style="grid-column: 1 / -1; text-align: center; color: #95a5a6; font-style: italic; padding: 40px;">
+                        Haz clic en "Imprimir" de cualquier libro para agregar obleas aquí
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer del modal -->
+            <div class="modal-footer" style="background: #f8f9fa; padding: 1rem 2rem; border: none; justify-content: space-between;">
+                <div style="display: flex; gap: 1rem;">
+                    <button type="button" id="limpiarObleas" class="btn" 
+                            style="background: #95a5a6; color: white; border: none; padding: 10px 25px; border-radius: 25px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; font-size: 13px;">
+                        🗑️ LIMPIAR TODO
+                    </button>
+                </div>
+                <div style="display: flex; gap: 1rem;">
+                    <button type="button" class="btn" data-bs-dismiss="modal" 
+                            style="background: #4285F4; color: white; border: none; padding: 10px 30px; border-radius: 25px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; font-size: 13px;">
+                        CANCELAR
+                    </button>
+                    <button type="button" id="imprimirPDF" class="btn"
+                            style="background: #27ae60; color: white; border: none; padding: 10px 30px; border-radius: 25px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; font-size: 13px;">
+                        🖨️ GENERAR PDF
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Baja -->
+<div class="modal fade" id="bajaModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content" style="border: none; border-radius: 15px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
+            <!-- Header del modal -->
+            <div class="modal-header" style="background: linear-gradient(135deg, #4ECDC4, #44A08D); color: white; padding: 1.5rem; border: none;">
+                <h5 class="modal-title" style="font-weight: 700; font-size: 1.2rem; text-transform: uppercase; letter-spacing: 1px; margin: 0;">
+                    DAR DE BAJA AL MATERIAL SELECCIONADO:
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" 
+                        style="filter: brightness(0) invert(1); opacity: 0.8; font-size: 1.2rem;"></button>
+            </div>
+
+            <form method="POST" action="{% url 'baja_libro' %}" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="modal-body" style="padding: 0; background: #f8f9fa;">
+                    <input type="hidden" id="libro_id" name="libro_id">
+                    
+                    <!-- Información del libro -->
+                    <div style="background: linear-gradient(135deg, #e8f4f8, #f0f8ff); padding: 1.5rem; border-bottom: 2px solid #4ECDC4;">
+                        <div class="row align-items-center">
+                            <div class="col-2 text-center">
+                                <div style="width: 80px; height: 100px; background: #ddd; border-radius: 8px; margin: 0 auto; position: relative; overflow: hidden; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+                                    <img id="libro_imagen_modal" src="" alt="Libro" style="width: 100%; height: 100%; object-fit: cover; display: none;">
+                                    <div id="libro_placeholder" style="width: 100%; height: 100%; background: #bdc3c7; display: flex; align-items: center; justify-content: center; color: white; font-size: 12px; text-align: center;">
+                                        Sin<br>Imagen
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-10">
+                                <table style="width: 100%; font-size: 14px; color: #2c3e50;">
+                                    <tr style="border-bottom: 1px solid #ddd;">
+                                        <td style="padding: 8px 12px; font-weight: 600; background: #ecf0f1; width: 15%; text-align: center;">N° Inv.</td>
+                                        <td style="padding: 8px 12px; font-weight: 600; background: #ecf0f1; width: 25%;">Título</td>
+                                        <td style="padding: 8px 12px; font-weight: 600; background: #ecf0f1; width: 20%;">Autor</td>
+                                        <td style="padding: 8px 12px; font-weight: 600; background: #ecf0f1; width: 15%;">Editorial</td>
+                                        <td style="padding: 8px 12px; font-weight: 600; background: #ecf0f1; width: 10%; text-align: center;">CDU</td>
+                                        <td style="padding: 8px 12px; font-weight: 600; background: #ecf0f1; width: 10%; text-align: center;">Siglas</td>
+                                        <td style="padding: 8px 12px; font-weight: 600; background: #ecf0f1; width: 15%; text-align: center;">Sede</td>
+                                    </tr>
+                                    <tr style="background: rgba(78, 205, 196, 0.1);">
+                                        <td style="padding: 12px 12px; text-align: center; font-weight: 600;" id="modal_num_inventario">1</td>
+                                        <td style="padding: 12px 12px; font-weight: 600; color: #2c3e50;" id="modal_titulo">Título del libro</td>
+                                        <td style="padding: 12px 12px;" id="modal_autor">Autor</td>
+                                        <td style="padding: 12px 12px;" id="modal_editorial">Editorial</td>
+                                        <td style="padding: 12px 12px; text-align: center;" id="modal_cdu">CDU</td>
+                                        <td style="padding: 12px 12px; text-align: center; font-weight: 600;" id="modal_siglas">ABC</td>
+                                        <td style="padding: 12px 12px; text-align: center;" id="modal_sede">LA PLATA</td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sección de formulario -->
+                    <div style="padding: 1.5rem;">
+                        <div class="row">
+                            <!-- Motivo de baja -->
+                            <div class="col-md-6">
+                                <div style="background: white; padding: 1.5rem; border-radius: 10px; border: 2px solid #4ECDC4; height: 100%;">
+                                    <h6 style="color: #4ECDC4; font-weight: 700; text-transform: uppercase; margin-bottom: 1rem; font-size: 14px; letter-spacing: 0.5px;">
+                                        Motivo de baja*
+                                    </h6>
+                                    <textarea class="form-control" id="motivo_baja" name="motivo_baja" 
+                                              rows="6" required placeholder="Describe el motivo de la baja del material..."
+                                              style="border: 1px solid #ddd; border-radius: 8px; font-size: 14px; resize: none; padding: 12px;"></textarea>
+                                </div>
+                            </div>
+
+                            <!-- Cargar imagen -->
+                            <div class="col-md-6">
+                                <div style="background: white; padding: 1.5rem; border-radius: 10px; border: 2px solid #f39c12; height: 100%;">
+                                    <h6 style="color: #f39c12; font-weight: 700; text-transform: uppercase; margin-bottom: 1rem; font-size: 14px; letter-spacing: 0.5px;">
+                                        Cargar imagen de baja
+                                    </h6>
+                                    
+                                    <div style="text-align: center; margin-bottom: 1rem;">
+                                        <div style="width: 120px; height: 80px; border: 2px dashed #f39c12; border-radius: 8px; margin: 0 auto; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s ease; background: #fef9e7;" onclick="document.getElementById('imagen_rota').click()">
+                                            <div style="text-align: center; color: #f39c12;">
+                                                <div style="font-size: 24px; margin-bottom: 4px;">📁</div>
+                                                <div style="font-size: 11px; font-weight: 600;">SUBIR ARCHIVO</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <input type="file" class="form-control" id="imagen_rota" name="imagen_rota" 
+                                           accept="image/*" style="display: none;">
+                                    
+                                    <div style="margin-top: 1rem;">
+                                        <label style="color: #7B68EE; font-weight: 600; font-size: 12px; text-transform: uppercase; margin-bottom: 0.5rem; display: block;">
+                                            Localización
+                                        </label>
+                                        <input type="text" class="form-control" placeholder="Guardar en..."
+                                               style="border: 1px solid #ddd; border-radius: 5px; font-size: 13px; padding: 8px;" readonly value="Galería de bajas">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer del modal -->
+                <div class="modal-footer" style="background: #f8f9fa; padding: 1rem 1.5rem; border: none; justify-content: center; gap: 1rem;">
+                    <button type="button" class="btn" data-bs-dismiss="modal" 
+                            style="background: #4285F4; color: white; border: none; padding: 10px 30px; border-radius: 25px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; font-size: 13px; min-width: 120px; transition: all 0.3s ease;">
+                        CANCELAR
+                    </button>
+                    <button type="submit" class="btn"
+                            style="background: #ff6b35; color: white; border: none; padding: 10px 30px; border-radius: 25px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; font-size: 13px; min-width: 120px; transition: all 0.3s ease;">
+                        CONFIRMAR
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Ver Informe -->
+<div class="modal fade" id="verInformeModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content" style="border: none; border-radius: 15px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
+            <!-- Header del modal -->
+            <div class="modal-header" style="background: linear-gradient(135deg, #dc3545, #c82333); color: white; padding: 1.5rem; border: none;">
+                <h5 class="modal-title" style="font-weight: 700; font-size: 1.2rem; text-transform: uppercase; letter-spacing: 1px; margin: 0;">
+                    📋 INFORME DE BAJA DEL MATERIAL
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" 
+                        style="filter: brightness(0) invert(1); opacity: 0.8; font-size: 1.2rem;"></button>
+            </div>
+
+            <div class="modal-body" style="padding: 2rem; background: #f8f9fa;">
+                <!-- Información del libro dado de baja -->
+                <div style="background: white; padding: 1.5rem; border-radius: 10px; margin-bottom: 1.5rem; border-left: 5px solid #dc3545;">
+                    <div class="row">
+                        <div class="col-3 text-center">
+                            <div style="width: 100px; height: 130px; background: #ddd; border-radius: 8px; margin: 0 auto; position: relative; overflow: hidden; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+                                <img id="informe_imagen" src="" alt="Libro" style="width: 100%; height: 100%; object-fit: cover; display: none;">
+                                <div id="informe_placeholder" style="width: 100%; height: 100%; background: #bdc3c7; display: flex; align-items: center; justify-content: center; color: white; font-size: 12px; text-align: center;">
+                                    Sin<br>Imagen
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-9">
+                            <table style="width: 100%; font-size: 14px; color: #2c3e50;">
+                                <tr style="border-bottom: 1px solid #dee2e6;">
+                                    <td style="padding: 8px 0; font-weight: 600; width: 30%;">N° Inventario:</td>
+                                    <td style="padding: 8px 0;" id="informe_num_inventario">-</td>
+                                </tr>
+                                <tr style="border-bottom: 1px solid #dee2e6;">
+                                    <td style="padding: 8px 0; font-weight: 600;">Título:</td>
+                                    <td style="padding: 8px 0; font-weight: 600; color: #dc3545;" id="informe_titulo">-</td>
+                                </tr>
+                                <tr style="border-bottom: 1px solid #dee2e6;">
+                                    <td style="padding: 8px 0; font-weight: 600;">Autor:</td>
+                                    <td style="padding: 8px 0;" id="informe_autor">-</td>
+                                </tr>
+                                <tr style="border-bottom: 1px solid #dee2e6;">
+                                    <td style="padding: 8px 0; font-weight: 600;">CDU:</td>
+                                    <td style="padding: 8px 0;" id="informe_cdu">-</td>
+                                </tr>
+                                <tr style="border-bottom: 1px solid #dee2e6;">
+                                    <td style="padding: 8px 0; font-weight: 600;">Siglas:</td>
+                                    <td style="padding: 8px 0;" id="informe_siglas">-</td>
+                                </tr>
+                                <tr>
+                            <td style="padding: 8px 0; font-weight: 600;">Fecha de baja:</td>
+                            <td style="padding: 8px 0; color: #dc3545;" id="informe_fecha_baja">Cargando...</td>
+                        </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Motivo de baja -->
+                <div style="background: white; padding: 1.5rem; border-radius: 10px; margin-bottom: 1.5rem;">
+                    <h6 style="color: #dc3545; font-weight: 700; text-transform: uppercase; margin-bottom: 1rem; font-size: 14px; letter-spacing: 0.5px;">
+                        Motivo de la baja
+                    </h6>
+                    <div id="informe_motivo" style="padding: 1rem; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #dc3545; font-size: 14px; line-height: 1.5;">
+                        Cargando motivo de baja...
+                    </div>
+                </div>
+
+                <!-- Imagen de la baja (si existe) -->
+                <div id="imagen_baja_container" style="background: white; padding: 1.5rem; border-radius: 10px; margin-bottom: 1.5rem; display: none;">
+                    <h6 style="color: #dc3545; font-weight: 700; text-transform: uppercase; margin-bottom: 1rem; font-size: 14px; letter-spacing: 0.5px;">
+                        Imagen de la baja
+                    </h6>
+                    <div style="text-align: center;">
+                        <img id="imagen_baja" src="" alt="Imagen de baja" style="max-width: 300px; max-height: 200px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer del modal -->
+            <div class="modal-footer" style="background: #f8f9fa; padding: 1rem 2rem; border: none; justify-content: center; gap: 1rem;">
+                <button type="button" class="btn" data-bs-dismiss="modal" 
+                        style="background: #6c757d; color: white; border: none; padding: 10px 30px; border-radius: 25px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; font-size: 13px;">
+                    CERRAR
+                </button>
+                <button type="button" id="btnDarDeAlta" class="btn"
+                        style="background: #28a745; color: white; border: none; padding: 10px 30px; border-radius: 25px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; font-size: 13px;">
+                    🔄 DAR DE ALTA
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ========== MODAL CONFIRMAR ALTA ========== -->
+<div class="modal fade" id="confirmarAltaModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content modal-dar-alta">
+            <!-- Header del modal -->
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    ¿DESEA VOLVER A PONER EL MATERIAL COMO DISPONIBLE?
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" 
+                        style="filter: brightness(0) invert(1); opacity: 0.8;"></button>
+            </div>
+
+            <div class="modal-body" style="padding: 2rem; background: white; text-align: center;">
+                <div style="font-size: 48px; color: #28a745; margin-bottom: 1rem;">📚</div>
+                <p style="font-size: 16px; color: #495057; margin-bottom: 2rem; line-height: 1.5;">
+                    El material <strong id="confirm_titulo_libro">título del material</strong> volverá a estar disponible para préstamos.
+                </p>
+            </div>
+
+            <!-- Footer del modal -->
+            <div class="modal-footer" style="background: #f8f9fa; padding: 1rem 2rem; border: none; justify-content: center; gap: 1rem;">
+                <button type="button" class="btn" data-bs-dismiss="modal" 
+                        style="background: #6c757d; color: white; border: none; padding: 10px 30px; border-radius: 25px; font-weight: 600; text-transform: uppercase;">
+                    CANCELAR
+                </button>
+                <button type="button" id="confirmarDarAlta" class="btn"
+                        style="background: #fd7e14; color: white; border: none; padding: 10px 30px; border-radius: 25px; font-weight: 600; text-transform: uppercase;">
+                    CONFIRMAR
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ========== MODAL MODIFICAR DATOS ANTES DE DAR DE ALTA ========== -->
+<div class="modal fade" id="modificarDatosModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content modal-dar-alta">
+            <!-- Header del modal -->
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    CONFIRMAR DAR DE ALTA EL MATERIAL
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" 
+                        style="filter: brightness(0) invert(1); opacity: 0.8;"></button>
+            </div>
+
+            <form id="formDarAlta" method="POST" action="{% url 'dar_alta_libro' %}">
+                {% csrf_token %}
+                <div class="modal-body" style="padding: 2rem; background: white;">
+                    <input type="hidden" id="alta_libro_id" name="libro_id">
+                    
+                    <div class="row">
+                        <!-- Sede -->
+                        <div class="col-md-6">
+                            <div class="form-group-custom">
+                                <label for="alta_sede">Sede*</label>
+                                <select class="form-control-custom select-custom" id="alta_sede" name="sede" required>
+                                    <option value="LA PLATA" selected>LA PLATA</option>
+                                    <option value="BERISSO">BERISSO</option>
+                                    <option value="ENSENADA">ENSENADA</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Disponibilidad -->
+                        <div class="col-md-6">
+                            <div class="form-group-custom">
+                                <label for="alta_disponibilidad">Disponibilidad*</label>
+                                <select class="form-control-custom select-custom" id="alta_disponibilidad" name="disponibilidad" required>
+                                    <option value="Domicilio" selected>Domicilio</option>
+                                    <option value="Aula">Aula</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Observaciones -->
+                    <div class="form-group-custom">
+                        <label for="alta_observaciones">Observaciones</label>
+                        <textarea class="form-control-custom" id="alta_observaciones" name="observaciones" 
+                                  rows="3" placeholder="Observaciones adicionales sobre la reactivación del material..."></textarea>
+                    </div>
+                </div>
+
+                <!-- Footer del modal -->
+                <div class="modal-footer" style="background: #f8f9fa; padding: 1rem 2rem; border: none; justify-content: center; gap: 1rem;">
+                    <button type="button" class="btn" data-bs-dismiss="modal" 
+                            style="background: #6c757d; color: white; border: none; padding: 10px 30px; border-radius: 25px; font-weight: 600; text-transform: uppercase;">
+                        CANCELAR
+                    </button>
+                    <button type="submit" class="btn"
+                            style="background: #28a745; color: white; border: none; padding: 10px 30px; border-radius: 25px; font-weight: 600; text-transform: uppercase;">
+                        CONFIRMAR
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- ========== MODAL ÉXITO ========== -->
+<div class="modal fade" id="exitoModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content modal-dar-alta">
+            <div class="modal-body" style="padding: 3rem; background: white; text-align: center;">
+                <div style="font-size: 64px; color: #28a745; margin-bottom: 1rem;">✅</div>
+                <h5 style="color: #28a745; font-weight: 700; margin-bottom: 1rem; text-transform: uppercase;">
+                    EL ALTA DEL MATERIAL<br>
+                    HA CONCLUIDO CON ÉXITO
+                </h5>
+            </div>
+            
+            <div class="modal-footer" style="background: white; border: none; justify-content: center; padding-bottom: 2rem;">
+                <button type="button" class="btn" data-bs-dismiss="modal" onclick="location.reload()"
+                        style="background: #28a745; color: white; border: none; padding: 12px 40px; border-radius: 25px; font-weight: 600; text-transform: uppercase;">
+                    ACEPTAR
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Incluir el modal del manual -->
+{% include 'modals/manual_modal.html' %}
+
+{% endblock %}

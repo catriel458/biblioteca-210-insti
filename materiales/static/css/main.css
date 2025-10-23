@@ -1,0 +1,165 @@
+/* Variables globales de colores */
+:root {
+    /* Colores del diseño */
+    --primary-color: #3C5AFE;
+    --secondary-color: #25B7BB;
+    --danger-color: #DC3545;
+    --background-color: #DFD9E1;
+    --footer-background: rgba(239, 241, 250, 0.81);
+    --input-background: rgba(49, 183, 188, 0.2);
+    --purple-accent: #B772A1;
+    --text-color: #333;
+    --text-muted: rgba(0, 0, 0, 0.5);
+    --button-hover: #ADE2E4;
+    --tipo-material-bg: #25B7BB;
+    --input-border: #8B1D69; 
+    --navbar-height: 60px;
+    --footer-height: 60px;
+}
+
+/* Formularios */
+.form-control {
+    background-color: var(--input-background) !important;
+    border: none;
+    border-bottom: 2px solid var(--input-border);
+    border-radius: 5px;
+    font-family: 'Trebuchet MS';
+    font-size: 12px;
+    line-height: 14px;
+    letter-spacing: 0.1em;
+    color: var(--text-color);
+    transition: border-color 0.3s ease;
+}
+
+.form-control:focus {
+    border-color: var(--input-border);
+    box-shadow: none;
+    outline: none;
+}
+
+.form-control::placeholder {
+    color: var(--text-muted);
+    font-size: 10px;
+}
+
+textarea.form-control {
+    min-height: 80px;
+    resize: none;
+}
+
+/* Botones */
+.btn-primary {
+    background-color: var(--primary-color);
+    border: 1px solid #000000;
+    border-radius: 5px;
+    color: #FFFFFF;
+    font-weight: 700;
+    font-size: 15px;
+    line-height: 17px;
+    letter-spacing: 0.1em;
+    text-align: center;
+}
+
+.btn-danger {
+    background-color: var(--danger-color);
+    border: 1px solid #000000;
+    border-radius: 5px;
+    color: #FFFFFF;
+}
+
+.btn-upload {
+    background-color: var(--button-hover);
+    border: 1px dashed var(--secondary-color);
+    box-shadow: 3px 3px 7px rgba(0, 0, 0, 0.25);
+    border-radius: 53.5px;
+    color: var(--secondary-color);
+}
+
+/* Utilidades */
+.text-small {
+    font-size: 12px;
+    line-height: 14px;
+    letter-spacing: 0.1em;
+}
+
+.text-tiny {
+    font-size: 10px;
+    line-height: 12px;
+    letter-spacing: 0.1em;
+}
+
+/* Estilos específicos del formulario */
+#form-container {
+    /* Eliminado max-height y overflow-y para evitar doble scroll */
+    /* El modal-body ya maneja el scroll correctamente */
+}
+
+.row {
+    margin-bottom: 15px;
+}
+.text-secundario {
+    color: var(--input-border);
+}
+.input-especial {
+    border-bottom: 2px solid var(--input-border);
+    border-radius: 0;
+    background: transparent;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+}
+
+#buttons-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: auto;
+    z-index: 1000;
+}
+
+/* Estados */
+.hidden {
+    display: none;
+}
+
+/* Estilos globales para inputs y selects */
+input, textarea, select {
+    border: none !important;
+    border-bottom: 2px solid var(--input-border) !important;
+    border-radius: 4px;
+    transition: border-color 0.3s ease;
+    background-color: var(--input-background) !important;
+    color: var(--text-color);
+}
+
+input:focus, textarea:focus, select:focus {
+    outline: none;
+    box-shadow: none !important;
+    border-bottom: 2px solid var(--input-border) !important;
+}
+
+/* Estilo específico para el select de tipo de material */
+#tipo_material {
+    background-color: var(--tipo-material-bg) !important;
+    min-width: 250px !important;
+    width: auto !important;
+}
+.separador-punteado {
+    border-bottom: 4px dashed var(--input-border);
+    width: 100%;
+    margin: 24px 0;
+    height: 0;
+}
+
+.dotted-separator {
+    border-bottom: 4px dashed var(--input-border);
+    width: 100%;
+    margin: 24px 0;
+    height: 0;
+}
+
+.text-input {
+    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    letter-spacing: 10%;
+    font-weight: bold;
+}

@@ -1,0 +1,62 @@
+/* Aplica a todo el contenido */
+html, body {
+    height: 100%;
+    margin: 0;
+}
+
+/* Contenedor principal que incluye el contenido y el footer */
+.wrapper {
+    min-height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Contenido principal de la página */
+.content {
+    flex: 1; /* Hace que el contenido ocupe todo el espacio disponible */
+}
+
+/* Footer */
+.main-footer {
+    background-color: #f8f9fa;
+    text-align: center;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100vw;
+    margin: 0;
+    padding: 5px 0;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.footer-links {
+    justify-content: center;
+}
+
+.flex {
+    display: flex;
+    align-items: center;
+}
+
+.none-list-style {
+    list-style: none;
+    padding: 0;
+}
+
+.footer-item {
+    margin: 0 15px;
+}
+
+.logo-footer {
+    max-width: 150px;
+    height: auto;
+}
+
+@media (max-width: 768px) {
+    .logo-footer {
+        max-width: 100px;
+    }
+}

@@ -1,0 +1,30 @@
+{% extends 'components/baseb.html' %}
+{% load static %}
+
+{% block title %}Gestión | Biblioteca Digital{% endblock %}
+
+{% block extra_styles %}
+<style>
+    .logo-trans-background {
+        background-image: url("{% static 'imagenes/LogoTrans.png' %}");
+        background-size: cover;
+        background-repeat: no-repeat;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid position-relative">
+    <div class="row d-flex align-items-center justify-content-center" style="padding-top: 3%; min-height: 60vh;">
+        
+        <!-- Contenedor centrado para los botones -->
+        <div class="col-12 d-flex justify-content-center align-items-center">
+            <div class="content-overlay d-flex flex-row justify-content-center align-items-center gap-4" style="width: 100%; max-width: 1400px; margin: 0 auto;">
+                <a class="btn btn-gestion" href="{% url 'gestion_usuarios' %}" role="button">GESTIÓN USUARIOS</a>
+                <a class="btn btn-gestion" href="{% url 'gestion_prestamos' %}" role="button">GESTIÓN PRÉSTAMOS</a>
+                <a class="btn btn-gestion" href="{% url 'gestion_sanciones' %}" role="button">GESTIÓN SANCIONES</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
