@@ -70,9 +70,9 @@
     
     <!-- Botones -->
     <div class="row mt-4">
-        <div class="col-12 text-end">
-            <a href="{% url 'alta_materiales' %}" class="btn btn-secondary me-2">Cancelar</a>
-            <button type="button" class="btn btn-primary" onclick="window.enviarFormularioMultimediaV3()">Guardar</button>
+        <div class="col-12 d-flex justify-content-end gap-3">
+            <button type="reset" class="btn btn-outline-danger btn-sm" onclick="cancelarFormularioMultimedia()">CANCELAR</button>
+            <button type="button" class="btn btn-primary btn-sm" onclick="window.enviarFormularioMultimediaV3()">GUARDAR</button>
         </div>
     </div>
     <!-- Fin de botones -->
@@ -592,6 +592,43 @@
         });
     }
 
+    // Función para cancelar el formulario multimedia
+    function cancelarFormularioMultimedia() {
+        console.log('🔴 Cancelando formulario multimedia...');
+        
+        try {
+            // Limpiar todos los inputs del formulario
+            const form = document.getElementById('form_alta_multimedia');
+            if (form) {
+                // Resetear el formulario (limpia todos los inputs)
+                form.reset();
+                
+                // Limpiar también los grupos dinámicos de multimedia
+                if (window.gruposTiposMultimedia) {
+                    window.gruposTiposMultimedia = [];
+                }
+                
+                // Limpiar el contenedor de grupos dinámicos
+                const contenedor = document.getElementById('contenedor-tipos-multimedia');
+                if (contenedor) {
+                    contenedor.innerHTML = '';
+                }
+                
+                // Limpiar el contenedor de ejemplares si existe
+                const contenedorEjemplares = document.getElementById('contenedor-ejemplares-multimedia');
+                if (contenedorEjemplares) {
+                    contenedorEjemplares.innerHTML = '';
+                }
+                
+                console.log('✅ Formulario multimedia cancelado y limpiado correctamente');
+            } else {
+                console.warn('⚠️ No se encontró el formulario multimedia para limpiar');
+            }
+        } catch (error) {
+            console.error('❌ Error al cancelar formulario multimedia:', error);
+        }
+    }
+    
     // Función local eliminada - ahora se usa la función global enviarFormularioMultimediaV2
     
     // Inicializar cuando el DOM esté listo

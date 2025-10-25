@@ -140,7 +140,6 @@ class Multimedia(Inventario):
     materia = models.CharField(max_length=255)
     ingresar_enlace = models.URLField(max_length=500, blank=True, null=True, help_text="Ingrese la URL del contenido multimedia")
     titulo_contenido = models.CharField(max_length=255)
-    sede = models.TextField(default='La Plata')  # Agregar campo sede
     
     def __str__(self):
         return f"id_multi: {self.id_multi}, profesor: {self.profesor}, carrera: {self.carrera}, contenido: {self.titulo_contenido}, materia: {self.materia}"
@@ -238,7 +237,6 @@ class Programa(Inventario):
     materia = models.CharField(max_length=255)
     ingresar_enlace = models.URLField(max_length=500, blank=True, null=True, help_text="Ingrese la URL del programa")
     ciclo_lectivo = models.CharField(max_length=4)  # Para año
-    sede = models.CharField(max_length=255, default='La Plata')
     disponibilidad = models.CharField(max_length=255, default='Disponible')
     observaciones = models.TextField(blank=True, null=True)
     

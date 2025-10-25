@@ -1,0 +1,255 @@
+{% extends 'components/baseb.html' %}
+{% load static %}
+{% block extra_styles %}
+    <style>
+        body {
+            background-color: #f5f5f5;
+            overflow: hidden;
+        }
+
+        /* Fondo de la pantalla de alta material */
+        .background-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url("{% static 'imagenes/cover_alta.png' %}") center/cover;
+            z-index: 1;
+            opacity: 0.3;
+        }
+
+        /* Contenedor principal del modal */
+        .success-modal-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        /* Modal de éxito */
+        .success-modal {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            border-radius: 18px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            border: 3px solid #8B1D69;
+            padding: 48px;
+            text-align: center;
+            max-width: 960px;
+            width: 90%;
+            position: relative;
+        }
+
+        /* Título principal */
+        .success-title {
+            color: #4A90E2;
+            font-size: 3rem;
+            font-weight: bold;
+            margin-bottom: 24px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        /* Subtítulo */
+        .success-subtitle {
+            color: #333;
+            font-size: 2.16rem;
+            font-weight: 600;
+            margin-bottom: 48px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Contenedor de botones */
+        .buttons-container {
+            display: flex;
+            justify-content: space-between;
+            gap: 24px;
+            margin-top: 36px;
+        }
+
+        /* Estilo de botones */
+        .success-btn {
+            flex: 1;
+            background: linear-gradient(135deg, #4ECDC4 0%, #44A08D 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 24px 18px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 96px;
+            text-align: center;
+        }
+
+        .success-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+            color: white;
+            text-decoration: none;
+        }
+
+        .success-btn:active {
+            transform: translateY(-1px);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .buttons-container {
+                flex-direction: column;
+                gap: 18px;
+            }
+            
+            .success-modal {
+                padding: 36px 24px;
+                margin: 24px;
+            }
+            
+            .success-title {
+                font-size: 2.4rem;
+            }
+            
+            .success-subtitle {
+                font-size: 1.68rem;
+            }
+        }
+
+        /* Prevenir selección de texto */
+        .success-modal {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <!-- Fondo de la pantalla de alta material -->
+    <div class="background-overlay"></div>
+
+    <!-- Contenedor del modal de éxito -->
+    <div class="success-modal-container" id="successModal">
+        <div class="success-modal">
+            <!-- Título principal -->
+            <h1 class="success-title">¡TODO LISTO!</h1>
+            
+            <!-- Subtítulo -->
+            <h2 class="success-subtitle">LA OPERACIÓN FUE COMPLETADA CON ÉXITO</h2>
+            
+            <!-- Botones de navegación -->
+            <div class="buttons-container">
+                <a href="{% url 'alta_materiales' %}" class="success-btn" id="cargarOtroBtn">
+                    CARGAR OTRO MATERIAL
+                </a>
+                
+                <a href="{% url 'modificacion_materiales' %}" class="success-btn" id="revisarDatosBtn">
+                    VOLVER A REVISAR DATOS CARGADOS / GENERAR ETIQUETAS
+                </a>
+                
+                <a href="{% url 'home' %}" class="success-btn" id="volverInicioBtn">
+                    VOLVER A INICIO
+                </a>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_scripts %}
+    <script>
+        // Prevenir retroceso del navegador
+        (function() {
+            // Agregar entrada al historial
+            history.pushState(null, null, location.href);
+            
+            // Escuchar evento popstate
+            window.addEventListener('popstate', function(event) {
+                // Prevenir el retroceso
+                history.pushState(null, null, location.href);
+            });
+        })();
+
+        // Prevenir teclas de navegación
+        document.addEventListener('keydown', function(e) {
+            // Prevenir F5, Ctrl+R, Alt+F4, etc.
+            if (e.key === 'F5' || 
+                (e.ctrlKey && e.key === 'r') || 
+                (e.altKey && e.key === 'F4') ||
+                e.key === 'Backspace') {
+                e.preventDefault();
+                return false;
+            }
+        });
+
+        // Prevenir clic derecho
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+        });
+
+        // Variable para controlar si se permite la navegación
+        let allowNavigation = false;
+
+        // Mostrar modal automáticamente al cargar la página
+        document.addEventListener('DOMContentLoaded', function() {
+            const modal = document.getElementById('successModal');
+            modal.style.display = 'flex';
+
+            // Funcionalidad adicional del JavaScript externo integrada
+            // Prevenir navegación hacia atrás (método alternativo)
+            history.pushState(null, null, location.href);
+            window.onpopstate = function () {
+                history.go(1);
+            };
+
+            // Prevenir cierre accidental de la ventana solo si no es navegación intencional
+            window.addEventListener('beforeunload', function(e) {
+                if (!allowNavigation) {
+                    e.preventDefault();
+                    e.returnValue = '';
+                }
+            });
+        });
+
+        // Agregar eventos de clic a los botones (funcionalidad original)
+        document.getElementById('cargarOtroBtn').addEventListener('click', function(e) {
+            // Permitir navegación normal
+            allowNavigation = true;
+            window.location.href = this.href;
+        });
+
+        document.getElementById('revisarDatosBtn').addEventListener('click', function(e) {
+            // Permitir navegación normal
+            allowNavigation = true;
+            window.location.href = this.href;
+        });
+
+        document.getElementById('volverInicioBtn').addEventListener('click', function(e) {
+            // Permitir navegación normal
+            allowNavigation = true;
+            window.location.href = this.href;
+        });
+
+        // Prevenir clic fuera del modal
+        document.querySelector('.success-modal-container').addEventListener('click', function(e) {
+            if (e.target === this) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+        });
+    </script>
+{% endblock %}

@@ -82,6 +82,7 @@ urlpatterns = [
     path('alta-varios/', views.alta_varios, name='alta_varios'),
     path('confirmacion-alta-varios/', views.confirmacion_alta_varios, name='confirmacion_alta_varios'),
     path('guardar-alta-varios/', views.guardar_alta_varios, name='guardar_alta_varios'),
+    path('actualizar-sesion-varios/', views.actualizar_sesion_varios, name='actualizar_sesion_varios'),
     path('cancelar-alta-varios/', views.cancelar_alta_varios, name='cancelar_alta_varios'),
     path('baja-varios/', views.baja_varios, name='baja_varios'),
     path('editar-varios/<int:varios_id>/', views.editar_varios, name='editar_varios'),
@@ -139,6 +140,9 @@ urlpatterns = [
     path('guardar-programa-confirmado/', views.guardar_programa_confirmado, name='guardar_programa_confirmado'),
     path('cancelar-alta-programa/', views.cancelar_alta_programa, name='cancelar_alta_programa'),
     path('editar-programa/<int:programa_id>/', views.editar_programa, name='editar_programa'),
+    
+    # URL para confirmación de carga exitosa
+    path('confirmacion-carga-exitosa/', views.confirmacion_carga_exitosa, name='confirmacion_carga_exitosa'),
 
 ]
 

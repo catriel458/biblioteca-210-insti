@@ -284,8 +284,9 @@
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-outline-danger btn-sm" id="btnEditar" onclick="habilitarEdicion()">EDITAR</button>
-            <button type="button" class="btn btn-primary btn-sm" id="btnGuardar" style="display: none;" onclick="confirmarVarios()">GUARDAR</button>
-            <button type="button" class="btn btn-primary btn-sm" id="btnConfirmarAltaMaterial" onclick="confirmarVarios()">CONFIRMAR</button>
+            <button type="button" class="btn btn-outline-secondary btn-sm" id="btnCancelarEdicion" style="display: none;" onclick="cancelarEdicion()">CANCELAR</button>
+            <button type="button" class="btn btn-primary btn-sm" id="btnGuardarEdicion" style="display: none;" onclick="guardarCambios()">GUARDAR</button>
+            <button type="button" class="btn btn-primary btn-sm" id="btnGuardar" onclick="confirmarVarios()">GUARDAR</button>
           </div>
         </div>
       </div>
@@ -331,38 +332,115 @@ function habilitarEdicion() {
     // Guardar valores originales antes de habilitar la edición
     guardarValoresOriginales();
     
-    // Obtener todos los campos del modal
-    const camposModal = document.querySelectorAll('#modalConfirmacionAltaMaterial input, #modalConfirmacionAltaMaterial select');
+    // 1. Convertir campo Sede (select)
+    const sedeSpan = document.querySelector('.campo-item:first-child .campo-value');
+    if (sedeSpan) {
+        const valorSede = sedeSpan.textContent.trim();
+        const selectSede = document.createElement('select');
+        selectSede.className = 'form-control form-control-sm';
+        selectSede.innerHTML = `
+            <option value="">Seleccione una sede</option>
+            <option value="sede1" ${valorSede === 'La Plata' ? 'selected' : ''}>La Plata</option>
+            <option value="sede2" ${valorSede === 'Abasto' ? 'selected' : ''}>Abasto</option>
+        `;
+        sedeSpan.parentNode.replaceChild(selectSede, sedeSpan);
+        selectSede.setAttribute('data-campo', 'sede');
+    }
     
-    // Habilitar todos los campos
-    camposModal.forEach(campo => {
-        campo.removeAttribute('disabled');
-        campo.removeAttribute('readonly');
-    });
-
-    // Convertir los spans de valores en inputs editables
-    const camposValor = document.querySelectorAll('.campo-value');
-    camposValor.forEach(span => {
-        const valorOriginal = span.textContent;
-        const input = document.createElement('input');
-        input.type = 'text';
-        input.value = valorOriginal;
-        input.className = 'form-control';
-        span.parentNode.replaceChild(input, span);
+    // 2. Convertir campos de Tipo a Registrar y Cantidad de Ejemplares
+    const camposInfo = document.querySelectorAll('.campos-info');
+    camposInfo.forEach((campoInfo, index) => {
+        const camposValor = campoInfo.querySelectorAll('.campo-value');
+        
+        camposValor.forEach((span, spanIndex) => {
+            const valorOriginal = span.textContent.trim();
+            const label = span.parentNode.querySelector('.campo-label').textContent.trim();
+            
+            let input;
+            if (label.includes('Tipo a Registrar')) {
+                input = document.createElement('input');
+                input.type = 'text';
+                input.value = valorOriginal !== 'Sin especificar' ? valorOriginal : '';
+                input.className = 'form-control form-control-sm';
+                input.setAttribute('data-campo', `tipo_${index}`);
+                input.required = true;
+            } else if (label.includes('Cant. de Ejemplares')) {
+                input = document.createElement('input');
+                input.type = 'number';
+                input.value = valorOriginal !== 'Sin especificar' ? valorOriginal : '1';
+                input.min = '1';
+                input.className = 'form-control form-control-sm';
+                input.setAttribute('data-campo', `cantidad_${index}`);
+                input.required = true;
+            }
+            
+            if (input) {
+                span.parentNode.replaceChild(input, span);
+            }
+        });
     });
 
     // Cambiar visibilidad de botones
     document.getElementById('btnEditar').style.display = 'none';
-    document.getElementById('btnGuardar').style.display = 'inline-block';
-    document.getElementById('btnConfirmarAltaMaterial').style.display = 'none';
+    document.getElementById('btnCancelarEdicion').style.display = 'inline-block';
+    document.getElementById('btnGuardarEdicion').style.display = 'inline-block';
+    document.getElementById('btnGuardar').style.display = 'none';
+    
+    console.log('✅ Edición habilitada para todos los campos');
 }
 
 function guardarValoresOriginales() {
+    console.log('💾 Guardando valores originales...');
+    
     valoresOriginales = {
-        sede: document.querySelector('.campo-value:nth-child(1)').textContent,
-        tipo: document.querySelector('.campo-value:nth-child(2)').textContent,
-        cantidad: document.querySelector('.campo-value:nth-child(3)').textContent
+        sede: '',
+        tipo_registrar: '',
+        cantidad_ejemplares: '',
+        materiales: [],
+        campos: []
     };
+    
+    // Guardar valor de Sede
+    const sedeSpan = document.querySelector('.campo-item:first-child .campo-value');
+    if (sedeSpan) {
+        valoresOriginales.sede = sedeSpan.textContent.trim();
+    }
+    
+    // Guardar valores de todos los campos de información
+    const camposInfo = document.querySelectorAll('.campos-info');
+    camposInfo.forEach((campoInfo, index) => {
+        const camposValor = campoInfo.querySelectorAll('.campo-value');
+        const material = { index: index };
+        
+        camposValor.forEach((span) => {
+            const label = span.parentNode.querySelector('.campo-label').textContent.trim();
+            const valor = span.textContent.trim();
+            
+            if (label.includes('Tipo a Registrar')) {
+                material.tipo = valor;
+                // También guardar en el formato que espera restaurarVistaLectura
+                if (index === 0) {
+                    valoresOriginales.tipo_registrar = valor;
+                }
+            } else if (label.includes('Cant. de Ejemplares')) {
+                material.cantidad = valor;
+                // También guardar en el formato que espera restaurarVistaLectura
+                if (index === 0) {
+                    valoresOriginales.cantidad_ejemplares = valor;
+                }
+            }
+        });
+        
+        valoresOriginales.campos.push(material);
+        
+        // Guardar también en formato materiales para compatibilidad
+        valoresOriginales.materiales.push({
+            tipo: material.tipo || '',
+            cantidad: material.cantidad || '1'
+        });
+    });
+    
+    console.log('✅ Valores originales guardados:', valoresOriginales);
 }
 
 function poblarElementosDinamicos() {
@@ -440,6 +518,211 @@ function confirmarVarios() {
     // Agregar al DOM y enviar
     document.body.appendChild(form);
     form.submit();
+}
+
+function guardarCambios() {
+    console.log('💾 Guardando cambios directamente en la base de datos...');
+    
+    // Validar campos obligatorios
+    const camposRequeridos = document.querySelectorAll('input[required], select[required]');
+    let hayErrores = false;
+    
+    camposRequeridos.forEach(campo => {
+        if (!campo.value.trim()) {
+            campo.style.borderColor = '#dc3545';
+            hayErrores = true;
+        } else {
+            campo.style.borderColor = '';
+        }
+    });
+    
+    if (hayErrores) {
+        alert('Por favor complete todos los campos obligatorios');
+        return;
+    }
+    
+    // Recolectar valores editados
+    const valoresEditados = {
+        sede: '',
+        tipo_registrar: '',
+        cantidad_ejemplares: '',
+        materiales: []
+    };
+    
+    // Obtener valor de sede
+    const selectSede = document.querySelector('select[data-campo="sede"]');
+    if (selectSede) {
+        valoresEditados.sede = selectSede.value;
+    }
+    
+    // Obtener tipo a registrar
+    const inputTipoRegistrar = document.querySelector('input[data-campo="tipo_registrar"]');
+    if (inputTipoRegistrar) {
+        valoresEditados.tipo_registrar = inputTipoRegistrar.value;
+    }
+    
+    // Obtener cantidad de ejemplares
+    const inputCantidadEjemplares = document.querySelector('input[data-campo="cantidad_ejemplares"]');
+    if (inputCantidadEjemplares) {
+        valoresEditados.cantidad_ejemplares = inputCantidadEjemplares.value;
+    }
+    
+    // Obtener valores de materiales dinámicos
+    const inputsTipo = document.querySelectorAll('input[data-campo^="tipo_"]');
+    const inputsCantidad = document.querySelectorAll('input[data-campo^="cantidad_"]');
+    
+    for (let i = 0; i < inputsTipo.length; i++) {
+        const tipo = inputsTipo[i] ? inputsTipo[i].value : '';
+        const cantidad = inputsCantidad[i] ? inputsCantidad[i].value : '1';
+        
+        if (tipo.trim()) {
+            valoresEditados.materiales.push({
+                tipo: tipo,
+                cantidad: cantidad
+            });
+        }
+    }
+    
+    console.log('📝 Valores editados:', valoresEditados);
+    
+    // Primero actualizar la sesión con los datos editados
+    fetch('{% url "actualizar_sesion_varios" %}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}',
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: JSON.stringify(valoresEditados)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            console.log('✅ Sesión actualizada, procediendo a guardar en base de datos...');
+            
+            // Crear un formulario temporal para enviar los datos
+            const tempForm = document.createElement('form');
+            tempForm.method = 'POST';
+            tempForm.action = '{% url "guardar_alta_varios" %}';
+            tempForm.style.display = 'none';
+            
+            // Agregar el token CSRF
+            const csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = 'csrfmiddlewaretoken';
+            csrfInput.value = '{{ csrf_token }}';
+            tempForm.appendChild(csrfInput);
+            
+            // Agregar al DOM y enviar
+            document.body.appendChild(tempForm);
+            tempForm.submit();
+        } else {
+            console.error('❌ Error al actualizar sesión:', data.error);
+            alert('Error al guardar los cambios: ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('❌ Error en la petición AJAX:', error);
+        alert('Error de conexión al guardar los cambios');
+    });
+}
+
+function cancelarEdicion() {
+    console.log('🔄 Cancelando edición y restaurando valores originales...');
+    
+    // Restaurar valores originales
+    restaurarVistaLectura(valoresOriginales);
+    
+    // Cambiar visibilidad de botones
+    document.getElementById('btnEditar').style.display = 'inline-block';
+    document.getElementById('btnCancelarEdicion').style.display = 'none';
+    document.getElementById('btnGuardarEdicion').style.display = 'none';
+    document.getElementById('btnGuardar').style.display = 'inline-block';
+    
+    console.log('✅ Edición cancelada');
+}
+
+function restaurarVistaLectura(valores) {
+    console.log('🔄 Restaurando vista de lectura con valores:', valores);
+    
+    // Restaurar campo Sede
+    const selectSede = document.querySelector('select[data-campo="sede"]');
+    if (selectSede && valores.sede !== undefined) {
+        const spanSede = document.createElement('span');
+        spanSede.className = 'campo-value';
+        
+        // Si el valor es un código de sede, convertirlo a texto
+        if (valores.sede === 'sede1') {
+            spanSede.textContent = 'La Plata';
+        } else if (valores.sede === 'sede2') {
+            spanSede.textContent = 'Abasto';
+        } else {
+            // Si ya es texto, usarlo directamente
+            spanSede.textContent = valores.sede || 'Sin especificar';
+        }
+        
+        selectSede.parentNode.replaceChild(spanSede, selectSede);
+    }
+    
+    // Restaurar campos de tipo a registrar (primer campo)
+    const inputTipoRegistrar = document.querySelector('input[data-campo="tipo_registrar"]');
+    if (inputTipoRegistrar) {
+        const span = document.createElement('span');
+        span.className = 'campo-value';
+        span.textContent = valores.tipo_registrar || valores.campos?.[0]?.tipo || 'Sin especificar';
+        inputTipoRegistrar.parentNode.replaceChild(span, inputTipoRegistrar);
+    }
+    
+    // Restaurar campos de cantidad de ejemplares (primer campo)
+    const inputCantidadEjemplares = document.querySelector('input[data-campo="cantidad_ejemplares"]');
+    if (inputCantidadEjemplares) {
+        const span = document.createElement('span');
+        span.className = 'campo-value';
+        span.textContent = valores.cantidad_ejemplares || valores.campos?.[0]?.cantidad || '1';
+        inputCantidadEjemplares.parentNode.replaceChild(span, inputCantidadEjemplares);
+    }
+    
+    // Restaurar campos de materiales dinámicos
+    const inputsTipo = document.querySelectorAll('input[data-campo^="tipo_"]:not([data-campo="tipo_registrar"])');
+    const inputsCantidad = document.querySelectorAll('input[data-campo^="cantidad_"]:not([data-campo="cantidad_ejemplares"])');
+    
+    inputsTipo.forEach((input, index) => {
+        const span = document.createElement('span');
+        span.className = 'campo-value';
+        
+        // Ajustar el índice para materiales dinámicos (empiezan desde el índice 1)
+        const materialIndex = index + 1;
+        
+        if (valores.materiales && valores.materiales[materialIndex]) {
+            span.textContent = valores.materiales[materialIndex].tipo || 'Sin especificar';
+        } else if (valores.campos && valores.campos[materialIndex]) {
+            span.textContent = valores.campos[materialIndex].tipo || 'Sin especificar';
+        } else {
+            span.textContent = 'Sin especificar';
+        }
+        
+        input.parentNode.replaceChild(span, input);
+    });
+    
+    inputsCantidad.forEach((input, index) => {
+        const span = document.createElement('span');
+        span.className = 'campo-value';
+        
+        // Ajustar el índice para materiales dinámicos (empiezan desde el índice 1)
+        const materialIndex = index + 1;
+        
+        if (valores.materiales && valores.materiales[materialIndex]) {
+            span.textContent = valores.materiales[materialIndex].cantidad || '1';
+        } else if (valores.campos && valores.campos[materialIndex]) {
+            span.textContent = valores.campos[materialIndex].cantidad || '1';
+        } else {
+            span.textContent = '1';
+        }
+        
+        input.parentNode.replaceChild(span, input);
+    });
+    
+    console.log('✅ Vista de lectura restaurada correctamente');
 }
 
 function cancelarModal() {

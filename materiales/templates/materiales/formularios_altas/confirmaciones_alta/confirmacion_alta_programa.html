@@ -238,12 +238,6 @@
             <h6 class="tipo-material-title">TIPO DE MATERIAL: <span id="confirmTipoMaterial" class="text-primary">PROGRAMA</span></h6>
           </div>
 
-          <!-- Sede -->
-          <div class="sede-section">
-            <p class="sede-text">Sede</p>
-            <p class="sede-value" id="sedeValue">LA PLATA</p>
-          </div>
-
           <!-- Información de Programa -->
           <div class="section-title">Información del Programa</div>
           
@@ -258,12 +252,14 @@
               <span class="campo-value" id="carreraValue">{{ form_data.carrera|default:"Sin especificar" }}</span>
               <select class="form-control campo-input" id="carreraInput" style="display: none;">
                 <option value="">Aún sin seleccionar</option>
-                <option value="Análisis de Sistemas" {% if form_data.carrera == "Análisis de Sistemas" %}selected{% endif %}>Tecnicatura Superior en Análisis de Sistemas</option>
-                <option value="Ciencias Políticas" {% if form_data.carrera == "Ciencias Políticas" %}selected{% endif %}>Profesorado de Educación Secundaria en Ciencias Políticas</option>
-                <option value="Geografía" {% if form_data.carrera == "Geografía" %}selected{% endif %}>Profesorado de Educación Secundaria en Geografía</option>
-                <option value="Educación Inicial" {% if form_data.carrera == "Educación Inicial" %}selected{% endif %}>Profesorado de Educación Inicial</option>
-                <option value="Educación Primaria" {% if form_data.carrera == "Educación Primaria" %}selected{% endif %}>Profesorado de Educación Primaria</option>
-                <option value="Otra" {% if form_data.carrera == "Otra" %}selected{% endif %}>Otra carrera</option>
+                <option value="Profesorado de Educación Inicial" {% if form_data.carrera == "Profesorado de Educación Inicial" %}selected{% endif %}>Profesorado de Educación Inicial</option>
+                <option value="Profesorado de Educación Primaria" {% if form_data.carrera == "Profesorado de Educación Primaria" %}selected{% endif %}>Profesorado de Educación Primaria</option>
+                <option value="Profesorado de Educación Secundaria en Geografía" {% if form_data.carrera == "Profesorado de Educación Secundaria en Geografía" %}selected{% endif %}>Profesorado de Educación Secundaria en Geografía</option>
+                <option value="Profesorado de Educación Secundaria en Ciencias Políticas" {% if form_data.carrera == "Profesorado de Educación Secundaria en Ciencias Políticas" %}selected{% endif %}>Profesorado de Educación Secundaria en Ciencias Políticas</option>
+                <option value="Tecnicatura Superior en Análisis de Sistemas" {% if form_data.carrera == "Tecnicatura Superior en Análisis de Sistemas" %}selected{% endif %}>Tecnicatura Superior en Análisis de Sistemas</option>
+                <option value="Tecnicatura Superior en Enfermería" {% if form_data.carrera == "Tecnicatura Superior en Enfermería" %}selected{% endif %}>Tecnicatura Superior en Enfermería</option>
+                <option value="Tecnicatura Superior en Acompañamiento Terapéutico" {% if form_data.carrera == "Tecnicatura Superior en Acompañamiento Terapéutico" %}selected{% endif %}>Tecnicatura Superior en Acompañamiento Terapéutico</option>
+                <option value="Tecnicatura Superior en Higiene y Seguridad en el Trabajo" {% if form_data.carrera == "Tecnicatura Superior en Higiene y Seguridad en el Trabajo" %}selected{% endif %}>Tecnicatura Superior en Higiene y Seguridad en el Trabajo</option>
               </select>
             </div>
             <div class="campo-item">
@@ -320,6 +316,16 @@ document.addEventListener('DOMContentLoaded', function() {
         return;
     }
     
+    // Inicializar el dropdown de materias con la materia seleccionada
+    const materiaSelect = document.getElementById('materiaSelect');
+    const carreraValue = document.getElementById('carreraValue');
+    if (materiaSelect && carreraValue) {
+        const carreraSeleccionada = carreraValue.textContent.trim();
+        const materiaActual = '{{ form_data.materia|escapejs }}';
+        console.log('🔧 Inicializando dropdown con carrera:', carreraSeleccionada, 'y materia:', materiaActual);
+        cargarMateriasEnDropdown(carreraSeleccionada, materiaSelect, materiaActual);
+    }
+    
     // Mostrar el modal automáticamente después de un pequeño delay
     setTimeout(function() {
         const modal = new bootstrap.Modal(document.getElementById('modalConfirmacionAltaMaterial'), {
@@ -331,9 +337,9 @@ document.addEventListener('DOMContentLoaded', function() {
     }, 500);
 });
 
-// Materias por carrera para el dropdown
+// Materias por carrera para el dropdown (sincronizado con formulario_programa.html - Django form)
 const materiasPorCarrera = {
-    'Educación Inicial': [
+    'Profesorado de Educación Inicial': [
         'Pedagogía', 'Psicología Educacional', 'Sociología de la Educación', 
         'Historia y Política de la Educación Argentina', 'Filosofía de la Educación',
         'Didáctica General', 'Curriculum y Didáctica del Nivel Inicial', 
@@ -342,7 +348,7 @@ const materiasPorCarrera = {
         'Lengua y su Didáctica', 'Educación Artística', 'Educación Física',
         'Práctica Docente I', 'Práctica Docente II', 'Práctica Docente III', 'Práctica Docente IV'
     ],
-    'Educación Primaria': [
+    'Profesorado de Educación Primaria': [
         'Pedagogía', 'Psicología Educacional', 'Sociología de la Educación',
         'Historia y Política de la Educación Argentina', 'Filosofía de la Educación',
         'Didáctica General', 'Curriculum y Didáctica del Nivel Primario',
@@ -353,7 +359,7 @@ const materiasPorCarrera = {
         'Educación Artística', 'Educación Física', 'Tecnologías de la Información',
         'Práctica Docente I', 'Práctica Docente II', 'Práctica Docente III', 'Práctica Docente IV'
     ],
-    'Geografía': [
+    'Profesorado de Educación Secundaria en Geografía': [
         'Pedagogía', 'Psicología Educacional', 'Sociología de la Educación',
         'Historia y Política de la Educación Argentina', 'Filosofía de la Educación',
         'Didáctica General', 'Didáctica de la Geografía',
@@ -363,7 +369,7 @@ const materiasPorCarrera = {
         'Geografía Económica', 'Geografía Urbana y Rural', 'Epistemología de la Geografía',
         'Práctica Docente I', 'Práctica Docente II', 'Práctica Docente III', 'Práctica Docente IV'
     ],
-    'Ciencias Políticas': [
+    'Profesorado de Educación Secundaria en Ciencias Políticas': [
         'Pedagogía', 'Psicología Educacional', 'Sociología de la Educación',
         'Historia y Política de la Educación Argentina', 'Filosofía de la Educación',
         'Didáctica General', 'Didáctica de las Ciencias Políticas',
@@ -372,12 +378,45 @@ const materiasPorCarrera = {
         'Sociología Política', 'Economía Política', 'Filosofía Política',
         'Práctica Docente I', 'Práctica Docente II', 'Práctica Docente III', 'Práctica Docente IV'
     ],
-    'Análisis de Sistemas': [
-        'Matemática', 'Algoritmos y Estructuras de Datos', 'Programación I', 'Programación II',
-        'Base de Datos I', 'Base de Datos II', 'Sistemas Operativos', 'Redes y Comunicaciones',
-        'Ingeniería de Software I', 'Ingeniería de Software II', 'Análisis de Sistemas',
-        'Diseño de Sistemas', 'Gestión de Proyectos', 'Seguridad Informática',
-        'Desarrollo Web', 'Programación Móvil', 'Inteligencia Artificial',
+    'Tecnicatura Superior en Análisis de Sistemas': [
+         "Álgebra",
+         "Algoritmos y estructuras de datos 1",
+         "Algoritmos y estructuras de datos 2",
+         "Algoritmos y estructuras de datos 3",
+         "Análisis Matemático 1",
+         "Análisis Matemático 2",
+         "Arquitectura de Computadores",
+         "Aspectos legales de la Profesión",
+         "Base de Datos",
+         "Ciencia, Tecnología y Sociedad",
+         "Estadística",
+         "Ingeniería de Software 1",
+         "Ingeniería de Software 2",
+         "Inglés 1",
+         "Inglés 2",
+         "Inglés 3",
+         "Prácticas Profesionalizantes 1",
+         "Prácticas Profesionalizantes 2",
+         "Prácticas Profesionalizantes 3",
+         "Redes y Comunicaciones",
+         "Seminario de actualización",
+         "Sistemas Operativos",
+         "Sistemas y Organizaciones"
+     ],
+    'Tecnicatura Superior en Enfermería': [
+        'Anatomía y Fisiología', 'Microbiología y Parasitología', 'Farmacología',
+        'Enfermería Básica', 'Enfermería Médico-Quirúrgica', 'Enfermería Materno-Infantil',
+        'Enfermería en Salud Mental', 'Enfermería Comunitaria', 'Administración en Enfermería',
+        'Práctica Profesional I', 'Práctica Profesional II', 'Práctica Profesional III'
+    ],
+    'Tecnicatura Superior en Acompañamiento Terapéutico': [
+        'Psicología General', 'Psicopatología', 'Técnicas de Acompañamiento',
+        'Salud Mental Comunitaria', 'Intervención en Crisis', 'Trabajo en Equipo',
+        'Práctica Profesional I', 'Práctica Profesional II'
+    ],
+    'Tecnicatura Superior en Higiene y Seguridad en el Trabajo': [
+        'Legislación Laboral', 'Higiene Industrial', 'Seguridad Industrial',
+        'Medicina del Trabajo', 'Ergonomía', 'Gestión de Riesgos',
         'Práctica Profesional I', 'Práctica Profesional II'
     ]
 };
@@ -455,6 +494,14 @@ function confirmarPrograma() {
       ? materiaSelect.value 
       : (materiaValue ? materiaValue.textContent : 'Sin especificar');
     
+    // Si se seleccionó una materia del dropdown, actualizar el texto mostrado
+    if (materiaSelect && materiaSelect.style.display !== 'none' && materiaSelect.value) {
+        const selectedMateriaOption = materiaSelect.options[materiaSelect.selectedIndex];
+        if (selectedMateriaOption && materiaValue) {
+            materiaValue.textContent = selectedMateriaOption.text;
+        }
+    }
+    
     const enlaceInput = document.getElementById('enlaceInput');
     const enlaceValue = document.getElementById('enlaceValue');
     let enlace = (enlaceInput && enlaceInput.style.display !== 'none') 
@@ -513,7 +560,7 @@ function confirmarPrograma() {
         { name: 'materia', value: materia },
         { name: 'ingresar_enlace', value: enlace },
         { name: 'ciclo_lectivo', value: cicloLectivo },
-        { name: 'sede', value: 'LA PLATA' } // Valor fijo de sede
+
     ];
     
     campos.forEach(campo => {
@@ -554,12 +601,10 @@ function editarCampos() {
         if (carreraValue && carreraInput) {
             carreraValue.style.display = 'inline';
             carreraInput.style.display = 'none';
-            carreraInput.value = carreraInput.getAttribute('data-original') || '';
-            // Actualizar el texto mostrado con la opción seleccionada
-            const selectedOption = carreraInput.options[carreraInput.selectedIndex];
-            if (selectedOption) {
-                carreraValue.textContent = selectedOption.text;
-            }
+            const valorOriginal = carreraInput.getAttribute('data-original') || '';
+            carreraInput.value = valorOriginal;
+            // Restaurar el texto original
+            carreraValue.textContent = valorOriginal;
         }
         
         const materiaValue = document.getElementById('materiaValue');
@@ -567,7 +612,9 @@ function editarCampos() {
         if (materiaValue && materiaSelect) {
             materiaValue.style.display = 'inline';
             materiaSelect.style.display = 'none';
-            materiaSelect.value = materiaSelect.getAttribute('data-original') || '';
+            const materiaOriginal = materiaSelect.getAttribute('data-original') || '';
+            // Restaurar el texto original de la materia
+            materiaValue.textContent = materiaOriginal;
         }
         
         const enlaceValue = document.getElementById('enlaceValue');
@@ -601,7 +648,9 @@ function editarCampos() {
         const carreraInput = document.getElementById('carreraInput');
         const carreraValue = document.getElementById('carreraValue');
         if (carreraInput && carreraValue) {
-            carreraInput.setAttribute('data-original', carreraInput.value);
+            // Guardar el texto mostrado como valor original
+            const carreraOriginal = carreraValue.textContent.trim();
+            carreraInput.setAttribute('data-original', carreraOriginal);
             carreraValue.style.display = 'none';
             carreraInput.style.display = 'block';
             
@@ -615,7 +664,9 @@ function editarCampos() {
                 
                 // Agregar listener para cambios en carrera
                 carreraInput.addEventListener('change', function() {
-                    cargarMateriasEnDropdown(this.value, materiaSelect);
+                    // Mantener la materia seleccionada si es compatible con la nueva carrera
+                    const materiaSeleccionada = materiaSelect.value;
+                    cargarMateriasEnDropdown(this.value, materiaSelect, materiaSeleccionada);
                 });
             }
         }
@@ -623,9 +674,15 @@ function editarCampos() {
         const materiaSelect = document.getElementById('materiaSelect');
         const materiaValue = document.getElementById('materiaValue');
         if (materiaSelect && materiaValue) {
-            materiaSelect.setAttribute('data-original', materiaSelect.value);
+            // Guardar la materia actual antes de mostrar el dropdown
+            const materiaActual = materiaValue.textContent.trim();
+            materiaSelect.setAttribute('data-original', materiaActual);
+            
             materiaValue.style.display = 'none';
             materiaSelect.style.display = 'block';
+            
+            // La selección de la materia actual ya se maneja en cargarMateriasEnDropdown
+            // No necesitamos hacerlo aquí porque las opciones ya fueron cargadas arriba
         }
         
         const enlaceInput = document.getElementById('enlaceInput');

@@ -281,7 +281,7 @@
             </div>
           </div>
 
-          <!-- Tercera fila: Ejemplar N°, N° de Inventario, Disponibilidad, Sede, Observaciones -->
+          <!-- Tercera fila: Ejemplar N°, Disponibilidad, Sede, Observaciones -->
           <div class="section-title">Información de Ejemplares ({{ form_data.num_ejemplar }} ejemplares)</div>
           {% for ejemplar in ejemplares %}
           <div class="ejemplar-info">
@@ -291,11 +291,7 @@
                 <span class="campo-label">Ejemplar N°</span>
                 <span class="campo-value" id="ejemplarNumValue{{ forloop.counter }}">{{ forloop.counter }}</span>
               </div>
-              <div class="campo-item">
-                <span class="campo-label">N° de Inventario</span>
-                <span class="campo-value" id="inventarioValue{{ forloop.counter }}">{{ ejemplar.inventario_ptr_id|default:"Sin asignar" }}</span>
-                <input type="text" class="form-control campo-input" id="inventarioInput{{ forloop.counter }}" value="{{ ejemplar.inventario_ptr_id|default:'Sin asignar' }}" style="display: none;">
-              </div>
+
               <div class="campo-item">
                 <span class="campo-label">Disponibilidad</span>
                 <span class="campo-value" id="disponibilidadValue{{ forloop.counter }}">{{ ejemplar.disponibilidad|default:"Aula" }}</span>

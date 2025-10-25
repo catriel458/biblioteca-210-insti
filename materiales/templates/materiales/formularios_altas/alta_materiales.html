@@ -103,8 +103,8 @@ document.addEventListener("DOMContentLoaded", function () {
     const uploadSimple = document.getElementById('upload_simple_container');
     const uploadBox = document.getElementById('upload_box_container');
 
-    // Mostrar carga masiva al cargar la página (estado inicial)
-    if (uploadSimple) uploadSimple.style.display = 'block';
+    // Ocultar carga masiva al cargar la página (estado inicial)
+    if (uploadSimple) uploadSimple.style.display = 'none';
     if (uploadBox) uploadBox.style.display = 'none';
 
     // FUNCIONALIDAD PRINCIPAL
@@ -115,8 +115,8 @@ document.addEventListener("DOMContentLoaded", function () {
         if (tipo === '') {
             formularioEspecifico.innerHTML = '';
             buttonsContainer.style.display = 'none';
-            // Mostrar carga masiva al inicio (antes de seleccionar material)
-            if (uploadSimple) uploadSimple.style.display = 'block';
+            // Ocultar carga masiva cuando no hay tipo seleccionado
+            if (uploadSimple) uploadSimple.style.display = 'none';
             if (uploadBox) uploadBox.style.display = 'none';
             return;
         }
@@ -1603,15 +1603,84 @@ window.enviarFormularioMultimediaV3 = function() {
         formData.append('csrfmiddlewaretoken', csrfToken);
         console.log('🔐 CSRF token agregado:', csrfToken);
         
-        // Verificar campos requeridos y recolectar datos
-        let camposVacios = [];
+        // 🔍 NUEVA VALIDACIÓN CON PESTAÑAS DE ALERTA INDIVIDUALES
+        console.log('🔍 Iniciando validación personalizada con pestañas de alerta...');
+        let primerCampoInvalido = null;
+        let hayErrores = false;
+        let erroresEncontrados = [];
+        
+        // Función para validar un campo individual
+        function validarCampo(campo, nombreCampo) {
+            if (!campo) {
+                console.warn(`⚠️ Campo ${nombreCampo} no encontrado en el DOM`);
+                return false;
+            }
+            
+            const valor = campo.value ? campo.value.trim() : '';
+            if (valor === '' || valor === null) {
+                hayErrores = true;
+                erroresEncontrados.push(nombreCampo);
+                if (!primerCampoInvalido) primerCampoInvalido = campo;
+                
+                campo.setCustomValidity(`Por favor complete el campo ${nombreCampo}`);
+                
+                console.log(`❌ Campo inválido: ${nombreCampo}`);
+                return false;
+            } else {
+                campo.setCustomValidity('');
+                console.log(`✅ Campo válido: ${nombreCampo}`);
+                return true;
+            }
+        }
+        
+        // Validar campos principales obligatorios
+        console.log('🔍 Validando campos principales...');
+        const profesor = contenedor.querySelector('[name="profesor"]');
+        const carrera = contenedor.querySelector('[name="carrera"]');
+        const materia = contenedor.querySelector('[name="materia"]');
+        const tituloContenido = contenedor.querySelector('[name="titulo_contenido"]');
+        const enlaceContenido = contenedor.querySelector('[name="enlace_contenido_multimedia"]');
+        
+        validarCampo(profesor, 'Profesor/a');
+        validarCampo(carrera, 'Carrera');
+        validarCampo(materia, 'Materia');
+        validarCampo(tituloContenido, 'Título del contenido');
+        validarCampo(enlaceContenido, 'Enlace del contenido multimedia');
+        
+        // Validar todos los inputs dinámicos de "Título del contenido"
+        console.log('🔍 Validando inputs dinámicos de título del contenido...');
+        const inputsDinamicos = contenedor.querySelectorAll('input[name^="titulo_contenido_"]');
+        console.log(`📋 Encontrados ${inputsDinamicos.length} inputs dinámicos de título`);
+        
+        inputsDinamicos.forEach((input, index) => {
+            const nombreCampo = 'Título del contenido';
+            validarCampo(input, nombreCampo);
+            console.log(`🔍 Validando input dinámico: ${input.name} - ${nombreCampo}`);
+        });
+        
+        // Si hay errores, mostrar el primer campo inválido y detener
+        if (hayErrores) {
+            console.log('❌ Formulario no válido. Errores encontrados:', erroresEncontrados);
+            
+            if (primerCampoInvalido) {
+                console.log('🎯 Enfocando primer campo inválido:', primerCampoInvalido.name);
+                primerCampoInvalido.focus();
+                
+                // Usar reportValidity para mostrar la pestaña de alerta individual
+                if (primerCampoInvalido.reportValidity) {
+                    primerCampoInvalido.reportValidity();
+                } else {
+                    // Fallback para navegadores que no soportan reportValidity
+                    const mensajeError = `Por favor complete los siguientes campos obligatorios: ${erroresEncontrados.join(', ')}`;
+                    alert(mensajeError);
+                }
+            }
+            return;
+        }
+        
+        // Recolectar datos solo si la validación es exitosa
         campos.forEach(campo => {
             const valor = campo.value.trim();
-            
-            // Verificar si es requerido y está vacío
-            if (campo.hasAttribute('required') && !valor) {
-                camposVacios.push(campo.name || campo.id);
-            }
             
             // Agregar al FormData si tiene nombre
             if (campo.name) {
@@ -1619,12 +1688,6 @@ window.enviarFormularioMultimediaV3 = function() {
                 console.log(`📋 ${campo.name}: ${valor}`);
             }
         });
-        
-        if (camposVacios.length > 0) {
-            console.warn('⚠️ Campos requeridos vacíos:', camposVacios);
-            alert('Por favor complete los siguientes campos requeridos: ' + camposVacios.join(', '));
-            return;
-        }
         
         console.log('✅ Todos los campos requeridos están completos');
         console.log('📤📤📤 ENVIANDO DATOS A /alta-multimedia/');

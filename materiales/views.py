@@ -1685,7 +1685,7 @@ def guardar_libro_confirmado(request):
             del request.session['libro_data']
             
             # messages.success(request, f'✅ {num_ejemplares} ejemplares del libro "{titulo}" registrados exitosamente.')
-            return redirect('alta_materiales')
+            return redirect('confirmacion_carga_exitosa')
             
         except Exception as e:
             print(f"❌ Error al guardar: {e}")  # Debug
@@ -2444,10 +2444,12 @@ def guardar_alta_multimedia(request):
             form_data = request.session['multimedia_data']
             print(f"📋 Datos de sesión: {form_data}")  # Debug
             
-            # Obtener datos comunes
-            profesor = form_data.get('profesor', '')
-            carrera = form_data.get('carrera', '')
-            materia = form_data.get('materia', '')
+            # Obtener datos comunes (usar valores editados si existen)
+            profesor = request.POST.get('profesor_editado', form_data.get('profesor', ''))
+            carrera = request.POST.get('carrera_editada', form_data.get('carrera', ''))
+            materia = request.POST.get('materia_editada', form_data.get('materia', ''))
+            
+            print(f"📝 Datos finales - Profesor: {profesor}, Carrera: {carrera}, Materia: {materia}")
             
             # Obtener lista de multimedia
             multimedia_list = form_data.get('multimedia_list', [])
@@ -2458,22 +2460,31 @@ def guardar_alta_multimedia(request):
             if multimedia_list:
                 # Guardar cada elemento de la lista
                 for i, multimedia_data in enumerate(multimedia_list):
-                    print(f"💾 Guardando elemento {i+1}: {multimedia_data}")
+                    contador = i + 1
+                    print(f"💾 Guardando elemento {contador}: {multimedia_data}")
+                    
+                    # Usar valores editados si existen, sino usar los originales
+                    titulo_editado = request.POST.get(f'titulo_editado_{contador}')
+                    enlace_editado = request.POST.get(f'enlace_editado_{contador}')
+                    
+                    titulo_final = titulo_editado if titulo_editado else multimedia_data.get('titulo_contenido', '')
+                    enlace_final = enlace_editado if enlace_editado else multimedia_data.get('ingresar_enlace', '')
+                    
+                    print(f"📝 Elemento {contador} - Título: {titulo_final}, Enlace: {enlace_final}")
                     
                     multimedia = Multimedia(
                         estado='Disponible',
                         profesor=profesor,
                         carrera=carrera,
                         materia=materia,
-                        ingresar_enlace=multimedia_data.get('ingresar_enlace', ''),
-                        titulo_contenido=multimedia_data.get('titulo_contenido', ''),
-                        sede='La Plata'  # Agregar campo sede con valor por defecto
+                        ingresar_enlace=enlace_final,
+                        titulo_contenido=titulo_final
                     )
                     
                     # GUARDAR EN BASE DE DATOS
                     multimedia.save()
                     multimedia_guardados.append(multimedia)
-                    print(f"✅ Multimedia {i+1} guardado en BD con ID: {multimedia.id_multi}")
+                    print(f"✅ Multimedia {contador} guardado en BD con ID: {multimedia.id_multi}")
             else:
                 # Fallback: guardar datos básicos si no hay lista
                 print("⚠️ No hay multimedia_list, guardando datos básicos")
@@ -2483,8 +2494,7 @@ def guardar_alta_multimedia(request):
                     carrera=carrera,
                     materia=materia,
                     ingresar_enlace=form_data.get('ingresar_enlace', ''),
-                    titulo_contenido=form_data.get('titulo_contenido', ''),
-                    sede='La Plata'
+                    titulo_contenido=form_data.get('titulo_contenido', '')
                 )
                 multimedia.save()
                 multimedia_guardados.append(multimedia)
@@ -2499,18 +2509,18 @@ def guardar_alta_multimedia(request):
             else:
                 messages.success(request, f'✅ Multimedia "{multimedia_guardados[0].titulo_contenido}" registrado exitosamente.')
             
-            return redirect('alta_materiales')
+            return redirect('confirmacion_carga_exitosa')
             
         except Exception as e:
             print(f"❌ Error al guardar: {e}")  # Debug
             import traceback
             traceback.print_exc()
             messages.error(request, f'❌ Error al guardar el multimedia: {str(e)}')
-            return redirect('alta_materiales')
+            return redirect('confirmacion_carga_exitosa')
     else:
         print("❌ No hay datos o método incorrecto")  # Debug
         messages.error(request, 'No hay datos para guardar.')
-        return redirect('alta_materiales')
+        return redirect('confirmacion_carga_exitosa')
 
 def cancelar_alta_multimedia(request):
     """
@@ -2762,7 +2772,7 @@ def guardar_alta_varios(request):
                     del request.session['varios_data']
                 
                 # messages.success(request, f'Se han guardado exitosamente {len(materiales_creados)} tipos de materiales varios.')
-                return redirect('alta_materiales')
+                return redirect('confirmacion_carga_exitosa')
                 
             except Exception as e:
                 print(f"❌ Error al guardar varios: {e}")  # Debug
@@ -3003,8 +3013,7 @@ def guardar_programa_confirmado(request):
                     'carrera': request.POST.get('carrera', ''),
                     'materia': request.POST.get('materia', ''),
                     'ingresar_enlace': request.POST.get('ingresar_enlace', ''),
-                    'ciclo_lectivo': request.POST.get('ciclo_lectivo', ''),
-                    'sede': request.POST.get('sede', 'LA PLATA')
+                    'ciclo_lectivo': request.POST.get('ciclo_lectivo', '')
                 }
                 print(f"📦 Datos editados a guardar: {programa_data}")
             elif 'programa_data' in request.session:
@@ -3025,13 +3034,12 @@ def guardar_programa_confirmado(request):
                 materia=programa_data.get('materia', ''),
                 ingresar_enlace=programa_data.get('ingresar_enlace', ''),
                 ciclo_lectivo=programa_data.get('ciclo_lectivo', ''),
-                sede=programa_data.get('sede', 'LA PLATA'),
                 # Valores por defecto para campos no incluidos en el formulario
-                disponibilidad='Domicilio',  # Valor por defecto
+                disponibilidad='Disponible',  # Valor por defecto
                 descripcion='',  # Vacío
                 observaciones='',  # Vacío
-                num_ejemplar=1  # Valor por defecto
-                # REMOVIDO: img=''  # Este campo no existe en el modelo Programa
+                num_ejemplar=1,  # Valor por defecto
+                img=''  # Campo img sí existe en el modelo Programa
             )
             
             # GUARDAR EN BASE DE DATOS
@@ -3044,18 +3052,18 @@ def guardar_programa_confirmado(request):
                 del request.session['programa_data']
             
             # messages.success(request, f'✅ Programa "{programa.materia}" registrado exitosamente.')
-            return redirect('alta_materiales')
+            return redirect('confirmacion_carga_exitosa')
             
         except Exception as e:
             print(f"❌ Error al guardar: {e}")  # Debug
             import traceback
             traceback.print_exc()
             messages.error(request, f'❌ Error al guardar el programa: {str(e)}')
-            return redirect('formulario_programa')
+            return redirect('confirmacion_carga_exitosa')
     else:
         print("❌ Método incorrecto")  # Debug
         messages.error(request, 'Método no permitido.')
-        return redirect('formulario_programa')
+        return redirect('confirmacion_carga_exitosa')
 
 def cancelar_alta_programa(request):
     """
@@ -3194,7 +3202,7 @@ def guardar_alta_notebook(request):
             
             cantidad = len(notebooks_creados)
             # messages.success(request, f'Notebook(s) registrado(s) exitosamente: {cantidad} ejemplar(es)')
-            return redirect('alta_materiales')
+            return redirect('confirmacion_carga_exitosa')
             
         except Exception as e:
             print(f"❌ Error al guardar notebook: {str(e)}")  # Debug
@@ -3521,16 +3529,16 @@ def confirmar_mapa_final(request):
             # Mensaje de éxito
             cantidad_total = len(mapas_creados)
             # messages.success(request, f'✅ Se han registrado exitosamente {cantidad_total} mapa(s) en la base de datos.')
-            return redirect('alta_materiales')
+            return redirect('confirmacion_carga_exitosa')
             
         except Exception as e:
             print(f"❌ Error al guardar mapas: {str(e)}")
             messages.error(request, f'Error al guardar los mapas: {str(e)}')
-            return redirect('alta_materiales')
+            return redirect('confirmacion_carga_exitosa')
     else:
         # Si no es POST, redirigir al formulario
         messages.error(request, 'Método no permitido.')
-        return redirect('alta_materiales')
+        return redirect('confirmacion_carga_exitosa')
 
 def guardar_alta_mapa(request):
     """
@@ -3614,7 +3622,7 @@ def guardar_alta_mapa(request):
             print("🧹 Datos de sesión limpiados")
         
         # CORREGIDO: Redirigir a una URL válida
-        return redirect('alta_materiales')
+        return redirect('confirmacion_carga_exitosa')
         
     except Exception as e:
         print(f"❌ Error al guardar mapa: {str(e)}")  # Debug
@@ -3692,7 +3700,7 @@ def guardar_alta_proyector(request):
                 del request.session['ejemplares_proyector']
             
             # messages.success(request, f'Se han guardado {len(proyectores_creados)} proyector(es) correctamente.')
-            return redirect('alta_materiales')
+            return redirect('confirmacion_carga_exitosa')
             
         except Exception as e:
             print(f"❌ Error al guardar proyector: {str(e)}")  # Debug
@@ -3743,3 +3751,82 @@ def editar_programa(request, programa_id):
         'form': form,
         'programa': programa
     })
+
+def actualizar_sesion_varios(request):
+    """
+    Vista AJAX para actualizar la sesión con datos editados de varios
+    """
+    if request.method == 'POST' and request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        try:
+            import json
+            
+            # Obtener datos del POST
+            data = json.loads(request.body)
+            print(f"🔄 Datos recibidos para actualizar sesión: {data}")
+            
+            # Verificar que existan datos de varios en la sesión
+            if 'varios_data' not in request.session:
+                return JsonResponse({'success': False, 'error': 'No hay datos de varios en la sesión'})
+            
+            # Obtener datos actuales de la sesión
+            varios_data = request.session['varios_data']
+            
+            # Actualizar los datos con los valores editados
+            if 'sede' in data:
+                sede_mapping = {
+                    'sede1': 'La Plata',
+                    'sede2': 'Abasto'
+                }
+                varios_data['sede_texto'] = sede_mapping.get(data['sede'], data['sede'])
+                varios_data['sede_varios'] = data['sede']
+            
+            if 'tipo_registrar' in data:
+                varios_data['tipo_varios'] = data['tipo_registrar']
+            
+            if 'cantidad_ejemplares' in data:
+                varios_data['cant_ejemplares'] = data['cantidad_ejemplares']
+            
+            # Actualizar materiales dinámicos
+            if 'materiales' in data and data['materiales']:
+                tipos_varios_actualizados = []
+                for material in data['materiales']:
+                    # Crear ejemplares para cada material
+                    ejemplares = []
+                    cantidad = int(material.get('cantidad', 1))
+                    for i in range(cantidad):
+                        ejemplares.append({
+                            'registro': '',
+                            'denominacion': '',
+                            'descripcion': '',
+                            'sede': varios_data['sede_texto'],
+                            'disponibilidad': 'Disponible'
+                        })
+                    
+                    tipos_varios_actualizados.append({
+                        'tipo': material['tipo'],
+                        'ejemplares': ejemplares
+                    })
+                
+                varios_data['tipos_varios'] = tipos_varios_actualizados
+            
+            # Guardar los datos actualizados en la sesión
+            request.session['varios_data'] = varios_data
+            request.session.modified = True
+            
+            print(f"✅ Sesión actualizada con: {varios_data}")
+            
+            return JsonResponse({'success': True, 'message': 'Sesión actualizada correctamente'})
+            
+        except Exception as e:
+            print(f"❌ Error al actualizar sesión: {str(e)}")
+            return JsonResponse({'success': False, 'error': str(e)})
+    
+    return JsonResponse({'success': False, 'error': 'Método no permitido'})
+
+@login_required
+def confirmacion_carga_exitosa(request):
+    """
+    Vista para mostrar la pantalla de confirmación de carga exitosa.
+    Esta vista se muestra después de que se haya guardado exitosamente cualquier material.
+    """
+    return render(request, 'materiales/formularios_altas/confirmaciones_alta/confirmacion_carga_exitosa.html')

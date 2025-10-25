@@ -245,8 +245,14 @@
                     <span id="carreraValue" class="campo-value">{{ form_data.carrera|default:"Sin especificar" }}</span>
                     <select id="carreraInput" class="form-control form-control-sm" style="display: none;">
                       <option value="">Seleccione una carrera</option>
-                      <option value="carrera1" {% if form_data.carrera == "carrera1" %}selected{% endif %}>Carrera 1</option>
-                      <option value="carrera2" {% if form_data.carrera == "carrera2" %}selected{% endif %}>Carrera 2</option>
+                      <option value="Profesorado de Educación Inicial" {% if form_data.carrera == "Profesorado de Educación Inicial" %}selected{% endif %}>Profesorado de Educación Inicial</option>
+                      <option value="Profesorado de Educación Primaria" {% if form_data.carrera == "Profesorado de Educación Primaria" %}selected{% endif %}>Profesorado de Educación Primaria</option>
+                      <option value="Profesorado de Educación Secundaria en Ciencias Políticas" {% if form_data.carrera == "Profesorado de Educación Secundaria en Ciencias Políticas" %}selected{% endif %}>Profesorado de Educación Secundaria en Ciencias Políticas</option>
+                      <option value="Profesorado de Educación Secundaria en Geografía" {% if form_data.carrera == "Profesorado de Educación Secundaria en Geografía" %}selected{% endif %}>Profesorado de Educación Secundaria en Geografía</option>
+                      <option value="Tecnicatura Superior en Acompañamiento Terapéutico" {% if form_data.carrera == "Tecnicatura Superior en Acompañamiento Terapéutico" %}selected{% endif %}>Tecnicatura Superior en Acompañamiento Terapéutico</option>
+                      <option value="Tecnicatura Superior en Análisis de Sistemas" {% if form_data.carrera == "Tecnicatura Superior en Análisis de Sistemas" %}selected{% endif %}>Tecnicatura Superior en Análisis de Sistemas</option>
+                      <option value="Tecnicatura Superior en Enfermería" {% if form_data.carrera == "Tecnicatura Superior en Enfermería" %}selected{% endif %}>Tecnicatura Superior en Enfermería</option>
+                      <option value="Tecnicatura Superior en Higiene y Seguridad en el Trabajo" {% if form_data.carrera == "Tecnicatura Superior en Higiene y Seguridad en el Trabajo" %}selected{% endif %}>Tecnicatura Superior en Higiene y Seguridad en el Trabajo</option>
                     </select>
                   </div>
                   <div class="campo-item">
@@ -254,8 +260,7 @@
                     <span id="materiaValue" class="campo-value">{{ form_data.materia|default:"Sin especificar" }}</span>
                     <select id="materiaInput" class="form-control form-control-sm" style="display: none;">
                       <option value="">Seleccione una materia</option>
-                      <option value="materia1" {% if form_data.materia == "materia1" %}selected{% endif %}>Materia 1</option>
-                      <option value="materia2" {% if form_data.materia == "materia2" %}selected{% endif %}>Materia 2</option>
+                      <!-- Las opciones se cargarán dinámicamente según la carrera seleccionada -->
                     </select>
                   </div>
                 </div>
@@ -467,6 +472,62 @@ function confirmarMultimedia() {
         confirmInput.value = 'true';
         form.appendChild(confirmInput);
         
+        // Si estamos en modo edición, capturar los valores editados
+        if (modoEdicion) {
+            // Capturar valores de los campos principales editados
+            const profesorInput = document.getElementById('profesorInput');
+            const carreraInput = document.getElementById('carreraInput');
+            const materiaInput = document.getElementById('materiaInput');
+            
+            if (profesorInput && profesorInput.value.trim() !== '') {
+                const profesorField = document.createElement('input');
+                profesorField.type = 'hidden';
+                profesorField.name = 'profesor_editado';
+                profesorField.value = profesorInput.value.trim();
+                form.appendChild(profesorField);
+            }
+            
+            if (carreraInput && carreraInput.value.trim() !== '') {
+                const carreraField = document.createElement('input');
+                carreraField.type = 'hidden';
+                carreraField.name = 'carrera_editada';
+                carreraField.value = carreraInput.value.trim();
+                form.appendChild(carreraField);
+            }
+            
+            if (materiaInput && materiaInput.value.trim() !== '') {
+                const materiaField = document.createElement('input');
+                materiaField.type = 'hidden';
+                materiaField.name = 'materia_editada';
+                materiaField.value = materiaInput.value.trim();
+                form.appendChild(materiaField);
+            }
+            
+            // Capturar valores de contenidos multimedia editados
+            const contenidos = document.querySelectorAll('.ejemplar-info');
+            contenidos.forEach((contenido, index) => {
+                const contador = index + 1;
+                const tituloInput = document.getElementById(`tituloInput${contador}`);
+                const enlaceInput = document.getElementById(`enlaceInput${contador}`);
+                
+                if (tituloInput && tituloInput.value.trim() !== '') {
+                    const tituloField = document.createElement('input');
+                    tituloField.type = 'hidden';
+                    tituloField.name = `titulo_editado_${contador}`;
+                    tituloField.value = tituloInput.value.trim();
+                    form.appendChild(tituloField);
+                }
+                
+                if (enlaceInput && enlaceInput.value.trim() !== '') {
+                    const enlaceField = document.createElement('input');
+                    enlaceField.type = 'hidden';
+                    enlaceField.name = `enlace_editado_${contador}`;
+                    enlaceField.value = enlaceInput.value.trim();
+                    form.appendChild(enlaceField);
+                }
+            });
+        }
+        
         // Agregar al DOM y enviar
         document.body.appendChild(form);
         console.log('📤 Enviando formulario de confirmación...');
@@ -577,6 +638,14 @@ function editarCamposMultimedia() {
         document.getElementById('materiaValue').style.display = 'none';
         document.getElementById('materiaInput').style.display = 'block';
         
+        // Establecer valores actuales en los inputs antes de cargar opciones
+        document.getElementById('profesorInput').value = valoresOriginales.profesor;
+        document.getElementById('carreraInput').value = valoresOriginales.carrera;
+        document.getElementById('materiaInput').value = valoresOriginales.materia;
+        
+        // Cargar materias según la carrera seleccionada, preservando la materia actual
+        cargarMaterias(valoresOriginales.materia);
+        
         // Mostrar inputs de contenidos multimedia y ocultar valores
         const contenidos2 = document.querySelectorAll('.ejemplar-info');
         contenidos2.forEach((contenido, index) => {
@@ -657,10 +726,7 @@ function editarCamposMultimedia() {
             }
         });
         
-        // Restaurar valores en los inputs
-        document.getElementById('profesorInput').value = valoresOriginales.profesor;
-        document.getElementById('carreraInput').value = valoresOriginales.carrera;
-        document.getElementById('materiaInput').value = valoresOriginales.materia;
+        // Los valores principales ya se establecieron antes de cargar las materias
         
         // Restaurar valores en los inputs de contenidos
         const contenidos3 = document.querySelectorAll('.ejemplar-info');
@@ -684,5 +750,321 @@ function editarCamposMultimedia() {
         modoEdicion = false;
     }
 }
+
+// Objeto con las materias por carrera (exactamente igual que en alta_multimedia.html)
+const materiasPorCarrera = {
+    'Profesorado de Educación Inicial': [
+        "Análisis del Mundo Contemporáneo",
+        "Ateneo de Naturaleza y Sociedad",
+        "Ateneo de Matemática",
+        "Ateneo de Nuevas Expresiones Estéticas",
+        "Ateneo de Prácticas del Lenguaje y la Literatura",
+        "Corporeidad y Motricidad",
+        "Cultura, Comunicación y Educación",
+        "Didáctica de la Matemática",
+        "Didáctica de las Ciencias Naturales",
+        "Didáctica de las Ciencias Sociales",
+        "Didáctica de las Prácticas del Lenguaje y la Literatura",
+        "Didáctica General",
+        "Didáctica y Curriculum de Nivel Inicial",
+        "Dimensión Ético-Política de la Praxis Docente",
+        "Educación en y para la Salud",
+        "Educación Física Escolar",
+        "Educación Musical",
+        "Educación Plástica",
+        "Educación Temprana",
+        "Filosofía",
+        "Historia y Prospectiva de la Educación",
+        "Juego y Desarrollo Infantil",
+        "Medios Audiovisuales, TICs y Educación",
+        "Pedagogía",
+        "Política, Legislación y Administración del Trabajo Escolar",
+        "Práctica Docente 1",
+        "Práctica Docente 2",
+        "Práctica Docente 3",
+        "Práctica Docente 4",
+        "Psicología del Desarrollo y el Aprendizaje 1",
+        "Psicología del Desarrollo y el Aprendizaje 2",
+        "Psicología Social e Institucional",
+        "Reflexión Filosófica de la Educación",
+        "Taller de Ciencias Naturales",
+        "Taller de Ciencias Sociales",
+        "Taller de Definición Institucional",
+        "Taller de Lectura, Escritura y Oralidad (LEO)",
+        "Taller de Literatura Infantil",
+        "Taller de la Matemática",
+        "Taller de Materiales y Objetos Lúdicos",
+        "Taller de Pensamiento Lógico Matemático",
+        "Teorías Sociopolíticas y Educación",
+        "Trayectos Formativos Opcionales"
+    ],
+    'Profesorado de Educación Primaria': [
+        "Análisis del Mundo Contemporáneo",
+        "Arte y Educación",
+        "Ateneo de Ciencias Naturales",
+        "Ateneo de Ciencias Sociales",
+        "Ateneo de Matemática",
+        "Ateneo de Prácticas del Lenguaje y la Literatura",
+        "Configuraciones Culturales del Sujeto Educativo de Primaria",
+        "Corporeidad y Motricidad",
+        "Cultura, Comunicación y Educación",
+        "Didáctica de la Matemática 1",
+        "Didáctica de la Matemática 2",
+        "Didáctica de las Ciencias Naturales 1",
+        "Didáctica de las Ciencias Naturales 2",
+        "Didáctica de las Ciencias Sociales 1",
+        "Didáctica de las Ciencias Sociales 2",
+        "Didáctica de Prácticas del Lenguaje y la Literatura 1",
+        "Didáctica de Prácticas del Lenguaje y la Literatura 2",
+        "Didáctica General",
+        "Didáctica y Curriculum de Nivel Primario",
+        "Dimensión Ético-Política de la Praxis Docente",
+        "Educación Artística",
+        "Educación Física Escolar",
+        "Filosofía",
+        "Historia y Prospectiva de la Educación",
+        "Medios Audiovisuales, TICs y Educación",
+        "Pedagogía",
+        "Pedagogía Crítica de las Diferencias",
+        "Política, Legislación y Administración del Trabajo Escolar",
+        "Práctica Docente 1",
+        "Práctica Docente 2",
+        "Práctica Docente 3",
+        "Práctica Docente 4",
+        "Psicología del Desarrollo y el Aprendizaje 1",
+        "Psicología del Desarrollo y el Aprendizaje 2",
+        "Psicología Social e Institucional",
+        "Reflexión Filosófica de la Educación",
+        "Taller de Definición Institucional",
+        "Taller de Lectura, Escritura y Oralidad (LEO)",
+        "Taller de Pensamiento Lógico Matemático",
+        "Teorías Sociopolíticas y Educación",
+        "Trayectos Formativos Opcionales"
+    ],
+    'Profesorado de Educación Secundaria en Geografía': [
+        "Antropología",
+        "Cartografía",
+        "Cartografía Digital",
+        "Cultura Digital y Educación",
+        "Derechos, Interculturalidad y Ciudadanía",
+        "Didáctica de la Geografía",
+        "Didáctica de las Ciencias Sociales",
+        "Didáctica y Curriculum",
+        "Economía Política",
+        "Educación Sexual Integral (ESI)",
+        "Educación y Transformaciones Sociales Contemporáneas",
+        "Enseñanza de la Geografía",
+        "Espacio de Opción Institucional (EOI)",
+        "Geografía Ambiental",
+        "Geografía Ambiental de América Latina",
+        "Geografía Ambiental de Argentina",
+        "Geografía Cultural",
+        "Geografía de Género",
+        "Geografía Económica y Social Argentina",
+        "Geografía Política y Geopolítica",
+        "Geografía Rural",
+        "Geografía Social",
+        "Geografía Social de América Latina",
+        "Geografía Urbana",
+        "Historia de los Modelos Económicos de Argentina",
+        "Historia Social General",
+        "Introducción a las Ciencias Sociales y a la Geografía",
+        "Organización Económica del Espacio",
+        "Pedagogía",
+        "Práctica Docente 1",
+        "Práctica Docente 2",
+        "Práctica Docente 3",
+        "Práctica Docente 4",
+        "Problemas Ambientales Locales/Regionales: La Investigación en el Aula",
+        "Problemas Filosóficos de la Educación",
+        "Política Educativa Argentina",
+        "Psicología del Aprendizaje",
+        "Reflexión Filosófico-Política de la Práctica Docente",
+        "Sociología",
+        "Teoría y Metodología en Geografía",
+        "Trayectorias Educativas de Jóvenes y Adultos",
+        "Unidades Curriculares Optativas"
+    ],
+    'Profesorado de Educación Secundaria en Ciencias Políticas': [
+        "Análisis de las Instituciones Educativas",
+        "Antropología",
+        "Cultura Digital y Educación",
+        "Derecho",
+        "Derechos Humanos y Ciudadanía",
+        "Derechos, Interculturalidad y Ciudadanía",
+        "Didáctica de la Ciencia Política",
+        "Didáctica de las Ciencias Sociales",
+        "Didáctica y Curriculum",
+        "Economía Política",
+        "Educación y Transformaciones Sociales Contemporáneas",
+        "Educación Sexual Integral (ESI)",
+        "Espacio de Opción Institucional (EOI)",
+        "Estado, Administración y Políticas Públicas",
+        "Estado y Política de Género",
+        "Fundamentos de Ciencia Política",
+        "Geografía",
+        "Historia Argentina",
+        "Historia Latinoamericana",
+        "Historia Mundial",
+        "Investigación en la Enseñanza de la Ciencia Política",
+        "Opinión Pública, Medios y Política",
+        "Pedagogía",
+        "Pensamiento Político Pedagógico Latinoamericano",
+        "Política Educativa Argentina",
+        "Práctica Docente 1",
+        "Práctica Docente 2",
+        "Práctica Docente 3",
+        "Práctica Docente 4",
+        "Problemas Filosóficos de la Educación",
+        "Problemática y Política Ambiental",
+        "Psicología del Aprendizaje",
+        "Reflexión Filosófico-Política de la Práctica Docente",
+        "Sistemas Políticos Comparados",
+        "Sociología",
+        "Teoría de las Relaciones Internacionales y Política Internacional",
+        "Teoría Política 1",
+        "Teoría Política 2",
+        "Teoría Política 3",
+        "Teoría y Derecho Constitucional",
+        "Unidades Curriculares Optativas"
+    ],
+    'Tecnicatura Superior en Análisis de Sistemas': [
+        "Álgebra",
+        "Algoritmos y estructuras de datos 1",
+        "Algoritmos y estructuras de datos 2",
+        "Algoritmos y estructuras de datos 3",
+        "Análisis Matemático 1",
+        "Análisis Matemático 2",
+        "Arquitectura de Computadores",
+        "Aspectos legales de la Profesión",
+        "Base de Datos",
+        "Ciencia, Tecnología y Sociedad",
+        "Estadística",
+        "Ingeniería de Software 1",
+        "Ingeniería de Software 2",
+        "Inglés 1",
+        "Inglés 2",
+        "Inglés 3",
+        "Prácticas Profesionalizantes 1",
+        "Prácticas Profesionalizantes 2",
+        "Prácticas Profesionalizantes 3",
+        "Redes y Comunicaciones",
+        "Seminario de actualización",
+        "Sistemas Operativos",
+        "Sistemas y Organizaciones"
+    ],
+    'Tecnicatura Superior en Enfermería': [
+        "Aspectos Bioéticos y Legales de la Profesión",
+        "Biología Humana",
+        "Comunicación en Ciencias de la Salud",
+        "Condiciones y Medio Ambiente del Trabajo",
+        "Cuidados de la Salud Centrados en la Comunidad y la Familia",
+        "Enfermería Comunitaria y Prácticas Educativas en Salud",
+        "Enfermería del Adulto y del Adulto Mayor I",
+        "Enfermería del Adulto y el Adulto Mayor II",
+        "Enfermería en Emergencias y Catástrofes",
+        "Enfermería en Salud Mental",
+        "Enfermería Materno Infantil",
+        "Farmacología en Enfermería",
+        "Fundamentos del Cuidado",
+        "Inglés",
+        "Introducción a la Metodología de Investigación en Salud",
+        "Nutrición y Dietoterapia",
+        "Organización y Gestión de Servicios de Enfermería",
+        "Prácticas Profesionalizantes 1",
+        "Prácticas Profesionalizantes 2",
+        "Prácticas Profesionalizantes 3",
+        "Psicología",
+        "Salud Pública 1",
+        "Salud Pública 2",
+        "Teorías Socioculturales de la Salud"
+    ],
+    'Tecnicatura Superior en Acompañamiento Terapéutico': [
+        "Acompañamiento Terapéutico del Adulto y Adulto Mayor",
+        "Acompañamiento Terapéutico en la Niñez y Adolescencia",
+        "Acompañamiento Terapéutico",
+        "Contextualización del Campo Profesional del Acompañamiento Terapéutico",
+        "Ética",
+        "Fundamentos de Psicología General y de Intervención Sociocomunitaria",
+        "Inglés",
+        "Intervención Comunitaria y Recursos Sociales",
+        "Investigación en Salud",
+        "Modalidades de Intervención en el Acompañamiento Terapéutico",
+        "Modelo de Ocupación Humana",
+        "Organización y Gestión de los Servicios de Salud Mental",
+        "Prácticas Profesionalizantes I",
+        "Prácticas Profesionalizantes II",
+        "Prácticas Profesionalizantes III",
+        "Principios Médicos y de Psicofarmacología",
+        "Psicofarmacología",
+        "Psicología de los Ciclos Vitales",
+        "Psicología de Grupos",
+        "Psicopatología",
+        "Salud Pública y Salud Mental",
+        "Sistemas Familiares"
+    ],
+    'Tecnicatura Superior en Higiene y Seguridad en el Trabajo': [
+        "Administración de las Organizaciones",
+        "Capacitación de Personal",
+        "Comunicación y Administración de Medios",
+        "Control de la Contaminación",
+        "Derecho del Trabajo",
+        "Ergonomía",
+        "Estadística",
+        "Física 1",
+        "Física 2",
+        "Higiene Laboral y Medio Ambiente 1",
+        "Higiene Laboral y Medio Ambiente 2",
+        "Inglés Técnico",
+        "Medicina del Trabajo 1",
+        "Medicina del Trabajo 2",
+        "Medios de Representación",
+        "Práctica Profesionalizante 1",
+        "Práctica Profesionalizante 2",
+        "Práctica Profesionalizante 3",
+        "Psicología Laboral",
+        "Química 1",
+        "Química 2",
+        "Seguridad 1",
+        "Seguridad 2",
+        "Seguridad 3"
+    ]
+};
+
+// Función para cargar materias según la carrera seleccionada
+function cargarMaterias(materiaPreseleccionada = null) {
+    const carreraSelect = document.getElementById('carreraInput');
+    const materiaSelect = document.getElementById('materiaInput');
+    
+    if (!carreraSelect || !materiaSelect) return;
+    
+    const carreraSeleccionada = carreraSelect.value;
+    const materiaActual = materiaPreseleccionada || materiaSelect.value; // Preservar la selección actual
+    
+    // Limpiar opciones de materia
+    materiaSelect.innerHTML = '<option value="">Seleccione una materia</option>';
+    
+    if (carreraSeleccionada && materiasPorCarrera[carreraSeleccionada]) {
+        const materias = materiasPorCarrera[carreraSeleccionada];
+        materias.forEach(materia => {
+            const option = document.createElement('option');
+            option.value = materia;
+            option.textContent = materia;
+            // Mantener la selección si coincide con la materia actual
+            if (materia === materiaActual) {
+                option.selected = true;
+            }
+            materiaSelect.appendChild(option);
+        });
+    }
+}
+
+// Agregar event listener para el cambio de carrera
+document.addEventListener('DOMContentLoaded', function() {
+    const carreraSelect = document.getElementById('carreraInput');
+    if (carreraSelect) {
+        carreraSelect.addEventListener('change', cargarMaterias);
+    }
+});
 </script>
 {% endblock %}

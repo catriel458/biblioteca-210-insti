@@ -259,7 +259,7 @@
                     <div class="sede-section">
                         <p class="sede-text">Sede</p>
                         <p class="sede-value" id="sede-display">{{ form_data.sede_texto|default:"Sin especificar" }}</p>
-                        <select class="sede-select" id="sede-select" name="sede">
+                        <select class="form-select form-select-sm" id="sede-select" name="sede" style="display: none;"
                             <option value="LA PLATA" {% if form_data.sede_texto == "LA PLATA" or not form_data.sede_texto %}selected{% endif %}>LA PLATA</option>
                             <option value="ABASTO" {% if form_data.sede_texto == "ABASTO" %}selected{% endif %}>ABASTO</option>
                         </select>
@@ -280,17 +280,17 @@
                                     <div class="campo-item">
                                         <span class="campo-label">N° Registro</span>
                                         <span class="campo-value" id="registroValue{{ unique_id }}">{{ ejemplar.n_registro|default:"Sin especificar" }}</span>
-                                        <input type="text" class="campo-input" id="registroInput{{ unique_id }}" value="{{ ejemplar.n_registro|default:'' }}">
+                                        <input type="text" class="form-control form-control-sm" id="registroInput{{ unique_id }}" value="{{ ejemplar.n_registro|default:'' }}" style="display: none;">
                                     </div>
                                     <div class="campo-item">
                                         <span class="campo-label">Denominación</span>
                                         <span class="campo-value" id="denominacionValue{{ unique_id }}">{{ ejemplar.denominacion|default:"Sin especificar" }}</span>
-                                        <input type="text" class="campo-input" id="denominacionInput{{ unique_id }}" value="{{ ejemplar.denominacion|default:'' }}">
+                                        <input type="text" class="form-control form-control-sm" id="denominacionInput{{ unique_id }}" value="{{ ejemplar.denominacion|default:'' }}" style="display: none;">
                                     </div>
                                     <div class="campo-item">
                                         <span class="campo-label">Descripción</span>
                                         <span class="campo-value" id="descripcionValue{{ unique_id }}">{{ ejemplar.descripcion|default:"Sin descripción" }}</span>
-                                        <input type="text" class="campo-input" id="descripcionInput{{ unique_id }}" value="{{ ejemplar.descripcion|default:'' }}">
+                                        <input type="text" class="form-control form-control-sm" id="descripcionInput{{ unique_id }}" value="{{ ejemplar.descripcion|default:'' }}" style="display: none;">
                                     </div>
                                 </div>
                                 {% endwith %}
