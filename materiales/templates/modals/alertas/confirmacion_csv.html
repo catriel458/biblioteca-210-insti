@@ -1,0 +1,111 @@
+<!-- Modal para confirmar carga de archivo CSV -->
+<div class="tarjeta-alerta" id="modal-confirmacion-csv">
+    <p class="texto-alerta">SE CARGARÁ A LA BASE DE
+DATOS EL SIGUIENTE ARCHIVO</p>
+    <p class="nombre-archivo" id="nombre-archivo-csv">catalogo_de_libros.csv</p>
+    
+    <div class="botones-tarjeta">
+        <button type="button" class="btn btn-cancelar-modal" id="btn-cancelar-csv" onclick="cerrarModalCSV()">CANCELAR</button>
+        <button type="button" class="btn btn-confirmar-modal" id="btn-confirmar-csv" onclick="confirmarModalCSV()">CONFIRMAR</button>
+    </div>
+</div>
+
+<style>
+.tarjeta-alerta {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1050;
+    flex-direction: column;
+    justify-content: center;
+    border-radius: 10px;
+    box-sizing: border-box;
+    align-items: center;
+    width: 100%;
+    max-width: 320px;
+    min-width: 300px;
+    padding: 1.5em 1.2em;
+    text-align: center;
+    background: #D9E5FF;
+    background-color: #D9E5FF !important;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    border: 1px solid #007BFF;
+}
+
+.texto-alerta {
+    color: #333;
+    font-size: 0.85em;
+    line-height: 1.3;
+    margin: 0;
+    padding: 0;
+    font-weight: 600;
+    font-family: Arial, sans-serif;
+    text-transform: uppercase;
+    max-width: 100%;
+    width: 100%;
+    white-space: pre-line;
+    letter-spacing: 0;
+}
+
+.nombre-archivo {
+    color: #6A1B9A;
+    font-size: 1em;
+    font-weight: bold;
+    margin: 5px 0 20px;
+    word-break: break-all;
+    font-family: Arial, sans-serif;
+}
+
+.botones-tarjeta {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    margin-top: 10px;
+}
+
+.botones-tarjeta > button {
+    min-width: 130px;
+    flex: 0 1 auto;
+    white-space: nowrap;
+    padding: 0.7em 1em;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    font-family: Arial, sans-serif;
+    text-transform: uppercase;
+    font-size: 0.75em;
+}
+
+.btn-cancelar-modal {
+    background-color: #FF6B35 !important;
+    color: white !important;
+}
+
+.btn-confirmar-modal {
+    color: white !important;
+    background-color: #4285F4 !important;
+}
+
+.btn-cancelar-modal:hover {
+    background-color: #E55A2B !important;
+}
+
+.btn-confirmar-modal:hover {
+    background-color: #3367D6 !important;
+}
+
+/* Estilos para el backdrop */
+.modal-backdrop {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1040;
+}
+</style>

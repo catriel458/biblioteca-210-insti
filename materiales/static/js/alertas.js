@@ -3,6 +3,9 @@ let callbackConfirmar = null;
 let callbackCancelar = null;
 let callbackConfirmarReducir = null;
 let callbackCancelarReducir = null;
+let callbackConfirmarCSV = null;
+let callbackCancelarCSV = null;
+let nombreArchivoCSV = "";
 // Función principal que se llama al hacer clic en CANCELAR
 function cancelarFormulario() {
     console.log('Función cancelarFormulario ejecutada');
@@ -17,6 +20,12 @@ function cerrarModal(tipo = 'vaciar') {
             callbackCancelarReducir = null;
         }
         ocultarModalReducirEjemplares();
+    } else if (tipo === 'csv') {
+        if (callbackCancelarCSV) {
+            callbackCancelarCSV();
+            callbackCancelarCSV = null;
+        }
+        ocultarModalCSV();
     } else {
         if (callbackCancelar) {
             callbackCancelar();
@@ -33,6 +42,12 @@ function confirmarModal(tipo = 'vaciar') {
             callbackConfirmarReducir = null;
         }
         ocultarModalReducirEjemplares();
+    } else if (tipo === 'csv') {
+        if (callbackConfirmarCSV) {
+            callbackConfirmarCSV();
+            callbackConfirmarCSV = null;
+        }
+        ocultarModalCSV();
     } else {
         if (callbackConfirmar) {
             callbackConfirmar();
@@ -42,6 +57,53 @@ function confirmarModal(tipo = 'vaciar') {
     }
 }
 
+// Función para mostrar el modal de confirmación de carga de CSV
+function mostrarModalCSV(nombreArchivo, onConfirm = null, onCancel = null) {
+    // Guardar callbacks
+    callbackConfirmarCSV = onConfirm;
+    callbackCancelarCSV = onCancel;
+    nombreArchivoCSV = nombreArchivo;
+    
+    // Actualizar el nombre del archivo en el modal
+    const nombreArchivoElement = document.getElementById('nombre-archivo-csv');
+    if (nombreArchivoElement) {
+        nombreArchivoElement.textContent = nombreArchivo;
+    }
+    
+    // Mostrar el modal
+    const modalCSV = document.getElementById('modal-confirmacion-csv');
+    const backdrop = document.getElementById('modal-backdrop');
+    
+    if (modalCSV && backdrop) {
+        modalCSV.style.display = 'flex';
+        backdrop.style.display = 'block';
+        document.body.style.overflow = 'hidden'; // Prevenir scroll
+        console.log('Modal confirmación CSV mostrado correctamente');
+    } else {
+        console.error('Error: No se encontraron los elementos del modal confirmación CSV');
+    }
+}
+
+// Función para ocultar el modal de confirmación de CSV
+function ocultarModalCSV() {
+    const modalCSV = document.getElementById('modal-confirmacion-csv');
+    const backdrop = document.getElementById('modal-backdrop');
+    
+    if (modalCSV && backdrop) {
+        modalCSV.style.display = 'none';
+        backdrop.style.display = 'none';
+        document.body.style.overflow = ''; // Restaurar scroll
+    }
+}
+
+// Funciones para los botones del modal CSV
+function cerrarModalCSV() {
+    cerrarModal('csv');
+}
+
+function confirmarModalCSV() {
+    confirmarModal('csv');
+}
 // Función para vaciar los campos del formulario
 function vaciarCamposFormulario() {
     const form = document.querySelector('form');
