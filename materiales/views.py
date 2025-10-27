@@ -377,7 +377,9 @@ def editar_usuario(request, usuario_id):
             apellido = request.POST.get('apellido', '').strip()
             email = request.POST.get('email', '').strip()
             perfil = request.POST.get('perfil', '').strip()
-            is_active = request.POST.get('is_active') == 'true'
+            # Corregir el manejo del checkbox is_active
+            # Si el checkbox está marcado, se envía 'on', si no está marcado, no se envía nada
+            is_active = request.POST.get('is_active') == 'on'
             nueva_password = request.POST.get('nueva_password', '').strip()
             
             # Validaciones básicas

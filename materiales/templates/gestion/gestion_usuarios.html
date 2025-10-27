@@ -209,9 +209,11 @@
                                             <i class="fas fa-edit"></i>
                                         </button>
                                         <button type="button" 
-                                                class="btn btn-sm btn-outline-danger btn-action"
-                                                onclick="confirmarEliminarUsuario({{ usuario.id }}, '{{ usuario.nombre }} {{ usuario.apellido }}')"
-                                                title="Eliminar usuario">
+                                                class="btn btn-sm btn-outline-danger btn-action btn-eliminar-usuario"
+                                                onclick="confirmarEliminarUsuario({{ usuario.id|default:'null' }}, '{{ usuario.nombre|default:'' }} {{ usuario.apellido|default:'' }}')"
+                                                title="Eliminar usuario"
+                                                data-usuario-id="{{ usuario.id }}"
+                                                data-usuario-nombre="{{ usuario.nombre }} {{ usuario.apellido }}">
                                             <i class="fas fa-trash"></i>
                                         </button>
                                     </td>
@@ -388,10 +390,11 @@
 
 {% block extra_scripts %}
 <script>
+// Variables globales (fuera del document.ready)
+let usuarioIdEliminar = null;
+let timeoutBusqueda = null;
+
 $(document).ready(function() {
-    let usuarioIdEliminar = null;
-    let timeoutBusqueda = null;
-    
     // Debug: Verificar si jQuery y los elementos existen
     console.log('jQuery cargado:', typeof $ !== 'undefined');
     console.log('Input buscarUsuario encontrado:', $('#buscarUsuario').length);
@@ -529,6 +532,19 @@ $(document).ready(function() {
         const usuarioId = $('#editar_usuario_id').val();
         const formData = new FormData(this);
         
+        // Debug: Verificar el estado del checkbox
+        const isActiveChecked = $('#editar_is_active').is(':checked');
+        console.log('🔵 Estado del checkbox is_active:', isActiveChecked);
+        
+        // Asegurar que el valor del checkbox se envíe correctamente
+        if (isActiveChecked) {
+            formData.set('is_active', 'on');
+        } else {
+            formData.delete('is_active'); // Si no está marcado, no enviar el campo
+        }
+        
+        console.log('🔵 FormData is_active:', formData.get('is_active'));
+        
         $.ajax({
             url: `/gestion/usuarios/editar/${usuarioId}/`,
             method: 'POST',
@@ -557,33 +573,85 @@ $(document).ready(function() {
     
     // Confirmar eliminación
     $('#btnConfirmarEliminar').on('click', function() {
-        if (usuarioIdEliminar) {
-            $.ajax({
-                url: `/gestion/usuarios/eliminar/${usuarioIdEliminar}/`,
-                method: 'POST',
-                headers: {
-                    'X-CSRFToken': getCSRFToken()
-                },
-                success: function(response) {
-                    if (response.success) {
-                        $('#modalEliminarUsuario').modal('hide');
-                        mostrarMensaje(response.message, 'success');
-                        // Recargar la página para mostrar los cambios
-                        setTimeout(() => location.reload(), 1500);
-                    } else {
-                        mostrarMensaje(response.error, 'error');
-                    }
-                },
-                error: function(xhr) {
-                    console.error('Error:', xhr.responseText);
-                    mostrarMensaje('Error al eliminar el usuario', 'error');
-                }
-            });
+        console.log('🔴 Botón eliminar clickeado'); // Debug
+        console.log('Usuario ID a eliminar:', usuarioIdEliminar); // Debug
+        
+        if (!usuarioIdEliminar) {
+            console.error('❌ No hay usuario ID para eliminar');
+            mostrarMensaje('Error: No se ha seleccionado un usuario para eliminar', 'error');
+            return;
         }
+        
+        const csrfToken = getCSRFToken();
+        console.log('🔑 Token CSRF:', csrfToken ? 'Presente' : 'Ausente'); // Debug
+        
+        if (!csrfToken) {
+            console.error('❌ Token CSRF no encontrado');
+            mostrarMensaje('Error: Token de seguridad no encontrado', 'error');
+            return;
+        }
+        
+        // Deshabilitar el botón para evitar múltiples clicks
+        const $btn = $(this);
+        $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-1"></i>Eliminando...');
+        
+        $.ajax({
+            url: `/gestion/usuarios/eliminar/${usuarioIdEliminar}/`,
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrfToken,
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            timeout: 10000, // 10 segundos de timeout
+            success: function(response) {
+                console.log('✅ Respuesta del servidor:', response); // Debug
+                
+                if (response.success) {
+                    $('#modalEliminarUsuario').modal('hide');
+                    mostrarMensaje(response.message, 'success');
+                    // Recargar la página para mostrar los cambios
+                    setTimeout(() => location.reload(), 1500);
+                } else {
+                    console.error('❌ Error del servidor:', response.error);
+                    mostrarMensaje(response.error || 'Error desconocido al eliminar el usuario', 'error');
+                    // Rehabilitar el botón
+                    $btn.prop('disabled', false).html('<i class="fas fa-trash me-1"></i>Eliminar Usuario');
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('❌ Error AJAX:', {
+                    status: xhr.status,
+                    statusText: xhr.statusText,
+                    responseText: xhr.responseText,
+                    error: error
+                });
+                
+                let errorMessage = 'Error al eliminar el usuario';
+                
+                if (xhr.status === 403) {
+                    errorMessage = 'Error: No tiene permisos para realizar esta acción';
+                } else if (xhr.status === 404) {
+                    errorMessage = 'Error: Usuario no encontrado';
+                } else if (xhr.status === 500) {
+                    errorMessage = 'Error interno del servidor';
+                } else if (status === 'timeout') {
+                    errorMessage = 'Error: La operación tardó demasiado tiempo';
+                } else if (xhr.responseJSON && xhr.responseJSON.error) {
+                    errorMessage = xhr.responseJSON.error;
+                }
+                
+                mostrarMensaje(errorMessage, 'error');
+                
+                // Rehabilitar el botón
+                $btn.prop('disabled', false).html('<i class="fas fa-trash me-1"></i>Eliminar Usuario');
+            }
+        });
     });
     
     // Función para mostrar mensajes
     function mostrarMensaje(mensaje, tipo) {
+        console.log('📢 Mostrando mensaje:', mensaje, 'Tipo:', tipo); // Debug
+        
         const alertClass = tipo === 'success' ? 'alert-success' : 'alert-danger';
         const icon = tipo === 'success' ? 'fa-check-circle' : 'fa-exclamation-triangle';
         
@@ -636,9 +704,48 @@ function editarUsuario(usuarioId) {
 
 // Función global para confirmar eliminación
 function confirmarEliminarUsuario(usuarioId, nombreUsuario) {
+    console.log('🔵 Función confirmarEliminarUsuario llamada'); // Debug
+    console.log('Usuario ID recibido:', usuarioId, 'Tipo:', typeof usuarioId); // Debug
+    console.log('Nombre usuario:', nombreUsuario); // Debug
+    
+    // Convertir a número si es string
+    if (typeof usuarioId === 'string' && usuarioId !== 'null') {
+        usuarioId = parseInt(usuarioId, 10);
+    }
+    
+    // Validar que el ID sea un número válido
+    if (!usuarioId || usuarioId === null || isNaN(usuarioId) || usuarioId <= 0) {
+        console.error('❌ Usuario ID no válido:', usuarioId);
+        mostrarMensaje('Error: ID de usuario no válido', 'error');
+        return;
+    }
+    
+    // Validar que el nombre no esté vacío
+    if (!nombreUsuario || nombreUsuario.trim() === '') {
+        console.error('❌ Nombre de usuario vacío');
+        mostrarMensaje('Error: Nombre de usuario no válido', 'error');
+        return;
+    }
+    
     usuarioIdEliminar = usuarioId;
-    $('#nombreUsuarioEliminar').text(nombreUsuario);
+    $('#nombreUsuarioEliminar').text(nombreUsuario.trim());
     $('#modalEliminarUsuario').modal('show');
+    
+    console.log('✅ Modal de eliminación mostrado para usuario:', usuarioId); // Debug
 }
+
+// Función alternativa usando event delegation para botones dinámicos
+$(document).on('click', '.btn-eliminar-usuario', function(e) {
+    e.preventDefault();
+    
+    const usuarioId = $(this).data('usuario-id');
+    const nombreUsuario = $(this).data('usuario-nombre');
+    
+    console.log('🔵 Click en botón eliminar (event delegation)'); // Debug
+    console.log('Usuario ID desde data:', usuarioId); // Debug
+    console.log('Nombre desde data:', nombreUsuario); // Debug
+    
+    confirmarEliminarUsuario(usuarioId, nombreUsuario);
+});
 </script>
 {% endblock %}
