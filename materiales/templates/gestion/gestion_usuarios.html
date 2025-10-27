@@ -20,7 +20,7 @@
         padding: 0.25rem 0.5rem;
     }
     
-    .perfil-alumno { background-color: #000000 !important; }
+    .perfil-estudiante { background-color: #000000 !important; }
     .perfil-bibliotecaria { background-color: #000000 !important; }
     .perfil-docente { background-color: #000000 !important; }
     
@@ -85,17 +85,6 @@
 
 <div class="container-fluid">
     <div class="row">
-        <div class="col-12">
-            <!-- Header -->
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2 class="text-primary mb-0">
-                    <i class="fas fa-users me-2"></i>Gestión de Usuarios
-                </h2>
-                <a href="{% url 'gestion' %}" class="btn btn-secondary">
-                    <i class="fas fa-arrow-left me-1"></i>Volver a Gestión
-                </a>
-            </div>
-            
             <!-- Estadísticas -->
             <div class="row mb-4">
                 <div class="col-md-2">
@@ -125,8 +114,8 @@
                 <div class="col-md-2">
                     <div class="card bg-info text-white text-center">
                         <div class="card-body">
-                            <h4 class="mb-1">{{ alumnos }}</h4>
-                            <small>Alumnos</small>
+                            <h4 class="mb-1">{{ estudiantes }}</h4>
+                            <small>Estudiantes</small>
                         </div>
                     </div>
                 </div>
@@ -266,7 +255,7 @@
                             <label for="crear_perfil" class="form-label">Perfil *</label>
                             <select class="form-select" id="crear_perfil" name="perfil" required>
                                 <option value="">Seleccionar perfil</option>
-                                <option value="alumno">Alumno</option>
+                                <option value="estudiante">Estudiante</option>
                                 <option value="docente">Docente</option>
                                 <option value="bibliotecaria">Bibliotecaria</option>
                             </select>
@@ -324,7 +313,7 @@
                         <div class="col-md-6 mb-3">
                             <label for="editar_perfil" class="form-label">Perfil *</label>
                             <select class="form-select" id="editar_perfil" name="perfil" required>
-                                <option value="alumno">Alumno</option>
+                                <option value="estudiante">Estudiante</option>
                                 <option value="docente">Docente</option>
                                 <option value="bibliotecaria">Bibliotecaria</option>
                             </select>
@@ -397,94 +386,76 @@
 </div>
 {% endblock %}
 
-{% block extra_js %}
+{% block extra_scripts %}
 <script>
 $(document).ready(function() {
     let usuarioIdEliminar = null;
     let timeoutBusqueda = null;
+    
+    // Debug: Verificar si jQuery y los elementos existen
+    console.log('jQuery cargado:', typeof $ !== 'undefined');
+    console.log('Input buscarUsuario encontrado:', $('#buscarUsuario').length);
+    console.log('Tabla cuerpoTablaUsuarios encontrada:', $('#cuerpoTablaUsuarios').length);
+    console.log('Filas con data-usuario-id:', $('#cuerpoTablaUsuarios tr[data-usuario-id]').length);
     
     // Obtener token CSRF
     function getCSRFToken() {
         return $('[name=csrfmiddlewaretoken]').val();
     }
     
-    // Búsqueda en tiempo real
+    // Filtro de búsqueda dinámico (tiempo real)
     $('#buscarUsuario').on('input', function() {
-        clearTimeout(timeoutBusqueda);
-        const query = $(this).val().trim();
+        console.log('Evento input disparado'); // Debug
+        const query = $(this).val().toLowerCase().trim();
+        console.log('Query:', query); // Debug
+        const filas = $('#cuerpoTablaUsuarios tr[data-usuario-id]');
+        console.log('Filas encontradas:', filas.length); // Debug
         
-        timeoutBusqueda = setTimeout(function() {
-            buscarUsuarios(query);
-        }, 300);
-    });
-    
-    // Función para buscar usuarios
-    function buscarUsuarios(query) {
-        $.ajax({
-            url: '{% url "buscar_usuarios" %}',
-            method: 'GET',
-            data: { q: query },
-            success: function(response) {
-                actualizarTablaUsuarios(response.usuarios);
-            },
-            error: function() {
-                mostrarMensaje('Error al buscar usuarios', 'error');
+        filas.each(function() {
+            const fila = $(this);
+            const dni = fila.find('td:nth-child(1)').text().toLowerCase();
+            const nombre = fila.find('td:nth-child(2)').text().toLowerCase();
+            const email = fila.find('td:nth-child(3)').text().toLowerCase();
+            
+            console.log('Procesando fila - DNI:', dni, 'Nombre:', nombre, 'Email:', email); // Debug
+            
+            // Buscar en DNI, nombre completo y email
+            const coincide = query === '' || 
+                           dni.includes(query) || 
+                           nombre.includes(query) || 
+                           email.includes(query);
+            
+            console.log('Coincide:', coincide); // Debug
+            
+            if (coincide) {
+                fila.show();
+            } else {
+                fila.hide();
             }
         });
-    }
+    });
     
-    // Función para actualizar la tabla de usuarios
-    function actualizarTablaUsuarios(usuarios) {
+    // Función para mostrar mensaje cuando no hay resultados
+    function mostrarMensajeNoResultados(filasVisibles, query) {
         const tbody = $('#cuerpoTablaUsuarios');
-        tbody.empty();
+        const mensajeExistente = tbody.find('.no-resultados');
         
-        if (usuarios.length === 0) {
-            tbody.append(`
-                <tr>
-                    <td colspan="7" class="text-center text-muted">
+        // Remover mensaje anterior si existe
+        mensajeExistente.remove();
+        
+        // Si no hay filas visibles y hay una búsqueda activa
+        if (filasVisibles === 0 && query !== '') {
+            const mensajeNoResultados = `
+                <tr class="no-resultados">
+                    <td colspan="7" class="text-center text-muted py-4">
                         <i class="fas fa-search fa-3x mb-3"></i>
-                        <p>No se encontraron usuarios</p>
-                    </td>
-                </tr>
-            `);
-            return;
-        }
-        
-        usuarios.forEach(function(usuario) {
-            const estadoIcon = usuario.is_active ? 
-                '<i class="fas fa-check-circle status-active"></i> Activo' : 
-                '<i class="fas fa-times-circle status-inactive"></i> Inactivo';
-            
-            const fila = `
-                <tr data-usuario-id="${usuario.id}">
-                    <td><strong>${usuario.dni}</strong></td>
-                    <td>${usuario.nombre} ${usuario.apellido}</td>
-                    <td>${usuario.email}</td>
-                    <td>
-                        <span class="badge perfil-${usuario.perfil_value}">
-                            ${usuario.perfil}
-                        </span>
-                    </td>
-                    <td>${estadoIcon}</td>
-                    <td>${usuario.fecha_registro}</td>
-                    <td>
-                        <button type="button" 
-                                class="btn btn-sm btn-outline-primary btn-action"
-                                onclick="editarUsuario(${usuario.id})"
-                                title="Editar usuario">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                        <button type="button" 
-                                class="btn btn-sm btn-outline-danger btn-action"
-                                onclick="confirmarEliminarUsuario(${usuario.id}, '${usuario.nombre} ${usuario.apellido}')"
-                                title="Eliminar usuario">
-                            <i class="fas fa-trash"></i>
-                        </button>
+                        <p class="mb-0">No se encontraron usuarios que coincidan con "<strong>${query}</strong>"</p>
+                        <small class="text-muted">Intenta con otro término de búsqueda</small>
                     </td>
                 </tr>
             `;
-            tbody.append(fila);
-        });
+            tbody.append(mensajeNoResultados);
+        }
     }
     
     // Crear usuario

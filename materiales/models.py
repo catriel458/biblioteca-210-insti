@@ -28,7 +28,7 @@ class CustomUserManager(BaseUserManager):
 # SEGUNDO: Modelo de Usuario personalizado (ANTES que los demás)
 class Usuario(AbstractBaseUser, PermissionsMixin):
     PERFIL_CHOICES = (
-        ('alumno', 'Alumno'),
+        ('estudiante', 'Estudiante'),
         ('bibliotecaria', 'Bibliotecaria'),
         ('docente', 'Docente'),
     )
@@ -42,7 +42,7 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
     nombre = models.CharField(max_length=100)
     apellido = models.CharField(max_length=100)
     email = models.EmailField(unique=True)
-    perfil = models.CharField(max_length=20, choices=PERFIL_CHOICES, default='alumno')
+    perfil = models.CharField(max_length=20, choices=PERFIL_CHOICES, default='estudiante')
     fecha_registro = models.DateTimeField(auto_now_add=True)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
@@ -192,7 +192,7 @@ class Prestamo(models.Model):
     )
     
     TIPO_USUARIO_CHOICES = (
-        ('alumno', 'Alumno'),
+        ('estudiante', 'Estudiante'),
         ('profesor', 'Profesor'),
     )
     
@@ -208,7 +208,7 @@ class Prestamo(models.Model):
     fecha_limite_reserva = models.DateTimeField(null=True, blank=True)
     estado = models.CharField(max_length=20, choices=ESTADO_CHOICES, default='solicitado')
     tipo_prestamo = models.CharField(max_length=10, choices=TIPO_CHOICES, default='domicilio')
-    tipo_usuario = models.CharField(max_length=10, choices=TIPO_USUARIO_CHOICES, default='alumno')
+    tipo_usuario = models.CharField(max_length=10, choices=TIPO_USUARIO_CHOICES, default='estudiante')
     motivo_rechazo = models.TextField(blank=True, null=True)
     observaciones = models.TextField(blank=True, null=True)
     fecha_retiro_real = models.DateTimeField(null=True, blank=True)

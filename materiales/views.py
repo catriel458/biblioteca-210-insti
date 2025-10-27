@@ -231,7 +231,7 @@ def gestion_usuarios(request):
         'usuarios_activos': usuarios.filter(is_active=True).count(),
         'usuarios_inactivos': usuarios.filter(is_active=False).count(),
         'bibliotecarias': usuarios.filter(perfil='bibliotecaria').count(),
-        'alumnos': usuarios.filter(perfil='alumno').count(),
+        'estudiantes': usuarios.filter(perfil='estudiante').count(),
         'docentes': usuarios.filter(perfil='docente').count(),
     }
     
@@ -300,10 +300,10 @@ def crear_usuario(request):
                 user = form.save(commit=False)
                 
                 # Asignar el perfil seleccionado desde el modal
-                if perfil in ['alumno', 'docente', 'bibliotecaria']:
+                if perfil in ['estudiante', 'docente', 'bibliotecaria']:
                     user.perfil = perfil
                 else:
-                    user.perfil = 'alumno'  # Valor por defecto
+                    user.perfil = 'estudiante'  # Valor por defecto
                 
                 # Guardar el usuario
                 user.save()
@@ -395,7 +395,7 @@ def editar_usuario(request, usuario_id):
                 })
             
             # Validar perfil
-            if perfil not in ['alumno', 'bibliotecaria', 'docente']:
+            if perfil not in ['estudiante', 'bibliotecaria', 'docente']:
                 return JsonResponse({
                     'success': False,
                     'error': 'Perfil no válido.'
@@ -1053,7 +1053,7 @@ def solicitar_prestamo(request, libro_id):
     if request.method == 'POST':
         nombre_usuario = request.POST.get('nombre_usuario', '')
         email_usuario = request.POST.get('email_usuario', '')
-        tipo_usuario = request.POST.get('tipo_usuario', 'alumno')
+        tipo_usuario = request.POST.get('tipo_usuario', 'estudiante')
         tipo_prestamo = request.POST.get('tipo_prestamo', 'domicilio')
         
         # NO calcular fecha límite aquí - se calculará cuando se apruebe
@@ -2830,7 +2830,7 @@ def solicitar_prestamo(request, libro_id):
     
     # Crear el préstamo
     if request.method == 'POST':
-        tipo_usuario = request.POST.get('tipo_usuario', 'alumno')
+        tipo_usuario = request.POST.get('tipo_usuario', 'estudiante')
         tipo_prestamo = request.POST.get('tipo_prestamo', 'domicilio')
         
         prestamo = Prestamo(
