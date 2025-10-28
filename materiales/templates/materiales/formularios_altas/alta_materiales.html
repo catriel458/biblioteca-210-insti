@@ -99,6 +99,8 @@
   {% include 'modals/alertas/reducir_ejemplares.html' %}
   <!-- Incluir el modal de confirmación CSV -->
   {% include 'modals/alertas/confirmacion_csv.html' %}
+  <!-- Incluir el modal de archivo no válido -->
+  {% include 'modals/alertas/archivo_novalido.html' %}
   
   <!-- Backdrop para los modales -->
   <div id="modal-backdrop" class="modal-backdrop"></div>
@@ -114,6 +116,34 @@ function manejarSeleccionArchivo(input) {
         const nombreArchivoDiv = document.getElementById('nombre_archivo_carga_simple');
         if (nombreArchivoDiv) {
             nombreArchivoDiv.textContent = archivo.name;
+        }
+        
+        // Verificar la extensión del archivo
+        const nombreArchivo = archivo.name.toLowerCase();
+        const extensionesValidas = ['.csv', '.xls', '.xlsx'];
+        const esArchivoValido = extensionesValidas.some(ext => nombreArchivo.endsWith(ext));
+        
+        if (!esArchivoValido) {
+            // Mostrar el modal de archivo no válido
+            mostrarModalArchivoNoValido(function() {
+                // Callback para aceptar - limpiar el input de archivo
+                input.value = '';
+                if (nombreArchivoDiv) {
+                    nombreArchivoDiv.textContent = '';
+                }
+                console.log('Archivo no válido rechazado');
+            });
+            return;
+        }
+        
+        // Si el archivo está vacío (tamaño 0), mostrar alerta
+        if (archivo.size === 0) {
+            mostrarModalArchivoVacio();
+            input.value = '';
+            if (nombreArchivoDiv) {
+                nombreArchivoDiv.textContent = '';
+            }
+            return;
         }
         
         // Mostrar el modal de confirmación CSV

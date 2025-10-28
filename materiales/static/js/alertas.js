@@ -6,6 +6,7 @@ let callbackCancelarReducir = null;
 let callbackConfirmarCSV = null;
 let callbackCancelarCSV = null;
 let nombreArchivoCSV = "";
+let callbackAceptarArchivoNoValido = null;
 // Función principal que se llama al hacer clic en CANCELAR
 function cancelarFormulario() {
     console.log('Función cancelarFormulario ejecutada');
@@ -113,24 +114,40 @@ function vaciarCamposFormulario() {
     }
 }
 
-// Función para mostrar el modal de alerta de vaciar campos
-function mostrarModalAlerta(onConfirm = null, onCancel = null) {
-    // Si no se proporciona un callback de confirmación, usar vaciarCamposFormulario por defecto
-    callbackConfirmar = onConfirm || vaciarCamposFormulario;
-    callbackCancelar = onCancel;
+// Función para mostrar el modal de archivo no válido
+function mostrarModalArchivoNoValido(onAccept = null) {
+    // Guardar callback
+    callbackAceptarArchivoNoValido = onAccept;
     
-    const modalAlerta = document.getElementById('modal-vaciar-campos');
+    // Mostrar el modal
+    const modalArchivoNoValido = document.getElementById('modal-archivo-novalido');
     const backdrop = document.getElementById('modal-backdrop');
     
-    if (modalAlerta && backdrop) {
-        modalAlerta.classList.add('show');
-        modalAlerta.style.display = 'block';
-        backdrop.classList.add('show');
+    if (modalArchivoNoValido && backdrop) {
+        modalArchivoNoValido.style.display = 'flex';
         backdrop.style.display = 'block';
         document.body.style.overflow = 'hidden'; // Prevenir scroll
-        console.log('Modal vaciar campos mostrado correctamente');
+        console.log('Modal archivo no válido mostrado correctamente');
     } else {
-        console.error('Error: No se encontraron los elementos del modal vaciar campos');
+        console.error('Error: No se encontraron los elementos del modal archivo no válido');
+    }
+}
+
+// Función para ocultar el modal de archivo no válido
+function cerrarModalArchivoNoValido() {
+    const modalArchivoNoValido = document.getElementById('modal-archivo-novalido');
+    const backdrop = document.getElementById('modal-backdrop');
+    
+    if (modalArchivoNoValido && backdrop) {
+        modalArchivoNoValido.style.display = 'none';
+        backdrop.style.display = 'none';
+        document.body.style.overflow = ''; // Restaurar scroll
+        
+        // Ejecutar callback si existe
+        if (callbackAceptarArchivoNoValido) {
+            callbackAceptarArchivoNoValido();
+            callbackAceptarArchivoNoValido = null;
+        }
     }
 }
 
