@@ -270,24 +270,23 @@
 <!-- Token CSRF para AJAX -->
 {% csrf_token %}
 
-<div class="container-fluid">
-    <div class="row">
+<div class="container-fluid px-4">
+    <div class="row justify-content-center">
+        <div class="col-12">
 
             <!-- Controles -->
             <div class="card mb-4">
                 <div class="card-body">
                     <div class="row align-items-center">
                         <div class="col-md-6">
-                            <div class="search-container">
-                                <div class="input-group">
-                                    <span class="input-group-text">
-                                        <i class="fas fa-search"></i>
-                                    </span>
-                                    <input type="text" 
-                                           class="form-control" 
-                                           id="buscarUsuario" 
-                                           placeholder="Buscar por DNI, nombre, apellido o email...">
-                                </div>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="fas fa-search"></i>
+                                </span>
+                                <input type="text" 
+                                       class="form-control" 
+                                       id="buscarUsuario" 
+                                       placeholder="Buscar por DNI, nombre, apellido o email...">
                             </div>
                         </div>
                         <div class="col-md-6 text-end">
@@ -302,55 +301,62 @@
                 </div>
             </div>
             <!-- Estadísticas -->
-            <div class="row mb-4">
-                <div class="col-md-2">
-                    <div class="btn btn-estadisticas text-center d-flex flex-column justify-content-center" 
-                         data-filter="todos" onclick="filtrarTabla('todos')">
-                        <h4 class="mb-1">{{ total_usuarios }}</h4>
-                        <small>Total Usuarios</small>
+            <div class="row mb-4 justify-content-center">
+                <div class="col-12 col-xl-10">
+                    <div class="row justify-content-center">
+                        <div class="col-md-2 col-sm-4 col-6 mb-3">
+                            <div class="btn btn-estadisticas text-center d-flex flex-column justify-content-center w-100" 
+                                 data-filter="todos" onclick="filtrarTabla('todos')">
+                                <h4 class="mb-1">{{ total_usuarios }}</h4>
+                                <small>Total Usuarios</small>
+                            </div>
+                        </div>
+                        <div class="col-md-2 col-sm-4 col-6 mb-3">
+                            <div class="btn btn-estadisticas text-center d-flex flex-column justify-content-center w-100" 
+                                 data-filter="activos" onclick="filtrarTabla('activos')">
+                                <h4 class="mb-1">{{ usuarios_activos }}</h4>
+                                <small>Activos</small>
+                            </div>
+                        </div>
+                        <div class="col-md-2 col-sm-4 col-6 mb-3">
+                            <div class="btn btn-estadisticas text-center d-flex flex-column justify-content-center w-100" 
+                                 data-filter="inactivos" onclick="filtrarTabla('inactivos')">
+                                <h4 class="mb-1">{{ usuarios_inactivos }}</h4>
+                                <small>Inactivos</small>
+                            </div>
+                        </div>
+                        <div class="col-md-2 col-sm-4 col-6 mb-3">
+                            <div class="btn btn-estadisticas text-center d-flex flex-column justify-content-center w-100" 
+                                 data-filter="estudiante" onclick="filtrarTabla('estudiante')">
+                                <h4 class="mb-1">{{ estudiantes }}</h4>
+                                <small>Estudiantes</small>
+                            </div>
+                        </div>
+                        <div class="col-md-2 col-sm-4 col-6 mb-3">
+                            <div class="btn btn-estadisticas text-center d-flex flex-column justify-content-center w-100" 
+                                 data-filter="bibliotecaria" onclick="filtrarTabla('bibliotecaria')">
+                                <h4 class="mb-1">{{ bibliotecarias }}</h4>
+                                <small>Bibliotecarias</small>
+                            </div>
+                        </div>
+                        <div class="col-md-2 col-sm-4 col-6 mb-3">
+                            <div class="btn btn-estadisticas text-center d-flex flex-column justify-content-center w-100" 
+                                 data-filter="docente" onclick="filtrarTabla('docente')">
+                                <h4 class="mb-1">{{ docentes }}</h4>
+                                <small>Docentes</small>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="col-md-2">
-                    <div class="btn btn-estadisticas text-center d-flex flex-column justify-content-center" 
-                         data-filter="activos" onclick="filtrarTabla('activos')">
-                        <h4 class="mb-1">{{ usuarios_activos }}</h4>
-                        <small>Activos</small>
-                    </div>
-                </div>
-                <div class="col-md-2">
-                    <div class="btn btn-estadisticas text-center d-flex flex-column justify-content-center" 
-                         data-filter="inactivos" onclick="filtrarTabla('inactivos')">
-                        <h4 class="mb-1">{{ usuarios_inactivos }}</h4>
-                        <small>Inactivos</small>
-                    </div>
-                </div>
-                <div class="col-md-2">
-                    <div class="btn btn-estadisticas text-center d-flex flex-column justify-content-center" 
-                         data-filter="estudiante" onclick="filtrarTabla('estudiante')">
-                        <h4 class="mb-1">{{ estudiantes }}</h4>
-                        <small>Estudiantes</small>
-                    </div>
-                </div>
-                <div class="col-md-2">
-                    <div class="btn btn-estadisticas text-center d-flex flex-column justify-content-center" 
-                         data-filter="bibliotecaria" onclick="filtrarTabla('bibliotecaria')">
-                        <h4 class="mb-1">{{ bibliotecarias }}</h4>
-                        <small>Bibliotecarias</small>
-                    </div>
-                </div>
-                <div class="col-md-2">
-                    <div class="btn btn-estadisticas text-center d-flex flex-column justify-content-center" 
-                         data-filter="docente" onclick="filtrarTabla('docente')">
-                        <h4 class="mb-1">{{ docentes }}</h4>
-                        <small>Docentes</small>
-                    </div>
-                </div>
-            </div>
-            <!-- Tabla de usuarios -->
-            <div class="card">
-                <div class="card-body">
-                    <div class="tabla-container">
-                        <table class="usuarios-table" id="tablaUsuarios">
+    </div>
+</div>
+
+<!-- Tabla de usuarios -->
+<div class="container-fluid" style="width: 100%; height: auto; padding: 0 0.5rem 0 1.5rem; margin: 0;">
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="tabla-container">
+                <table class="usuarios-table" id="tablaUsuarios">
                             <thead>
                                 <tr>
                                     <th>DNI</th>
@@ -412,8 +418,6 @@
                                 {% endfor %}
                             </tbody>
                         </table>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
