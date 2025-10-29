@@ -112,28 +112,33 @@
 function manejarSeleccionArchivo(input) {
     if (input.files && input.files[0]) {
         const archivo = input.files[0];
-        // Mostrar el nombre del archivo en el div correspondiente
-        const nombreArchivoDiv = document.getElementById('nombre_archivo_carga_simple');
-        if (nombreArchivoDiv) {
-            nombreArchivoDiv.textContent = archivo.name;
-        }
         
-        // Verificar la extensión del archivo
+        // Verificar la extensión del archivo ANTES de mostrar el nombre
         const nombreArchivo = archivo.name.toLowerCase();
         const extensionesValidas = ['.csv', '.xls', '.xlsx'];
         const esArchivoValido = extensionesValidas.some(ext => nombreArchivo.endsWith(ext));
         
         if (!esArchivoValido) {
+            // Limpiar el input de archivo INMEDIATAMENTE para evitar que se cargue
+            input.value = '';
+            
             // Mostrar el modal de archivo no válido
             mostrarModalArchivoNoValido(function() {
-                // Callback para aceptar - limpiar el input de archivo
+                // Callback para aceptar - asegurarse que el input esté limpio
                 input.value = '';
+                const nombreArchivoDiv = document.getElementById('nombre_archivo_carga_simple');
                 if (nombreArchivoDiv) {
                     nombreArchivoDiv.textContent = '';
                 }
                 console.log('Archivo no válido rechazado');
             });
             return;
+        }
+        
+        // Solo si el archivo es válido, mostrar el nombre
+        const nombreArchivoDiv = document.getElementById('nombre_archivo_carga_simple');
+        if (nombreArchivoDiv) {
+            nombreArchivoDiv.textContent = archivo.name;
         }
         
         // Si el archivo está vacío (tamaño 0), mostrar alerta
