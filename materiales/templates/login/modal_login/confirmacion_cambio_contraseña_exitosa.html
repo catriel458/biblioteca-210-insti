@@ -1,0 +1,95 @@
+<!-- Modal de confirmación de cambio de contraseña exitosa -->
+<div id="successModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="successModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header border-0 text-center">
+                <div class="w-100">
+                    <div class="modal-icon">
+                        <i class="fas fa-check-circle text-success" style="font-size: 4rem;"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-body text-center">
+                <h4 class="modal-title mb-3" id="successModalLabel">¡Tu contraseña ha sido cambiada exitosamente!</h4>
+            </div>
+            <div class="modal-footer border-0 justify-content-center">
+                <button type="button" class="btn btn-primary btn-lg px-4" onclick="redirectToProfile()">
+                    <i class="fas fa-user me-2"></i>Ir a Mi Perfil
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Estilos específicos para el modal de éxito */
+    #successModal .modal-content {
+        border-radius: 15px;
+        border: none;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+
+    #successModal .modal-icon {
+        margin-bottom: 20px;
+    }
+
+    #successModal .modal-title {
+        font-weight: 600;
+        color: #333;
+        font-size: 1.5rem;
+    }
+
+    #successModal .modal-message {
+        font-size: 1.1rem;
+        line-height: 1.5;
+    }
+
+    #successModal .btn-primary {
+        background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+        border: none;
+        border-radius: 8px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    #successModal .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 16px rgba(0, 123, 255, 0.3);
+    }
+
+    /* Animación de entrada */
+    #successModal.show .modal-dialog {
+        animation: modalSlideIn 0.3s ease-out;
+    }
+
+    @keyframes modalSlideIn {
+        from {
+            opacity: 0;
+            transform: translateY(-50px) scale(0.9);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+</style>
+
+<script>
+    function redirectToProfile() {
+        window.location.href = "{% url 'perfil_usuario' %}";
+    }
+
+    // Función para mostrar el modal
+    function showSuccessModal() {
+        const modal = new bootstrap.Modal(document.getElementById('successModal'));
+        modal.show();
+    }
+
+    // Función para ocultar el modal
+    function hideSuccessModal() {
+        const modal = bootstrap.Modal.getInstance(document.getElementById('successModal'));
+        if (modal) {
+            modal.hide();
+        }
+    }
+</script>

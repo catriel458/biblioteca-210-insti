@@ -12,7 +12,7 @@ from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 
-from django.contrib.auth import login, logout, authenticate
+from django.contrib.auth import login, logout, authenticate, update_session_auth_hash
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.mixins import LoginRequiredMixin
 
@@ -1421,12 +1421,15 @@ def cambiar_password(request):
         if form.is_valid():
             request.user.set_password(form.cleaned_data['password_nueva'])
             request.user.save()
-            # messages.success(request, 'Contraseña cambiada exitosamente. Inicia sesión nuevamente.')
-            return redirect('login')
+            # Mantener la sesión activa después del cambio de contraseña
+            update_session_auth_hash(request, request.user)
+            messages.success(request, 'Contraseña cambiada exitosamente.')
+            # En lugar de redireccionar, renderizar la misma página con el mensaje de éxito
+            return render(request, 'login/cambiar_password.html', {'form': form, 'password_changed': True})
     else:
         form = CambiarPasswordForm(request.user)
     
-    return render(request, 'libros/cambiar_password.html', {'form': form})
+    return render(request, 'login/cambiar_password.html', {'form': form})
 
 # Actualizar estas vistas existentes para agregar autenticación
 
