@@ -20,6 +20,7 @@
             min-height: 67.5vh;
             display: flex;
             flex-direction: column;
+            justify-content: space-between;
         }
 
         .modal {
@@ -56,13 +57,33 @@
 
         .modal-body {
             text-align: center;
-            padding: 3rem 2rem;
+            padding: 2rem;
             flex: 1;
             display: flex;
             flex-direction: column;
-            justify-content: center;
+            justify-content: space-between;
             align-items: center;
             background-color: transparent;
+            min-height: 60vh;
+        }
+
+        .content-section {
+            flex: 0 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .buttons-section {
+            flex: 1;
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            gap: 0.8rem;
+            flex-wrap: nowrap;
+            padding: 0 1.8rem;
         }
 
         /* Sección de éxito similar a tipo-material-section */
@@ -86,28 +107,15 @@
 
         .success-subtitle {
             color: #333;
-            font-size: 20px;
+            font-size: 28px;
             font-weight: 600;
-            margin: 1.8rem 0 2.7rem 0;
+            margin: 1.8rem 0 1rem 0;
             text-transform: uppercase;
             letter-spacing: 1px;
         }
 
-        .modal-footer {
-            border-top: none;
-            padding: 2rem 1.8rem 3rem 1.8rem;
-            background-color: transparent;
-            border-radius: 0 0 10px 10px;
-            display: flex !important;
-            flex-direction: row !important;
-            justify-content: center !important;
-            align-items: center !important;
-            gap: 0.8rem !important;
-            flex-wrap: nowrap !important;
-        }
-
         /* Estilo específico para botones del modal solamente */
-        .modal-footer .btn {
+        .buttons-section .btn {
             padding: 40px 60px;
             font-weight: 600;
             border-radius: 15px;
@@ -128,14 +136,14 @@
             max-width: 200px;
         }
 
-        .modal-footer .btn.btn-success {
+        .buttons-section .btn.btn-success {
             background-color: #31B7BC !important;
             border: 2px solid #31B7BC !important;
             color: white !important;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
         }
 
-        .modal-footer .btn.btn-success:hover {
+        .buttons-section .btn.btn-success:hover {
             background-color: #2a9fa4 !important;
             border-color: #2a9fa4 !important;
             transform: translateY(-2px);
@@ -156,7 +164,7 @@
                 max-width: 70%;
             }
             
-            .modal-footer {
+            .buttons-section {
                 flex-direction: column !important;
                 gap: 0.8rem;
                 padding: 1.5rem 1rem 1rem 1rem;
@@ -168,10 +176,10 @@
             }
             
             .success-subtitle {
-                font-size: 1.5rem;
+                font-size: 2rem;
             }
             
-            .modal-footer .btn {
+            .buttons-section .btn {
                 min-width: 450px !important;
                 padding: 36px 50px !important;
                 font-size: 14px !important;
@@ -202,13 +210,15 @@
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content">
                 <div class="modal-body">
-                    <h1 class="success-title">¡TODO LISTO!</h1>
-                    <p class="success-subtitle">LA OPERACIÓN FUE COMPLETADA CON ÉXITO</p>
-                </div>
-                <div class="modal-footer">
-                    <a href="{% url 'alta_materiales' %}" class="btn btn-success">Cargar Otro Material</a>
-                    <a href="{% url 'modificacion_materiales' %}" class="btn btn-success">Modificar Datos Cargados</a>
-                    <a href="{% url 'home' %}" class="btn btn-success">Volver a Inicio</a>
+                    <div class="content-section">
+                        <h1 class="success-title">¡TODO LISTO!</h1>
+                        <p class="success-subtitle">LA OPERACIÓN FUE COMPLETADA CON ÉXITO</p>
+                    </div>
+                    <div class="buttons-section">
+                        <a href="{% url 'alta_materiales' %}" class="btn btn-success">Cargar Otro Material</a>
+                        <a href="{% url 'modificacion_materiales' %}" class="btn btn-success">Modificar Datos Cargados</a>
+                        <a href="{% url 'home' %}" class="btn btn-success">Volver a Inicio</a>
+                    </div>
                 </div>
             </div>
         </div>
