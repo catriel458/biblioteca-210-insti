@@ -21,8 +21,10 @@
                     <div class="user-welcome text-end me-3">
                         <div class="user-name" style="color: white; font-size: 1.2em; font-weight: bold;">{{ user.get_full_name|default:user.email }}</div>
                         <div class="user-role" style="color: white; font-size: 0.9em; opacity: 0.8;">
-                            {% if user.is_superuser or user.is_staff %}
+                            {% if user.perfil == 'bibliotecaria' %}
                                 Bibliotecaria
+                            {% elif user.perfil == 'docente' %}
+                                Docente
                             {% else %}
                                 Estudiante
                             {% endif %}

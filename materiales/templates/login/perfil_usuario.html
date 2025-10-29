@@ -170,8 +170,10 @@
         <div class="profile-header">
             <img src="{% static 'imagenes/registro_logo.png' %}" alt="Logo" class="logo-transparente">
             <h2 class="profile-title">
-                {% if user.is_superuser or user.is_staff %}
+                {% if user.perfil == 'bibliotecaria' %}
                     BIBLIOTECARIA
+                {% elif user.perfil == 'docente' %}
+                    DOCENTE
                 {% else %}
                     ESTUDIANTE
                 {% endif %}
