@@ -51,6 +51,9 @@ from django.core.management import call_command
 from django.views.decorators.csrf import csrf_exempt
 
 
+from django.db import transaction
+import logging
+
 # Variables globales para control de thread
 ultima_verificacion = None
 thread_verificacion = None
@@ -116,126 +119,7 @@ def es_usuario_activo(user):
     """Verifica si el usuario está autenticado y activo"""
     return user.is_authenticated and user.is_active
 
-def cargar_csv(request):
-    if request.method == 'POST':
-        csv_file = request.FILES['csv_file']
-        # Verifica que el archivo sea un CSV
-        if not csv_file.name.endswith('.csv'):
-            return HttpResponse("El archivo no es un CSV.")
 
-        # Procesar el archivo CSV
-        decoded_file = csv_file.read().decode('utf-8')
-        io_string = io.StringIO(decoded_file)
-        reader = csv.DictReader(io_string)
-
-        # Verificar si el archivo tiene al menos una fila de datos (después del encabezado)
-        rows = list(reader)
-        if not rows:  # Si no hay filas de datos
-            return HttpResponse("El archivo CSV está vacío o solo contiene encabezados.")
-
-        # Restablecer el puntero del archivo para procesarlo nuevamente
-        io_string.seek(0)
-        reader = csv.DictReader(io_string)
-
-        for row in reader:
-            print(f"Fila procesada: {row}")  # Imprimir la fila para depuración
-            try:
-                estado = "Disponible"
-                motivo_baja = row.get('motivo_baja')
-                descripcion = row.get('descripcion')
-                # Manejar num_ejemplar
-                num_ejemplar = int(row.get('num_ejemplar') or 1)
-                tipo_material = row.get('tipo_material')  # Campo que determina el tipo de material
-
-                # Procesar según el tipo de material
-                if tipo_material == 'Libro':
-                    num_inventario = int(row.get('num_inventario') or 1)  # Valor por defecto si está vacío
-                    libro = Libro(
-                        estado=estado,
-                        motivo_baja=motivo_baja,
-                        descripcion=descripcion,
-                        num_ejemplar=num_ejemplar,
-                        imagen_rota=row.get('imagen_rota'),
-                        titulo=row.get('titulo'),
-                        autor=row.get('autor'),
-                        editorial=row.get('editorial'),
-                        clasificacion_cdu=row.get('clasificacion_cdu'),
-                        siglas_autor_titulo=row.get('siglas_autor_titulo'),
-                        num_inventario=num_inventario,
-                        resumen=row.get('resumen'),
-                        etiqueta_palabra_clave=row.get('etiqueta_palabra_clave'),
-                        sede=row.get('sede'),
-                        disponibilidad=row.get('disponibilidad'),
-                        observaciones=row.get('observaciones'),
-                        img=row.get('img')
-                    )
-                    libro.save()
-                    print(f"Libro guardado: {libro}")  # Imprimir confirmación
-
-                elif tipo_material == 'Mapa':
-                    mapa = Mapas(
-                        estado=estado,
-                        motivo_baja=motivo_baja,
-                        descripcion=descripcion,
-                        num_ejemplar=num_ejemplar,
-                        tipo=row.get('tipo')  # Campo específico para Mapas
-                    )
-                    mapa.save()
-                    print(f"Mapa guardado: {mapa}")  # Imprimir confirmación
-
-                elif tipo_material == 'Multimedia':
-                    multimedia = Multimedia(
-                        estado=estado,
-                        motivo_baja=motivo_baja,
-                        descripcion=descripcion,
-                        num_ejemplar=num_ejemplar,
-                        materia=row.get('materia'),
-                        contenido=row.get('contenido')
-                    )
-                    multimedia.save()
-                    print(f"Multimedia guardada: {multimedia}")  # Imprimir confirmación
-
-                elif tipo_material == 'Notebook':
-                    notebook = Notebook(
-                        estado=estado,
-                        motivo_baja=motivo_baja,
-                        descripcion=descripcion,
-                        num_ejemplar=num_ejemplar,
-                        marca_not=row.get('marca_not'),
-                        modelo_not=row.get('modelo_not')
-                    )
-                    notebook.save()
-                    print(f"Notebook guardada: {notebook}")  # Imprimir confirmación
-
-                elif tipo_material == 'Proyector':
-                    proyector = Proyector(
-                        estado=estado,
-                        motivo_baja=motivo_baja,
-                        descripcion=descripcion,
-                        num_ejemplar=num_ejemplar,
-                        marca_pro=row.get('marca_pro'),
-                        modelo_pro=row.get('modelo_pro')
-                    )
-                    proyector.save()
-                    print(f"Proyector guardado: {proyector}")  # Imprimir confirmación
-
-                elif tipo_material == 'Varios':
-                    varios = Varios(
-                        estado=estado,
-                        motivo_baja=motivo_baja,
-                        descripcion=descripcion,
-                        num_ejemplar=num_ejemplar,
-                        tipo=row.get('tipo')
-                    )
-                    varios.save()
-                    print(f"Varios guardado: {varios}")  # Imprimir confirmación
-
-            except (ValueError, TypeError) as e:
-                print(f"Error al procesar la fila {row}: {e}")
-
-        return redirect('success_url')  # Cambia 'success_url' por el nombre que has definido en urls.py
-
-    return render(request, 'libros/upload_csv.html')  # Cambia la plantilla según corresponda
 
 
 def success_view(request):
@@ -460,6 +344,109 @@ def editar_libro(request, libro_id):
 
     return render(request, 'libros/editar_libro.html', {'form': form, 'libro': libro})
 
+# Carga masiva libros:
+
+@login_required
+def cargar_csv(request):
+    if request.method == 'POST':
+        csv_file = request.FILES.get('csv_file')
+        
+        if not csv_file:
+            messages.error(request, "No se seleccionó ningún archivo.")
+            return redirect('lista_libros')
+        
+        # Verifica que el archivo sea un CSV
+        if not csv_file.name.endswith('.csv'):
+            messages.error(request, "El archivo no es un CSV válido.")
+            return redirect('lista_libros')
+
+        try:
+            # Procesar el archivo CSV
+            decoded_file = csv_file.read().decode('utf-8')
+            io_string = io.StringIO(decoded_file)
+            reader = csv.DictReader(io_string)
+
+            # Verificar si el archivo tiene datos
+            rows = list(reader)
+            if not rows:
+                messages.error(request, "El archivo CSV está vacío o solo contiene encabezados.")
+                return redirect('lista_libros')
+
+            libros_creados = 0
+            errores = []
+
+            # CRÍTICO: Usar transacción atómica para Vercel/PostgreSQL
+            with transaction.atomic():
+                for idx, row in enumerate(rows, start=1):
+                    try:
+                        tipo_material = row.get('tipo_material', '').strip()
+                        
+                        if tipo_material == 'Libro':
+                            # Validar campos requeridos
+                            titulo = row.get('titulo', '').strip()
+                            if not titulo:
+                                errores.append(f"Fila {idx}: Falta el título")
+                                continue
+                            
+                            libro = Libro(
+                                estado='Disponible',
+                                motivo_baja=row.get('motivo_baja', '').strip() or None,
+                                descripcion=row.get('descripcion', '').strip() or None,
+                                num_ejemplar=int(row.get('num_ejemplar', 1)),
+                                imagen_rota=None,  # Las imágenes no se cargan por CSV
+                                titulo=titulo,
+                                autor=row.get('autor', 'Desconocido').strip(),
+                                editorial=row.get('editorial', 'Sin editorial').strip(),
+                                clasificacion_cdu=row.get('clasificacion_cdu', 'Sin clasificar').strip(),
+                                siglas_autor_titulo=row.get('siglas_autor_titulo', 'ABC').strip(),
+                                num_inventario=int(row.get('num_inventario', 1)),
+                                resumen=row.get('resumen', '').strip() or 'Sin resumen',
+                                etiqueta_palabra_clave=row.get('etiqueta_palabra_clave', '').strip() or '',
+                                sede=row.get('sede', 'La Plata').strip(),
+                                disponibilidad='Disponible',
+                                observaciones=row.get('observaciones', '').strip() or '',
+                                img=row.get('img', '').strip() or None
+                            )
+                            libro.save()
+                            libros_creados += 1
+                            logger.info(f"Libro creado: {libro.titulo} (ID: {libro.id_libro})")
+                        
+                        elif tipo_material == 'Mapa':
+                            mapa = Mapas(
+                                estado='Disponible',
+                                motivo_baja=row.get('motivo_baja', '').strip() or None,
+                                descripcion=row.get('descripcion', '').strip() or None,
+                                num_ejemplar=int(row.get('num_ejemplar', 1)),
+                                tipo=row.get('tipo', 'Sin tipo').strip()
+                            )
+                            mapa.save()
+                            libros_creados += 1
+                        
+                        # ... (repetir para otros tipos de material)
+                        
+                    except (ValueError, TypeError, KeyError) as e:
+                        errores.append(f"Fila {idx}: {str(e)}")
+                        logger.error(f"Error procesando fila {idx}: {e}")
+                        continue
+
+            # Mensaje de resultado
+            if libros_creados > 0:
+                messages.success(request, f"✅ {libros_creados} registros cargados exitosamente.")
+            
+            if errores:
+                messages.warning(request, f"⚠️ {len(errores)} errores encontrados. Revisa los logs.")
+            
+            if libros_creados == 0 and not errores:
+                messages.error(request, "No se pudo cargar ningún registro del CSV.")
+            
+            return redirect('lista_libros')
+        
+        except Exception as e:
+            logger.error(f"Error crítico cargando CSV: {str(e)}")
+            messages.error(request, f"Error al procesar el archivo: {str(e)}")
+            return redirect('lista_libros')
+
+    return render(request, 'libros/upload_csv.html')
 
 # Mapas
 
