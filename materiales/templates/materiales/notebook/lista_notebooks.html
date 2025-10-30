@@ -44,7 +44,7 @@
                                         <td>${not.modelo_not}</td>
                                         <td>${not.num_ejemplar}</td>
                                         <td>
-                                            <a href="/editar/${not.id_not}">
+                                            <a href="/editar_notebook_mejorado/${not.id_not}">
                                                 <img src="{% static 'materiales/img/lapiz.png' %}" alt="Editar" style="cursor: pointer; width: 20px; height: 20px;">
                                             </a>
                                             <img src="{% static 'materiales/img/trash.png' %}" alt="Eliminar" onclick="abrirModal({{ not.id_not }})" style="cursor: pointer; width: 20px; height: 20px;">
@@ -298,7 +298,7 @@ header {
                     <td>{{ not.modelo_not }}</td>
                     <td>{{ not.num_ejemplar }}</td>
                     <td>
-                        <a href="{% url 'editar_notebook' not.id_not %}">
+                        <a href="{% url 'editar_notebook_mejorado' not.id_not %}">
                             <img src="{% static 'materiales/img/lapiz.png' %}" alt="Editar" style="cursor: pointer; width: 20px; height: 20px;">
                         </a>
                         <img src="{% static 'materiales/img/trash.png' %}" alt="Eliminar" onclick="abrirModal({{ not.id_not }})" style="cursor: pointer; width: 20px; height: 20px;">
@@ -316,7 +316,7 @@ header {
         <div id="modal">
             <div id="modalContent">
                 <h3>Confirmar Baja</h3>
-                <form id="bajaForm" method="POST" action="{% url 'baja_notebook' %}" enctype="multipart/form-data">
+                <form id="bajaForm" method="POST" action="{% url 'baja_notebook_mejorada' %}" enctype="multipart/form-data">
                     {% csrf_token %}
                     <input type="hidden" name="not_id" id="notIdInput">
                     <label for="motivoBaja">Motivo de baja:</label>

@@ -128,8 +128,14 @@ urlpatterns = [
     path('dar-alta-mapa/', views.dar_alta_mapa, name='dar_alta_mapa'),
     path('obtener-informe-baja-mapa/', views.obtener_informe_baja_mapa, name='obtener_informe_baja_mapa'),
     path('obtener-informe-baja-multimedia/', views.obtener_informe_baja_multimedia, name='obtener_informe_baja_multimedia'),
+    path('obtener-informe-baja-notebook/', views.obtener_informe_baja_notebook, name='obtener_informe_baja_notebook'),
     path('dar-alta-multimedia/', views.dar_alta_multimedia, name='dar_alta_multimedia'),
+    path('dar-alta-notebook/', views.dar_alta_notebook, name='dar_alta_notebook'),
     path('obtener-informe-baja/', views.obtener_informe_baja, name='obtener_informe_baja'),
+    path('obtener-informe-baja-proyector/', views.obtener_informe_baja_proyector, name='obtener_informe_baja_proyector'),
+    path('dar-alta-proyector/', views.dar_alta_proyector, name='dar_alta_proyector'),
+    path('obtener-informe-baja-varios/', views.obtener_informe_baja_varios, name='obtener_informe_baja_varios'),
+    path('dar-alta-varios/', views.dar_alta_varios, name='dar_alta_varios'),
     path('ver-detalles-material/<int:libro_id>/', views.ver_detalles_material, name='ver_detalles_material'),
 
     # URLs de programas
@@ -139,10 +145,49 @@ urlpatterns = [
     path('confirmar-alta-programa/', views.confirmar_alta_programa, name='confirmar_alta_programa'),
     path('guardar-programa-confirmado/', views.guardar_programa_confirmado, name='guardar_programa_confirmado'),
     path('cancelar-alta-programa/', views.cancelar_alta_programa, name='cancelar_alta_programa'),
+    path('baja-programa/', views.baja_programa, name='baja_programa'),
     path('editar-programa/<int:programa_id>/', views.editar_programa, name='editar_programa'),
+    path('obtener-informe-baja-programa/', views.obtener_informe_baja_programa, name='obtener_informe_baja_programa'),
+    path('dar-alta-programa/', views.dar_alta_programa, name='dar_alta_programa'),
     
     # URL para confirmación de carga exitosa
     path('confirmacion-carga-exitosa/', views.confirmacion_carga_exitosa, name='confirmacion_carga_exitosa'),
+
+    # ===== RUTAS MEJORADAS DESDE SEBA =====
+    
+    # Rutas de edición mejoradas
+    path('editar-libro-mejorado/<int:libro_id>/', views.editar_libro_mejorado, name='editar_libro_mejorado'),
+    path('editar-mapa-mejorado/<int:mapa_id>/', views.editar_mapa_mejorado, name='editar_mapa_mejorado'),
+    path('editar-multimedia-mejorado/<int:multi_id>/', views.editar_multimedia_mejorado, name='editar_multimedia_mejorado'),
+    path('editar-notebook-mejorado/<int:not_id>/', views.editar_notebook_mejorado, name='editar_notebook_mejorado'),
+    path('editar-proyector-mejorado/<int:proyector_id>/', views.editar_proyector_mejorado, name='editar_proyector_mejorado'),
+    path('editar-varios-mejorado/<int:varios_id>/', views.editar_varios_mejorado, name='editar_varios_mejorado'),
+    path('editar-programa-mejorado/<int:programa_id>/', views.editar_programa_mejorado, name='editar_programa_mejorado'),
+    
+    # URLs mejoradas de baja
+    path('baja-libro-mejorada/', views.baja_libro_mejorada, name='baja_libro_mejorada'),
+    path('baja-mapa-mejorada/', views.baja_mapa_mejorada, name='baja_mapa_mejorada'),
+    path('baja-multimedia-mejorada/', views.baja_multimedia_mejorada, name='baja_multimedia_mejorada'),
+    path('baja-notebook-mejorada/', views.baja_notebook_mejorada, name='baja_notebook_mejorada'),
+    path('baja-proyector-mejorada/', views.baja_proyector_mejorada, name='baja_proyector_mejorada'),
+    path('baja-varios-mejorada/', views.baja_varios_mejorada, name='baja_varios_mejorada'),
+    path('baja-programa-mejorada/', views.baja_programa_mejorada, name='baja_programa_mejorada'),
+    
+    # Rutas de reactivación mejoradas
+    path('reactivar-multimedia-mejorado/<int:multimedia_id>/', views.reactivar_multimedia_mejorado, name='reactivar_multimedia_mejorado'),
+    path('reactivar-notebook-mejorado/<int:notebook_id>/', views.reactivar_notebook_mejorado, name='reactivar_notebook_mejorado'),
+    path('reactivar-proyector-mejorado/<int:proyector_id>/', views.reactivar_proyector_mejorado, name='reactivar_proyector_mejorado'),
+    path('reactivar-varios-mejorado/<int:varios_id>/', views.reactivar_varios_mejorado, name='reactivar_varios_mejorado'),
+    path('reactivar-mapa-mejorado/<int:mapa_id>/', views.reactivar_mapa_mejorado, name='reactivar_mapa_mejorado'),
+    path('reactivar-programa-mejorado/<int:programa_id>/', views.reactivar_programa_mejorado, name='reactivar_programa_mejorado'),
+    
+    # Rutas de registro de bajas mejoradas
+    path('registro-bajas-multimedia/', views.registro_bajas_multimedia, name='registro_bajas_multimedia'),
+    path('registro-bajas-notebook/', views.registro_bajas_notebook, name='registro_bajas_notebook'),
+    path('registro-bajas-programa/', views.registro_bajas_programa, name='registro_bajas_programa'),
+    path('registro-bajas-mapas/', views.registro_bajas_mapas, name='registro_bajas_mapas'),
+    path('registro-bajas-proyectores/', views.registro_bajas_proyectores, name='registro_bajas_proyectores'),
+    path('registro-bajas-varios-mejorado/', views.registro_bajas_varios_mejorado, name='registro_bajas_varios_mejorado'),
 
 ]
 

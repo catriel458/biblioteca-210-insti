@@ -44,7 +44,7 @@
                                         <td>${multi.contenido}</td>
                                         <td>${multi.num_ejemplar}</td>
                                         <td>
-                                            <a href="/editar/${multi.id_multi}">
+                                            <a href="/editar_multimedia_mejorado/${multi.id_multi}">
                                                 <img src="{% static 'materiales/img/lapiz.png' %}" alt="Editar" style="cursor: pointer; width: 20px; height: 20px;">
                                             </a>
                                             <img src="{% static 'materiales/img/trash.png' %}" alt="Eliminar" onclick="abrirModal(${multi.id_multi})" style="cursor: pointer; width: 20px; height: 20px;">
@@ -299,9 +299,10 @@ header {
                     <td>{{ multi.contenido }}</td>
                     <td>{{ multi.num_ejemplar }}</td>
                     <td>
-                        <a href="{% url 'editar_multimedia' multi.id_multi %}">
+                        <a href="{% url 'editar_multimedia_mejorado' multi.id_multi %}">
                             <img src="{% static 'materiales/img/lapiz.png' %}" alt="Editar" style="cursor: pointer; width: 20px; height: 20px;">
                         </a>
+                        <img src="{% static 'materiales/img/trash.png' %}" alt="Eliminar" onclick="abrirModal({{ multi.id_multi }})" style="cursor: pointer; width: 20px; height: 20px;">
                      </td>
                 </tr>
                 {% empty %}
@@ -316,7 +317,7 @@ header {
         <div id="modal">
             <div id="modalContent">
                 <h3>Confirmar Baja</h3>
-                <form id="bajaForm" method="POST" action="{% url 'baja_multimedia' %}" enctype="multipart/form-data">
+                <form id="bajaForm" method="POST" action="{% url 'baja_multimedia_mejorada' %}" enctype="multipart/form-data">
                     {% csrf_token %}
                     <input type="hidden" name="id_multi" id="multiIdInput">
                     <label for="motivoBaja">Motivo de baja:</label>

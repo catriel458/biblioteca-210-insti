@@ -41,7 +41,7 @@
                                         <td>${proyector.modelo_pro}</td>
                                         <td>${proyector.num_ejemplar}</td>
                                         <td>
-                                            <a href="/editar/${proyector.id_proyector}">
+                                            <a href="/editar_proyector_mejorado/${proyector.id_proyector}">
                                                 <img src="{% static 'materiales/img/lapiz.png' %}" alt="Editar" style="cursor: pointer; width: 20px; height: 20px;">
                                             </a>
                                             <img src="{% static 'materiales/img/trash.png' %}" alt="Eliminar" onclick="abrirModal({{ proyector.id_proyector }})" style="cursor: pointer; width: 20px; height: 20px;">
@@ -296,7 +296,7 @@ header {
                     <td>{{ pro.modelo_pro }}</td>
                     <td>{{ pro.num_ejemplar }}</td>
                     <td>
-                        <a href="{% url 'editar_proyector' pro.id_proyector %}">
+                        <a href="{% url 'editar_proyector_mejorado' pro.id_proyector %}">
                             <img src="{% static 'materiales/img/lapiz.png' %}" alt="Editar" style="cursor: pointer; width: 20px; height: 20px;">
                         </a>
                         <img src="{% static 'materiales/img/trash.png' %}" alt="Eliminar" onclick="abrirModal({{ pro.id_proyector }})" style="cursor: pointer; width: 20px; height: 20px;">
@@ -314,7 +314,7 @@ header {
         <div id="modal">
             <div id="modalContent">
                 <h3>Confirmar Baja</h3>
-                <form id="bajaForm" method="POST" action="{% url 'baja_proyector' %}" enctype="multipart/form-data">
+                <form id="bajaForm" method="POST" action="{% url 'baja_proyector_mejorada' %}" enctype="multipart/form-data">
                     {% csrf_token %}
                     <input type="hidden" name="proyector_id" id="proyectorIdInput">
                     <label for="motivoBaja">Motivo de baja:</label>

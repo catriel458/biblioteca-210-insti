@@ -45,7 +45,7 @@
                                         <td>${mapa.descripcion}</td>
                                         <td>${mapa.num_ejemplar}</td>
                                         <td>
-                                            <a href="/editar/${mapa.id_mapa}">
+                                            <a href="/editar_mapa_mejorado/${mapa.id_mapa}">
                                                 <img src="{% static 'materiales/img/lapiz.png' %}" alt="Editar" style="cursor: pointer; width: 20px; height: 20px;">
                                             </a>
                                             <img src="{% static 'materiales/img/trash.png' %}" alt="Eliminar" onclick="abrirModal({{ mapa.id_mapa }})" style="cursor: pointer; width: 20px; height: 20px;">
@@ -303,7 +303,7 @@ header {
                     <td>{{ mapa.descripcion }}</td>
                     <td>{{ mapa.num_ejemplar }}</td>
                     <td>
-                        <a href="{% url 'editar_mapa' mapa.id_mapa %}">
+                        <a href="{% url 'editar_mapa_mejorado' mapa.id_mapa %}">
                             <img src="{% static 'materiales/img/lapiz.png' %}" alt="Editar" style="cursor: pointer; width: 20px; height: 20px;">
                         </a>
                         <img src="{% static 'materiales/img/trash.png' %}" alt="Eliminar" onclick="abrirModal({{ mapa.id_mapa }})" style="cursor: pointer; width: 20px; height: 20px;">
@@ -321,7 +321,7 @@ header {
         <div id="modal">
             <div id="modalContent">
                 <h3>Confirmar Baja</h3>
-                <form id="bajaForm" method="POST" action="{% url 'baja_mapa' %}" enctype="multipart/form-data">
+                <form id="bajaForm" method="POST" action="{% url 'baja_mapa_mejorada' %}" enctype="multipart/form-data">
                     {% csrf_token %}
                     <input type="hidden" name="mapa_id" id="mapaIdInput">
                     <label for="motivoBaja">Motivo de baja:</label>

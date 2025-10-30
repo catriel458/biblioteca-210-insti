@@ -105,13 +105,14 @@ class Libro(Inventario):
     editorial = models.CharField(max_length=255)
     clasificacion_cdu = models.CharField(max_length=255, null=False)
     siglas_autor_titulo = models.CharField(max_length=255, null=False)
-    #num_inventario = models.IntegerField(null=False, default=1) 
+    # Campos adicionales
     etiqueta_palabra_clave = models.TextField(default='Roma,Historia,Clasica')
     sede = models.TextField(default='La Plata')
     disponibilidad = models.CharField(max_length=255, null=True, default="Disponible")
     observaciones = models.TextField(default='Esta es una observación')
+    fecha_baja = models.DateTimeField(null=True, blank=True)
     
-    # CAMBIAR ESTE CAMPO para permitir URLs vacías
+    # Campo de imagen - permitir URLs vacías
     img = models.URLField(max_length=500, blank=True, null=True, default='')
 
     def __str__(self):
@@ -128,6 +129,7 @@ class Mapas(Inventario):
     sede = models.TextField(default='La Plata')
     num_registro = models.CharField(max_length=255, default='1')
     denominacion = models.TextField(default='Completar')
+    fecha_baja = models.DateTimeField(null=True, blank=True)
     
     def __str__(self):
         return f"id_mapa: {self.id_mapa}, tipo: {self.tipo}, num_registro: {self.num_registro}, denominacion: {self.denominacion}"
@@ -140,6 +142,7 @@ class Multimedia(Inventario):
     materia = models.CharField(max_length=255)
     ingresar_enlace = models.URLField(max_length=500, blank=True, null=True, help_text="Ingrese la URL del contenido multimedia")
     titulo_contenido = models.CharField(max_length=255)
+    fecha_baja = models.DateTimeField(null=True, blank=True)
     
     def __str__(self):
         return f"id_multi: {self.id_multi}, profesor: {self.profesor}, carrera: {self.carrera}, contenido: {self.titulo_contenido}, materia: {self.materia}"
@@ -149,6 +152,7 @@ class Notebook(Inventario):
     sede = models.TextField()
     num_registro = models.CharField(max_length=255)
     modelo_not = models.CharField(max_length=255)
+    fecha_baja = models.DateTimeField(null=True, blank=True)
     
     def __str__(self):
         return f"id_not: {self.id_not}, sede: {self.sede}, num_registro: {self.num_registro}, modelo_not: {self.modelo_not}"
@@ -170,6 +174,7 @@ class Varios(Inventario):
     sede = models.CharField(max_length=255, default='La Plata')
     cantidad = models.PositiveIntegerField(default=1, help_text="Cantidad total de este tipo de material")
     cantidad_disponible = models.PositiveIntegerField(default=1, help_text="Cantidad disponible para préstamo")
+    fecha_baja = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
         return f"id: {self.id_varios}, tipo: {self.tipo}, sede: {self.sede}, cantidad: {self.cantidad}, disponible: {self.cantidad_disponible}"

@@ -42,7 +42,7 @@
                                         <td>${varios.tipo}</td>
                                         <td>${varios.num_ejemplar}</td>
                                         <td>
-                                            <a href="/editar/${varios.id_varios}" title="Editar">
+                                            <a href="/editar_varios_mejorado/${varios.id_varios}" title="Editar">
                                                 <img src="{% static 'materiales/img/lapiz.png' %}" alt="Editar" style="cursor: pointer; width: 20px; height: 20px; margin-right: 5px;">
                                             </a>
                                             <img src="{% static 'materiales/img/trash.png' %}" alt="Eliminar" onclick="abrirModal(${varios.id_varios})" style="cursor: pointer; width: 20px; height: 20px;" title="Eliminar">
@@ -290,7 +290,7 @@ header {
                     <td>{{ var.tipo }}</td>
                     <td>{{ var.num_ejemplar }}</td>
                     <td>
-                        <a href="{% url 'editar_varios' var.id_varios %}" title="Editar">
+                        <a href="{% url 'editar_varios_mejorado' var.id_varios %}" title="Editar">
                             <img src="{% static 'materiales/img/lapiz.png' %}" alt="Editar" style="cursor: pointer; width: 20px; height: 20px; margin-right: 5px;">
                         </a>
                         <img src="{% static 'materiales/img/trash.png' %}" alt="Eliminar" onclick="abrirModal({{ var.id_varios }})" style="cursor: pointer; width: 20px; height: 20px;" title="Eliminar">
@@ -308,7 +308,7 @@ header {
         <div id="modal">
             <div id="modalContent">
                 <h3>Confirmar Baja</h3>
-                <form id="bajaForm" method="POST" action="{% url 'baja_varios' %}" enctype="multipart/form-data">
+                <form id="bajaForm" method="POST" action="{% url 'baja_varios_mejorada' %}" enctype="multipart/form-data">
                     {% csrf_token %}
                     <input type="hidden" name="varios_id" id="variosIdInput">
                     <label for="motivoBaja">Motivo de baja:</label>

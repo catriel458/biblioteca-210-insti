@@ -60,8 +60,10 @@
 
     .form-grid {
         display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 2rem;
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+        max-width: 600px;
+        margin: 0 auto;
     }
 
     .form-group {
@@ -193,50 +195,60 @@
 
     /* Botones de acción */
     .action-buttons {
-        grid-column: 1 / -1;
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-top: 2rem;
-        gap: 1rem;
+        margin-top: 3rem;
+        padding-top: 2rem;
+        border-top: 1px solid #e0e6ed;
     }
 
-    .btn-primary {
-        background: #7B68EE;
+    .btn {
+        display: inline-block;
+        font-family: 'Roboto', sans-serif;
+        cursor: pointer;
+        border: none;
+        outline: none;
+    }
+
+    .btn-guardar {
+        background: #4285F4;
         color: white;
         border: none;
-        padding: 12px 32px;
-        border-radius: 8px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        font-size: 14px;
+        border-radius: 4px;
+        padding: 8px 16px;
+        font-size: 13px;
+        font-weight: 500;
         text-transform: uppercase;
-        letter-spacing: 1px;
-    }
-
-    .btn-primary:hover {
-        background: #6A5ACD;
-        transform: translateY(-2px);
-    }
-
-    .btn-secondary {
-        background: white;
-        color: #2d3748;
-        border: 2px solid #e0e6ed;
-        padding: 12px 32px;
-        border-radius: 8px;
-        font-weight: 600;
+        letter-spacing: 0.5px;
         cursor: pointer;
-        transition: all 0.3s ease;
-        font-size: 14px;
-        text-transform: uppercase;
-        letter-spacing: 1px;
+        transition: background-color 0.2s ease;
     }
 
-    .btn-secondary:hover {
-        background: #f8fafc;
-        border-color: #cbd5e0;
+    .btn-guardar:hover {
+        background: #3367D6;
+        color: white;
+        text-decoration: none;
+    }
+
+    .btn-cancelar {
+        background: none;
+        color: #d93025;
+        border: none;
+        padding: 8px 16px;
+        font-size: 13px;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        cursor: pointer;
+        text-decoration: none;
+        transition: color 0.2s ease;
+    }
+
+    .btn-cancelar:hover {
+        background: none;
+        color: #b52d20;
+        text-decoration: none;
     }
 
     /* Modal de confirmación */
@@ -309,11 +321,6 @@
 {% endblock %}
 
 {% block content %}
-<div class="page-header">
-    <h1 class="page-title">Editar Mapa</h1>
-    <p class="subtitle">{{ mapa.tipo }}</p>
-</div>
-
 <div class="form-container">
     <!-- Formulario real (oculto) que se enviará -->
     <form id="realForm" method="post" enctype="multipart/form-data" style="display: none;">
@@ -348,42 +355,71 @@
             {% endif %}
             {% endfor %}
             
-            <!-- Sección de imagen -->
-            <div class="image-section">
-                <div class="image-upload">
-                    <label for="imageUrl">URL de la imagen</label>
-                    <div class="upload-container">
-                        <input type="url" id="imageUrl" class="url-input" value="{{ mapa.img|default:'' }}">
-                        <button type="button" id="linkBtn" class="upload-button">
-                            <i class="fas fa-link"></i> Enlace
-                        </button>
-                    </div>
-                    <div class="upload-container">
-                        <input type="file" id="imageFile" style="display: none;">
-                        <button type="button" id="fileBtn" class="upload-button" onclick="document.getElementById('imageFile').click()">
-                            <i class="fas fa-upload"></i> Subir archivo
-                        </button>
-                    </div>
-                </div>
-                <div class="image-preview">
-                    <img id="imagePreview" src="{{ mapa.img|default:'https://via.placeholder.com/120x160/95a5a6/ffffff?text=Sin+Imagen' }}" alt="Vista previa">
-                </div>
-            </div>
-            
             <!-- Botones de acción -->
             <div class="action-buttons">
-                <button type="button" class="btn-secondary" onclick="window.location.href='{% url 'modificacion_materiales' %}'">Cancelar</button>
-                <button type="button" class="btn-primary" onclick="guardarDirectamente()">Guardar cambios</button>
+                <div></div>
+                <div style="display: flex; gap: 2rem; align-items: center;">
+                    <button type="button" class="btn btn-cancelar" onclick="window.history.back()">
+                        CANCELAR
+                    </button>
+                    <button type="button" class="btn btn-guardar" onclick="mostrarModalConfirmacion()">
+                        GUARDAR
+                    </button>
+                </div>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Modal de confirmación -->
+<div class="modal fade" id="confirmacionModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius: 8px; border: none;">
+            <div class="modal-body text-center" style="padding: 2rem;">
+                <div style="margin-bottom: 1.5rem;">
+                    <h5 style="color: #2c3e50; font-weight: 600; font-size: 1.1rem; margin-bottom: 0.5rem;">
+                        ¿DESEA CONFIRMAR LOS CAMBIOS REALIZADOS?
+                    </h5>
+                    <p style="color: #666; font-size: 0.9rem; margin: 0;">
+                        Pulse un botón para continuar. Una vez aceptado, los datos serán guardados en la base de datos.
+                    </p>
+                </div>
+                <div style="display: flex; gap: 1rem; justify-content: center;">
+                    <button type="button" class="btn" data-bs-dismiss="modal"
+                            style="background: #4285F4; color: white; border: none; padding: 10px 24px; border-radius: 4px; font-weight: 500; text-transform: uppercase; cursor: pointer;">
+                        CANCELAR
+                    </button>
+                    <button type="button" class="btn" onclick="confirmarGuardado()"
+                            style="background: #ff6b35; color: white; border: none; padding: 10px 24px; border-radius: 4px; font-weight: 500; text-transform: uppercase; cursor: pointer;">
+                        CONFIRMAR
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
 
 {% endblock %}
 
 {% block extra_scripts %}
 <!-- Script simplificado para guardar directamente -->
 <script>
+// Mostrar modal de confirmación
+function mostrarModalConfirmacion() {
+    const modal = new bootstrap.Modal(document.getElementById('confirmacionModal'));
+    modal.show();
+}
+
+// Confirmar guardado y enviar formulario real
+function confirmarGuardado() {
+    const modal = bootstrap.Modal.getInstance(document.getElementById('confirmacionModal'));
+    if (modal) modal.hide();
+    // Copiar datos al formulario real
+    copiarDatosAlFormularioReal();
+    // Enviar formulario
+    document.getElementById('realForm').submit();
+}
+
 // Función simplificada para guardar directamente sin modal
 function guardarDirectamente() {
     // Copiar datos al formulario real
@@ -402,8 +438,9 @@ function copiarDatosAlFormularioReal() {
     const camposMapeados = {
         'id_mapa': 'visual_id_mapa',
         'tipo': 'visual_tipo',
-        'descripcion': 'visual_descripcion',
-        'num_ejemplar': 'visual_num_ejemplar'
+        'denominacion': 'visual_denominacion',
+        'sede': 'visual_sede',
+        'descripcion': 'visual_descripcion'
     };
     
     // Copiar valores de campos visuales a campos reales
@@ -417,14 +454,10 @@ function copiarDatosAlFormularioReal() {
     }
     
     // Manejar imagen especialmente
-    const imageUrlInput = document.getElementById('imageUrl');
     const imageFileInput = document.getElementById('imageFile');
     const realImgInput = document.getElementById('real_img');
     
-    if (imageUrlInput && imageUrlInput.value.trim()) {
-        // Si hay URL de imagen
-        realImgInput.value = imageUrlInput.value.trim();
-    } else if (imageFileInput && imageFileInput.files.length > 0) {
+    if (imageFileInput && imageFileInput.files.length > 0) {
         // Si hay archivo seleccionado, necesitaríamos manejar la subida
         // Por ahora, mantener el valor actual
         console.log('Archivo seleccionado para subir');

@@ -60,8 +60,10 @@
 
     .form-grid {
         display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 2rem;
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+        max-width: 600px;
+        margin: 0 auto;
     }
 
     .form-group {
@@ -97,6 +99,18 @@
         background: white;
         color: #2d3748;
         box-sizing: border-box;
+        min-height: 48px;
+        font-family: inherit;
+    }
+
+    /* Asegurar que todos los inputs tengan exactamente el mismo tamaño */
+    .form-group input[type="text"],
+    .form-group input[type="email"],
+    .form-group input[type="number"],
+    .form-group input[type="url"],
+    .form-group select {
+        height: 48px;
+        line-height: 1.4;
     }
 
     .form-group input:focus,
@@ -118,7 +132,7 @@
         min-height: 100px;
     }
 
-    .button-container {
+    .action-buttons {
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -206,53 +220,95 @@
 {% endblock %}
 
 {% block content %}
-<div class="page-header">
-    <h1 class="page-title">Biblioteca Digital</h1>
-    <h2 class="subtitle">Editar Varios</h2>
-</div>
-
 <div class="form-container">
     <div class="form-card">
-        <form method="POST" class="form-grid">
+        <form id="editFormVarios" method="POST" action="{% url 'editar_varios' varios.id_varios %}" class="form-grid">
             {% csrf_token %}
             
-            <div class="form-group">
-                <label for="{{ form.id_varios.id_for_label }}" class="required">ID Varios</label>
-                {{ form.id_varios }}
-                <script>
-                    document.addEventListener('DOMContentLoaded', function() {
-                        const idField = document.getElementById('{{ form.id_varios.id_for_label }}');
-                        if (idField) {
-                            idField.readOnly = true;
-                            idField.style.backgroundColor = '#f8f9fa';
-                            idField.style.cursor = 'not-allowed';
-                        }
-                    });
-                </script>
-            </div>
+            <!-- Campos ocultos necesarios para el formulario -->
+            <input type="hidden" name="id_varios" value="{{ varios.id_varios }}">
+            <input type="hidden" name="id_inventario" value="{{ varios.id_inventario }}">
+            <input type="hidden" name="descripcion" value="{{ varios.descripcion|default:'' }}">
+            <input type="hidden" name="num_ejemplar" value="{{ varios.num_ejemplar|default:'1' }}">
+            <input type="hidden" name="estado" value="{{ varios.estado|default:'Disponible' }}">
+            <input type="hidden" name="motivo_baja" value="{{ varios.motivo_baja|default:'' }}">
             
             <div class="form-group">
                 <label for="{{ form.tipo.id_for_label }}" class="required">Tipo</label>
                 {{ form.tipo }}
             </div>
             
-            <div class="form-group full-width">
-                <label for="{{ form.descripcion.id_for_label }}" class="required">Descripción</label>
-                {{ form.descripcion }}
+            <div class="form-group">
+                <label for="{{ form.cantidad.id_for_label }}" class="required">Cantidad Total</label>
+                {{ form.cantidad }}
             </div>
             
             <div class="form-group">
-                <label for="{{ form.num_ejemplar.id_for_label }}" class="required">Número de Ejemplares</label>
-                {{ form.num_ejemplar }}
+                <label for="{{ form.cantidad_disponible.id_for_label }}" class="required">Cantidad Disponible</label>
+                {{ form.cantidad_disponible }}
             </div>
             
-            <div class="form-group full-width">
-                <div class="button-container">
-                    <a href="{% url 'modificacion_materiales' %}" class="btn btn-cancelar">Cancelar</a>
-                    <button type="submit" class="btn btn-guardar">Guardar Cambios</button>
+            <div class="form-group">
+                <label for="{{ form.sede.id_for_label }}" class="required">Sede</label>
+                <select name="{{ form.sede.name }}" id="{{ form.sede.id_for_label }}" class="form-control" required>
+                    <option value="">Seleccione una sede</option>
+                    <option value="La Plata" {% if form.sede.value == "La Plata" %}selected{% endif %}>La Plata</option>
+                    <option value="Abasto" {% if form.sede.value == "Abasto" %}selected{% endif %}>Abasto</option>
+                </select>
+            </div>
+            
+            <div class="action-buttons">
+                <div></div>
+                <div style="display: flex; gap: 2rem; align-items: center;">
+                    <button type="button" class="btn btn-cancelar" onclick="window.history.back()">
+                        CANCELAR
+                    </button>
+                    <button type="button" class="btn btn-guardar" onclick="mostrarModalConfirmacion()">
+                        GUARDAR
+                    </button>
                 </div>
             </div>
         </form>
     </div>
 </div>
+<!-- Modal de confirmación -->
+<div class="modal fade" id="confirmacionModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius: 8px; border: none;">
+            <div class="modal-body text-center" style="padding: 2rem;">
+                <div style="margin-bottom: 1.5rem;">
+                    <h5 style="color: #2c3e50; font-weight: 600; font-size: 1.1rem; margin-bottom: 0.5rem;">
+                        ¿DESEA CONFIRMAR LOS CAMBIOS REALIZADOS?
+                    </h5>
+                    <p style="color: #666; font-size: 0.9rem; margin: 0;">
+                        Pulse un botón para continuar. Una vez aceptado, los datos serán guardados en la base de datos.
+                    </p>
+                </div>
+                <div style="display: flex; gap: 1rem; justify-content: center;">
+                    <button type="button" class="btn" data-bs-dismiss="modal"
+                            style="background: #4285F4; color: white; border: none; padding: 10px 24px; border-radius: 4px; font-weight: 500; text-transform: uppercase; cursor: pointer;">
+                        CANCELAR
+                    </button>
+                    <button type="button" class="btn" onclick="confirmarGuardado()"
+                            style="background: #ff6b35; color: white; border: none; padding: 10px 24px; border-radius: 4px; font-weight: 500; text-transform: uppercase; cursor: pointer;">
+                        CONFIRMAR
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block extra_scripts %}
+<script>
+function mostrarModalConfirmacion() {
+    const modal = new bootstrap.Modal(document.getElementById('confirmacionModal'));
+    modal.show();
+}
+function confirmarGuardado() {
+    const modal = bootstrap.Modal.getInstance(document.getElementById('confirmacionModal'));
+    if (modal) modal.hide();
+    document.getElementById('editFormVarios').submit();
+}
+</script>
 {% endblock %}

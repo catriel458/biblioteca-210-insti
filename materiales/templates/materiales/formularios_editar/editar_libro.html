@@ -60,12 +60,14 @@
 
     .form-grid {
         display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 2rem;
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+        max-width: 600px;
+        margin: 0 auto;
     }
 
     .form-group {
-        margin-bottom: 1.5rem;
+        margin-bottom: 1.2rem;
     }
 
     .form-group.full-width {
@@ -97,6 +99,18 @@
         background: white;
         color: #2d3748;
         box-sizing: border-box;
+        min-height: 48px;
+        font-family: inherit;
+    }
+
+    /* Asegurar que todos los inputs tengan exactamente el mismo tamaño */
+    .form-group input[type="text"],
+    .form-group input[type="email"],
+    .form-group input[type="number"],
+    .form-group input[type="url"],
+    .form-group select {
+        height: 48px;
+        line-height: 1.4;
     }
 
     .form-group input:focus,
@@ -108,17 +122,22 @@
     }
 
     .form-group textarea {
-        min-height: 100px;
+        height: 48px;
+        min-height: 48px;
         resize: vertical;
+        line-height: 1.4;
+        font-family: inherit;
+        overflow-y: auto;
     }
 
     .textarea-large {
-        min-height: 120px;
+        height: 48px;
+        min-height: 48px;
     }
 
     .etiquetas-help {
         font-size: 12px;
-        color: #e53e3e;
+        color: #2d3748;
         margin-top: 4px;
         font-style: italic;
     }
@@ -143,10 +162,12 @@
         gap: 1rem;
     }
 
+    /* Asegurar que todos los elementos tengan el mismo ancho y padding */
     .upload-container {
         display: flex;
         gap: 1rem;
         align-items: stretch;
+        width: 100%;
     }
 
     .upload-button {
@@ -164,6 +185,9 @@
         gap: 8px;
         min-width: 150px;
         font-size: 14px;
+        height: 48px;
+        box-sizing: border-box;
+        font-family: inherit;
     }
 
     .upload-button:hover {
@@ -178,6 +202,12 @@
         border-radius: 8px;
         font-size: 14px;
         background: white;
+        color: #2d3748;
+        box-sizing: border-box;
+        height: 48px;
+        line-height: 1.4;
+        font-family: inherit;
+        transition: all 0.3s ease;
     }
 
     .url-input:focus {
@@ -284,8 +314,13 @@
     /* Responsive */
     @media (max-width: 768px) {
         .form-grid {
-            grid-template-columns: 1fr;
             gap: 1rem;
+            max-width: 100%;
+            padding: 0 1rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
         }
 
         .image-section {
@@ -337,11 +372,6 @@
 {% endblock %}
 
 {% block content %}
-<div class="page-header">
-    <h1 class="page-title">MODIFICACIÓN</h1>
-    <h2 class="subtitle">EDITAR</h2>
-</div>
-
 <div class="form-container">
     <div class="form-card">
         <!-- FORMULARIO PRINCIPAL (OCULTO) -->
@@ -384,11 +414,7 @@
                 <input type="text" id="visual_siglas_autor_titulo" name="visual_siglas_autor_titulo" value="{{ libro.siglas_autor_titulo }}" required>
             </div>
 
-            <!-- Número de inventario -->
-            <div class="form-group">
-                <label for="visual_num_inventario">N° Inventario:</label>
-                <input type="number" id="visual_num_inventario" name="visual_num_inventario" value="{{ libro.num_inventario }}" min="1">
-            </div>
+
 
             <!-- Etiquetas / palabras clave -->
             <div class="form-group full-width">
@@ -404,10 +430,8 @@
                 <label for="visual_sede" class="required">Sede</label>
                 <select id="visual_sede" name="visual_sede" required>
                     <option value="">Seleccione una sede</option>
-                    <option value="CENTRAL" {% if libro.sede == 'CENTRAL' %}selected{% endif %}>CENTRAL</option>
-                    <option value="NORTE" {% if libro.sede == 'NORTE' %}selected{% endif %}>NORTE</option>
-                    <option value="SUR" {% if libro.sede == 'SUR' %}selected{% endif %}>SUR</option>
-                    <option value="OESTE" {% if libro.sede == 'OESTE' %}selected{% endif %}>OESTE</option>
+                    <option value="LA_PLATA" {% if libro.sede == 'LA_PLATA' %}selected{% endif %}>La Plata</option>
+                    <option value="ABASTO" {% if libro.sede == 'ABASTO' %}selected{% endif %}>Abasto</option>
                 </select>
             </div>
 
@@ -416,9 +440,8 @@
                 <label for="visual_disponibilidad" class="required">Disponibilidad</label>
                 <select id="visual_disponibilidad" name="visual_disponibilidad" required>
                     <option value="">Seleccione disponibilidad</option>
-                    <option value="SALA" {% if libro.disponibilidad == 'SALA' %}selected{% endif %}>SALA</option>
-                    <option value="DOMICILIO" {% if libro.disponibilidad == 'DOMICILIO' %}selected{% endif %}>DOMICILIO</option>
-                    <option value="AMBOS" {% if libro.disponibilidad == 'AMBOS' %}selected{% endif %}>AMBOS</option>
+                    <option value="AULA" {% if libro.disponibilidad == 'AULA' %}selected{% endif %}>Aula</option>
+                    <option value="SALON" {% if libro.disponibilidad == 'SALON' %}selected{% endif %}>Salon</option>
                 </select>
             </div>
 
@@ -431,15 +454,11 @@
             <!-- Observaciones -->
             <div class="form-group full-width">
                 <label for="visual_observaciones">Observaciones</label>
-                <textarea id="visual_observaciones" name="visual_observaciones" rows="3">{{ libro.observaciones }}</textarea>
+                <textarea id="visual_observaciones" name="visual_observaciones" rows="3" placeholder="Observaciones sobre este ejemplar">{{ libro.observaciones }}</textarea>
             </div>
 
 
-            <!-- Número de ejemplar -->
-            <div class="form-group">
-                <label for="visual_num_ejemplar">N° Ejemplar:</label>
-                <input type="number" id="visual_num_ejemplar" name="visual_num_ejemplar" value="{{ libro.num_ejemplar }}" min="1">
-            </div>
+
 
             <!-- Sección de imagen -->
             <div class="image-section">
@@ -486,9 +505,8 @@
             <div class="modal-body text-center" style="padding: 2rem;">
                 <div style="margin-bottom: 1.5rem;">
                     <h5 style="color: #2c3e50; font-weight: 600; font-size: 1.1rem; margin-bottom: 0.5rem;">
-                        ¿DESEA CONFIRMAR LOS CAMBIOS REALIZADOS EN
+                        ¿DESEA CONFIRMAR LOS CAMBIOS REALIZADOS?
                     </h5>
-                    <div id="codigoLibro" style="color: #e74c3c; font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;"></div>
                     <p style="color: #666; font-size: 0.9rem; margin: 0;">
                         Pulse un botón para continuar. Una vez aceptado, los datos serán guardados en la base de datos.
                     </p>
@@ -575,14 +593,12 @@ function copiarDatosAlFormularioReal() {
         'editorial': 'visual_editorial',
         'clasificacion_cdu': 'visual_clasificacion_cdu',
         'siglas_autor_titulo': 'visual_siglas_autor_titulo',
-        'num_inventario': 'visual_num_inventario',
         'etiqueta_palabra_clave': 'visual_etiqueta_palabra_clave',
         'sede': 'visual_sede',
         'disponibilidad': 'visual_disponibilidad',
         'descripcion': 'visual_descripcion',
         'observaciones': 'visual_observaciones',
-        'resumen': 'visual_resumen',
-        'num_ejemplar': 'visual_num_ejemplar'
+        'resumen': 'visual_resumen'
     };
     
     // Copiar valores de campos visuales a campos reales
@@ -621,18 +637,7 @@ function copiarDatosAlFormularioReal() {
 
 // Función para mostrar modal de confirmación
 function mostrarModalConfirmacion() {
-    // Obtener valores de los campos visuales
-    const clasificacionCdu = document.getElementById('visual_clasificacion_cdu').value || 'Sin clasificar';
-    const siglasAutorTitulo = document.getElementById('visual_siglas_autor_titulo').value || 'ABC';
-    const numInventario = document.getElementById('visual_num_inventario').value || '1';
-    
-    // Crear el código del libro
-    const codigoLibro = `${clasificacionCdu} ${siglasAutorTitulo} ${numInventario}`;
-    
-    // Mostrar en el modal
-    document.getElementById('codigoLibro').textContent = codigoLibro;
-    
-    // Mostrar el modal
+    // Mostrar el modal sin identificar el libro
     const modal = new bootstrap.Modal(document.getElementById('confirmacionModal'));
     modal.show();
 }

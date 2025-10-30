@@ -656,14 +656,13 @@
         <table class="libros-table">
             <thead>
                 <tr>
-                    <th class="text-center">N° Inv.</th>
+                    <th class="text-center">ID</th>
                     <th>Título</th>
                     <th>Autor</th>
                     <th>Editorial</th>
                     <th>Clasificación</th>
                     <th>Etiquetas</th>
                     <th class="text-center">Sede</th>
-                    <th class="text-center">N° Ejemplar</th>
                     <th>Observaciones</th>
                     <th class="text-center">Disponibilidad</th>
                     <th class="text-center">Acciones</th>
@@ -677,14 +676,13 @@
                         data-titulo="{{ libro.titulo|lower }}"
                         data-autor="{{ libro.autor|lower }}"
                         data-editorial="{{ libro.editorial|lower }}">
-                        <td class="text-center">{{ libro.id_inventario|default:'' }}</td>
+                        <td class="text-center">{{ libro.id_libro|default:'' }}</td>
                         <td class="titulo-cell">{{ libro.titulo }}</td>
                         <td>{{ libro.autor }}</td>
                         <td>{{ libro.editorial }}</td>
                         <td class="text-center">{{ libro.clasificacion_cdu|default:'' }}</td>
                         <td>{{ libro.etiqueta_palabra_clave|default:'' }}</td>
                         <td class="text-center">{{ libro.sede|default:'LA PLATA' }}</td>
-                        <td class="text-center">{{ libro.num_ejemplar|default:'' }}</td>
                         <td>{{ libro.observaciones|default:'' }}</td>
                         <td class="disponibilidad-cell">
                             {% if libro.estado == 'Disponible' %}
@@ -766,15 +764,9 @@
                             {% endif %}
                         </td>
                         <td class="acciones-cell">
-                            <button class="btn-icon btn-detalle" title="Ver detalles" onclick="verDetallesMapa({{ mapa.id_mapa }})">
-                                📋
-                            </button>
                             <a href="{% url 'editar_mapa' mapa.id_mapa %}" class="btn-icon btn-editar" title="Editar">
                                 ✏️
                             </a>
-                            <button class="btn-icon btn-imprimir" title="Imprimir" onclick="imprimirMapa({{ mapa.id_mapa }})">
-                                🖨️
-                            </button>
                             {% if mapa.estado == 'Disponible' %}
                                 <button class="btn-icon btn-eliminar" title="Dar de baja" 
                                         onclick="darDeBajaMapa({{ mapa.id_mapa }}, '{{ mapa.tipo|escapejs }}')">
@@ -845,15 +837,9 @@
                             {% endif %}
                         </td>
                         <td class="acciones-cell">
-                            <button class="btn-icon btn-detalle" title="Ver detalles" onclick="verDetallesPrograma({{ programa.id_programa }})">
-                                📋
-                            </button>
                             <a href="{% url 'editar_programa' programa.id_programa %}" class="btn-icon btn-editar" title="Editar">
                                 ✏️
                             </a>
-                            <button class="btn-icon btn-imprimir" title="Imprimir" onclick="imprimirPrograma({{ programa.id_programa }})">
-                                🖨️
-                            </button>
                             {% if programa.estado == 'Disponible' %}
                                 <button class="btn-icon btn-eliminar" title="Dar de baja" 
                                         onclick="darDeBajaPrograma({{ programa.id_programa }}, '{{ programa.materia|escapejs }}')">
@@ -899,7 +885,7 @@
                         data-estado="{{ multi.estado|lower }}"
                         data-tipo="{{ multi.tipo|lower }}"
                         data-denominacion="{{ multi.denominacion|lower }}">
-                        <td class="text-center">{{ multi.id_multi|default:'' }}</td>
+                        <td class="text-center">{{ multi.id_inventario|default:'' }}</td>
                         <td class="titulo-cell">{{ multi.materia }}</td>
                         <td>{{ multi.profesor }}</td>
                         <td>{{ multi.carrera }}</td>
@@ -921,23 +907,17 @@
                             {% endif %}
                         </td>
                         <td class="acciones-cell">
-                            <button class="btn-icon btn-detalle" title="Ver detalles" onclick="verDetallesMultimedia({{ multi.id_multi }})">
-                                📋
-                            </button>
-                            <a href="{% url 'editar_multimedia' multi.id_multi %}" class="btn-icon btn-editar" title="Editar">
+                            <a href="{% url 'editar_multimedia' multi.id_inventario %}" class="btn-icon btn-editar" title="Editar">
                                 ✏️
                             </a>
-                            <button class="btn-icon btn-imprimir" title="Imprimir" onclick="imprimirMultimedia({{ multi.id_multi }})">
-                                🖨️
-                            </button>
                             {% if multi.estado == 'Disponible' %}
                                 <button class="btn-icon btn-eliminar" title="Dar de baja" 
-                                        onclick="darDeBajaMultimedia({{ multi.id_multi }}, '{{ multi.tipo|escapejs }}')">
+                                        onclick="darDeBajaMultimedia({{ multi.id_inventario }}, '{{ multi.tipo|escapejs }}')">
                                     🗑️
                                 </button>
                             {% elif multi.estado == 'No disponible' %}
                                 <button class="btn-icon btn-ver-informe" title="Ver informe de baja" 
-                                        onclick="verInformeBajaMultimedia({{ multi.id_multi }})">
+                                        onclick="verInformeBajaMultimedia({{ multi.id_inventario }})">
                                     📄
                                 </button>
                             {% endif %}
@@ -971,8 +951,8 @@
                     {% for not in notebooks %}
                     <tr class="notebook-row{% if not.estado == 'No disponible' %} libro-no-disponible{% endif %}" 
                         data-estado="{{ not.estado|lower }}"
-                        data-tipo="{{ not.tipo|lower }}"
-                        data-denominacion="{{ not.denominacion|lower }}">
+                        data-tipo="{{ not.modelo_not|lower }}"
+                        data-denominacion="{{ not.modelo_not|lower }}">
                         <td class="text-center">{{ not.id_not|default:'' }}</td>
                         <td class="text-center">{{ not.num_registro|default:'' }}</td>
                         <td class="titulo-cell">{{ not.modelo_not }}</td>
@@ -987,18 +967,12 @@
                             {% endif %}
                         </td>
                         <td class="acciones-cell">
-                            <button class="btn-icon btn-detalle" title="Ver detalles" onclick="verDetallesNotebook({{ not.id_not }})">
-                                📋
-                            </button>
                             <a href="{% url 'editar_notebook' not.id_not %}" class="btn-icon btn-editar" title="Editar">
                                 ✏️
                             </a>
-                            <button class="btn-icon btn-imprimir" title="Imprimir" onclick="imprimirNotebook({{ not.id_not }})">
-                                🖨️
-                            </button>
                             {% if not.estado == 'Disponible' %}
                                 <button class="btn-icon btn-eliminar" title="Dar de baja" 
-                                        onclick="darDeBajaNotebook({{ not.id_not }}, '{{ not.tipo|escapejs }}')">
+                                        onclick="darDeBajaNotebook({{ not.id_not }}, '{{ not.modelo_not|escapejs }}')">
                                     🗑️
                                 </button>
                             {% elif not.estado == 'No disponible' %}
@@ -1053,15 +1027,9 @@
                             {% endif %}
                         </td>
                         <td class="acciones-cell">
-                            <button class="btn-icon btn-detalle" title="Ver detalles" onclick="verDetallesProyector({{ pro.id_proyector }})">
-                                📋
-                            </button>
                             <a href="{% url 'editar_proyector' pro.id_proyector %}" class="btn-icon btn-editar" title="Editar">
                                 ✏️
                             </a>
-                            <button class="btn-icon btn-imprimir" title="Imprimir" onclick="imprimirProyector({{ pro.id_proyector }})">
-                                🖨️
-                            </button>
                             {% if pro.estado == 'Disponible' %}
                                 <button class="btn-icon btn-eliminar" title="Dar de baja" 
                                         onclick="darDeBajaProyector({{ pro.id_proyector }}, '{{ pro.tipo|escapejs }}')">
@@ -1120,15 +1088,9 @@
                             {% endif %}
                         </td>
                         <td class="acciones-cell">
-                            <button class="btn-icon btn-detalle" title="Ver detalles" onclick="verDetallesVarios({{ var.id_varios }})">
-                                📋
-                            </button>
                             <a href="{% url 'editar_varios' var.id_varios %}" class="btn-icon btn-editar" title="Editar">
                                 ✏️
                             </a>
-                            <button class="btn-icon btn-imprimir" title="Imprimir" onclick="imprimirVarios({{ var.id_varios }})">
-                                🖨️
-                            </button>
                             {% if var.estado == 'Disponible' %}
                                 <button class="btn-icon btn-eliminar" title="Dar de baja" 
                                         onclick="darDeBajaVarios({{ var.id_varios }}, '{{ var.tipo|escapejs }}')">
@@ -1156,6 +1118,71 @@
 <!-- Script para manejar la interacción con las tablas -->
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // Inicializar datos de multimedia para el modal de baja
+        window.multimediaTableData = [
+            {% for multi in multimedia %}
+            {
+                id_inventario: {{ multi.id_inventario }},
+                titulo_contenido: "{{ multi.titulo_contenido|escapejs }}",
+                profesor: "{{ multi.profesor|escapejs }}",
+                carrera: "{{ multi.carrera|escapejs }}",
+                materia: "{{ multi.materia|escapejs }}",
+                ingresar_enlace: "{{ multi.ingresar_enlace|escapejs }}",
+                sede: "{{ multi.sede|escapejs }}",
+                estado: "{{ multi.estado|escapejs }}",
+                tipo: "{{ multi.tipo|escapejs }}"
+            }{% if not forloop.last %},{% endif %}
+            {% endfor %}
+        ];
+
+        // Inicializar datos de notebooks para el modal de baja
+        window.notebookTableData = [
+            {% for notebook in notebooks %}
+            {
+                id_not: {{ notebook.id_not }},
+                sede: "{{ notebook.sede|escapejs }}",
+                num_registro: "{{ notebook.num_registro|escapejs }}",
+                modelo_not: "{{ notebook.modelo_not|escapejs }}",
+                estado: "{{ notebook.estado|escapejs }}",
+                motivo_baja: "{{ notebook.motivo_baja|escapejs }}",
+                descripcion: "{{ notebook.descripcion|escapejs }}",
+                num_ejemplar: {{ notebook.num_ejemplar|default:"null" }}
+            }{% if not forloop.last %},{% endif %}
+            {% endfor %}
+        ];
+
+        // Inicializar datos de programas para el modal de baja
+        window.programaTableData = [
+            {% for programa in programas %}
+            {
+                id_programa: {{ programa.id_programa }},
+                materia: "{{ programa.materia|escapejs }}",
+                profesor: "{{ programa.profesor|escapejs }}",
+                carrera: "{{ programa.carrera|escapejs }}",
+                ciclo: "{{ programa.ciclo|escapejs }}",
+                sede: "{{ programa.sede|escapejs }}",
+                estado: "{{ programa.estado|escapejs }}",
+                motivo_baja: "{{ programa.motivo_baja|escapejs }}",
+                descripcion: "{{ programa.descripcion|escapejs }}"
+            }{% if not forloop.last %},{% endif %}
+            {% endfor %}
+        ];
+
+        // Inicializar datos de proyectores para el modal de baja
+        window.proyectorTableData = [
+            {% for proyector in proyectores %}
+            {
+                id_proyector: {{ proyector.id_proyector }},
+                sede: "{{ proyector.sede|escapejs }}",
+                num_registro: "{{ proyector.num_registro|escapejs }}",
+                modelo_pro: "{{ proyector.modelo_pro|escapejs }}",
+                estado: "{{ proyector.estado|escapejs }}",
+                motivo_baja: "{{ proyector.motivo_baja|escapejs }}",
+                descripcion: "{{ proyector.descripcion|escapejs }}"
+            }{% if not forloop.last %},{% endif %}
+            {% endfor %}
+        ];
+        
         // Obtener el selector de tipo de material
         const tipoMaterialSelect = document.getElementById('tipo_material');
         
@@ -2130,7 +2157,7 @@
                 }
                 
                 // Actualizar fecha de baja si está disponible
-                if (data.informe.fecha_baja) {
+                if (data.informe && data.informe.fecha_baja) {
                     document.getElementById('informe_fecha_baja').textContent = data.informe.fecha_baja;
                 } else {
                     document.getElementById('informe_fecha_baja').textContent = 'Fecha no registrada';
@@ -2250,7 +2277,42 @@
     };
 
     window.darDeBajaPrograma = function(id, materia) {
-        alert(`Dar de baja Programa ID: ${id}, Materia: ${materia} - Funcionalidad en desarrollo`);
+        try {
+            console.log('📚 Iniciando proceso de baja para programa:', id);
+            
+            // Buscar los datos del programa en la tabla
+            const programaData = window.programaTableData?.find(item => item.id_programa == id);
+            
+            if (!programaData) {
+                console.error('❌ No se encontraron datos para programa ID:', id);
+                alert('Error: No se encontraron los datos del programa');
+                return;
+            }
+            
+            console.log('📊 Datos del programa encontrados:', programaData);
+            
+            // Llenar datos en el modal específico de programa
+            document.getElementById('modal_programa_id').textContent = programaData.id_programa || 'N/A';
+            document.getElementById('modal_programa_materia').textContent = programaData.materia || 'Sin materia';
+            document.getElementById('modal_programa_profesor').textContent = programaData.profesor || 'Sin profesor';
+            document.getElementById('modal_programa_carrera').textContent = programaData.carrera || 'Sin carrera';
+            document.getElementById('modal_programa_ciclo').textContent = programaData.ciclo_lectivo || 'Sin ciclo lectivo';
+            document.getElementById('modal_programa_sede').textContent = programaData.sede || 'Sin sede';
+            
+            // Configurar el campo oculto del ID del programa
+            document.getElementById('programa_id_baja').value = id;
+            
+            // Limpiar el textarea del motivo
+            document.getElementById('motivo_baja_programa').value = '';
+            
+            // Mostrar el modal específico de programa
+            const bajaProgramaModal = new bootstrap.Modal(document.getElementById('bajaProgramaModal'));
+            bajaProgramaModal.show();
+            
+        } catch (error) {
+            console.error('Error en darDeBajaPrograma:', error);
+            alert('Error al procesar la baja del programa');
+        }
     };
 
     window.darDeBajaMultimedia = function(id, tipo) {
@@ -2258,7 +2320,7 @@
             console.log('🎬 Iniciando proceso de baja para multimedia:', id);
             
             // Buscar los datos del multimedia en la tabla
-            const multimediaData = window.multimediaTableData?.find(item => item.id_multi == id);
+            const multimediaData = window.multimediaTableData?.find(item => item.id_inventario == id);
             
             if (!multimediaData) {
                 console.error('❌ No se encontraron datos para multimedia ID:', id);
@@ -2269,7 +2331,7 @@
             console.log('📊 Datos del multimedia encontrados:', multimediaData);
             
             // Llenar datos en el modal de baja
-            document.getElementById('modal_num_inventario').textContent = multimediaData.id_multi || 'N/A';
+            document.getElementById('modal_num_inventario').textContent = multimediaData.id_inventario || 'N/A';
             document.getElementById('modal_titulo').textContent = multimediaData.titulo_contenido || 'Sin título';
             document.getElementById('modal_autor').textContent = multimediaData.profesor || 'Sin especificar';
             document.getElementById('modal_editorial').textContent = multimediaData.carrera || 'Sin especificar';
@@ -2286,7 +2348,7 @@
             if (!hiddenInput) {
                 hiddenInput = document.createElement('input');
                 hiddenInput.type = 'hidden';
-                hiddenInput.name = 'id_multi';
+                hiddenInput.name = 'id_inventario';
                 hiddenInput.id = 'multimedia_id_hidden';
                 form.appendChild(hiddenInput);
             }
@@ -2306,15 +2368,198 @@
     };
 
     window.darDeBajaNotebook = function(id, tipo) {
-        alert(`Dar de baja Notebook ID: ${id}, Tipo: ${tipo} - Funcionalidad en desarrollo`);
+        try {
+            console.log('💻 Iniciando proceso de baja para notebook:', id);
+            
+            // Buscar los datos del notebook en la tabla
+            const notebookData = window.notebookTableData?.find(item => item.id_not == id);
+            
+            if (!notebookData) {
+                console.error('❌ No se encontraron datos para notebook ID:', id);
+                alert('Error: No se encontraron los datos del notebook');
+                return;
+            }
+            
+            console.log('📊 Datos del notebook encontrados:', notebookData);
+            
+            // Llenar datos en el modal de baja
+            document.getElementById('modal_num_inventario').textContent = notebookData.id_not || 'N/A';
+            document.getElementById('modal_titulo').textContent = notebookData.modelo_not || 'Sin modelo';
+            document.getElementById('modal_autor').textContent = notebookData.num_registro || 'Sin registro';
+            document.getElementById('modal_editorial').textContent = notebookData.sede || 'Sin especificar';
+            document.getElementById('modal_cdu').textContent = notebookData.estado || 'Sin estado';
+            document.getElementById('modal_siglas').textContent = notebookData.descripcion || 'Sin descripción';
+            document.getElementById('modal_sede').textContent = notebookData.sede || 'Sin especificar';
+            
+            // Configurar el formulario para notebook
+            const form = document.querySelector('#bajaModal form');
+            form.action = '/baja-notebook/';
+            
+            // Agregar campo oculto para el ID del notebook
+            let hiddenInput = document.getElementById('notebook_id_hidden');
+            if (!hiddenInput) {
+                hiddenInput = document.createElement('input');
+                hiddenInput.type = 'hidden';
+                hiddenInput.name = 'not_id';
+                hiddenInput.id = 'notebook_id_hidden';
+                form.appendChild(hiddenInput);
+            }
+            hiddenInput.value = id;
+            
+            // Limpiar otros campos para evitar conflictos
+            document.getElementById('libro_id').value = '';
+            
+            // Mostrar el modal
+            const modal = new bootstrap.Modal(document.getElementById('bajaModal'));
+            modal.show();
+            
+        } catch (error) {
+            console.error('Error en darDeBajaNotebook:', error);
+            alert('Error al procesar la baja del notebook');
+        }
     };
 
     window.darDeBajaProyector = function(id, tipo) {
-        alert(`Dar de baja Proyector ID: ${id}, Tipo: ${tipo} - Funcionalidad en desarrollo`);
+        try {
+            console.log('📽️ Iniciando proceso de baja para proyector:', id);
+            
+            // Buscar los datos del proyector en la tabla
+            const proyectorData = window.proyectorTableData?.find(item => item.id_proyector == id);
+            
+            if (!proyectorData) {
+                console.error('No se encontraron datos del proyector en la tabla');
+                // Buscar en la tabla DOM como fallback
+                const filaProyector = document.querySelector(`#proyectores-table tr[data-id="${id}"]`);
+                if (!filaProyector) {
+                    alert('Error: No se pudieron obtener los datos del proyector');
+                    return;
+                }
+            }
+            
+            // Obtener datos del proyector (desde datos de tabla o DOM)
+            let marca, modelo, numRegistro, sede;
+            
+            if (proyectorData) {
+                marca = proyectorData.marca_pro || '';
+                modelo = proyectorData.modelo_pro || '';
+                numRegistro = proyectorData.num_registro || '';
+                sede = proyectorData.sede || '';
+            } else {
+                // Fallback: obtener desde DOM
+                const celdas = document.querySelector(`#proyectores-table tr[data-id="${id}"]`)?.querySelectorAll('td');
+                if (celdas && celdas.length > 0) {
+                    numRegistro = celdas[1]?.textContent.trim() || '';
+                    modelo = celdas[2]?.textContent.trim() || '';
+                    sede = celdas[3]?.textContent.trim() || '';
+                }
+            }
+            
+            // Llenar datos básicos del proyector en el modal
+            document.getElementById('modal_num_inventario').textContent = numRegistro || id;
+            document.getElementById('modal_titulo').textContent = modelo || 'Proyector';
+            document.getElementById('modal_autor').textContent = tipo || 'Proyector';
+            document.getElementById('modal_editorial').textContent = modelo || '-';
+            document.getElementById('modal_cdu').textContent = '-';
+            document.getElementById('modal_siglas').textContent = sede || 'LA PLATA';
+            document.getElementById('modal_sede').textContent = sede || 'LA PLATA';
+            
+            // Configurar el formulario para proyector
+            const form = document.querySelector('#bajaForm');
+            form.action = "{% url 'baja_proyector' %}";
+            
+            // Agregar campo oculto para el ID del proyector
+            let hiddenInput = document.getElementById('proyector_id_hidden');
+            if (!hiddenInput) {
+                hiddenInput = document.createElement('input');
+                hiddenInput.type = 'hidden';
+                hiddenInput.name = 'proyector_id';
+                hiddenInput.id = 'proyector_id_hidden';
+                form.appendChild(hiddenInput);
+            }
+            hiddenInput.value = id;
+            
+            // Limpiar otros campos ID para evitar conflictos
+            const otherIds = ['libro_id', 'multimedia_id_hidden', 'notebook_id_hidden', 'programa_id_hidden'];
+            otherIds.forEach(fieldId => {
+                const field = document.getElementById(fieldId);
+                if (field) field.value = '';
+            });
+            
+            // Mostrar el modal
+            const modal = new bootstrap.Modal(document.getElementById('bajaModal'));
+            modal.show();
+            
+        } catch (error) {
+            console.error('Error en darDeBajaProyector:', error);
+            alert('Error al procesar la baja del proyector');
+        }
     };
 
     window.darDeBajaVarios = function(id, tipo) {
-        alert(`Dar de baja Varios ID: ${id}, Tipo: ${tipo} - Funcionalidad en desarrollo`);
+        try {
+            console.log('🗑️ Dando de baja varios con ID:', id, 'Tipo:', tipo);
+            
+            // Buscar la fila del varios en la tabla
+            const filasVarios = document.querySelectorAll('#varios-table tr');
+            let variosData = null;
+            
+            filasVarios.forEach(fila => {
+                const celdas = fila.querySelectorAll('td');
+                if (celdas.length > 0 && celdas[0].textContent.trim() === id.toString()) {
+                    variosData = {
+                        id: celdas[0].textContent.trim(),
+                        tipo: celdas[1].textContent.trim(),
+                        denominacion: celdas[2].textContent.trim(),
+                        num_registro: celdas[3].textContent.trim(),
+                        sede: celdas[4].textContent.trim()
+                    };
+                }
+            });
+            
+            if (!variosData) {
+                console.error('No se pudo encontrar la fila del varios');
+                alert('Error: No se pudieron obtener los datos del material varios');
+                return;
+            }
+            
+            // Llenar el formulario oculto con el ID
+            const libroIdField = document.getElementById('libro_id');
+            libroIdField.value = id;
+            // Cambiar el nombre del campo para que coincida con lo que espera la vista baja_varios
+            libroIdField.name = 'varios_id';
+            
+            // Llenar los datos en el modal (adaptando los campos para varios)
+            document.getElementById('modal_num_inventario').textContent = variosData.num_registro || id;
+            document.getElementById('modal_titulo').textContent = variosData.denominacion || 'Material Varios';
+            document.getElementById('modal_autor').textContent = variosData.tipo || 'Varios';
+            document.getElementById('modal_editorial').textContent = 'N/A';
+            document.getElementById('modal_cdu').textContent = 'N/A';
+            document.getElementById('modal_siglas').textContent = 'VAR';
+            document.getElementById('modal_sede').textContent = variosData.sede || 'LA PLATA';
+            
+            // Manejar la imagen (varios generalmente no tienen imagen)
+            const imagenModal = document.getElementById('libro_imagen_modal');
+            const placeholderModal = document.getElementById('libro_placeholder');
+            
+            imagenModal.style.display = 'none';
+            placeholderModal.style.display = 'flex';
+            
+            // Limpiar el formulario
+            document.getElementById('motivo_baja').value = '';
+            document.getElementById('imagen_rota').value = '';
+            
+            // Cambiar la acción del formulario para varios
+            const form = document.querySelector('#bajaForm');
+            form.action = "{% url 'baja_varios' %}";
+            
+            // Mostrar el modal
+            const modal = new bootstrap.Modal(document.getElementById('bajaModal'));
+            modal.show();
+            
+        } catch (error) {
+            console.error('Error al dar de baja varios:', error);
+            alert('Error al abrir el modal de baja para varios');
+        }
     };
 
     window.verInformeBajaMapa = function(id) {
@@ -2402,8 +2647,8 @@
                     }
                     
                     // Actualizar fecha de baja
-                    if (informe.fecha_baja) {
-                        fechaElement.textContent = informe.fecha_baja;
+                    if (informe && informe.fecha_baja) {
+                    fechaElement.textContent = informe.fecha_baja;
                     } else {
                         fechaElement.textContent = 'Fecha no registrada';
                     }
@@ -2437,7 +2682,159 @@
     };
 
     window.verInformeBajaPrograma = function(id) {
-        alert(`Informe de baja para Programa ID: ${id} - Funcionalidad en desarrollo`);
+        try {
+            console.log('Iniciando verInformeBajaPrograma para ID:', id);
+            
+            // Obtener datos del programa desde la tabla
+            const programaData = window.programaTableData?.find(item => item.id_programa == id);
+            
+            if (!programaData) {
+                console.error('No se encontraron datos para programa ID:', id);
+                alert('Error: No se pudieron obtener los datos del programa');
+                return;
+            }
+            
+            // Guardar ID del programa actual para el botón de dar de alta
+            window.currentProgramaId = id;
+            window.currentLibroId = null;
+            window.currentMapaId = null;
+            window.currentMultimediaId = null;
+            window.currentNotebookId = null;
+            
+            // Mostrar el modal
+            const modal = new bootstrap.Modal(document.getElementById('verInformeModal'));
+            modal.show();
+            
+            // Llenar datos básicos del programa en el modal
+            document.getElementById('informe_num_inventario').textContent = programaData.id_programa;
+            document.getElementById('informe_titulo').textContent = programaData.materia;
+            document.getElementById('informe_autor').textContent = programaData.profesor;
+            document.getElementById('informe_cdu').textContent = programaData.carrera;
+            document.getElementById('informe_siglas').textContent = programaData.sede;
+            
+            // Obtener elementos para mostrar información de baja
+            const motivoElement = document.getElementById('informe_motivo');
+            const fechaElement = document.getElementById('informe_fecha_baja');
+            
+            // Mostrar indicadores de carga
+            motivoElement.innerHTML = '<span style="color: #6c757d; font-style: italic;">Cargando motivo de baja...</span>';
+            fechaElement.innerHTML = '<span style="color: #6c757d; font-style: italic;">Cargando fecha...</span>';
+            
+            // Manejar imagen del programa (ocultar ya que los programas no tienen imagen)
+            const imagenModal = document.getElementById('informe_imagen');
+            const placeholderModal = document.getElementById('informe_placeholder');
+            
+            if (imagenModal && placeholderModal) {
+                imagenModal.style.display = 'none';
+                placeholderModal.style.display = 'flex';
+                placeholderModal.innerHTML = 'Programa<br>Académico';
+            }
+            
+            // Ocultar contenedor de imagen de baja inicialmente
+            const imagenBajaContainer = document.getElementById('imagen_baja_programa_container');
+            if (imagenBajaContainer) {
+                imagenBajaContainer.style.display = 'none';
+            }
+            
+            // Obtener datos reales del informe de baja
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+            const formData = new FormData();
+            formData.append('programa_id', id);
+            formData.append('csrfmiddlewaretoken', csrfToken);
+            
+            console.log('Enviando solicitud para obtener informe de baja del programa:', id);
+            
+            fetch('/obtener-informe-baja-programa/', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': csrfToken
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Error en la respuesta del servidor: ' + response.status);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Datos recibidos del servidor:', data);
+                
+                // Verificar si hay un mensaje de error en la respuesta
+                if (data.error) {
+                    throw new Error('Error del servidor: ' + data.error);
+                }
+                
+                // Verificar si la estructura de datos es correcta
+                if (!data.success || !data.informe) {
+                    throw new Error('Formato de respuesta inválido o error en el servidor');
+                }
+                
+                const informe = data.informe;
+                console.log('Informe completo:', informe);
+                console.log('Motivo de baja:', informe && informe.motivo_baja ? informe.motivo_baja : 'No disponible');
+                console.log('Fecha de baja:', informe && informe.fecha_baja ? informe.fecha_baja : 'No disponible');
+                
+                // Actualizar motivo de baja
+                if (informe && informe.motivo_baja && informe.motivo_baja.trim() !== '') {
+                    motivoElement.innerHTML = informe.motivo_baja;
+                    motivoElement.style.color = '#495057';
+                    motivoElement.style.fontStyle = 'normal';
+                } else {
+                    motivoElement.innerHTML = 'Sin motivo especificado';
+                    motivoElement.style.color = '#6c757d';
+                    motivoElement.style.fontStyle = 'italic';
+                }
+                
+                // Actualizar fecha de baja
+                if (informe && informe.fecha_baja) {
+                    fechaElement.innerHTML = informe.fecha_baja;
+                    fechaElement.style.color = '#dc3545';
+                    fechaElement.style.fontStyle = 'normal';
+                } else {
+                    fechaElement.innerHTML = 'Fecha no disponible';
+                    fechaElement.style.color = '#6c757d';
+                    fechaElement.style.fontStyle = 'italic';
+                }
+                
+                // Manejar imagen de baja si existe
+                const imagenBaja = document.getElementById('imagen_baja_programa');
+                
+                if (imagenBajaContainer && imagenBaja) {
+                    if (informe.imagen_baja && informe.imagen_baja.trim() !== '') {
+                        imagenBaja.src = informe.imagen_baja;
+                        imagenBajaContainer.style.display = 'block';
+                        console.log('Mostrando imagen de baja:', informe.imagen_baja);
+                    } else {
+                        imagenBajaContainer.style.display = 'none';
+                        console.log('No hay imagen de baja para mostrar');
+                    }
+                } else {
+                    console.error('No se encontraron elementos para la imagen de baja');
+                }
+            })
+            .catch(error => {
+                console.error('Error al obtener o procesar informe de baja:', error);
+                
+                // Mostrar mensaje de error en los elementos
+                motivoElement.innerHTML = 'Error al cargar el motivo';
+                motivoElement.style.color = '#dc3545';
+                motivoElement.style.fontStyle = 'italic';
+                
+                fechaElement.innerHTML = 'Error al cargar la fecha';
+                fechaElement.style.color = '#dc3545';
+                fechaElement.style.fontStyle = 'italic';
+                
+                // Ocultar contenedor de imagen en caso de error
+                if (imagenBajaContainer) {
+                    imagenBajaContainer.style.display = 'none';
+                }
+            });
+            
+        } catch (error) {
+            console.error('Error general en verInformeBajaPrograma:', error);
+            alert('Error al mostrar el informe de baja del programa');
+        }
     };
 
     window.verInformeBajaMultimedia = function(id) {
@@ -2517,8 +2914,8 @@
                     const informe = data.informe;
                     
                     // Actualizar motivo de baja
-                    if (informe.motivo_baja && informe.motivo_baja.trim() !== '') {
-                        motivoElement.textContent = informe.motivo_baja;
+                    if (informe && informe.motivo_baja && informe.motivo_baja.trim() !== '') {
+                    motivoElement.textContent = informe.motivo_baja;
                         motivoElement.style.color = '#495057';
                         motivoElement.style.fontStyle = 'normal';
                     } else {
@@ -2528,8 +2925,8 @@
                     }
                     
                     // Actualizar fecha de baja
-                    if (informe.fecha_baja) {
-                        fechaElement.textContent = informe.fecha_baja;
+                    if (informe && informe.fecha_baja) {
+                    fechaElement.textContent = informe.fecha_baja;
                     } else {
                         fechaElement.textContent = 'Fecha no registrada';
                     }
@@ -2538,8 +2935,8 @@
                     const imagenBajaContainer = document.getElementById('imagen_baja_container');
                     const imagenBaja = document.getElementById('imagen_baja');
                     
-                    if (informe.imagen_url && imagenBaja && imagenBajaContainer) {
-                        imagenBaja.src = informe.imagen_url;
+                    if (informe && informe.imagen_url && imagenBaja && imagenBajaContainer) {
+                    imagenBaja.src = informe.imagen_url;
                         imagenBajaContainer.style.display = 'block';
                     } else if (imagenBajaContainer) {
                         imagenBajaContainer.style.display = 'none';
@@ -2563,54 +2960,357 @@
     };
 
     window.verInformeBajaNotebook = function(id) {
-        alert(`Informe de baja para Notebook ID: ${id} - Funcionalidad en desarrollo`);
-    };
+            console.log('📋 Mostrando informe de baja para notebook:', id);
+            
+            // Buscar datos del notebook
+            const notebookData = window.notebookTableData?.find(item => item.id_not == id);
+            if (!notebookData) {
+                console.error('❌ No se encontraron datos para notebook ID:', id);
+                alert('Error: No se encontraron datos del notebook');
+                return;
+            }
+            
+            // Llenar datos básicos del notebook en el modal (usando los mismos elementos que libros y mapas)
+            document.getElementById('informe_num_inventario').textContent = notebookData.id_not || 'N/A';
+            document.getElementById('informe_titulo').textContent = notebookData.modelo_not || 'Notebook';
+            document.getElementById('informe_autor').textContent = notebookData.num_registro || '-';
+            document.getElementById('informe_cdu').textContent = '-';
+            document.getElementById('informe_siglas').textContent = notebookData.sede || 'N/A';
+            
+            // Mostrar indicador de carga
+            const motivoElement = document.getElementById('informe_motivo');
+            const fechaElement = document.getElementById('informe_fecha_baja');
+            
+            motivoElement.textContent = 'Cargando motivo de baja...';
+            fechaElement.textContent = 'Cargando...';
+            
+            // Manejar imagen del notebook
+            const imagenModal = document.getElementById('informe_imagen');
+            const placeholderModal = document.getElementById('informe_placeholder');
+            
+            if (imagenModal && placeholderModal) {
+                imagenModal.style.display = 'none';
+                placeholderModal.style.display = 'flex';
+            }
+            
+            // Guardar ID del notebook actual para el botón de dar de alta
+            window.currentNotebookId = id;
+            window.currentLibroId = null; // Limpiar ID de libro
+            window.currentMapaId = null; // Limpiar ID de mapa
+            window.currentMultimediaId = null; // Limpiar ID de multimedia
+            
+            // Mostrar el modal
+            const modal = new bootstrap.Modal(document.getElementById('verInformeModal'));
+            modal.show();
+            
+            // Obtener datos reales del informe de baja
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+            const formData = new FormData();
+            formData.append('notebook_id', id);
+            formData.append('csrfmiddlewaretoken', csrfToken);
+            
+            fetch('/obtener-informe-baja-notebook/', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': csrfToken
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const informe = data.informe;
+                    
+                    // Actualizar motivo de baja
+                    const motivoElement = document.getElementById('informe_motivo');
+                    if (informe && informe.motivo_baja && informe.motivo_baja.trim() !== '') {
+                    motivoElement.textContent = informe.motivo_baja;
+                        motivoElement.style.color = '#495057';
+                        motivoElement.style.fontStyle = 'normal';
+                    } else {
+                        motivoElement.textContent = 'Motivo no registrado';
+                        motivoElement.style.color = '#6c757d';
+                        motivoElement.style.fontStyle = 'italic';
+                    }
+                    
+                    // Actualizar fecha de baja
+                    const fechaElement = document.getElementById('informe_fecha_baja');
+                    if (informe && informe.fecha_baja) {
+                    fechaElement.textContent = informe.fecha_baja;
+                    } else {
+                        fechaElement.textContent = 'Fecha no registrada';
+                    }
+                    
+                    // Manejar imagen de baja
+                    const imagenBaja = document.getElementById('imagen_baja');
+                    if (informe.imagen_rota && informe.imagen_rota.trim() !== '') {
+                        imagenBaja.src = informe.imagen_rota;
+                        imagenBaja.style.display = 'block';
+                    } else {
+                        imagenBaja.style.display = 'none';
+                    }
+                } else {
+                    console.error('❌ Error al obtener informe:', data.error);
+                    // Mostrar valores por defecto
+                    document.getElementById('informe_motivo').textContent = 'Error al cargar motivo';
+                    document.getElementById('informe_fecha_baja').textContent = 'Error al cargar fecha';
+                }
+            })
+            .catch(error => {
+                console.error('❌ Error en la petición:', error);
+                document.getElementById('informe_motivo').textContent = 'Error de conexión';
+                document.getElementById('informe_fecha_baja').textContent = 'Error de conexión';
+            });
+        };
 
     window.verInformeBajaProyector = function(id) {
-        alert(`Informe de baja para Proyector ID: ${id} - Funcionalidad en desarrollo`);
+        console.log('📽️ Mostrando informe de baja para proyector:', id);
+        
+        // Buscar datos del proyector
+        const proyectorData = window.proyectorTableData?.find(item => item.id_proyector == id);
+        if (!proyectorData) {
+            console.error('❌ No se encontraron datos para proyector ID:', id);
+            alert('Error: No se encontraron datos del proyector');
+            return;
+        }
+        
+        // Llenar datos básicos del proyector en el modal
+        document.getElementById('informe_num_inventario').textContent = proyectorData.id_proyector || 'N/A';
+        document.getElementById('informe_titulo').textContent = proyectorData.modelo_pro || 'Proyector';
+        document.getElementById('informe_autor').textContent = proyectorData.num_registro || '-';
+        document.getElementById('informe_cdu').textContent = '-';
+        document.getElementById('informe_siglas').textContent = proyectorData.sede || 'N/A';
+        
+        // Mostrar indicador de carga
+        const motivoElement = document.getElementById('informe_motivo');
+        const fechaElement = document.getElementById('informe_fecha_baja');
+        
+        motivoElement.textContent = 'Cargando motivo de baja...';
+        fechaElement.textContent = 'Cargando...';
+        
+        // Manejar imagen del proyector
+        const imagenModal = document.getElementById('informe_imagen');
+        const placeholderModal = document.getElementById('informe_placeholder');
+        
+        if (imagenModal && placeholderModal) {
+            imagenModal.style.display = 'none';
+            placeholderModal.style.display = 'flex';
+        }
+        
+        // Guardar ID del proyector actual para el botón de dar de alta
+        window.currentProyectorId = id;
+        window.currentLibroId = null; // Limpiar ID de libro
+        window.currentMapaId = null; // Limpiar ID de mapa
+        window.currentMultimediaId = null; // Limpiar ID de multimedia
+        window.currentNotebookId = null; // Limpiar ID de notebook
+        window.currentProgramaId = null; // Limpiar ID de programa
+        
+        // Mostrar el modal
+        const modal = new bootstrap.Modal(document.getElementById('verInformeModal'));
+        modal.show();
+        
+        // Obtener datos reales del informe de baja
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        const formData = new FormData();
+        formData.append('proyector_id', id);
+        formData.append('csrfmiddlewaretoken', csrfToken);
+        
+        fetch('/obtener-informe-baja-proyector/', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': csrfToken
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Datos recibidos del servidor:', data);
+            if (data.success) {
+                // Actualizar datos reales del informe
+                document.getElementById('informe_motivo').textContent = data.motivo || 'Sin motivo especificado';
+                document.getElementById('informe_fecha_baja').textContent = data.fecha_baja || 'Fecha no disponible';
+                
+                console.log('✅ Informe de baja cargado exitosamente para proyector:', id);
+            } else {
+                console.error('❌ Error al obtener informe de baja:', data.error);
+                document.getElementById('informe_motivo').textContent = 'Error al cargar motivo';
+                document.getElementById('informe_fecha_baja').textContent = 'Error al cargar fecha';
+            }
+        })
+        .catch(error => {
+            console.error('❌ Error en petición AJAX:', error);
+            document.getElementById('informe_motivo').textContent = 'Error de conexión';
+            document.getElementById('informe_fecha_baja').textContent = 'Error de conexión';
+        });
     };
 
-    window.verInformeBajaVarios = function(id) {
-        alert(`Informe de baja para Varios ID: ${id} - Funcionalidad en desarrollo`);
+    window.verInformeBajaVarios = function(variosId) {
+        console.log('🔧 Obteniendo informe de baja para varios ID:', variosId);
+        
+        try {
+            // Buscar datos del varios en la tabla para llenar información básica
+            const filasVarios = document.querySelectorAll('#varios-table tr');
+            let variosData = null;
+            
+            filasVarios.forEach(fila => {
+                const celdas = fila.querySelectorAll('td');
+                if (celdas.length > 0 && celdas[0].textContent.trim() === variosId.toString()) {
+                    variosData = {
+                        id: celdas[0].textContent.trim(),
+                        tipo: celdas[1].textContent.trim(),
+                        denominacion: celdas[2].textContent.trim(),
+                        num_registro: celdas[3].textContent.trim(),
+                        sede: celdas[4].textContent.trim()
+                    };
+                }
+            });
+            
+            if (!variosData) {
+                alert('Error: No se pudieron obtener los datos del material varios');
+                return;
+            }
+            
+            // Llenar datos básicos en el modal de informe
+            document.getElementById('informe_num_inventario').textContent = variosData.num_registro || variosId;
+            document.getElementById('informe_titulo').textContent = variosData.denominacion || 'Material Varios';
+            document.getElementById('informe_autor').textContent = variosData.tipo || 'Varios';
+            document.getElementById('informe_cdu').textContent = 'N/A';
+            document.getElementById('informe_siglas').textContent = 'VAR';
+            
+            // Mostrar indicadores de carga
+            document.getElementById('informe_motivo').textContent = 'Cargando motivo de baja...';
+            document.getElementById('informe_fecha_baja').textContent = 'Cargando...';
+            
+            // Manejar imagen (varios generalmente no tienen imagen)
+            const imagenModal = document.getElementById('informe_imagen');
+            const placeholderModal = document.getElementById('informe_placeholder');
+            
+            if (imagenModal && placeholderModal) {
+                imagenModal.style.display = 'none';
+                placeholderModal.style.display = 'flex';
+            }
+            
+            // Guardar el ID del varios para usar en el botón DAR DE ALTA
+            window.currentVariosId = variosId;
+            
+            // Limpiar otros IDs
+            window.currentLibroId = null;
+            window.currentMapaId = null;
+            window.currentMultimediaId = null;
+            window.currentNotebookId = null;
+            window.currentProgramaId = null;
+            window.currentProyectorId = null;
+            
+            // Mostrar el modal
+            const modal = new bootstrap.Modal(document.getElementById('verInformeModal'));
+            modal.show();
+            
+            // Obtener datos reales del informe de baja
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+            
+            fetch('/obtener-informe-baja-varios/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken
+                },
+                body: JSON.stringify({
+                    varios_id: variosId
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('📋 Respuesta del servidor:', data);
+                
+                if (data.success) {
+                    const informe = data.informe;
+                    
+                    // Actualizar contenido del modal con datos reales
+                    document.getElementById('informe_motivo').textContent = informe.motivo || 'No especificado';
+                    document.getElementById('informe_fecha_baja').textContent = (informe && informe.fecha_baja) ? informe.fecha_baja : 'No registrada';
+                    
+                    // Manejar imagen de baja si existe
+                    const imagenContainer = document.getElementById('imagen_baja_container');
+                    const imagenElement = document.getElementById('imagen_baja');
+                    
+                    if (informe.imagen_baja && imagenContainer && imagenElement) {
+                        imagenElement.src = informe.imagen_baja;
+                        imagenContainer.style.display = 'block';
+                        console.log('✅ Imagen de baja cargada:', informe.imagen_baja);
+                    } else if (imagenContainer) {
+                        imagenContainer.style.display = 'none';
+                        console.log('❌ No hay imagen de baja disponible');
+                    }
+                    
+                    console.log('✅ Informe de baja cargado exitosamente para varios:', variosId);
+                } else {
+                    console.error('❌ Error del servidor:', data.error);
+                    document.getElementById('informe_motivo').textContent = 'Error al cargar motivo: ' + data.error;
+                    document.getElementById('informe_fecha_baja').textContent = 'Error al cargar fecha';
+                }
+            })
+            .catch(error => {
+                console.error('❌ Error de red:', error);
+                document.getElementById('informe_motivo').textContent = 'Error de conexión al cargar motivo';
+                document.getElementById('informe_fecha_baja').textContent = 'Error de conexión';
+            });
+            
+        } catch (error) {
+            console.error('Error al mostrar informe de baja varios:', error);
+            alert('Error al mostrar el informe de baja');
+        }
     };
 
     // Event listener para el botón "DAR DE ALTA" - IMPLEMENTACIÓN COMPLETA
     const btnDarDeAlta = document.getElementById('btnDarDeAlta');
     if (btnDarDeAlta) {
         btnDarDeAlta.addEventListener('click', function() {
-            // Verificar si es un libro, mapa o multimedia
+            // Función para mostrar el modal de confirmación con validaciones
+            function mostrarModalConfirmacion() {
+                const confirmarModal = new bootstrap.Modal(document.getElementById('confirmarAltaModal'));
+                const tituloElement = document.getElementById('informe_titulo');
+                const confirmElement = document.getElementById('confirm_titulo_libro');
+                
+                if (tituloElement && confirmElement && tituloElement.textContent.trim() !== '') {
+                    const titulo = tituloElement.textContent.trim();
+                    confirmElement.textContent = titulo;
+                    
+                    const informeModal = bootstrap.Modal.getInstance(document.getElementById('verInformeModal'));
+                    if (informeModal) informeModal.hide();
+                    
+                    confirmarModal.show();
+                } else {
+                    console.error('Elementos no encontrados o vacíos: informe_titulo o confirm_titulo_libro');
+                    // Reintentar después de un breve delay para permitir que AJAX complete
+                    setTimeout(mostrarModalConfirmacion, 500);
+                }
+            }
+            
+            // Verificar si es un libro, mapa, multimedia, notebook, programa, proyector o varios
             if (window.currentLibroId) {
                 // Lógica para libros
-                const confirmarModal = new bootstrap.Modal(document.getElementById('confirmarAltaModal'));
-                const tituloLibro = document.getElementById('informe_titulo').textContent;
-                document.getElementById('confirm_titulo_libro').textContent = tituloLibro;
-                
-                const informeModal = bootstrap.Modal.getInstance(document.getElementById('verInformeModal'));
-                if (informeModal) informeModal.hide();
-                
-                confirmarModal.show();
+                mostrarModalConfirmacion();
             } else if (window.currentMapaId) {
                 // Lógica para mapas - IMPLEMENTACIÓN COMPLETA
-                const confirmarModal = new bootstrap.Modal(document.getElementById('confirmarAltaModal'));
-                const denominacionMapa = document.getElementById('informe_titulo').textContent;
-                document.getElementById('confirm_titulo_libro').textContent = denominacionMapa;
-                
-                const informeModal = bootstrap.Modal.getInstance(document.getElementById('verInformeModal'));
-                if (informeModal) informeModal.hide();
-                
-                confirmarModal.show();
+                mostrarModalConfirmacion();
             } else if (window.currentMultimediaId) {
                 // Lógica para multimedia - IMPLEMENTACIÓN COMPLETA
-                const confirmarModal = new bootstrap.Modal(document.getElementById('confirmarAltaModal'));
-                const tituloMultimedia = document.getElementById('informe_titulo').textContent;
-                document.getElementById('confirm_titulo_libro').textContent = tituloMultimedia;
-                
-                const informeModal = bootstrap.Modal.getInstance(document.getElementById('verInformeModal'));
-                if (informeModal) informeModal.hide();
-                
-                confirmarModal.show();
+                mostrarModalConfirmacion();
+            } else if (window.currentNotebookId) {
+                // Lógica para notebooks - IMPLEMENTACIÓN COMPLETA
+                mostrarModalConfirmacion();
+            } else if (window.currentProgramaId) {
+                // Lógica para programas - IMPLEMENTACIÓN COMPLETA
+                mostrarModalConfirmacion();
+            } else if (window.currentProyectorId) {
+                // Lógica para proyectores - IMPLEMENTACIÓN COMPLETA
+                mostrarModalConfirmacion();
+            } else if (window.currentVariosId) {
+                // Lógica para varios - IMPLEMENTACIÓN COMPLETA
+                mostrarModalConfirmacion();
             } else {
-                alert('Error: No se pudo identificar el material a reactivar');
+                console.error('No se ha seleccionado ningún material para dar de alta');
+                alert('Por favor, seleccione un material para dar de alta');
             }
         });
     }
@@ -2625,6 +3325,14 @@
                 darDeAltaMapa(window.currentMapaId);
             } else if (window.currentMultimediaId) {
                 darDeAltaMultimedia(window.currentMultimediaId);
+            } else if (window.currentNotebookId) {
+                darDeAltaNotebook(window.currentNotebookId);
+            } else if (window.currentProgramaId) {
+                darDeAltaPrograma(window.currentProgramaId);
+            } else if (window.currentProyectorId) {
+                darDeAltaProyector(window.currentProyectorId);
+            } else if (window.currentVariosId) {
+                darDeAltaVarios(window.currentVariosId);
             }
         });
     }
@@ -2764,7 +3472,66 @@
         });
     }
 
-    // ===== FUNCIÓN PARA DAR DE ALTA MAPA (COMUNICACIÓN CON BACKEND) =====
+    // ===== FUNCIÓN PARA DAR DE ALTA NOTEBOOK (COMUNICACIÓN CON BACKEND) =====
+    function darDeAltaNotebook(notebookId) {
+        if (!notebookId) {
+            alert('Error: ID de notebook no válido');
+            return;
+        }
+        
+        // Mostrar indicador de carga
+        const btnConfirmar = document.getElementById('confirmarDarAlta');
+        const textoOriginal = btnConfirmar.textContent;
+        btnConfirmar.textContent = 'PROCESANDO...';
+        btnConfirmar.disabled = true;
+        
+        // Obtener el token CSRF
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        
+        // Preparar datos para enviar
+        const formData = new FormData();
+        formData.append('notebook_id', notebookId);
+        formData.append('csrfmiddlewaretoken', csrfToken);
+        
+        // Realizar petición al backend
+        fetch('/dar-alta-notebook/', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': csrfToken
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Cerrar modal de confirmación
+                const modal = bootstrap.Modal.getInstance(document.getElementById('confirmarAltaModal'));
+                if (modal) {
+                    modal.hide();
+                }
+                
+                // Mostrar modal de éxito
+                const exitoModal = new bootstrap.Modal(document.getElementById('exitoModal'));
+                exitoModal.show();
+                
+                // Recargar la página después de 2 segundos para actualizar la tabla
+                setTimeout(() => {
+                    window.location.reload();
+                }, 2000);
+            } else {
+                alert('Error al dar de alta el notebook: ' + (data.error || 'Error desconocido'));
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error de conexión al dar de alta el notebook');
+        })
+        .finally(() => {
+            // Restaurar botón
+            btnConfirmar.textContent = textoOriginal;
+            btnConfirmar.disabled = false;
+        });
+    }
     function darDeAltaMapa(mapaId) {
         if (!mapaId) {
             alert('Error: ID de mapa no válido');
@@ -2831,6 +3598,206 @@
         });
     }
 });
+
+// Función para reactivar programas
+    // ===== FUNCIÓN PARA DAR DE ALTA PROGRAMA (COMUNICACIÓN CON BACKEND) =====
+    function darDeAltaPrograma(programaId) {
+        if (!programaId) {
+            alert('Error: ID de programa no válido');
+            return;
+        }
+        
+        // Mostrar indicador de carga
+        const btnConfirmar = document.getElementById('confirmarDarAlta');
+        const textoOriginal = btnConfirmar.textContent;
+        btnConfirmar.textContent = 'PROCESANDO...';
+        btnConfirmar.disabled = true;
+        
+        console.log('♻️ Iniciando reactivación de programa:', programaId);
+        
+        // Realizar petición AJAX para reactivar el programa
+        fetch('/dar-alta-programa/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            },
+            body: `programa_id=${programaId}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Restaurar botón
+            btnConfirmar.textContent = textoOriginal;
+            btnConfirmar.disabled = false;
+            
+            if (data.success) {
+                console.log('✅ Programa reactivado exitosamente');
+                
+                // Cerrar modal de confirmación
+                const confirmarModal = bootstrap.Modal.getInstance(document.getElementById('confirmarAltaModal'));
+                if (confirmarModal) confirmarModal.hide();
+                
+                // Mostrar modal de éxito
+                const exitoModal = new bootstrap.Modal(document.getElementById('exitoModal'));
+                exitoModal.show();
+                
+                // Recargar la página después de 2 segundos
+                setTimeout(() => {
+                    location.reload();
+                }, 2000);
+                
+            } else {
+                console.error('❌ Error al reactivar programa:', data.error);
+                alert('Error al reactivar el programa: ' + (data.error || 'Error desconocido'));
+            }
+        })
+        .catch(error => {
+            // Restaurar botón en caso de error
+            btnConfirmar.textContent = textoOriginal;
+            btnConfirmar.disabled = false;
+            
+            console.error('❌ Error en la petición:', error);
+            alert('Error de conexión al reactivar el programa');
+        });
+    }
+
+    // ===== FUNCIÓN PARA DAR DE ALTA VARIOS (COMUNICACIÓN CON BACKEND) =====
+    function darDeAltaVarios(variosId) {
+        if (!variosId) {
+            alert('Error: ID de varios no válido');
+            return;
+        }
+        
+        // Mostrar indicador de carga
+        const btnConfirmar = document.getElementById('confirmarDarAlta');
+        const textoOriginal = btnConfirmar.textContent;
+        btnConfirmar.textContent = 'PROCESANDO...';
+        btnConfirmar.disabled = true;
+        
+        // Obtener el token CSRF
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        
+        // Preparar datos para enviar
+        const formData = new FormData();
+        formData.append('varios_id', variosId);
+        formData.append('sede', 'LA PLATA'); // Valor por defecto
+        formData.append('disponibilidad', 'Domicilio'); // Valor por defecto
+        formData.append('observaciones', ''); // Observaciones vacías por defecto
+        formData.append('csrfmiddlewaretoken', csrfToken);
+        
+        console.log('♻️ Iniciando reactivación de varios:', variosId);
+        
+        // Realizar petición al backend
+        fetch('/dar-alta-varios/', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': csrfToken
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                console.log('✅ Varios reactivado exitosamente');
+                
+                // Cerrar modal de confirmación
+                const modal = bootstrap.Modal.getInstance(document.getElementById('confirmarAltaModal'));
+                if (modal) {
+                    modal.hide();
+                }
+                
+                // Mostrar modal de éxito
+                const exitoModal = new bootstrap.Modal(document.getElementById('exitoModal'));
+                exitoModal.show();
+                
+                // Recargar la página después de 2 segundos para actualizar la tabla
+                setTimeout(() => {
+                    window.location.reload();
+                }, 2000);
+            } else {
+                console.error('❌ Error al reactivar varios:', data.error);
+                alert('Error al dar de alta el material varios: ' + (data.error || 'Error desconocido'));
+            }
+        })
+        .catch(error => {
+            console.error('❌ Error en la petición:', error);
+            alert('Error de conexión al dar de alta el material varios');
+        })
+        .finally(() => {
+            // Restaurar botón
+            btnConfirmar.textContent = textoOriginal;
+            btnConfirmar.disabled = false;
+        });
+    }
+
+    // ===== FUNCIÓN PARA DAR DE ALTA PROYECTOR (COMUNICACIÓN CON BACKEND) =====
+    function darDeAltaProyector(proyectorId) {
+        if (!proyectorId) {
+            alert('Error: ID de proyector no válido');
+            return;
+        }
+        
+        // Mostrar indicador de carga
+        const btnConfirmar = document.getElementById('confirmarDarAlta');
+        const textoOriginal = btnConfirmar.textContent;
+        btnConfirmar.textContent = 'PROCESANDO...';
+        btnConfirmar.disabled = true;
+        
+        // Obtener el token CSRF
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        
+        // Preparar datos para enviar
+        const formData = new FormData();
+        formData.append('proyector_id', proyectorId);
+        formData.append('sede', 'LA PLATA'); // Valor por defecto
+        formData.append('observaciones', ''); // Observaciones vacías por defecto
+        formData.append('csrfmiddlewaretoken', csrfToken);
+        
+        console.log('♻️ Iniciando reactivación de proyector:', proyectorId);
+        
+        // Realizar petición al backend
+        fetch('/dar-alta-proyector/', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': csrfToken
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                console.log('✅ Proyector reactivado exitosamente');
+                
+                // Cerrar modal de confirmación
+                const modal = bootstrap.Modal.getInstance(document.getElementById('confirmarAltaModal'));
+                if (modal) {
+                    modal.hide();
+                }
+                
+                // Mostrar modal de éxito
+                const exitoModal = new bootstrap.Modal(document.getElementById('exitoModal'));
+                exitoModal.show();
+                
+                // Recargar la página después de 2 segundos para actualizar la tabla
+                setTimeout(() => {
+                    window.location.reload();
+                }, 2000);
+            } else {
+                console.error('❌ Error al reactivar proyector:', data.error);
+                alert('Error al dar de alta el proyector: ' + (data.error || 'Error desconocido'));
+            }
+        })
+        .catch(error => {
+            console.error('❌ Error en la petición:', error);
+            alert('Error de conexión al dar de alta el proyector');
+        })
+        .finally(() => {
+            // Restaurar botón
+            btnConfirmar.textContent = textoOriginal;
+            btnConfirmar.disabled = false;
+        });
+    }
+
 </script>
 
 <!-- Modal de Detalles para Mapas -->
@@ -3437,7 +4404,7 @@
                         style="filter: brightness(0) invert(1); opacity: 0.8; font-size: 1.2rem;"></button>
             </div>
 
-            <form method="POST" action="{% url 'baja_libro' %}" enctype="multipart/form-data">
+            <form method="POST" action="{% url 'baja_libro' %}" id="bajaForm" enctype="multipart/form-data">
                 {% csrf_token %}
                 <div class="modal-body" style="padding: 0; background: #f8f9fa;">
                     <input type="hidden" id="libro_id" name="libro_id">
@@ -3510,6 +4477,118 @@
                                     </div>
                                     
                                     <input type="file" class="form-control" id="imagen_rota" name="imagen_rota" 
+                                           accept="image/*" style="display: none;">
+                                    
+                                    <div style="margin-top: 1rem;">
+                                        <label style="color: #7B68EE; font-weight: 600; font-size: 12px; text-transform: uppercase; margin-bottom: 0.5rem; display: block;">
+                                            Localización
+                                        </label>
+                                        <input type="text" class="form-control" placeholder="Guardar en..."
+                                               style="border: 1px solid #ddd; border-radius: 5px; font-size: 13px; padding: 8px;" readonly value="Galería de bajas">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer del modal -->
+                <div class="modal-footer" style="background: #f8f9fa; padding: 1rem 1.5rem; border: none; justify-content: center; gap: 1rem;">
+                    <button type="button" class="btn" data-bs-dismiss="modal" 
+                            style="background: #4285F4; color: white; border: none; padding: 10px 30px; border-radius: 25px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; font-size: 13px; min-width: 120px; transition: all 0.3s ease;">
+                        CANCELAR
+                    </button>
+                    <button type="submit" class="btn"
+                            style="background: #ff6b35; color: white; border: none; padding: 10px 30px; border-radius: 25px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; font-size: 13px; min-width: 120px; transition: all 0.3s ease;">
+                        CONFIRMAR
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Baja Específico para Programas -->
+<div class="modal fade" id="bajaProgramaModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content" style="border: none; border-radius: 15px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
+            <!-- Header del modal -->
+            <div class="modal-header" style="background: linear-gradient(135deg, #4ECDC4, #44A08D); color: white; padding: 1.5rem; border: none;">
+                <h5 class="modal-title" style="font-weight: 700; font-size: 1.2rem; text-transform: uppercase; letter-spacing: 1px; margin: 0;">
+                    DAR DE BAJA AL PROGRAMA SELECCIONADO:
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" 
+                        style="filter: brightness(0) invert(1); opacity: 0.8; font-size: 1.2rem;"></button>
+            </div>
+
+            <form method="POST" action="{% url 'baja_programa' %}" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="modal-body" style="padding: 0; background: #f8f9fa;">
+                    <input type="hidden" id="programa_id_baja" name="programa_id">
+                    
+                    <!-- Información del programa -->
+                    <div style="background: linear-gradient(135deg, #e8f4f8, #f0f8ff); padding: 1.5rem; border-bottom: 2px solid #4ECDC4;">
+                        <div class="row align-items-center">
+                            <div class="col-2 text-center">
+                                <div style="width: 80px; height: 100px; background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 8px; margin: 0 auto; position: relative; overflow: hidden; box-shadow: 0 4px 8px rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: center; color: white; font-size: 24px;">
+                                    📚
+                                </div>
+                            </div>
+                            <div class="col-10">
+                                <table style="width: 100%; font-size: 14px; color: #2c3e50;">
+                                    <tr style="border-bottom: 1px solid #ddd;">
+                                        <td style="padding: 8px 12px; font-weight: 600; background: #ecf0f1; width: 15%; text-align: center;">ID</td>
+                                        <td style="padding: 8px 12px; font-weight: 600; background: #ecf0f1; width: 25%;">Materia</td>
+                                        <td style="padding: 8px 12px; font-weight: 600; background: #ecf0f1; width: 20%;">Profesor</td>
+                                        <td style="padding: 8px 12px; font-weight: 600; background: #ecf0f1; width: 15%;">Carrera</td>
+                                        <td style="padding: 8px 12px; font-weight: 600; background: #ecf0f1; width: 10%; text-align: center;">Ciclo</td>
+                                        <td style="padding: 8px 12px; font-weight: 600; background: #ecf0f1; width: 15%; text-align: center;">Sede</td>
+                                    </tr>
+                                    <tr style="background: rgba(78, 205, 196, 0.1);">
+                                        <td style="padding: 12px 12px; text-align: center; font-weight: 600;" id="modal_programa_id">1</td>
+                                        <td style="padding: 12px 12px; font-weight: 600; color: #2c3e50;" id="modal_programa_materia">Materia del programa</td>
+                                        <td style="padding: 12px 12px;" id="modal_programa_profesor">Profesor</td>
+                                        <td style="padding: 12px 12px;" id="modal_programa_carrera">Carrera</td>
+                                        <td style="padding: 12px 12px; text-align: center;" id="modal_programa_ciclo">2024</td>
+                                        <td style="padding: 12px 12px; text-align: center;" id="modal_programa_sede">LA PLATA</td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sección de formulario -->
+                    <div style="padding: 1.5rem;">
+                        <div class="row">
+                            <!-- Motivo de baja -->
+                            <div class="col-md-6">
+                                <div style="background: white; padding: 1.5rem; border-radius: 10px; border: 2px solid #4ECDC4; height: 100%;">
+                                    <h6 style="color: #4ECDC4; font-weight: 700; text-transform: uppercase; margin-bottom: 1rem; font-size: 14px; letter-spacing: 0.5px;">
+                                        Motivo de baja*
+                                    </h6>
+                                    <textarea class="form-control" id="motivo_baja_programa" name="motivo_baja" 
+                                              rows="6" required placeholder="Describe el motivo de la baja del programa..."
+                                              style="border: 1px solid #ddd; border-radius: 8px; font-size: 14px; resize: none; padding: 12px;"></textarea>
+                                </div>
+                            </div>
+
+                            <!-- Cargar imagen -->
+                            <div class="col-md-6">
+                                <div style="background: white; padding: 1.5rem; border-radius: 10px; border: 2px solid #f39c12; height: 100%;">
+                                    <h6 style="color: #f39c12; font-weight: 700; text-transform: uppercase; margin-bottom: 1rem; font-size: 14px; letter-spacing: 0.5px;">
+                                        Cargar imagen de baja
+                                    </h6>
+                                    
+                                    <div style="text-align: center; margin-bottom: 1rem;">
+                                        <div style="width: 120px; height: 80px; border: 2px dashed #f39c12; border-radius: 8px; margin: 0 auto; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s ease; background: #fef9e7;" onclick="document.getElementById('imagen_rota_programa').click()">
+                                            <div style="text-align: center; color: #f39c12;">
+                                                <div style="font-size: 24px; margin-bottom: 4px;">📁</div>
+                                                <div style="font-size: 11px; font-weight: 600;">SUBIR ARCHIVO</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <input type="file" class="form-control" id="imagen_rota_programa" name="imagen_rota" 
                                            accept="image/*" style="display: none;">
                                     
                                     <div style="margin-top: 1rem;">
@@ -3625,6 +4704,95 @@
                     CERRAR
                 </button>
                 <button type="button" id="btnDarDeAlta" class="btn"
+                        style="background: #28a745; color: white; border: none; padding: 10px 30px; border-radius: 25px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; font-size: 13px;">
+                    🔄 DAR DE ALTA
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Ver Informe Específico para Programas -->
+<div class="modal fade" id="informeBajaProgramaModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content" style="border: none; border-radius: 15px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
+            <!-- Header del modal -->
+            <div class="modal-header" style="background: linear-gradient(135deg, #dc3545, #c82333); color: white; padding: 1.5rem; border: none;">
+                <h5 class="modal-title" style="font-weight: 700; font-size: 1.2rem; text-transform: uppercase; letter-spacing: 1px; margin: 0;">
+                    📋 INFORME DE BAJA DEL PROGRAMA
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" 
+                        style="filter: brightness(0) invert(1); opacity: 0.8; font-size: 1.2rem;"></button>
+            </div>
+
+            <div class="modal-body" style="padding: 2rem; background: #f8f9fa;">
+                <!-- Información del programa dado de baja -->
+                <div style="background: white; padding: 1.5rem; border-radius: 10px; margin-bottom: 1.5rem; border-left: 5px solid #dc3545;">
+                    <div class="row">
+                        <div class="col-3 text-center">
+                            <div style="width: 100px; height: 130px; background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 8px; margin: 0 auto; position: relative; overflow: hidden; box-shadow: 0 4px 8px rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: center; color: white; font-size: 32px;">
+                                📚
+                            </div>
+                        </div>
+                        <div class="col-9">
+                            <table style="width: 100%; font-size: 14px; color: #2c3e50;">
+                                <tr style="border-bottom: 1px solid #dee2e6;">
+                                    <td style="padding: 8px 0; font-weight: 600; width: 30%;">ID Programa:</td>
+                                    <td style="padding: 8px 0;" id="informe_programa_id">-</td>
+                                </tr>
+                                <tr style="border-bottom: 1px solid #dee2e6;">
+                                    <td style="padding: 8px 0; font-weight: 600;">Materia:</td>
+                                    <td style="padding: 8px 0; font-weight: 600; color: #dc3545;" id="informe_programa_materia">-</td>
+                                </tr>
+                                <tr style="border-bottom: 1px solid #dee2e6;">
+                                    <td style="padding: 8px 0; font-weight: 600;">Profesor:</td>
+                                    <td style="padding: 8px 0;" id="informe_programa_profesor">-</td>
+                                </tr>
+                                <tr style="border-bottom: 1px solid #dee2e6;">
+                                    <td style="padding: 8px 0; font-weight: 600;">Carrera:</td>
+                                    <td style="padding: 8px 0;" id="informe_programa_carrera">-</td>
+                                </tr>
+                                <tr style="border-bottom: 1px solid #dee2e6;">
+                                    <td style="padding: 8px 0; font-weight: 600;">Sede:</td>
+                                    <td style="padding: 8px 0;" id="informe_programa_sede">-</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 8px 0; font-weight: 600;">Fecha de ingreso:</td>
+                                    <td style="padding: 8px 0; color: #dc3545;" id="informe_programa_fecha_ingreso">Cargando...</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Motivo de baja -->
+                <div style="background: white; padding: 1.5rem; border-radius: 10px; margin-bottom: 1.5rem;">
+                    <h6 style="color: #dc3545; font-weight: 700; text-transform: uppercase; margin-bottom: 1rem; font-size: 14px; letter-spacing: 0.5px;">
+                        Motivo de la baja
+                    </h6>
+                    <div id="informe_programa_motivo" style="padding: 1rem; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #dc3545; font-size: 14px; line-height: 1.5;">
+                        Cargando motivo de baja...
+                    </div>
+                </div>
+
+                <!-- Imagen de la baja (si existe) -->
+                <div id="imagen_baja_programa_container" style="background: white; padding: 1.5rem; border-radius: 10px; margin-bottom: 1.5rem; display: none;">
+                    <h6 style="color: #dc3545; font-weight: 700; text-transform: uppercase; margin-bottom: 1rem; font-size: 14px; letter-spacing: 0.5px;">
+                        Imagen de la baja
+                    </h6>
+                    <div style="text-align: center;">
+                        <img id="imagen_baja_programa" src="" alt="Imagen de baja" style="max-width: 300px; max-height: 200px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer del modal -->
+            <div class="modal-footer" style="background: #f8f9fa; padding: 1rem 2rem; border: none; justify-content: center; gap: 1rem;">
+                <button type="button" class="btn" data-bs-dismiss="modal" 
+                        style="background: #6c757d; color: white; border: none; padding: 10px 30px; border-radius: 25px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; font-size: 13px;">
+                    CERRAR
+                </button>
+                <button type="button" id="btnDarDeAltaPrograma" class="btn"
                         style="background: #28a745; color: white; border: none; padding: 10px 30px; border-radius: 25px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; font-size: 13px;">
                     🔄 DAR DE ALTA
                 </button>

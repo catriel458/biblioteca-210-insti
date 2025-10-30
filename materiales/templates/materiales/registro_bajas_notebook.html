@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Bajas de Notebooks</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+        li {
+            background: #fff;
+            margin: 10px 0;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            text-align: left;
+            position: relative;
+        }
+        h2 {
+            margin: 0;
+            color: #d32f2f;
+        }
+        p {
+            margin: 5px 0;
+            color: #555;
+        }
+        .no-disponibles {
+            color: #888;
+            font-style: italic;
+        }
+        .btn-reactivar {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            position: absolute;
+            top: 15px;
+            right: 15px;
+        }
+        .btn-reactivar:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Notebooks No Disponibles</h1>
+        <div>
+            {% if notebooks %}
+                <ul>
+                    {% for notebook in notebooks %}
+                        <li>
+                            <h2>{{ notebook.modelo_not }}</h2>
+                            <p><strong>ID:</strong> {{ notebook.id_not }}</p>
+                            <p><strong>Número de Registro:</strong> {{ notebook.num_registro }}</p>
+                            <p><strong>Sede:</strong> {{ notebook.sede }}</p>
+                            <p><strong>Estado:</strong> {{ notebook.estado }}</p>
+                            <p><strong>Motivo de baja:</strong> {{ notebook.motivo_baja|default:"Sin especificar" }}</p>
+                            <p><strong>Descripción:</strong> {{ notebook.descripcion|default:"Sin descripción" }}</p>
+                            {% if notebook.num_ejemplar %}
+                                <p><strong>Número de Ejemplar:</strong> {{ notebook.num_ejemplar }}</p>
+                            {% endif %}
+                            
+                            <form method="POST" action="{% url 'reactivar_notebook' notebook.id_not %}" style="display: inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn-reactivar" onclick="return confirm('¿Está seguro de que desea reactivar este notebook?')">
+                                    Reactivar
+                                </button>
+                            </form>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p class="no-disponibles">No hay notebooks no disponibles actualmente.</p>
+            {% endif %}
+        </div>
+        
+        <div style="margin-top: 20px;">
+            <a href="{% url 'modificacion_materiales' %}" style="text-decoration: none; background-color: #2196F3; color: white; padding: 10px 20px; border-radius: 4px;">
+                Volver a Modificación de Materiales
+            </a>
+        </div>
+    </div>
+</body>
+</html>

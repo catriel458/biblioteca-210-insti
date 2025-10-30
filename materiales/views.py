@@ -3835,3 +3835,861 @@ def confirmacion_carga_exitosa(request):
     Esta vista se muestra después de que se haya guardado exitosamente cualquier material.
     """
     return render(request, 'materiales/formularios_altas/confirmaciones_alta/confirmacion_carga_exitosa.html')
+
+
+# ===== FUNCIONES DE EDICIÓN Y BAJA MEJORADAS DESDE SEBA =====
+
+def editar_libro_mejorado(request, libro_id):
+    """Función de edición de libro mejorada desde seba"""
+    libro = get_object_or_404(Libro, id_libro=libro_id)
+    
+    if request.method == 'POST':
+        print(f"🔥 POST recibido para editar libro ID: {libro_id}")
+        print(f"🔥 Datos POST: {dict(request.POST)}")
+        
+        # Crear una copia mutable de POST para modificar
+        post_data = request.POST.copy()
+        
+        # ARREGLAR: Manejar URL de imagen ANTES de crear el formulario
+        url_input = post_data.get('url_input', '').strip()
+        if url_input and not request.FILES.get('img'):
+            print(f"🔗 Procesando URL de imagen: {url_input}")
+            # Si hay URL pero no archivo, guardar la URL directamente en el libro
+            libro.img = url_input
+            # Remover el campo img del formulario para que no sea requerido
+            post_data['img'] = url_input
+        
+        # ARREGLAR: Verificar campos requeridos vacíos
+        if not post_data.get('sede'):
+            print("⚠️ Sede vacía, usando valor actual del libro")
+            post_data['sede'] = libro.sede or 'CENTRAL'  # Valor por defecto
+            
+        if not post_data.get('disponibilidad'):
+            print("⚠️ Disponibilidad vacía, usando valor actual del libro")
+            post_data['disponibilidad'] = libro.disponibilidad or 'DOMICILIO'  # Valor por defecto
+        
+        print(f"🔧 Datos POST corregidos: {dict(post_data)}")
+        
+        # Crear formulario con datos corregidos
+        form = LibroForm(post_data, request.FILES, instance=libro)
+        
+        if form.is_valid():
+            print("✅ Formulario válido - guardando...")
+            
+            try:
+                # Guardar el formulario
+                libro_actualizado = form.save()
+                
+                # Si había URL de imagen, asegurar que se guarde
+                if url_input and not request.FILES.get('img'):
+                    libro_actualizado.img = url_input
+                    libro_actualizado.save()
+                
+                print(f"✅ Libro actualizado: {libro_actualizado.titulo}")
+                print(f"📋 Imagen final: {libro_actualizado.img}")
+                
+                # messages.success(request, f'✅ Libro "{libro_actualizado.titulo}" actualizado exitosamente.')
+                return redirect('modificacion_materiales')
+                
+            except Exception as e:
+                print(f"❌ Error al guardar: {e}")
+                import traceback
+                traceback.print_exc()
+                messages.error(request, f'❌ Error al actualizar el libro: {str(e)}')
+        else:
+            print(f"❌ Formulario TODAVÍA inválido!")
+            print(f"❌ Errores: {form.errors}")
+            
+            # Mostrar errores específicos
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f'Error en {field}: {error}')
+                    print(f"❌ Error en {field}: {error}")
+    else:
+        form = LibroForm(instance=libro)
+    
+    return render(request, 'materiales/formularios_editar/editar_libro.html', {
+        'form': form, 
+        'libro': libro
+    })
+
+
+def baja_libro_mejorada(request):
+    """Función de baja de libro mejorada"""
+    if request.method == 'POST':
+        libro_id = request.POST.get('libro_id')
+        motivo_baja = request.POST.get('motivo_baja')
+        imagen_rota = request.FILES.get('imagen_rota')
+
+        # Obtener el libro
+        libro = get_object_or_404(Libro, id_libro=libro_id)
+        
+        # Cambiar estado
+        libro.estado = 'No disponible'
+        libro.motivo_baja = motivo_baja
+        
+        # Guardar la fecha real de baja
+        try:
+            from django.utils import timezone
+            libro.fecha_baja = timezone.now()
+        except Exception:
+            pass
+        
+        # Guardar imagen en el campo imagen_rota del modelo
+        if imagen_rota:
+            libro.imagen_rota = imagen_rota
+        
+        libro.save()
+
+        return redirect('modificacion_materiales')
+
+    return redirect('modificacion_materiales')
+
+
+def baja_mapa_mejorada(request):
+    """Función de baja de mapa mejorada desde seba"""
+    if request.method == 'POST':
+        mapa_id = request.POST.get('mapa_id')
+        motivo_baja = request.POST.get('motivo_baja')
+        imagen_rota = request.FILES.get('imagen_rota')
+
+        # Obtener el mapa
+        mapa = get_object_or_404(Mapas, id_mapa=mapa_id)
+        
+        # Cambiar estado
+        mapa.estado = 'No disponible'
+        mapa.motivo_baja = motivo_baja
+        # Guardar la fecha real de baja
+        try:
+            from django.utils import timezone
+            mapa.fecha_baja = timezone.now()
+        except Exception:
+            pass
+        
+        # Guardar imagen en el campo imagen_rota del modelo
+        if imagen_rota:
+            mapa.imagen_rota = imagen_rota
+        
+        mapa.save()
+
+        # messages.success(request, f'Mapa "{mapa.tipo}" dado de baja exitosamente.')
+        return redirect('modificacion_materiales')
+
+    return redirect('modificacion_materiales')
+
+
+def editar_mapa_mejorado(request, mapa_id):
+    """Función de edición de mapa mejorada desde seba"""
+    mapa = get_object_or_404(Mapas, id_mapa=mapa_id)
+
+    if request.method == 'POST':
+        form = MapaForm(request.POST, instance=mapa)
+        if form.is_valid():
+            form.save()
+            return redirect('modificacion_materiales')
+    else:
+        form = MapaForm(instance=mapa)
+
+    return render(request, 'materiales/formularios_editar/editar_mapa.html', {'form': form, 'mapa': mapa})
+
+
+def baja_multimedia_mejorada(request):
+    """Función de baja de multimedia mejorada desde seba"""
+    if request.method == 'POST':
+        multi_id = request.POST.get('id_inventario')
+        motivo_baja = request.POST.get('motivo_baja')
+        imagen_rota = request.FILES.get('imagen_rota')
+
+        # Lógica para actualizar el estado del multimedia
+        multimedia = get_object_or_404(Multimedia, id_inventario=multi_id)
+        multimedia.estado = 'No disponible'
+        multimedia.motivo_baja = motivo_baja
+        multimedia.fecha_baja = timezone.now()  # Guardar la fecha actual de baja
+        if imagen_rota:
+            multimedia.imagen_rota = imagen_rota
+        multimedia.save()
+
+        # messages.success(request, f'Multimedia "{multimedia.titulo_contenido}" dado de baja correctamente.')
+        return redirect('modificacion_materiales')
+
+    return redirect('modificacion_materiales')
+
+
+def editar_multimedia_mejorado(request, multi_id):
+    """Función de edición de multimedia mejorada desde seba"""
+    multimedia = get_object_or_404(Multimedia, id_inventario=multi_id)
+
+    if request.method == 'POST':
+        form = MultimediaForm(request.POST, instance=multimedia)
+        if form.is_valid():
+            form.save()
+            return redirect('modificacion_materiales')
+    else:
+        form = MultimediaForm(instance=multimedia)
+
+    return render(request, 'materiales/formularios_editar/editar_multimedia.html', {'form': form, 'multimedia': multimedia})
+
+
+def baja_notebook_mejorada(request):
+    """Función de baja de notebook mejorada desde seba"""
+    if request.method == 'POST':
+        not_id = request.POST.get('not_id')
+        motivo_baja = request.POST.get('motivo_baja')
+        imagen_rota = request.FILES.get('imagen_rota')
+
+        # Lógica para actualizar el estado del notebook
+        notebook = get_object_or_404(Notebook, id_not=not_id)
+        notebook.estado = 'No disponible'
+        notebook.motivo_baja = motivo_baja
+        notebook.fecha_baja = timezone.now()
+        if imagen_rota:
+            notebook.imagen_rota = imagen_rota
+        notebook.save()
+
+        return redirect('modificacion_materiales')
+
+    return redirect('modificacion_materiales')
+
+
+def editar_notebook_mejorado(request, not_id):
+    """Función de edición de notebook mejorada desde seba"""
+    notebook = get_object_or_404(Notebook, id_not=not_id)
+
+    if request.method == 'POST':
+        form = NotebookForm(request.POST, instance=notebook)
+        if form.is_valid():
+            form.save()
+            return redirect('modificacion_materiales')
+    else:
+        form = NotebookForm(instance=notebook)
+
+    return render(request, 'materiales/formularios_editar/editar_notebook.html', {'form': form, 'notebook': notebook})
+
+
+def baja_proyector_mejorada(request):
+    """Función de baja de proyector mejorada desde seba"""
+    if request.method == 'POST':
+        proyector_id = request.POST.get('proyector_id')
+        motivo_baja = request.POST.get('motivo_baja')
+        imagen_rota = request.FILES.get('imagen_rota')
+
+        # Lógica para actualizar el estado del proyector
+        proyector = get_object_or_404(Proyector, id_proyector=proyector_id)
+        proyector.estado = 'No disponible'
+        proyector.motivo_baja = motivo_baja
+        proyector.fecha_baja = timezone.now()
+        if imagen_rota:
+            proyector.imagen_rota = imagen_rota
+        proyector.save()
+
+        return redirect('modificacion_materiales')
+
+    return redirect('modificacion_materiales')
+
+
+def editar_proyector_mejorado(request, proyector_id):
+    """Función de edición de proyector mejorada desde seba"""
+    proyector = get_object_or_404(Proyector, id_proyector=proyector_id)
+
+    if request.method == 'POST':
+        form = ProyectorForm(request.POST, instance=proyector)
+        if form.is_valid():
+            form.save()
+            return redirect('modificacion_materiales')
+    else:
+        form = ProyectorForm(instance=proyector)
+
+    return render(request, 'materiales/formularios_editar/editar_proyector.html', {'form': form, 'proyector': proyector})
+
+
+def baja_varios_mejorada(request):
+    """Función de baja de varios mejorada desde seba"""
+    if request.method == 'POST':
+        varios_id = request.POST.get('varios_id')
+        motivo_baja = request.POST.get('motivo_baja')
+        imagen_rota = request.FILES.get('imagen_rota')
+
+        # Obtener el objeto varios
+        varios = get_object_or_404(Varios, id_varios=varios_id)
+        
+        # Cambiar estado
+        varios.estado = 'No disponible'
+        varios.motivo_baja = motivo_baja
+        # Guardar fecha de baja real
+        varios.fecha_baja = timezone.now()
+        
+        # IMPORTANTE: Guardar imagen en el campo imagen_rota del modelo
+        if imagen_rota:
+            varios.imagen_rota = imagen_rota
+        
+        varios.save()
+
+        # messages.success(request, f'Varios "{varios.tipo}" dado de baja exitosamente.')
+        return redirect('modificacion_materiales')
+
+    return redirect('modificacion_materiales')
+
+
+def editar_varios_mejorado(request, varios_id):
+    """Función de edición de varios mejorada desde seba"""
+    varios = get_object_or_404(Varios, id_varios=varios_id)
+
+    if request.method == 'POST':
+        form = VariosForm(request.POST, instance=varios)
+        if form.is_valid():
+            form.save()
+            return redirect('modificacion_materiales')
+    else:
+        form = VariosForm(instance=varios)
+
+    return render(request, 'materiales/formularios_editar/editar_varios.html', {'form': form, 'varios': varios})
+
+
+def baja_programa_mejorada(request):
+    """Función de baja de programa mejorada desde seba"""
+    if request.method == 'POST':
+        programa_id = request.POST.get('programa_id')
+        motivo_baja = request.POST.get('motivo_baja')
+        imagen_rota = request.FILES.get('imagen_rota')
+
+        # Lógica para actualizar el estado del programa
+        programa = get_object_or_404(Programa, id_programa=programa_id)
+        programa.estado = 'No disponible'
+        programa.motivo_baja = motivo_baja
+        programa.fecha_baja = timezone.now()
+        if imagen_rota:
+            programa.imagen_rota = imagen_rota
+        programa.save()
+
+        return redirect('modificacion_materiales')
+
+    return redirect('modificacion_materiales')
+
+
+def editar_programa_mejorado(request, programa_id):
+    """Función de edición de programa mejorada desde seba"""
+    programa = get_object_or_404(Programa, id_programa=programa_id)
+    
+    if request.method == 'POST':
+        form = ProgramaForm(request.POST, instance=programa)
+        if form.is_valid():
+            form.save()
+            # messages.success(request, f'Programa "{programa.nombre}" actualizado correctamente.')
+            return redirect('modificacion_materiales')
+    else:
+        form = ProgramaForm(instance=programa)
+    
+    return render(request, 'materiales/formularios_editar/editar_programa.html', {
+        'form': form,
+        'programa': programa
+    })
+
+
+# ===== FUNCIONES DE REACTIVACIÓN MEJORADAS =====
+
+def reactivar_multimedia_mejorado(request, multimedia_id):
+    """Función de reactivación de multimedia mejorada desde seba"""
+    if request.method == 'POST':
+        multimedia = get_object_or_404(Multimedia, id_inventario=multimedia_id)
+        multimedia.estado = 'Disponible'
+        multimedia.motivo_baja = ''  # Opcional: limpiar el motivo de baja
+        multimedia.fecha_baja = None
+        multimedia.save()
+        # messages.success(request, f'El multimedia "{multimedia.titulo_contenido}" ha sido reactivado exitosamente.')
+        return redirect('registro_de_bajas_multimedia')
+    return redirect('registro_de_bajas_multimedia')
+
+
+def reactivar_notebook_mejorado(request, notebook_id):
+    """Función de reactivación de notebook mejorada desde seba"""
+    if request.method == 'POST':
+        notebook = get_object_or_404(Notebook, id_not=notebook_id)
+        notebook.estado = 'Disponible'
+        notebook.motivo_baja = ''  # Opcional: limpiar el motivo de baja
+        notebook.fecha_baja = None
+        notebook.save()
+        # messages.success(request, f'El notebook "{notebook.modelo_not}" ha sido reactivado exitosamente.')
+        return redirect('modificacion_materiales')
+    return redirect('modificacion_materiales')
+
+
+def reactivar_proyector_mejorado(request, proyector_id):
+    """Función de reactivación de proyector mejorada desde seba"""
+    if request.method == 'POST':
+        proyector = get_object_or_404(Proyector, id_proyector=proyector_id)
+        proyector.estado = 'Disponible'
+        proyector.motivo_baja = ''
+        proyector.fecha_baja = None
+        proyector.save()
+        return redirect('modificacion_materiales')
+    return redirect('modificacion_materiales')
+
+
+def reactivar_varios_mejorado(request, varios_id):
+    """Función de reactivación de varios mejorada desde seba"""
+    if request.method == 'POST':
+        varios = get_object_or_404(Varios, id_varios=varios_id)
+        varios.estado = 'Disponible'
+        varios.motivo_baja = ''
+        varios.fecha_baja = None
+        varios.save()
+        return redirect('modificacion_materiales')
+    return redirect('modificacion_materiales')
+
+
+def reactivar_mapa_mejorado(request, mapa_id):
+    """Función de reactivación de mapa mejorada desde seba"""
+    if request.method == 'POST':
+        mapa = get_object_or_404(Mapas, id_mapa=mapa_id)
+        mapa.estado = 'Disponible'
+        mapa.motivo_baja = ''
+        mapa.fecha_baja = None
+        mapa.save()
+        return redirect('modificacion_materiales')
+    return redirect('modificacion_materiales')
+
+
+def reactivar_programa_mejorado(request, programa_id):
+    """Función de reactivación de programa mejorada desde seba"""
+    if request.method == 'POST':
+        programa = get_object_or_404(Programa, id_programa=programa_id)
+        programa.estado = 'Disponible'
+        programa.motivo_baja = ''
+        programa.fecha_baja = None
+        programa.save()
+        return redirect('modificacion_materiales')
+    return redirect('modificacion_materiales')
+
+
+# ===== FUNCIONES DE REGISTRO DE BAJAS =====
+
+def registro_bajas_multimedia(request):
+    """Vista para mostrar el registro de multimedia dados de baja"""
+    multimedia_no_disponible = Multimedia.objects.filter(estado='No disponible')
+    return render(request, 'materiales/registros/registro_bajas_multimedia.html', {
+        'multimedia_no_disponible': multimedia_no_disponible
+    })
+
+
+def registro_bajas_notebook(request):
+    """Vista para mostrar el registro de notebooks dados de baja"""
+    notebooks_no_disponible = Notebook.objects.filter(estado='No disponible').order_by('-id_not')
+    return render(request, 'materiales/registro_bajas_notebook.html', {
+        'notebooks': notebooks_no_disponible
+    })
+
+
+def registro_bajas_programa(request):
+    """Vista para mostrar el registro de programas dados de baja"""
+    programas_no_disponible = Programa.objects.filter(estado='No disponible').order_by('-id_programa')
+    return render(request, 'materiales/registro_bajas_programa.html', {
+        'programas': programas_no_disponible
+    })
+
+
+def registro_bajas_mapas(request):
+    """Vista para mostrar el registro de mapas dados de baja"""
+    mapas_no_disponible = Mapas.objects.filter(estado='No disponible').order_by('-id_mapa')
+    return render(request, 'materiales/registro_bajas_mapas.html', {
+        'mapas': mapas_no_disponible
+    })
+
+
+def registro_bajas_proyectores(request):
+    """Vista para mostrar el registro de proyectores dados de baja"""
+    proyectores_no_disponible = Proyector.objects.filter(estado='No disponible').order_by('-id_proyector')
+    return render(request, 'materiales/registro_bajas_proyectores.html', {
+        'proyectores': proyectores_no_disponible
+    })
+
+
+def registro_bajas_varios_mejorado(request):
+    """Vista para mostrar el registro de varios dados de baja"""
+    varios_no_disponible = Varios.objects.filter(estado='No disponible').order_by('-id_varios')
+    return render(request, 'materiales/registro_bajas_varios.html', {
+        'varios': varios_no_disponible
+    })
+
+
+# ===== FUNCIONES FALTANTES DESDE SEBA =====
+
+def baja_programa(request):
+    """
+    Vista para dar de baja un programa
+    """
+    if request.method == 'POST':
+        programa_id = request.POST.get('programa_id')
+        motivo_baja = request.POST.get('motivo_baja')
+        imagen_rota = request.FILES.get('imagen_rota')
+
+        # Lógica para actualizar el estado del programa
+        programa = get_object_or_404(Programa, id_programa=programa_id)
+        programa.estado = 'No disponible'
+        programa.motivo_baja = motivo_baja
+        if imagen_rota:
+            programa.imagen_rota = imagen_rota
+        programa.save()
+
+        return redirect('modificacion_materiales')
+
+    return redirect('modificacion_materiales')
+
+
+@login_required
+@require_POST
+def dar_alta_programa(request):
+    """
+    Vista para reactivar un programa (cambiar estado a Disponible)
+    """
+    try:
+        programa_id = request.POST.get('programa_id')
+        programa = get_object_or_404(Programa, id_programa=programa_id)
+        
+        # Cambiar el estado a Disponible
+        programa.estado = 'Disponible'
+        programa.motivo_baja = None  # Limpiar el motivo de baja
+        programa.save()
+        
+        return JsonResponse({
+            'success': True,
+            'message': f'Programa "{programa.materia} - {programa.carrera}" reactivado correctamente'
+        })
+        
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        })
+
+
+def obtener_informe_baja_programa(request):
+    """
+    Vista para obtener el informe de baja de un programa
+    """
+    try:
+        programa_id = request.POST.get('programa_id')
+        if not programa_id:
+            return JsonResponse({
+                'success': False,
+                'error': 'ID de programa no proporcionado'
+            })
+            
+        programa = get_object_or_404(Programa, id_programa=programa_id)
+        
+        # Obtener fecha actual para usar como valor predeterminado
+        fecha_actual = datetime.datetime.now().strftime('%d/%m/%Y')
+        
+        # Obtener información del programa
+        informe_data = {
+            'id': programa.id_programa,
+            'nombre': f"{programa.materia} - {programa.profesor}",
+            'modelo': programa.modelo_not if hasattr(programa, 'modelo_not') else 'N/A',
+            'estado': programa.estado,
+            'observaciones': programa.observaciones or 'Sin observaciones',
+            'sede': programa.sede or 'N/A',
+            'profesor': programa.profesor or 'N/A',
+            'carrera': programa.carrera or 'N/A',
+            'materia': programa.materia or 'N/A',
+            'ciclo_lectivo': programa.ciclo_lectivo or 'N/A',
+            'motivo_baja': programa.motivo_baja or 'Sin motivo especificado',
+            'fecha_baja': programa.fecha_baja.strftime('%d/%m/%Y') if hasattr(programa, 'fecha_baja') and programa.fecha_baja else fecha_actual,
+            'imagen_baja': programa.imagen_baja.url if hasattr(programa, 'imagen_baja') and programa.imagen_baja else ''
+        }
+        
+        return JsonResponse({
+            'success': True,
+            'informe': informe_data
+        })
+        
+    except Exception as e:
+        print(f"Error en obtener_informe_baja_programa: {str(e)}")
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        })
+
+
+def obtener_informe_baja_notebook(request):
+    """
+    Vista para obtener información de baja de un notebook específico
+    """
+    try:
+        notebook_id = request.POST.get('notebook_id')
+        
+        if not notebook_id:
+            return JsonResponse({
+                'success': False, 
+                'error': 'ID de notebook requerido'
+            }, status=400)
+        
+        # Obtener el notebook
+        notebook = get_object_or_404(Notebook, id_not=notebook_id)
+        
+        # Verificar que esté dado de baja
+        if notebook.estado != 'No disponible':
+            return JsonResponse({
+                'success': False, 
+                'error': 'El notebook no está dado de baja'
+            }, status=400)
+        
+        # Preparar datos del informe
+        from datetime import datetime
+        fecha_baja_str = notebook.fecha_baja.strftime('%d/%m/%Y') if getattr(notebook, 'fecha_baja', None) else datetime.now().strftime('%d/%m/%Y')
+        informe_data = {
+            'tipo': 'Notebook',
+            'modelo_not': notebook.modelo_not or 'Sin especificar',
+            'num_registro': notebook.num_registro or 'Sin especificar',
+            'motivo_baja': notebook.motivo_baja or 'Sin motivo especificado',
+            'fecha_baja': fecha_baja_str,
+            'usuario_baja': str(request.user) if request.user.is_authenticated else 'Admin Sistema',
+            'sede': notebook.sede or 'Sin especificar',
+            'imagen_rota': notebook.imagen_rota.url if notebook.imagen_rota else ''
+        }
+        
+        return JsonResponse({
+            'success': True,
+            'informe': informe_data
+        })
+        
+    except Notebook.DoesNotExist:
+        return JsonResponse({
+            'success': False,
+            'error': 'Notebook no encontrado'
+        }, status=404)
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        }, status=500)
+
+
+def dar_alta_notebook(request):
+    """
+    Vista para reactivar un notebook dado de baja
+    """
+    try:
+        notebook_id = request.POST.get('notebook_id')
+        sede = request.POST.get('sede', 'LA PLATA')
+        observaciones = request.POST.get('observaciones', '')
+        
+        if not notebook_id:
+            return JsonResponse({
+                'success': False, 
+                'error': 'ID de notebook requerido'
+            }, status=400)
+        
+        # Obtener el notebook
+        notebook = get_object_or_404(Notebook, id_not=notebook_id)
+        
+        # Verificar que esté dado de baja
+        if notebook.estado != 'No disponible':
+            return JsonResponse({
+                'success': False, 
+                'error': 'El notebook no está dado de baja'
+            }, status=400)
+        
+        # Actualizar el notebook
+        notebook.estado = 'Disponible'
+        notebook.sede = sede
+        
+        # Agregar observaciones si las hay
+        if observaciones:
+            notebook.descripcion = f"{notebook.descripcion} - {observaciones}" if notebook.descripcion else observaciones
+        
+        # Limpiar motivo de baja al reactivar
+        notebook.motivo_baja = ''
+        notebook.save()
+        
+        return JsonResponse({
+            'success': True,
+            'message': f'Notebook "{notebook.modelo_not}" reactivado correctamente'
+        })
+        
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        })
+
+
+def obtener_informe_baja_proyector(request):
+    """
+    Vista para obtener información de baja de un proyector específico
+    """
+    try:
+        proyector_id = request.POST.get('proyector_id')
+        
+        if not proyector_id:
+            return JsonResponse({
+                'success': False, 
+                'error': 'ID de proyector requerido'
+            }, status=400)
+        
+        # Obtener el proyector
+        proyector = get_object_or_404(Proyector, id_proyector=proyector_id)
+        
+        # Verificar que esté dado de baja
+        if proyector.estado != 'No disponible':
+            return JsonResponse({
+                'success': False, 
+                'error': 'El proyector no está dado de baja'
+            }, status=400)
+        
+        # Preparar datos del informe
+        from datetime import datetime
+        
+        return JsonResponse({
+            'success': True,
+            'motivo': proyector.motivo_baja or 'Sin motivo especificado',
+            'fecha_baja': proyector.fecha_baja.strftime('%d/%m/%Y') if hasattr(proyector, 'fecha_baja') and proyector.fecha_baja else datetime.now().strftime('%d/%m/%Y')
+        })
+        
+    except Exception as e:
+        return JsonResponse({
+            'success': False, 
+            'error': f'Error al cargar: {str(e)}'
+        })
+
+
+def dar_alta_proyector(request):
+    """
+    Vista para reactivar un proyector dado de baja
+    """
+    try:
+        proyector_id = request.POST.get('proyector_id')
+        sede = request.POST.get('sede', 'LA PLATA')
+        observaciones = request.POST.get('observaciones', '')
+        
+        if not proyector_id:
+            return JsonResponse({
+                'success': False, 
+                'error': 'ID de proyector requerido'
+            }, status=400)
+        
+        # Obtener el proyector
+        proyector = get_object_or_404(Proyector, id_proyector=proyector_id)
+        
+        # Verificar que esté dado de baja
+        if proyector.estado != 'No disponible':
+            return JsonResponse({
+                'success': False, 
+                'error': 'El proyector no está dado de baja'
+            }, status=400)
+        
+        # Actualizar el proyector
+        proyector.estado = 'Disponible'
+        proyector.sede = sede
+        
+        # Agregar observaciones si las hay
+        if observaciones:
+            proyector.descripcion = f"{proyector.descripcion} - {observaciones}" if proyector.descripcion else observaciones
+        
+        # Limpiar motivo de baja al reactivar
+        proyector.motivo_baja = ''
+        proyector.save()
+        
+        return JsonResponse({
+            'success': True,
+            'message': f'Proyector reactivado correctamente'
+        })
+        
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        })
+
+
+def obtener_informe_baja_varios(request):
+    """Vista para obtener el informe de baja de varios específico"""
+    try:
+        import json
+        data = json.loads(request.body)
+        varios_id = data.get('varios_id')
+        
+        # Obtener el objeto varios
+        varios = get_object_or_404(Varios, id_varios=varios_id)
+        
+        # Verificar que esté dado de baja
+        if varios.estado != 'No disponible':
+            return JsonResponse({
+                'success': False,
+                'error': 'El material varios no está dado de baja'
+            }, status=400)
+        
+        # Construir URL de imagen si existe
+        imagen_baja_url = None
+        if varios.imagen_rota:
+            imagen_baja_url = varios.imagen_rota.url
+        
+        # Obtener los datos reales de la baja
+        from datetime import datetime
+        fecha_baja_str = varios.fecha_baja.strftime('%d/%m/%Y') if getattr(varios, 'fecha_baja', None) else datetime.now().strftime('%d/%m/%Y')
+        informe_data = {
+            'motivo': varios.motivo_baja if varios.motivo_baja else 'Motivo no registrado',
+            'fecha_baja': fecha_baja_str,
+            'imagen_baja': imagen_baja_url,
+            'usuario_baja': str(request.user) if request.user.is_authenticated else 'Admin',
+            'descripcion': varios.descripcion if hasattr(varios, 'descripcion') and varios.descripcion else '',
+        }
+        
+        return JsonResponse({
+            'success': True,
+            'informe': informe_data
+        })
+        
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': f'Error: {str(e)}'
+        }, status=500)
+
+
+@require_POST
+def dar_alta_varios(request):
+    """Vista para dar de alta varios (cambiar estado a disponible)"""
+    try:
+        varios_id = request.POST.get('varios_id')
+        sede = request.POST.get('sede', 'LA PLATA')
+        disponibilidad = request.POST.get('disponibilidad', 'Domicilio')
+        observaciones = request.POST.get('observaciones', '')
+        
+        if not varios_id:
+            return JsonResponse({
+                'success': False, 
+                'error': 'ID de varios requerido'
+            }, status=400)
+        
+        # Obtener el objeto varios
+        varios = get_object_or_404(Varios, id_varios=varios_id)
+        
+        # Verificar que esté dado de baja
+        if varios.estado != 'No disponible':
+            return JsonResponse({
+                'success': False, 
+                'error': 'El material varios no está dado de baja'
+            }, status=400)
+        
+        # Actualizar el varios
+        varios.estado = 'Disponible'
+        varios.sede = sede
+        varios.disponibilidad = disponibilidad
+        
+        # Agregar observaciones si las hay
+        if observaciones:
+            varios.descripcion = f"{varios.descripcion} - {observaciones}" if varios.descripcion else observaciones
+        
+        # Limpiar motivo de baja al reactivar
+        varios.motivo_baja = ''
+        varios.save()
+        
+        return JsonResponse({
+            'success': True,
+            'message': f'Material varios reactivado correctamente'
+        })
+        
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        })
