@@ -11,9 +11,6 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AlterField(
-            model_name='multimedia',
-            name='inventario_ptr',
-            field=models.OneToOneField(auto_created=True, on_delete=django.db.models.deletion.CASCADE, parent_link=True, primary_key=True, serialize=False, to='materiales.inventario'),
-        ),
+        # Removed problematic AlterField operation for inventario_ptr
+        # This was causing SQLite AUTOINCREMENT syntax errors
     ]

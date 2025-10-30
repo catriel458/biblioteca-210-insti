@@ -36,9 +36,5 @@ class Migration(migrations.Migration):
             name='fecha_baja',
             field=models.DateTimeField(blank=True, null=True),
         ),
-        migrations.AlterField(
-            model_name='multimedia',
-            name='inventario_ptr',
-            field=models.OneToOneField(auto_created=True, on_delete=django.db.models.deletion.CASCADE, parent_link=True, to='materiales.inventario'),
-        ),
+
     ]
