@@ -100,10 +100,55 @@ function confirmarModal(tipo = 'vaciar') {
         }
         ocultarModalCSV();
     } else {
+        // Limpiar directamente el campo URL del formulario de programa
+        const urlInput = document.querySelector('#url');
+        if (urlInput) {
+            urlInput.value = '';
+            console.log('Campo URL limpiado directamente desde confirmarModal');
+        }
+        
+        // Limpiar SOLO el formulario de programa, no todos los formularios
+        const programaForm = document.getElementById('form_alta_programa') || 
+                            document.querySelector('form[data-form-type="programa"]');
+        
+        if (programaForm) {
+            // Guardar el tipo de material actual para no perderlo
+            const tipoMaterial = document.getElementById('tipo_material');
+            const tipoMaterialValue = tipoMaterial ? tipoMaterial.value : null;
+            
+            // Limpiar campos individualmente en lugar de usar reset()
+            const inputs = programaForm.querySelectorAll('input:not([type="hidden"]), select:not(#tipo_material)');
+            inputs.forEach(input => {
+                if (input.type === 'checkbox' || input.type === 'radio') {
+                    input.checked = false;
+                } else {
+                    input.value = '';
+                }
+            });
+            
+            // Restaurar el tipo de material si es necesario
+            if (tipoMaterial && tipoMaterialValue) {
+                tipoMaterial.value = tipoMaterialValue;
+            }
+            
+            console.log('Formulario de programa limpiado individualmente');
+        }
+        
+        // Ejecutar el callback original si existe
         if (callbackConfirmar) {
             callbackConfirmar();
             callbackConfirmar = null;
         }
+        
+        // Asegurar que el campo URL esté vacío después de todo
+        setTimeout(() => {
+            const urlInputAfter = document.querySelector('#url');
+            if (urlInputAfter && urlInputAfter.value !== '') {
+                urlInputAfter.value = '';
+                console.log('Campo URL limpiado con delay');
+            }
+        }, 100);
+        
         ocultarModalAlerta();
     }
 }
@@ -127,12 +172,15 @@ function mostrarModalAlerta(onConfirm = null, onCancel = null) {
     const backdrop = document.getElementById('modal-backdrop');
     
     if (modalAlerta && backdrop) {
-        modalAlerta.classList.add('show');
-        modalAlerta.style.display = 'block';
+        // Eliminar cualquier clase que pueda estar interfiriendo
+        modalAlerta.className = 'tarjeta-alerta';
+        // Aplicar estilos directamente con !important para forzar el color rosa
+        modalAlerta.setAttribute('style', 'display: flex !important; background-color: #FFB3BA !important; background: #FFB3BA !important; border: 2px solid #FF0000 !important;');
+        
         backdrop.classList.add('show');
         backdrop.style.display = 'block';
         document.body.style.overflow = 'hidden'; // Prevenir scroll
-        console.log('Modal vaciar campos mostrado correctamente');
+        console.log('Modal vaciar campos mostrado correctamente con fondo rosa forzado');
     } else {
         console.error('Error: No se encontraron los elementos del modal vaciar campos');
     }
@@ -160,10 +208,14 @@ function mostrarModalReducirEjemplares(onConfirm = null, onCancel = null) {
     const backdrop = document.getElementById('modal-backdrop');
     
     if (modalReducir && backdrop) {
-        modalReducir.style.display = 'flex';
+        // Eliminar cualquier clase que pueda estar interfiriendo
+        modalReducir.className = 'tarjeta-alerta';
+        // Aplicar estilos directamente con !important para forzar el color rosa
+        modalReducir.setAttribute('style', 'display: flex !important; background-color: #FFB3BA !important; background: #FFB3BA !important; border: 2px solid #FF0000 !important;');
+        
         backdrop.style.display = 'block';
         document.body.style.overflow = 'hidden'; // Prevenir scroll
-        console.log('Modal reducir ejemplares mostrado correctamente');
+        console.log('Modal reducir ejemplares mostrado correctamente con fondo rosa forzado');
     } else {
         console.error('Error: No se encontraron los elementos del modal reducir ejemplares');
     }
@@ -263,6 +315,16 @@ function confirmarVaciarCampos() {
 function vaciarCamposFormulario() {
     let formulario_elegido= $('#tipo_material').val();
     console.log("Vaciando campos del formulario tipo: " + formulario_elegido);
+    
+    // Para el caso de programa, tratamiento especial para el campo URL
+    if (formulario_elegido === 'programa' || document.getElementById('form_alta_programa')) {
+        console.log("Formulario programa detectado - limpiando URL directamente");
+        const urlInput = document.querySelector('#url');
+        if (urlInput) {
+            urlInput.value = '';
+            console.log("Campo URL limpiado directamente");
+        }
+    }
     
     // Para el caso de proyector, vamos a usar un enfoque directo
     if (formulario_elegido === 'proyector') {
@@ -407,11 +469,38 @@ function borrarPrograma(){
         if (url) {
             url.value = '';
             console.log('Campo URL limpiado');
+            
+            // Forzar la limpieza del campo URL con un enfoque alternativo
+            setTimeout(() => {
+                if (url.value !== '') {
+                    url.value = '';
+                    console.log('Campo URL limpiado con enfoque alternativo');
+                }
+            }, 50);
+        } else {
+            console.warn('Campo URL no encontrado');
+            
+            // Intentar encontrar el campo URL con un selector más amplio
+            const urlAlt = document.querySelector('#url, [name="url"], input[type="url"]');
+            if (urlAlt) {
+                urlAlt.value = '';
+                console.log('Campo URL encontrado con selector alternativo y limpiado');
+            }
         }
         
         if (cicloLectivo) {
             cicloLectivo.value = '';
             console.log('Campo ciclo lectivo limpiado');
+        }
+        
+        // Enfoque alternativo: usar reset() en el formulario y luego restaurar los valores que no queremos resetear
+        form.reset();
+        console.log('Formulario reseteado completamente');
+        
+        // Asegurar que el campo materia quede deshabilitado después del reset
+        if (materia) {
+            materia.disabled = true;
+            materia.innerHTML = '<option value="">Primero seleccione una carrera</option>';
         }
         
         console.log('✅ Campos del formulario programa vaciados correctamente');
@@ -938,6 +1027,21 @@ function borrarMapa(){
 function borrarPrograma(){
     console.log('Limpiando campos del formulario programa...');
     
+    // FORZAR LIMPIEZA DEL CAMPO URL - PRIMERA PRIORIDAD
+    try {
+        // Intentar todos los métodos posibles para limpiar el campo URL
+        const urlSelectors = ['#url', 'input[name="url"]', 'input[type="url"]'];
+        urlSelectors.forEach(selector => {
+            const urlElements = document.querySelectorAll(selector);
+            urlElements.forEach(element => {
+                element.value = '';
+                console.log(`Campo URL limpiado usando selector: ${selector}`);
+            });
+        });
+    } catch (e) {
+        console.error('Error al limpiar URL:', e);
+    }
+    
     // Intentar encontrar el formulario por ID o por atributos
     let form = document.getElementById('form_alta_programa') || 
                document.getElementById('form_alta_material') || 
@@ -974,9 +1078,10 @@ function borrarPrograma(){
             console.log('Campo materia reseteado');
         }
 
+        // FORZAR LIMPIEZA DEL CAMPO URL - SEGUNDA PRIORIDAD
         if (url) {
             url.value = '';
-            console.log('Campo URL limpiado');
+            console.log('Campo URL limpiado directamente desde borrarPrograma');
         }
         
         if (cicloLectivo) {
@@ -991,6 +1096,24 @@ function borrarPrograma(){
             document.querySelectorAll('form').length, 
             'formularios en la página');
     }
+    
+    // FORZAR LIMPIEZA DEL CAMPO URL - TERCERA PRIORIDAD (con delay)
+    setTimeout(() => {
+        try {
+            const urlSelectors = ['#url', 'input[name="url"]', 'input[type="url"]'];
+            urlSelectors.forEach(selector => {
+                const urlElements = document.querySelectorAll(selector);
+                urlElements.forEach(element => {
+                    if (element.value !== '') {
+                        element.value = '';
+                        console.log(`Campo URL limpiado con delay usando selector: ${selector}`);
+                    }
+                });
+            });
+        } catch (e) {
+            console.error('Error en limpieza con delay:', e);
+        }
+    }, 100);
     
     // Cerrar el modal de alerta
     ocultarModalAlerta();
