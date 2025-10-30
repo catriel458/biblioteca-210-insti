@@ -94,6 +94,7 @@
 
 {% block content %}
 {% include 'modals/alertas/vaciar_campos.html' %}
+{% include 'modals/alertas/reducir_ejemplares.html' %}
 <div class="container-fluid">
     {% if success %}
         <div class="alert alert-success">{{ success }}</div>
@@ -110,7 +111,7 @@
         <div class="row">
             <div class="col-12 col-sm-6 col-lg-2 form-group mb-3">
                 <label for="cant_ejemplares" style="font-size: 14px;">Cant. de ejemplares:</label>
-                <input type="number" name="cant_ejemplares" id="cant_ejemplares" class="form-control" min="1" max="10" value="1" required>
+                <input type="number" name="cant_ejemplares" id="cant_ejemplares" class="form-control" min="1" max="10" value="1" data-valor-anterior="1" required>
             </div>
         </div>
         
@@ -311,6 +312,14 @@ document.addEventListener('DOMContentLoaded', function() {
     if (!form || !modalElement) {
         console.error('❌ Elementos necesarios no encontrados');
         return;
+    }
+    
+    // Configurar el evento para el campo de cantidad de ejemplares
+    const cantEjemplaresInput = document.getElementById('cant_ejemplares');
+    if (cantEjemplaresInput) {
+        cantEjemplaresInput.addEventListener('change', function() {
+            manejarReduccionEjemplaresLibro();
+        });
     }
     
     // Verificar que Bootstrap está disponible

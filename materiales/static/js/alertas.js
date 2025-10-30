@@ -221,6 +221,58 @@ function mostrarModalReducirEjemplares(onConfirm = null, onCancel = null) {
     }
 }
 
+// Función para manejar la reducción de ejemplares en el formulario de libro
+function manejarReduccionEjemplaresLibro() {
+    const cantEjemplaresInput = document.getElementById('cant_ejemplares');
+    if (!cantEjemplaresInput) {
+        console.error('No se encontró el campo de cantidad de ejemplares');
+        return;
+    }
+    
+    const valorAnterior = parseInt(cantEjemplaresInput.getAttribute('data-valor-anterior') || cantEjemplaresInput.value);
+    const valorNuevo = parseInt(cantEjemplaresInput.value);
+    
+    // Si el nuevo valor es menor que el anterior, mostrar el modal de confirmación
+    if (valorNuevo < valorAnterior) {
+        mostrarModalReducirEjemplares(
+            // Callback de confirmación
+            function() {
+                console.log(`Confirmado: Reduciendo ejemplares de ${valorAnterior} a ${valorNuevo}`);
+                // Actualizar el valor anterior para la próxima vez
+                cantEjemplaresInput.setAttribute('data-valor-anterior', valorNuevo);
+                
+                // Eliminar los ejemplares que sobran del DOM
+                const contenedorEjemplares = document.getElementById('contenedor-ejemplares-libro');
+                if (contenedorEjemplares) {
+                    // Mantener solo los primeros 'valorNuevo' ejemplares
+                    const ejemplares = contenedorEjemplares.querySelectorAll('.ejemplar-libro');
+                    for (let i = valorNuevo; i < ejemplares.length; i++) {
+                        ejemplares[i].remove();
+                    }
+                }
+                
+                // Si hay una función para actualizar ejemplares, llamarla
+                if (typeof actualizarEjemplaresLibro === 'function') {
+                    actualizarEjemplaresLibro();
+                }
+            },
+            // Callback de cancelación
+            function() {
+                console.log('Cancelado: Restaurando valor anterior');
+                cantEjemplaresInput.value = valorAnterior;
+            }
+        );
+    } else {
+        // Si el valor es mayor o igual, simplemente actualizar el valor anterior
+        cantEjemplaresInput.setAttribute('data-valor-anterior', valorNuevo);
+        
+        // Si hay una función para actualizar ejemplares, llamarla
+        if (typeof actualizarEjemplaresLibro === 'function') {
+            actualizarEjemplaresLibro();
+        }
+    }
+}
+
 // Función para ocultar el modal de reducir ejemplares
 function ocultarModalReducirEjemplares() {
     const modalReducir = document.getElementById('modal-reducir-ejemplares');
