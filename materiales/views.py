@@ -17,7 +17,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.mixins import LoginRequiredMixin
 
 from .models import Libro, Inventario, Mapas, Multimedia, Notebook, Proyector, Varios, Prestamo, Usuario, Programa
-from .forms import LibroForm, MapaForm, MultimediaForm, NotebookForm, ProyectorForm, VariosForm, RegistroForm, LoginForm, CambiarPasswordForm, ProgramaForm
+from .forms import LibroForm, MapaForm, MultimediaForm, MultimediaEditForm, NotebookForm, ProyectorForm, VariosForm, RegistroForm, LoginForm, CambiarPasswordForm, ProgramaForm
 
 def cargar_csv(request):
     if request.method == 'POST':
@@ -826,12 +826,12 @@ def editar_multimedia(request, multi_id):
     multimedia = get_object_or_404(Multimedia, id_multi=multi_id)
 
     if request.method == 'POST':
-        form = MultimediaForm(request.POST, instance=multimedia)
+        form = MultimediaEditForm(request.POST, instance=multimedia)
         if form.is_valid():
             form.save()
             return redirect('modificacion_materiales')
     else:
-        form = MultimediaForm(instance=multimedia)
+        form = MultimediaEditForm(instance=multimedia)
 
     return render(request, 'materiales/formularios_editar/editar_multimedia.html', {'form': form, 'multimedia': multimedia})
 
@@ -3741,7 +3741,7 @@ def editar_programa(request, programa_id):
     """
     Vista para editar un programa existente
     """
-    programa = get_object_or_404(Programa, id=programa_id)
+    programa = get_object_or_404(Programa, id_programa=programa_id)
     
     if request.method == 'POST':
         form = ProgramaForm(request.POST, instance=programa)
@@ -4017,7 +4017,7 @@ def baja_multimedia_mejorada(request):
 
 def editar_multimedia_mejorado(request, multi_id):
     """Función de edición de multimedia mejorada desde seba"""
-    multimedia = get_object_or_404(Multimedia, id_inventario=multi_id)
+    multimedia = get_object_or_404(Multimedia, id_multi=multi_id)
 
     if request.method == 'POST':
         form = MultimediaForm(request.POST, instance=multimedia)

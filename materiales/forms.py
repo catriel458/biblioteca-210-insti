@@ -60,6 +60,289 @@ class MapaForm(forms.ModelForm):
         model = Mapas
         fields = ['id_mapa', 'tipo', 'descripcion', 'num_ejemplar']
 
+class MultimediaEditForm(forms.ModelForm):
+    # Carreras REALES del Instituto Superior de Formación Docente y Técnica Nº 210
+    CARRERA_CHOICES = [
+        ('', 'Seleccione una carrera'),
+        # PROFESORADOS
+        ('Profesorado de Educación Inicial', 'Profesorado de Educación Inicial'),
+        ('Profesorado de Educación Primaria', 'Profesorado de Educación Primaria'),  
+        ('Profesorado de Educación Secundaria en Geografía', 'Profesorado de Educación Secundaria en Geografía'),
+        # TECNICATURAS
+        ('Tecnicatura Superior en Análisis de Sistemas', 'Tecnicatura Superior en Análisis de Sistemas'),
+        ('Tecnicatura Superior en Enfermería', 'Tecnicatura Superior en Enfermería'),
+        ('Tecnicatura Superior en Acompañamiento Terapéutico', 'Tecnicatura Superior en Acompañamiento Terapéutico'),
+        ('Tecnicatura Superior en Higiene y Seguridad en el Trabajo', 'Tecnicatura Superior en Higiene y Seguridad en el Trabajo'),
+    ]
+
+    ESTADO_CHOICES = [
+        ('Disponible', 'Disponible'),
+        ('No disponible', 'No disponible'),
+        ('En reparación', 'En reparación'),
+        ('Dado de baja', 'Dado de baja'),
+    ]
+
+    # Materias organizadas por carrera (usando las mismas que MultimediaForm)
+    MATERIAS_POR_CARRERA = {
+        'Profesorado de Educación Inicial': [
+            "Análisis del Mundo Contemporáneo",
+            "Ateneo de Naturaleza y Sociedad",
+            "Ateneo de Matemática",
+            "Ateneo de Nuevas Expresiones Estéticas",
+            "Ateneo de Prácticas del Lenguaje y la Literatura",
+            "Corporeidad y Motricidad",
+            "Cultura, Comunicación y Educación",
+            "Didáctica de la Matemática",
+            "Didáctica de las Ciencias Naturales",
+            "Didáctica de las Ciencias Sociales",
+            "Didáctica de las Prácticas del Lenguaje y la Literatura",
+            "Didáctica General",
+            "Didáctica y Curriculum de Nivel Inicial",
+            "Dimensión Ético-Política de la Praxis Docente",
+            "Educación en y para la Salud",
+            "Educación Física Escolar",
+            "Educación Musical",
+            "Educación Plástica",
+            "Educación Temprana",
+            "Filosofía",
+            "Historia y Prospectiva de la Educación",
+            "Juego y Desarrollo Infantil",
+            "Medios Audiovisuales, TICs y Educación",
+            "Pedagogía",
+            "Política, Legislación y Administración del Trabajo Escolar",
+            "Práctica Docente 1",
+            "Práctica Docente 2",
+            "Práctica Docente 3",
+            "Práctica Docente 4",
+            "Psicología del Desarrollo y el Aprendizaje 1",
+            "Psicología del Desarrollo y el Aprendizaje 2",
+            "Psicología Social e Institucional",
+            "Reflexión Filosófica de la Educación",
+            "Taller de Ciencias Naturales",
+            "Taller de Ciencias Sociales",
+            "Taller de Definición Institucional",
+            "Taller de Lectura, Escritura y Oralidad (LEO)",
+            "Taller de Literatura Infantil",
+            "Taller de la Matemática",
+            "Taller de Materiales y Objetos Lúdicos",
+            "Taller de Pensamiento Lógico Matemático",
+            "Teorías Sociopolíticas y Educación",
+            "Trayectos Formativos Opcionales"
+        ],
+        'Profesorado de Educación Primaria': [
+            'Análisis del Mundo Contemporáneo', 'Arte y Educación', 'Ateneo de Ciencias Naturales',
+            'Ateneo de Ciencias Sociales', 'Ateneo de Matemática', 'Ateneo de Prácticas del Lenguaje y la Literatura',
+            'Configuraciones Culturales del Sujeto Educativo de Primaria', 'Corporeidad y Motricidad',
+            'Cultura, Comunicación y Educación', 'Didáctica de la Matemática 1', 'Didáctica de la Matemática 2',
+            'Didáctica de las Ciencias Naturales 1', 'Didáctica de las Ciencias Naturales 2',
+            'Didáctica de las Ciencias Sociales 1', 'Didáctica de las Ciencias Sociales 2',
+            'Didáctica de Prácticas del Lenguaje y la Literatura 1', 'Didáctica de Prácticas del Lenguaje y la Literatura 2',
+            'Didáctica General', 'Didáctica y Curriculum de Nivel Primario', 'Dimensión Ético-Política de la Praxis Docente',
+            'Educación Artística', 'Educación Física Escolar', 'Filosofía', 'Historia y Prospectiva de la Educación',
+            'Medios Audiovisuales, TICs y Educación', 'Pedagogía', 'Pedagogía Crítica de las Diferencias',
+            'Política, Legislación y Administración del Trabajo Escolar', 'Práctica Docente 1',
+            'Práctica Docente 2', 'Práctica Docente 3', 'Práctica Docente 4',
+            'Psicología del Desarrollo y el Aprendizaje 1', 'Psicología del Desarrollo y el Aprendizaje 2',
+            'Psicología Social e Institucional', 'Reflexión Filosófica de la Educación',
+            'Taller de Definición Institucional', 'Taller de Lectura, Escritura y Oralidad (LEO)',
+            'Taller de Pensamiento Lógico Matemático', 'Teorías Sociopolíticas y Educación',
+            'Trayectos Formativos Opcionales'
+        ],
+        'Profesorado de Educación Secundaria en Geografía': [
+            'Antropología', 'Cartografía', 'Cartografía Digital', 'Cultura Digital y Educación',
+            'Derechos, Interculturalidad y Ciudadanía', 'Didáctica de la Geografía', 'Didáctica de las Ciencias Sociales',
+            'Didáctica y Curriculum', 'Economía Política', 'Educación Sexual Integral (ESI)',
+            'Educación y Transformaciones Sociales Contemporáneas', 'Enseñanza de la Geografía',
+            'Espacio de Opción Institucional (EOI)', 'Geografía Ambiental', 'Geografía Ambiental de América Latina',
+            'Geografía Ambiental de Argentina', 'Geografía Cultural', 'Geografía de Género',
+            'Geografía Económica y Social Argentina', 'Geografía Política y Geopolítica', 'Geografía Rural',
+            'Geografía Social', 'Geografía Social de América Latina', 'Geografía Urbana',
+            'Historia de los Modelos Económicos de Argentina', 'Historia Social General',
+            'Introducción a las Ciencias Sociales y a la Geografía',
+            'Organización Económica del Espacio',
+            'Pedagogía',
+            'Práctica Docente 1',
+            'Práctica Docente 2',
+            'Práctica Docente 3',
+            'Práctica Docente 4',
+            'Problemas Ambientales Locales/Regionales: La Investigación en el Aula',
+            'Problemas Filosóficos de la Educación',
+            'Política Educativa Argentina',
+            'Psicología del Aprendizaje',
+            'Reflexión Filosófico-Política de la Práctica Docente',
+            'Sociología',
+            'Teoría y Metodología en Geografía',
+            'Trayectorias Educativas de Jóvenes y Adultos',
+            'Unidades Curriculares Optativas'
+        ],
+        'Tecnicatura Superior en Análisis de Sistemas': [
+            "Álgebra",
+            "Algoritmos y estructuras de datos 1",
+            "Algoritmos y estructuras de datos 2",
+            "Algoritmos y estructuras de datos 3",
+            "Análisis Matemático 1",
+            "Análisis Matemático 2",
+            "Arquitectura de Computadores",
+            "Aspectos legales de la Profesión",
+            "Base de Datos",
+            "Ciencia, Tecnología y Sociedad",
+            "Estadística",
+            "Ingeniería de Software 1",
+            "Ingeniería de Software 2",
+            "Inglés 1",
+            "Inglés 2",
+            "Inglés 3",
+            "Prácticas Profesionalizantes 1",
+            "Prácticas Profesionalizantes 2",
+            "Prácticas Profesionalizantes 3",
+            "Redes y Comunicaciones",
+            "Seminario de actualización",
+            "Sistemas Operativos",
+            "Sistemas y Organizaciones"
+        ],
+        'Tecnicatura Superior en Enfermería': [
+            "Aspectos Bioéticos y Legales de la Profesión",
+            "Biología Humana",
+            "Comunicación en Ciencias de la Salud",
+            "Condiciones y Medio Ambiente del Trabajo",
+            "Cuidados de la Salud Centrados en la Comunidad y la Familia",
+            "Enfermería Comunitaria y Prácticas Educativas en Salud",
+            "Enfermería del Adulto y del Adulto Mayor I",
+            "Enfermería del Adulto y el Adulto Mayor II",
+            "Enfermería en Emergencias y Catástrofes",
+            "Enfermería en Salud Mental",
+            "Enfermería Materno Infantil",
+            "Farmacología en Enfermería",
+            "Fundamentos del Cuidado",
+            "Inglés",
+            "Introducción a la Metodología de Investigación en Salud",
+            "Nutrición y Dietoterapia",
+            "Organización y Gestión de Servicios de Enfermería",
+            "Prácticas Profesionalizantes 1",
+            "Prácticas Profesionalizantes 2",
+            "Prácticas Profesionalizantes 3",
+            "Psicología",
+            "Salud Pública 1",
+            "Salud Pública 2",
+            "Teorías Socioculturales de la Salud"
+        ],
+        'Tecnicatura Superior en Acompañamiento Terapéutico': [
+            "Acompañamiento Terapéutico del Adulto y Adulto Mayor",
+            "Acompañamiento Terapéutico en la Niñez y Adolescencia",
+            "Acompañamiento Terapéutico",
+            "Contextualización del Campo Profesional del Acompañamiento Terapéutico",
+            "Ética",
+            "Fundamentos de Psicología General y de Intervención Sociocomunitaria",
+            "Inglés",
+            "Intervención Comunitaria y Recursos Sociales",
+            "Investigación en Salud",
+            "Modalidades de Intervención en el Acompañamiento Terapéutico",
+            "Modelo de Ocupación Humana",
+            "Organización y Gestión de los Servicios de Salud Mental",
+            "Prácticas Profesionalizantes I",
+            "Prácticas Profesionalizantes II",
+            "Prácticas Profesionalizantes III",
+            "Principios Médicos y de Psicofarmacología",
+            "Psicofarmacología",
+            "Psicología de los Ciclos Vitales",
+            "Psicología de Grupos",
+            "Psicopatología",
+            "Salud Pública y Salud Mental",
+            "Sistemas Familiares"
+        ],
+        'Tecnicatura Superior en Higiene y Seguridad en el Trabajo': [
+            "Administración de las Organizaciones",
+            "Capacitación de Personal",
+            "Comunicación y Administración de Medios",
+            "Control de la Contaminación",
+            "Derecho del Trabajo",
+            "Ergonomía",
+            "Estadística",
+            "Física 1",
+            "Física 2",
+            "Higiene Laboral y Medio Ambiente 1",
+            "Higiene Laboral y Medio Ambiente 2",
+            "Inglés Técnico",
+            "Medicina del Trabajo 1",
+            "Medicina del Trabajo 2",
+            "Medios de Representación",
+            "Práctica Profesionalizante 1",
+            "Práctica Profesionalizante 2",
+            "Práctica Profesionalizante 3",
+            "Psicología Laboral",
+            "Química 1",
+            "Química 2",
+            "Seguridad 1",
+            "Seguridad 2",
+            "Seguridad 3"
+        ]
+    }
+
+    carrera = forms.ChoiceField(
+        choices=CARRERA_CHOICES,
+        widget=forms.Select(attrs={
+            'class': 'form-control form-control-sm',
+            'id': 'id_carrera_edit'
+        }),
+        required=False
+    )
+
+    materia = forms.ChoiceField(
+        choices=[('', 'Seleccione primero una carrera')],
+        widget=forms.Select(attrs={
+            'class': 'form-control form-control-sm',
+            'id': 'id_materia_edit'
+        }),
+        required=True
+    )
+
+    estado = forms.ChoiceField(
+        choices=ESTADO_CHOICES,
+        widget=forms.Select(attrs={
+            'class': 'form-control form-control-sm'
+        }),
+        required=False
+    )
+
+    class Meta:
+        model = Multimedia
+        fields = ['profesor', 'carrera', 'materia', 'ingresar_enlace', 'titulo_contenido']
+        
+        widgets = {
+            'profesor': forms.TextInput(attrs={
+                'class': 'form-control form-control-sm',
+                'placeholder': 'Ingrese el nombre del profesor'
+            }),
+            'ingresar_enlace': forms.URLInput(attrs={
+                'class': 'form-control form-control-sm',
+                'placeholder': 'https://ejemplo.com/contenido.pdf'
+            }),
+            'titulo_contenido': forms.TextInput(attrs={
+                'class': 'form-control form-control-sm',
+                'placeholder': 'Ingrese el título del contenido'
+            }),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        
+        # Determinar la carrera seleccionada (desde POST data o instancia)
+        carrera_seleccionada = None
+        
+        # Priorizar datos POST si están disponibles (para manejar cambios dinámicos)
+        if self.data and 'carrera' in self.data:
+            carrera_seleccionada = self.data.get('carrera')
+        # Si no hay datos POST, usar la carrera de la instancia
+        elif self.instance and self.instance.pk and self.instance.carrera:
+            carrera_seleccionada = self.instance.carrera
+        
+        # Configurar las opciones de materia según la carrera seleccionada
+        if carrera_seleccionada and carrera_seleccionada in self.MATERIAS_POR_CARRERA:
+            materias_choices = [('', 'Seleccione una materia')] + [
+                (materia, materia) for materia in self.MATERIAS_POR_CARRERA[carrera_seleccionada]
+            ]
+            self.fields['materia'].choices = materias_choices
+
 class MultimediaForm(forms.ModelForm):
     # Carreras REALES del Instituto Superior de Formación Docente y Técnica Nº 210
     CARRERA_CHOICES = [
