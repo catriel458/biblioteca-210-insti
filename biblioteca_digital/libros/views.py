@@ -350,6 +350,76 @@ def editar_libro(request, libro_id):
 
 # Carga masiva libros:
 
+@login_required
+@csrf_exempt  # Solo para esta vista específica
+def cargar_csv_lote(request):
+    """Procesa un lote de registros (máximo 50 por request)"""
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            registros = data.get('registros', [])
+            
+            if not registros:
+                return JsonResponse({'success': False, 'error': 'No hay registros'})
+            
+            creados = 0
+            errores = []
+            
+            with transaction.atomic():
+                for idx, row in enumerate(registros, start=1):
+                    try:
+                        tipo_material = row.get('tipo_material', '').strip().lower()
+                        
+                        if tipo_material == 'libro':
+                            titulo = row.get('titulo', '').strip()
+                            if not titulo:
+                                errores.append(f"Registro {idx}: Falta título")
+                                continue
+                            
+                            def safe_int(value, default=1):
+                                if value is None or value == '':
+                                    return default
+                                try:
+                                    return int(str(value).strip())
+                                except (ValueError, TypeError):
+                                    return default
+                            
+                            libro = Libro.objects.create(
+                                estado='Disponible',
+                                motivo_baja=row.get('motivo_baja', '').strip() or None,
+                                descripcion=row.get('descripcion', '').strip() or None,
+                                num_ejemplar=safe_int(row.get('num_ejemplar'), 1),
+                                titulo=titulo,
+                                autor=row.get('autor', 'Desconocido').strip() or 'Desconocido',
+                                editorial=row.get('editorial', 'Sin editorial').strip() or 'Sin editorial',
+                                clasificacion_cdu=row.get('clasificacion_cdu', 'Sin clasificar').strip() or 'Sin clasificar',
+                                siglas_autor_titulo=row.get('siglas_autor_titulo', 'ABC').strip() or 'ABC',
+                                num_inventario=safe_int(row.get('num_inventario'), 1),
+                                resumen=row.get('resumen', 'Sin resumen').strip() or 'Sin resumen',
+                                etiqueta_palabra_clave=row.get('etiqueta_palabra_clave', '').strip() or '',
+                                sede=row.get('sede', 'La Plata').strip() or 'La Plata',
+                                disponibilidad='Disponible',
+                                observaciones=row.get('observaciones', '').strip() or '',
+                                img=row.get('img', '').strip() or None
+                            )
+                            creados += 1
+                        
+                        # Agregar otros tipos (mapa, multimedia, etc.) igual que antes
+                        
+                    except Exception as e:
+                        errores.append(f"Registro {idx}: {str(e)}")
+            
+            return JsonResponse({
+                'success': True,
+                'creados': creados,
+                'errores': errores
+            })
+            
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+    
+    return JsonResponse({'success': False, 'error': 'Método no permitido'})
+
 @login_required(login_url='login')
 def cargar_csv(request):
     if request.method == 'POST':

@@ -1,193 +1,215 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cargar CSV - Biblioteca Instituto</title>
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'libros/css/styles.css' %}">
+    <title>Cargar CSV por Lotes</title>
     <style>
-        :root {
-            --primary-color: #1a3a5e;
-            --secondary-color: #f0f4f8;
-            --accent-color: #2c5282;
-            --text-color: #2d3748;
-            --border-color: #e2e8f0;
+        .progress-container {
+            width: 100%;
+            max-width: 600px;
+            margin: 20px auto;
         }
-
-        body {
-            font-family: 'Calibri', 'Arial', sans-serif;
-            line-height: 1.6;
-            color: var(--text-color);
-            background-color: #f8fafc;
-            margin: 0;
+        .progress-bar {
+            width: 100%;
+            height: 30px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+            overflow: hidden;
         }
-
-        header {
-            background-color: var(--primary-color);
-            color: white;
-            padding: 1.5rem;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            text-align: center;
-        }
-
-        header h1 {
-            font-size: 1.8rem;
-            margin: 0;
-            font-weight: 600;
+        .progress-fill {
+            height: 100%;
+            background-color: #4CAF50;
+            transition: width 0.3s;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 0.5rem;
+            color: white;
+            font-weight: bold;
         }
-
-        header h1::before {
-            content: '📊';
-            font-size: 2rem;
-        }
-
-        main {
+        .log-container {
             max-width: 600px;
-            margin: 2rem auto;
-            padding: 0 1rem;
+            margin: 20px auto;
+            padding: 10px;
+            background: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
         }
-
-        .upload-container {
-            background-color: white;
-            padding: 2rem;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            border: 1px solid var(--border-color);
-            text-align: center;
-        }
-
-        .file-input-container {
-            margin: 2rem 0;
-            padding: 2rem;
-            border: 2px dashed var(--border-color);
-            border-radius: 8px;
-            transition: border-color 0.2s ease;
-        }
-
-        .file-input-container:hover {
-            border-color: var(--accent-color);
-        }
-
-        label {
-            display: block;
-            font-weight: 600;
-            color: var(--text-color);
-            margin-bottom: 1rem;
-            font-size: 1.1rem;
-        }
-
-        input[type="file"] {
-            display: block;
-            width: 100%;
-            max-width: 300px;
-            margin: 0 auto;
-            padding: 0.5rem;
-            font-size: 1rem;
-            cursor: pointer;
-        }
-
-        input[type="file"]::file-selector-button {
-            background-color: var(--secondary-color);
-            border: 1px solid var(--border-color);
-            padding: 0.5rem 1rem;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: background-color 0.2s ease;
-        }
-
-        input[type="file"]::file-selector-button:hover {
-            background-color: #e2e8f0;
-        }
-
-        button[type="submit"] {
-            background-color: var(--accent-color);
-            color: white;
-            padding: 0.75rem 1.5rem;
-            border: none;
-            border-radius: 4px;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: background-color 0.2s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        button[type="submit"]::before {
-            content: '📤';
-        }
-
-        button[type="submit"]:hover {
-            background-color: #1a365d;
-        }
-
-        .file-requirements {
-            margin-top: 1.5rem;
-            padding: 1rem;
-            background-color: var(--secondary-color);
-            border-radius: 4px;
-            font-size: 0.9rem;
-            color: #666;
-        }
-
-        footer {
-            background-color: var(--primary-color);
-            color: white;
-            text-align: center;
-            padding: 1rem;
-            margin-top: 3rem;
-            font-size: 0.9rem;
-        }
-
-        @media (max-width: 640px) {
-            main {
-                padding: 0 0.5rem;
-            }
-            
-            .upload-container {
-                padding: 1rem;
-            }
-            
-            header h1 {
-                font-size: 1.5rem;
-            }
-        }
+        .error { color: red; }
+        .success { color: green; }
+        .info { color: blue; }
     </style>
 </head>
 <body>
-    <header>
-        <h1>Cargar Archivo CSV</h1>
-    </header>
-    
-    <main>
-        <div class="upload-container">
-            <form action="{% url 'cargar_csv' %}" method="post" enctype="multipart/form-data">
-                {% csrf_token %}
-                <div class="file-input-container">
-                    <label for="csv_file">Selecciona el archivo CSV para cargar:</label>
-                    <input type="file" id="csv_file" name="csv_file" accept=".csv" required>
-                </div>
-                <button type="submit">Cargar archivo</button>
-            </form>
+    <div class="container" style="max-width: 800px; margin: 0 auto; padding: 20px;">
+        <h1>Carga Masiva de Libros (Por Lotes)</h1>
+        
+        <form id="csvForm" enctype="multipart/form-data">
+            {% csrf_token %}
+            <input type="file" name="csv_file" id="csvFile" accept=".csv" required>
+            <button type="submit" id="uploadBtn">Cargar CSV</button>
+        </form>
 
-            <div class="file-requirements">
-                <p><strong>Requisitos del archivo:</strong></p>
-                <ul style="text-align: left;">
-                    <li>El archivo debe estar en formato CSV</li>
-                    <li>Los campos deben estar separados por comas</li>
-                    <li>Asegúrese de que la codificación sea UTF-8</li>
-                </ul>
+        <div class="progress-container" id="progressContainer" style="display: none;">
+            <h3>Progreso de carga</h3>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill">0%</div>
             </div>
+            <p id="progressText">Preparando...</p>
         </div>
-    </main>
 
-    <footer>
-        <p>© 2025 ISFD 210. Todos los derechos reservados</p>
-    </footer>
+        <div class="log-container" id="logContainer" style="display: none;">
+            <h4>Registro de operaciones:</h4>
+            <div id="logContent"></div>
+        </div>
+    </div>
+
+    <script>
+        const BATCH_SIZE = 50; // Registros por lote
+        
+        document.getElementById('csvForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const fileInput = document.getElementById('csvFile');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                alert('Selecciona un archivo CSV');
+                return;
+            }
+            
+            // Deshabilitar botón
+            document.getElementById('uploadBtn').disabled = true;
+            
+            // Mostrar progreso
+            document.getElementById('progressContainer').style.display = 'block';
+            document.getElementById('logContainer').style.display = 'block';
+            
+            try {
+                // Leer archivo CSV
+                const text = await file.text();
+                const rows = parseCSV(text);
+                
+                addLog(`✅ CSV leído: ${rows.length} filas encontradas`, 'info');
+                
+                if (rows.length === 0) {
+                    addLog('❌ El archivo CSV está vacío', 'error');
+                    return;
+                }
+                
+                // Dividir en lotes
+                const batches = [];
+                for (let i = 0; i < rows.length; i += BATCH_SIZE) {
+                    batches.push(rows.slice(i, i + BATCH_SIZE));
+                }
+                
+                addLog(`📦 Dividido en ${batches.length} lotes de hasta ${BATCH_SIZE} registros`, 'info');
+                
+                let totalCreados = 0;
+                let totalErrores = 0;
+                
+                // Procesar cada lote
+                for (let i = 0; i < batches.length; i++) {
+                    const batch = batches[i];
+                    const progress = ((i + 1) / batches.length) * 100;
+                    
+                    updateProgress(progress, `Procesando lote ${i + 1}/${batches.length}...`);
+                    
+                    try {
+                        const response = await fetch('/libros/cargar-csv-lote/', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                            },
+                            body: JSON.stringify({ registros: batch })
+                        });
+                        
+                        const result = await response.json();
+                        
+                        if (result.success) {
+                            totalCreados += result.creados;
+                            totalErrores += result.errores.length;
+                            
+                            addLog(`✅ Lote ${i + 1}: ${result.creados} creados`, 'success');
+                            
+                            if (result.errores.length > 0) {
+                                result.errores.slice(0, 3).forEach(err => {
+                                    addLog(`⚠️ ${err}`, 'error');
+                                });
+                            }
+                        } else {
+                            addLog(`❌ Error en lote ${i + 1}: ${result.error}`, 'error');
+                        }
+                        
+                        // Pequeña pausa entre lotes para no saturar
+                        await sleep(100);
+                        
+                    } catch (error) {
+                        addLog(`❌ Error de red en lote ${i + 1}: ${error.message}`, 'error');
+                    }
+                }
+                
+                // Finalizar
+                updateProgress(100, '¡Carga completada!');
+                addLog(`\n${'='.repeat(50)}`, 'info');
+                addLog(`✅ COMPLETADO: ${totalCreados} registros creados`, 'success');
+                addLog(`❌ Errores totales: ${totalErrores}`, totalErrores > 0 ? 'error' : 'info');
+                addLog(`${'='.repeat(50)}`, 'info');
+                
+                // Habilitar botón nuevamente
+                setTimeout(() => {
+                    document.getElementById('uploadBtn').disabled = false;
+                    alert(`Carga completada:\n${totalCreados} registros creados\n${totalErrores} errores`);
+                }, 1000);
+                
+            } catch (error) {
+                addLog(`❌ Error crítico: ${error.message}`, 'error');
+                document.getElementById('uploadBtn').disabled = false;
+            }
+        });
+        
+        function parseCSV(text) {
+            const lines = text.split('\n').filter(line => line.trim());
+            if (lines.length < 2) return [];
+            
+            const headers = lines[0].split(',').map(h => h.trim());
+            const rows = [];
+            
+            for (let i = 1; i < lines.length; i++) {
+                const values = lines[i].split(',');
+                const row = {};
+                headers.forEach((header, index) => {
+                    row[header] = values[index] ? values[index].trim() : '';
+                });
+                rows.push(row);
+            }
+            
+            return rows;
+        }
+        
+        function updateProgress(percent, text) {
+            document.getElementById('progressFill').style.width = percent + '%';
+            document.getElementById('progressFill').textContent = Math.round(percent) + '%';
+            document.getElementById('progressText').textContent = text;
+        }
+        
+        function addLog(message, type = 'info') {
+            const logContent = document.getElementById('logContent');
+            const line = document.createElement('div');
+            line.className = type;
+            line.textContent = message;
+            logContent.appendChild(line);
+            logContent.scrollTop = logContent.scrollHeight;
+        }
+        
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+    </script>
 </body>
 </html>
