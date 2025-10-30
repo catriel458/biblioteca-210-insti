@@ -52,7 +52,11 @@ from django.views.decorators.csrf import csrf_exempt
 
 
 from django.db import transaction
+
 import logging
+
+# Configurar logger
+logger = logging.getLogger(__name__)
 
 # Variables globales para control de thread
 ultima_verificacion = None
