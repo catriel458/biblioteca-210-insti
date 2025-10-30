@@ -346,7 +346,7 @@ def editar_libro(request, libro_id):
 
 # Carga masiva libros:
 
-@login_required
+@login_required(login_url='login')  # CRÍTICO: Agrega esto
 def cargar_csv(request):
     if request.method == 'POST':
         csv_file = request.FILES.get('csv_file')
