@@ -1,4 +1,53 @@
-// Variables globales para almacenar callbacks
+// Función para validar si un archivo es una imagen válida
+function esImagenValida(nombreArchivo) {
+    if (!nombreArchivo) return false;
+    const extension = nombreArchivo.toLowerCase();
+    return extension.endsWith('.jpg') || extension.endsWith('.jpeg') || 
+           extension.endsWith('.png') || extension.endsWith('.gif');
+}
+
+// Función para mostrar el modal de imagen de libro no válida
+function mostrarModalImagenLibroNoValido(onAccept = null) {
+    // Guardar callback
+    callbackAceptarImagenLibroNoValido = onAccept;
+    
+    const modalImagenNoValida = document.getElementById('modal-imagenlibro-novalido');
+    const backdrop = document.getElementById('modal-backdrop');
+    
+    if (modalImagenNoValida && backdrop) {
+        modalImagenNoValida.style.display = 'block';
+        modalImagenNoValida.classList.add('show');
+        backdrop.style.display = 'block';
+        backdrop.classList.add('show');
+        document.body.style.overflow = 'hidden'; // Prevenir scroll
+        console.log('Modal imagen libro no válida mostrado correctamente');
+    } else {
+        console.error('Error: No se encontraron los elementos del modal imagen libro no válida');
+    }
+}
+
+// Función para ocultar el modal de imagen de libro no válida
+function ocultarModalImagenLibroNoValido() {
+    const modalImagenNoValida = document.getElementById('modal-imagenlibro-novalido');
+    const backdrop = document.getElementById('modal-backdrop');
+    
+    if (modalImagenNoValida && backdrop) {
+        modalImagenNoValida.style.display = 'none';
+        modalImagenNoValida.classList.remove('show');
+        backdrop.style.display = 'none';
+        backdrop.classList.remove('show');
+        document.body.style.overflow = ''; // Restaurar scroll
+    }
+}
+
+// Función para cerrar el modal de imagen de libro no válida
+function cerrarModalImagenLibroNoValido() {
+    if (callbackAceptarImagenLibroNoValido) {
+        callbackAceptarImagenLibroNoValido();
+        callbackAceptarImagenLibroNoValido = null;
+    }
+    ocultarModalImagenLibroNoValido();
+}// Variables globales para almacenar callbacks
 let callbackConfirmar = null;
 let callbackCancelar = null;
 let callbackConfirmarReducir = null;
@@ -6,6 +55,7 @@ let callbackCancelarReducir = null;
 let callbackConfirmarCSV = null;
 let callbackCancelarCSV = null;
 let callbackAceptarArchivoNoValido = null;
+let callbackAceptarImagenLibroNoValido = null;
 
 // Función principal que se llama al hacer clic en CANCELAR
 function cancelarFormulario() {

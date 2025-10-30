@@ -1,0 +1,21 @@
+<!-- Modal para alertar cuando se intenta cargar una imagen no válida para un libro -->
+<div class="modal fade" id="modal-imagenlibro-novalido" tabindex="-1" aria-labelledby="modalImagenLibroNoValidoLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="modalImagenLibroNoValidoLabel">ERROR</h5>
+            </div>
+            <div class="modal-body text-center">
+                <p class="mb-0">
+                    EL TIPO DE ARCHIVO SELECCIONADO NO ES UN TIPO DE IMAGEN VÁLIDO.
+                </p>
+                <p class="mt-2">
+                    POR FAVOR, SELECCIONE UN ARCHIVO DE IMAGEN (JPG, JPEG, PNG, GIF).
+                </p>
+            </div>
+            <div class="modal-footer justify-content-center">
+                <button type="button" class="btn btn-primary" onclick="cerrarModalImagenLibroNoValido()">ACEPTAR</button>
+            </div>
+        </div>
+    </div>
+</div>
