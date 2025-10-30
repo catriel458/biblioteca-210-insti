@@ -350,7 +350,7 @@ def editar_libro(request, libro_id):
 
 # Carga masiva libros:
 
-@login_required(login_url='login')  # CRÍTICO: Agrega esto
+@login_required(login_url='login')
 def cargar_csv(request):
     if request.method == 'POST':
         csv_file = request.FILES.get('csv_file')
@@ -359,94 +359,183 @@ def cargar_csv(request):
             messages.error(request, "No se seleccionó ningún archivo.")
             return redirect('lista_libros')
         
-        # Verifica que el archivo sea un CSV
         if not csv_file.name.endswith('.csv'):
-            messages.error(request, "El archivo no es un CSV válido.")
+            messages.error(request, "El archivo debe ser CSV.")
             return redirect('lista_libros')
 
         try:
-            # Procesar el archivo CSV
-            decoded_file = csv_file.read().decode('utf-8')
+            # Leer archivo con diferentes encodings
+            try:
+                decoded_file = csv_file.read().decode('utf-8')
+            except UnicodeDecodeError:
+                csv_file.seek(0)
+                decoded_file = csv_file.read().decode('latin-1')
+            
             io_string = io.StringIO(decoded_file)
             reader = csv.DictReader(io_string)
-
-            # Verificar si el archivo tiene datos
+            
             rows = list(reader)
+            
             if not rows:
-                messages.error(request, "El archivo CSV está vacío o solo contiene encabezados.")
+                messages.error(request, "El archivo CSV está vacío.")
                 return redirect('lista_libros')
+
+            print(f"\n{'='*60}")
+            print(f"Procesando {len(rows)} filas del CSV")
+            print(f"{'='*60}\n")
 
             libros_creados = 0
             errores = []
 
-            # CRÍTICO: Usar transacción atómica para Vercel/PostgreSQL
+            # Función auxiliar para convertir a entero de forma segura
+            def safe_int(value, default=1):
+                """Convierte un valor a entero, retorna default si está vacío o es inválido"""
+                if value is None or value == '':
+                    return default
+                try:
+                    return int(str(value).strip())
+                except (ValueError, TypeError):
+                    return default
+
             with transaction.atomic():
                 for idx, row in enumerate(rows, start=1):
                     try:
-                        tipo_material = row.get('tipo_material', '').strip()
+                        tipo_material = row.get('tipo_material', '').strip().lower()
                         
-                        if tipo_material == 'Libro':
-                            # Validar campos requeridos
+                        if tipo_material == 'libro':
                             titulo = row.get('titulo', '').strip()
+                            
                             if not titulo:
-                                errores.append(f"Fila {idx}: Falta el título")
+                                errores.append(f"Fila {idx}: Falta título")
                                 continue
                             
-                            libro = Libro(
+                            # Usar safe_int para campos numéricos
+                            num_ejemplar = safe_int(row.get('num_ejemplar'), 1)
+                            num_inventario = safe_int(row.get('num_inventario'), 1)
+                            
+                            libro = Libro.objects.create(
                                 estado='Disponible',
                                 motivo_baja=row.get('motivo_baja', '').strip() or None,
                                 descripcion=row.get('descripcion', '').strip() or None,
-                                num_ejemplar=int(row.get('num_ejemplar', 1)),
-                                imagen_rota=None,  # Las imágenes no se cargan por CSV
+                                num_ejemplar=num_ejemplar,
                                 titulo=titulo,
-                                autor=row.get('autor', 'Desconocido').strip(),
-                                editorial=row.get('editorial', 'Sin editorial').strip(),
-                                clasificacion_cdu=row.get('clasificacion_cdu', 'Sin clasificar').strip(),
-                                siglas_autor_titulo=row.get('siglas_autor_titulo', 'ABC').strip(),
-                                num_inventario=int(row.get('num_inventario', 1)),
-                                resumen=row.get('resumen', '').strip() or 'Sin resumen',
+                                autor=row.get('autor', 'Desconocido').strip() or 'Desconocido',
+                                editorial=row.get('editorial', 'Sin editorial').strip() or 'Sin editorial',
+                                clasificacion_cdu=row.get('clasificacion_cdu', 'Sin clasificar').strip() or 'Sin clasificar',
+                                siglas_autor_titulo=row.get('siglas_autor_titulo', 'ABC').strip() or 'ABC',
+                                num_inventario=num_inventario,
+                                resumen=row.get('resumen', 'Sin resumen').strip() or 'Sin resumen',
                                 etiqueta_palabra_clave=row.get('etiqueta_palabra_clave', '').strip() or '',
-                                sede=row.get('sede', 'La Plata').strip(),
+                                sede=row.get('sede', 'La Plata').strip() or 'La Plata',
                                 disponibilidad='Disponible',
                                 observaciones=row.get('observaciones', '').strip() or '',
                                 img=row.get('img', '').strip() or None
                             )
-                            libro.save()
+                            
                             libros_creados += 1
-                            logger.info(f"Libro creado: {libro.titulo} (ID: {libro.id_libro})")
+                            if libros_creados % 10 == 0:  # Log cada 10 libros
+                                print(f"✅ {libros_creados} libros creados...")
                         
-                        elif tipo_material == 'Mapa':
-                            mapa = Mapas(
+                        elif tipo_material == 'mapa':
+                            num_ejemplar = safe_int(row.get('num_ejemplar'), 1)
+                            
+                            mapa = Mapas.objects.create(
                                 estado='Disponible',
                                 motivo_baja=row.get('motivo_baja', '').strip() or None,
                                 descripcion=row.get('descripcion', '').strip() or None,
-                                num_ejemplar=int(row.get('num_ejemplar', 1)),
-                                tipo=row.get('tipo', 'Sin tipo').strip()
+                                num_ejemplar=num_ejemplar,
+                                tipo=row.get('tipo', 'Sin tipo').strip() or 'Sin tipo'
                             )
-                            mapa.save()
                             libros_creados += 1
                         
-                        # ... (repetir para otros tipos de material)
+                        elif tipo_material == 'multimedia':
+                            num_ejemplar = safe_int(row.get('num_ejemplar'), 1)
+                            
+                            multimedia = Multimedia.objects.create(
+                                estado='Disponible',
+                                motivo_baja=row.get('motivo_baja', '').strip() or None,
+                                descripcion=row.get('descripcion', '').strip() or None,
+                                num_ejemplar=num_ejemplar,
+                                materia=row.get('materia', 'Sin materia').strip() or 'Sin materia',
+                                contenido=row.get('contenido', 'Sin contenido').strip() or 'Sin contenido'
+                            )
+                            libros_creados += 1
                         
-                    except (ValueError, TypeError, KeyError) as e:
-                        errores.append(f"Fila {idx}: {str(e)}")
-                        logger.error(f"Error procesando fila {idx}: {e}")
-                        continue
+                        elif tipo_material == 'notebook':
+                            num_ejemplar = safe_int(row.get('num_ejemplar'), 1)
+                            
+                            notebook = Notebook.objects.create(
+                                estado='Disponible',
+                                motivo_baja=row.get('motivo_baja', '').strip() or None,
+                                descripcion=row.get('descripcion', '').strip() or None,
+                                num_ejemplar=num_ejemplar,
+                                marca_not=row.get('marca_not', 'Sin marca').strip() or 'Sin marca',
+                                modelo_not=row.get('modelo_not', 'Sin modelo').strip() or 'Sin modelo'
+                            )
+                            libros_creados += 1
+                        
+                        elif tipo_material == 'proyector':
+                            num_ejemplar = safe_int(row.get('num_ejemplar'), 1)
+                            
+                            proyector = Proyector.objects.create(
+                                estado='Disponible',
+                                motivo_baja=row.get('motivo_baja', '').strip() or None,
+                                descripcion=row.get('descripcion', '').strip() or None,
+                                num_ejemplar=num_ejemplar,
+                                marca_pro=row.get('marca_pro', 'Sin marca').strip() or 'Sin marca',
+                                modelo_pro=row.get('modelo_pro', 'Sin modelo').strip() or 'Sin modelo'
+                            )
+                            libros_creados += 1
+                        
+                        elif tipo_material == 'varios':
+                            num_ejemplar = safe_int(row.get('num_ejemplar'), 1)
+                            
+                            varios = Varios.objects.create(
+                                estado='Disponible',
+                                motivo_baja=row.get('motivo_baja', '').strip() or None,
+                                descripcion=row.get('descripcion', '').strip() or None,
+                                num_ejemplar=num_ejemplar,
+                                tipo=row.get('tipo', 'Sin tipo').strip() or 'Sin tipo'
+                            )
+                            libros_creados += 1
+                        
+                        else:
+                            if tipo_material:  # Solo reportar si hay un valor
+                                errores.append(f"Fila {idx}: Tipo '{tipo_material}' no reconocido")
+                    
+                    except Exception as e:
+                        error_msg = f"Fila {idx}: {str(e)}"
+                        errores.append(error_msg)
+                        print(f"❌ {error_msg}")
 
-            # Mensaje de resultado
+            print(f"\n{'='*60}")
+            print(f"✅ COMPLETADO: {libros_creados} registros creados")
+            print(f"❌ Errores: {len(errores)}")
+            print(f"{'='*60}\n")
+
+            # Mensajes al usuario
             if libros_creados > 0:
                 messages.success(request, f"✅ {libros_creados} registros cargados exitosamente.")
             
-            if errores:
-                messages.warning(request, f"⚠️ {len(errores)} errores encontrados. Revisa los logs.")
+            if errores and len(errores) <= 10:
+                # Si hay pocos errores, mostrarlos todos
+                for error in errores:
+                    messages.warning(request, error)
+            elif errores:
+                # Si hay muchos errores, mostrar resumen
+                messages.warning(request, f"⚠️ Se encontraron {len(errores)} errores. Primeros 3:")
+                for error in errores[:3]:
+                    messages.error(request, error)
             
-            if libros_creados == 0 and not errores:
-                messages.error(request, "No se pudo cargar ningún registro del CSV.")
+            if libros_creados == 0 and len(errores) == 0:
+                messages.error(request, "❌ No se reconoció ningún registro válido en el CSV.")
             
             return redirect('lista_libros')
         
         except Exception as e:
-            logger.error(f"Error crítico cargando CSV: {str(e)}")
+            print(f"\n❌ ERROR CRÍTICO: {str(e)}")
+            import traceback
+            traceback.print_exc()
             messages.error(request, f"Error al procesar el archivo: {str(e)}")
             return redirect('lista_libros')
 
