@@ -1,21 +1,114 @@
 <!-- Modal para alertar cuando se intenta cargar una imagen no válida para un libro -->
-<div class="modal fade" id="modal-imagenlibro-novalido" tabindex="-1" aria-labelledby="modalImagenLibroNoValidoLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header bg-danger text-white">
-                <h5 class="modal-title" id="modalImagenLibroNoValidoLabel">ERROR</h5>
-            </div>
-            <div class="modal-body text-center">
-                <p class="mb-0">
-                    EL TIPO DE ARCHIVO SELECCIONADO NO ES UN TIPO DE IMAGEN VÁLIDO.
-                </p>
-                <p class="mt-2">
-                    POR FAVOR, SELECCIONE UN ARCHIVO DE IMAGEN (JPG, JPEG, PNG, GIF).
-                </p>
-            </div>
-            <div class="modal-footer justify-content-center">
-                <button type="button" class="btn btn-primary" onclick="cerrarModalImagenLibroNoValido()">ACEPTAR</button>
-            </div>
-        </div>
+<div class="tarjeta-alerta tarjeta-alerta-imagen-novalida" id="modal-imagenlibro-novalido">
+    <p class="atencion">ERROR</p>
+    
+    <p class="texto-alerta">
+EL TIPO DE ARCHIVO
+SELECCIONADO NO ES UN
+TIPO DE IMAGEN VÁLIDO.
+(SELECCIONE UN ARCHIVO <span class="imagen-text">.JPG, .JPEG O .PNG</span>)
+    </p>
+    
+    <div class="botones-tarjeta">
+        <button type="button" class="btn btn-confirmar-modal" id="btn-aceptar-imagen-novalida" onclick="cerrarModalImagenLibroNoValido()">ACEPTAR</button>
     </div>
 </div>
+
+<style>
+#modal-imagenlibro-novalido.tarjeta-alerta, 
+.tarjeta-alerta-imagen-novalida {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1050;
+    flex-direction: column;
+    justify-content: center;
+    border-radius: 10px;
+    box-sizing: border-box;
+    align-items: center;
+    width: 100%;
+    max-width: 320px;
+    min-width: 300px;
+    padding: 0.8em 0.8em;
+    text-align: center;
+    background-color: #FFB3BA !important;
+    background: #FFB3BA !important;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    border: 2px solid #FF0000;
+}
+
+.imagen-text {
+    color: #8A2BE2; /* Color violeta para el texto de formatos de imagen */
+    font-weight: bold;
+}
+
+.modal-backdrop {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1040;
+}
+
+.atencion {
+    color: #000;
+    font-weight: normal;
+    font-size: 0.6em;
+    font-family: Arial, sans-serif;
+    margin-top: 0;
+    margin-bottom: 2px;
+    padding: 0;
+    text-decoration: underline;
+    text-decoration-color: red;
+    text-underline-offset: 3px;
+}
+
+.texto-alerta {
+    color: #000;
+    font-size: 0.85em;
+    line-height: 1.05;
+    margin: 0 0 8px;
+    padding: 0;
+    font-weight: 500;
+    font-family: Arial, sans-serif;
+    text-transform: uppercase;
+    max-width: 100%;
+    width: 100%;
+    white-space: pre-line;
+    letter-spacing: 0;
+}
+
+.botones-tarjeta {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    margin-top: 8px;
+    text-align: center;
+}
+
+.botones-tarjeta > button {
+    min-width: 110px;
+    flex: 0 1 auto;
+    white-space: nowrap;
+    padding: 0.4em 0.8em;
+    border-radius: 5px;
+    border: 1px solid #000;
+    cursor: pointer;
+    font-weight: normal;
+    font-family: Arial, sans-serif;
+    text-transform: uppercase;
+    font-size: 0.6em;
+    margin: 0 auto;
+}
+
+.btn-confirmar-modal {
+    background-color: #4A90E2 !important;
+    color: white !important;
+}
+</style>

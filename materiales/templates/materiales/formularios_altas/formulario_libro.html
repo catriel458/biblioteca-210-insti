@@ -95,6 +95,7 @@
 {% block content %}
 {% include 'modals/alertas/vaciar_campos.html' %}
 {% include 'modals/alertas/reducir_ejemplares.html' %}
+{% include 'modals/alertas/imagenlibro_novalido.html' %}
 <div class="container-fluid">
     {% if success %}
         <div class="alert alert-success">{{ success }}</div>
@@ -321,6 +322,9 @@ document.addEventListener('DOMContentLoaded', function() {
             manejarReduccionEjemplaresLibro();
         });
     }
+    
+    // Nota: La validación de imagen se maneja centralmente en alta_materiales.html
+    // No se necesita validación duplicada aquí
     
     // Verificar que Bootstrap está disponible
     if (typeof bootstrap === 'undefined') {

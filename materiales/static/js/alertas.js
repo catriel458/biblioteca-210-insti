@@ -1,28 +1,78 @@
 // Función para validar si un archivo es una imagen válida
 function esImagenValida(nombreArchivo) {
-    if (!nombreArchivo) return false;
+    console.log('🔍 esImagenValida llamada con:', nombreArchivo);
+    
+    if (!nombreArchivo) {
+        console.log('❌ Nombre de archivo vacío');
+        return false;
+    }
+    
     const extension = nombreArchivo.toLowerCase();
-    return extension.endsWith('.jpg') || extension.endsWith('.jpeg') || 
-           extension.endsWith('.png') || extension.endsWith('.gif');
+    const esValida = extension.endsWith('.jpg') || extension.endsWith('.jpeg') || 
+           extension.endsWith('.png');
+    
+    console.log('📝 Extensión:', extension);
+    console.log('✅ ¿Es válida?', esValida);
+    
+    return esValida;
+}
+
+// Función para validar la imagen del libro
+function validarImagenLibro(inputElement) {
+    console.log('🔍 validarImagenLibro llamada');
+    console.log('🔍 inputElement:', inputElement);
+    
+    if (!inputElement || !inputElement.files || inputElement.files.length === 0) {
+        console.log('❌ No hay archivo seleccionado');
+        return;
+    }
+    
+    const file = inputElement.files[0];
+    const fileName = file.name.toLowerCase();
+    console.log('📁 Archivo seleccionado:', fileName);
+    
+    const esValida = esImagenValida(fileName);
+    console.log('✅ ¿Es imagen válida?', esValida);
+    
+    if (!esValida) {
+        console.log('❌ Archivo no válido, limpiando input y mostrando modal');
+        // Limpiar el input de archivo
+        inputElement.value = '';
+        // Mostrar el modal de error
+        mostrarModalImagenLibroNoValido();
+        console.log('🚨 Modal mostrado para archivo no válido: ' + fileName);
+        return false;
+    }
+    
+    console.log('✅ Archivo válido: ' + fileName);
+    return true;
 }
 
 // Función para mostrar el modal de imagen de libro no válida
 function mostrarModalImagenLibroNoValido(onAccept = null) {
+    console.log('🚨 mostrarModalImagenLibroNoValido llamada');
+    
     // Guardar callback
     callbackAceptarImagenLibroNoValido = onAccept;
     
     const modalImagenNoValida = document.getElementById('modal-imagenlibro-novalido');
     const backdrop = document.getElementById('modal-backdrop');
     
+    console.log('🔍 Modal element:', modalImagenNoValida);
+    console.log('🔍 Backdrop element:', backdrop);
+    
     if (modalImagenNoValida && backdrop) {
+        console.log('✅ Mostrando modal de imagen no válida');
         modalImagenNoValida.style.display = 'block';
         modalImagenNoValida.classList.add('show');
         backdrop.style.display = 'block';
         backdrop.classList.add('show');
-        document.body.style.overflow = 'hidden'; // Prevenir scroll
+        document.body.style.overflow = 'hidden'; // Evitar scroll
         console.log('Modal imagen libro no válida mostrado correctamente');
     } else {
-        console.error('Error: No se encontraron los elementos del modal imagen libro no válida');
+        console.error('❌ No se encontró el modal o el backdrop');
+        console.error('Modal encontrado:', !!modalImagenNoValida);
+        console.error('Backdrop encontrado:', !!backdrop);
     }
 }
 

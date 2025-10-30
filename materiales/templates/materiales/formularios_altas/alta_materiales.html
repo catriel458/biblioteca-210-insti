@@ -66,7 +66,7 @@
                 <div id="upload_box_container" class="custom-upload-box-container" style="display: none; width: 100%;">
                     <div class="custom-upload-box w-100">
                         <button class="btn btn-sm custom-upload-btn w-100" type="button" onclick="document.getElementById('file_upload_input').click();">↑</button>
-                        <input type="file" id="file_upload_input" name="imagen" accept="image/*" style="display: none;">
+<input type="file" id="file_upload_input" name="imagen" accept="image/png,image/jpeg,image/jpg" style="display: none;" onchange="validarImagenLibro(this);">
                         <input type="text" id="url_upload_input" class="form-control custom-upload-input mb-2" placeholder="O pegue un enlace de imagen aquí...">
                     </div>
                 </div>
@@ -101,6 +101,8 @@
   {% include 'modals/alertas/confirmacion_csv.html' %}
   <!-- Incluir el modal de archivo no válido -->
   {% include 'modals/alertas/archivo_novalido.html' %}
+  <!-- Incluir el modal de imagen libro no válido -->
+  {% include 'modals/alertas/imagenlibro_novalido.html' %}
   
   <!-- Backdrop para los modales -->
   <div id="modal-backdrop" class="modal-backdrop"></div>
