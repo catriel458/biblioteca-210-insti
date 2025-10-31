@@ -339,7 +339,7 @@
 <div class="form-container">
     <!-- Formulario principal usando Django Form -->
     <div class="form-card">
-        <form id="editFormPrograma" method="post" enctype="multipart/form-data" class="form-grid">
+        <form id="editFormPrograma" method="post" enctype="multipart/form-data" action="{% url 'editar_programa' programa.id_programa %}" class="form-grid">
             {% csrf_token %}
             
             <div class="form-group">

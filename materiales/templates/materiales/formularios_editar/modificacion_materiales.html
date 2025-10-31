@@ -887,7 +887,7 @@
                         data-estado="{{ multi.estado|lower }}"
                         data-tipo="{{ multi.tipo|lower }}"
                         data-denominacion="{{ multi.denominacion|lower }}">
-                        <td class="text-center">{{ multi.id_inventario|default:'' }}</td>
+                        <td class="text-center">{{ multi.id_multi|default:'' }}</td>
                         <td class="titulo-cell">{{ multi.materia }}</td>
                         <td>{{ multi.profesor }}</td>
                         <td>{{ multi.carrera }}</td>
@@ -914,12 +914,12 @@
                             </a>
                             {% if multi.estado == 'Disponible' %}
                                 <button class="btn-icon btn-eliminar" title="Dar de baja" 
-                                        onclick="darDeBajaMultimedia({{ multi.id_inventario }}, '{{ multi.tipo|escapejs }}')">
+                                        onclick="darDeBajaMultimedia({{ multi.id_multi }}, '{{ multi.tipo|escapejs }}')">
                                     🗑️
                                 </button>
                             {% elif multi.estado == 'No disponible' %}
                                 <button class="btn-icon btn-ver-informe" title="Ver informe de baja" 
-                                        onclick="verInformeBajaMultimedia({{ multi.id_inventario }})">
+                                        onclick="verInformeBajaMultimedia({{ multi.id_multi }})">
                                     📄
                                 </button>
                             {% endif %}
@@ -1124,6 +1124,7 @@
         window.multimediaTableData = [
             {% for multi in multimedia %}
             {
+                id_multi: {{ multi.id_multi }},
                 id_inventario: {{ multi.id_inventario }},
                 titulo_contenido: "{{ multi.titulo_contenido|escapejs }}",
                 profesor: "{{ multi.profesor|escapejs }}",
@@ -2322,7 +2323,7 @@
             console.log('🎬 Iniciando proceso de baja para multimedia:', id);
             
             // Buscar los datos del multimedia en la tabla
-            const multimediaData = window.multimediaTableData?.find(item => item.id_inventario == id);
+            const multimediaData = window.multimediaTableData?.find(item => item.id_multi == id);
             
             if (!multimediaData) {
                 console.error('❌ No se encontraron datos para multimedia ID:', id);
@@ -2350,7 +2351,7 @@
             if (!hiddenInput) {
                 hiddenInput = document.createElement('input');
                 hiddenInput.type = 'hidden';
-                hiddenInput.name = 'id_inventario';
+                hiddenInput.name = 'id_multi';
                 hiddenInput.id = 'multimedia_id_hidden';
                 form.appendChild(hiddenInput);
             }
@@ -2395,7 +2396,7 @@
             
             // Configurar el formulario para notebook
             const form = document.querySelector('#bajaModal form');
-            form.action = '/baja-notebook/';
+            form.action = '/baja-notebook-mejorada/';
             
             // Agregar campo oculto para el ID del notebook
             let hiddenInput = document.getElementById('notebook_id_hidden');
@@ -3020,8 +3021,12 @@
             })
             .then(response => response.json())
             .then(data => {
+                console.log('🔍 DEBUG - Respuesta completa del servidor:', data);
+                
                 if (data.success) {
                     const informe = data.informe;
+                    console.log('🔍 DEBUG - Datos del informe:', informe);
+                    console.log('🔍 DEBUG - Motivo de baja recibido:', informe.motivo_baja);
                     
                     // Actualizar motivo de baja
                     const motivoElement = document.getElementById('informe_motivo');
@@ -3029,10 +3034,12 @@
                     motivoElement.textContent = informe.motivo_baja;
                         motivoElement.style.color = '#495057';
                         motivoElement.style.fontStyle = 'normal';
+                        console.log('✅ DEBUG - Motivo mostrado correctamente:', informe.motivo_baja);
                     } else {
                         motivoElement.textContent = 'Motivo no registrado';
                         motivoElement.style.color = '#6c757d';
                         motivoElement.style.fontStyle = 'italic';
+                        console.log('⚠️ DEBUG - Motivo vacío o nulo');
                     }
                     
                     // Actualizar fecha de baja

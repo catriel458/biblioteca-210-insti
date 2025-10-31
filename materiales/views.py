@@ -779,7 +779,7 @@ def editar_mapa(request, mapa_id):
 
 def multimedia_view(request):
     multimedia = Multimedia.objects.filter(estado='Disponible')
-    return render(request, 'libros/multimedia.html', {'multimedia': multimedia})
+    return render(request, 'materiales/multimedia/lista_multimedia.html', {'multimedia': multimedia})
 
 # Vista para dar de baja un mapa:
 
@@ -840,7 +840,7 @@ def editar_multimedia(request, multi_id):
 
 def notebook_view(request):
     notebook = Notebook.objects.filter(estado='Disponible')
-    return render(request, 'libros/notebook.html', {'notebook': notebook})
+    return render(request, 'materiales/notebook/lista_notebooks.html', {'notebook': notebook})
 
 # Vista para dar de baja un mapa:
 
@@ -851,7 +851,7 @@ def baja_notebook(request):
         motivo_baja = request.POST.get('motivo_baja')
         imagen_rota = request.FILES.get('imagen_rota')
 
-        # Lógica para actualizar el estado del mapa
+        # Lógica para actualizar el estado del notebook
         notebook = get_object_or_404(Notebook, id_not=not_id)
         notebook.estado = 'No disponible'
         notebook.motivo_baja = motivo_baja
@@ -859,9 +859,9 @@ def baja_notebook(request):
             notebook.imagen_rota = imagen_rota
         notebook.save()
 
-        return redirect('notebook')
+        return redirect('modificacion_materiales')
 
-    return redirect('notebook')
+    return redirect('modificacion_materiales')
 
 # Vista para dar de alta un mapa:
 
@@ -957,7 +957,7 @@ def editar_notebook(request, not_id):
 
 def proyector_view(request):
     proyector = Proyector.objects.filter(estado='Disponible')
-    return render(request, 'libros/proyector.html', {'proyector': proyector})
+    return render(request, 'materiales/proyector/lista_proyectores.html', {'proyector': proyector})
 
 # Vista para dar de baja un mapa:
 
@@ -968,7 +968,7 @@ def baja_proyector(request):
         motivo_baja = request.POST.get('motivo_baja')
         imagen_rota = request.FILES.get('imagen_rota')
 
-        # Lógica para actualizar el estado del mapa
+        # Lógica para actualizar el estado del proyector
         proyector = get_object_or_404(Proyector, id_proyector=proyector_id)
         proyector.estado = 'No disponible'
         proyector.motivo_baja = motivo_baja
@@ -976,9 +976,9 @@ def baja_proyector(request):
             proyector.imagen_rota = imagen_rota
         proyector.save()
 
-        return redirect('proyector')
+        return redirect('modificacion_materiales')
 
-    return redirect('proyector')
+    return redirect('modificacion_materiales')
 
 # Vista para dar de alta un mapa:
 
@@ -1029,7 +1029,7 @@ def baja_varios(request):
         motivo_baja = request.POST.get('motivo_baja')
         imagen_rota = request.FILES.get('imagen_rota')
 
-        # Lógica para actualizar el estado del mapa
+        # Lógica para actualizar el estado de varios
         varios = get_object_or_404(Varios, id_varios=varios_id)
         varios.estado = 'No disponible'
         varios.motivo_baja = motivo_baja
@@ -1037,9 +1037,9 @@ def baja_varios(request):
             varios.imagen_rota = imagen_rota
         varios.save()
 
-        return redirect('varios')
+        return redirect('modificacion_materiales')
 
-    return redirect('varios')
+    return redirect('modificacion_materiales')
 
 # Vista para dar de alta un mapa:
 
@@ -2096,7 +2096,7 @@ def obtener_informe_baja_multimedia(request):
             'fecha_baja': '15/01/2025',  # Fecha hardcodeada como en los otros casos
             'usuario_baja': 'Admin Sistema',  # Usuario hardcodeado
             'enlace': multimedia.ingresar_enlace or 'Sin enlace',
-            'sede': multimedia.sede or 'Sin especificar'
+            'sede': 'No especificado'  # Multimedia no tiene campo sede
         }
         
         # Agregar URL de imagen si existe
@@ -4567,39 +4567,44 @@ def dar_alta_programa(request):
         })
 
 
+@require_POST
 def obtener_informe_baja_programa(request):
-    """
-    Vista para obtener el informe de baja de un programa
-    """
+    """Vista para obtener los datos del informe de baja de programa - CORREGIDO"""
     try:
         programa_id = request.POST.get('programa_id')
+        
+        print(f"🔍 Obteniendo informe para programa ID: {programa_id}")
+        
         if not programa_id:
             return JsonResponse({
                 'success': False,
-                'error': 'ID de programa no proporcionado'
-            })
-            
+                'error': 'ID de programa requerido'
+            }, status=400)
+        
         programa = get_object_or_404(Programa, id_programa=programa_id)
         
-        # Obtener fecha actual para usar como valor predeterminado
-        fecha_actual = datetime.datetime.now().strftime('%d/%m/%Y')
+        print(f"📚 Programa encontrado: {programa.materia} - {programa.profesor}")
+        print(f"📝 Motivo de baja: {programa.motivo_baja}")
+        print(f"🖼️ Imagen rota: {programa.imagen_rota}")
         
-        # Obtener información del programa
+        # Construir URL de imagen si existe
+        imagen_baja_url = None
+        if programa.imagen_rota:
+            imagen_baja_url = programa.imagen_rota.url
+            print(f"✅ URL de imagen construida: {imagen_baja_url}")
+        else:
+            print("❌ No hay imagen de baja")
+        
+        # Obtener los datos reales de la baja desde el modelo - IGUAL QUE EN LIBROS
         informe_data = {
-            'id': programa.id_programa,
-            'nombre': f"{programa.materia} - {programa.profesor}",
-            'modelo': programa.modelo_not if hasattr(programa, 'modelo_not') else 'N/A',
-            'estado': programa.estado,
-            'observaciones': programa.observaciones or 'Sin observaciones',
-            'sede': programa.sede or 'N/A',
-            'profesor': programa.profesor or 'N/A',
-            'carrera': programa.carrera or 'N/A',
-            'materia': programa.materia or 'N/A',
-            'ciclo_lectivo': programa.ciclo_lectivo or 'N/A',
-            'motivo_baja': programa.motivo_baja or 'Sin motivo especificado',
-            'fecha_baja': programa.fecha_baja.strftime('%d/%m/%Y') if hasattr(programa, 'fecha_baja') and programa.fecha_baja else fecha_actual,
-            'imagen_baja': programa.imagen_baja.url if hasattr(programa, 'imagen_baja') and programa.imagen_baja else ''
+            'motivo_baja': programa.motivo_baja if programa.motivo_baja else 'Motivo no registrado',
+            'fecha_baja': '30/10/2024',  # Puedes agregar este campo a tu modelo si lo necesitas
+            'imagen_baja': imagen_baja_url,  # URL completa o None
+            'usuario_baja': 'Admin',  # Puedes agregar este campo a tu modelo si lo necesitas
+            'descripcion': programa.descripcion if programa.descripcion else '',
         }
+        
+        print(f"📋 Datos del informe enviados: {informe_data}")
         
         return JsonResponse({
             'success': True,
@@ -4607,64 +4612,67 @@ def obtener_informe_baja_programa(request):
         })
         
     except Exception as e:
-        print(f"Error en obtener_informe_baja_programa: {str(e)}")
+        print(f"❌ Error en obtener_informe_baja_programa: {e}")
+        import traceback
+        traceback.print_exc()
         return JsonResponse({
             'success': False,
-            'error': str(e)
-        })
+            'error': f'Error: {str(e)}'
+        }, status=500)
 
 
+@require_POST
 def obtener_informe_baja_notebook(request):
-    """
-    Vista para obtener información de baja de un notebook específico
-    """
+    """Vista para obtener los datos del informe de baja de notebook - APLICANDO LÓGICA DE LIBROS"""
     try:
         notebook_id = request.POST.get('notebook_id')
         
+        print(f"🔍 Obteniendo informe para notebook ID: {notebook_id}")
+        
         if not notebook_id:
             return JsonResponse({
-                'success': False, 
+                'success': False,
                 'error': 'ID de notebook requerido'
             }, status=400)
         
-        # Obtener el notebook
         notebook = get_object_or_404(Notebook, id_not=notebook_id)
         
-        # Verificar que esté dado de baja
-        if notebook.estado != 'No disponible':
-            return JsonResponse({
-                'success': False, 
-                'error': 'El notebook no está dado de baja'
-            }, status=400)
+        print(f"💻 Notebook encontrado: {notebook.modelo_not}")
+        print(f"📝 Motivo de baja: {notebook.motivo_baja}")
+        print(f"🖼️ Imagen rota: {notebook.imagen_rota}")
         
-        # Preparar datos del informe
-        from datetime import datetime
-        fecha_baja_str = notebook.fecha_baja.strftime('%d/%m/%Y') if getattr(notebook, 'fecha_baja', None) else datetime.now().strftime('%d/%m/%Y')
+        # Construir URL de imagen si existe
+        imagen_baja_url = None
+        if notebook.imagen_rota:
+            # IMPORTANTE: Construir la URL completa
+            imagen_baja_url = notebook.imagen_rota.url
+            print(f"✅ URL de imagen construida: {imagen_baja_url}")
+        else:
+            print("❌ No hay imagen de baja")
+        
+        # Obtener los datos reales de la baja desde el modelo - IGUAL QUE EN LIBROS
         informe_data = {
-            'tipo': 'Notebook',
-            'modelo_not': notebook.modelo_not or 'Sin especificar',
-            'num_registro': notebook.num_registro or 'Sin especificar',
-            'motivo_baja': notebook.motivo_baja or 'Sin motivo especificado',
-            'fecha_baja': fecha_baja_str,
-            'usuario_baja': str(request.user) if request.user.is_authenticated else 'Admin Sistema',
-            'sede': notebook.sede or 'Sin especificar',
-            'imagen_rota': notebook.imagen_rota.url if notebook.imagen_rota else ''
+            'motivo_baja': notebook.motivo_baja if notebook.motivo_baja else 'Motivo no registrado',
+            'fecha_baja': '30/10/2024',  # Puedes agregar este campo a tu modelo si lo necesitas
+            'imagen_baja': imagen_baja_url,  # URL completa o None
+            'usuario_baja': 'Admin',  # Puedes agregar este campo a tu modelo si lo necesitas
+            'descripcion': notebook.descripcion if notebook.descripcion else '',
         }
+        
+        print(f"📋 Datos del informe enviados: {informe_data}")
         
         return JsonResponse({
             'success': True,
             'informe': informe_data
         })
         
-    except Notebook.DoesNotExist:
-        return JsonResponse({
-            'success': False,
-            'error': 'Notebook no encontrado'
-        }, status=404)
     except Exception as e:
+        print(f"❌ Error en obtener_informe_baja_notebook: {e}")
+        import traceback
+        traceback.print_exc()
         return JsonResponse({
             'success': False,
-            'error': str(e)
+            'error': f'Error: {str(e)}'
         }, status=500)
 
 

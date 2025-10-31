@@ -250,7 +250,7 @@
 {% block content %}
 <div class="form-container">
     <div class="form-card">
-        <form id="editFormMultimedia" method="POST" class="form-grid">
+        <form id="editFormMultimedia" method="POST" action="{% url 'editar_multimedia' multimedia.id_multi %}" class="form-grid">
             {% csrf_token %}
             
             <div class="form-group">

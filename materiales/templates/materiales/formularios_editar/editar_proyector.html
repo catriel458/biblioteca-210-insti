@@ -218,7 +218,7 @@
 {% block content %}
 <div class="form-container">
     <div class="form-card">
-        <form id="editFormProyector" method="POST" class="form-grid">
+        <form id="editFormProyector" method="POST" action="{% url 'editar_proyector' proyector.id_proyector %}" class="form-grid">
             {% csrf_token %}
             
             <div class="form-group">
