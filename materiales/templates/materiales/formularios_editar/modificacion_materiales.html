@@ -735,6 +735,7 @@
                     <th class="text-center">ID</th>
                     <th>Tipo</th>
                     <th>Denominación</th>
+                    <th>Descripción</th>
                     <th class="text-center">N° Registro</th>
                     <th class="text-center">Sede</th>
                     <th class="text-center">Disponibilidad</th>
@@ -752,6 +753,7 @@
                         <td class="text-center">{{ mapa.id_mapa|default:'' }}</td>
                         <td class="titulo-cell">{{ mapa.tipo }}</td>
                         <td>{{ mapa.denominacion }}</td>
+                        <td>{{ mapa.descripcion|default:'' }}</td>
                         <td class="text-center">{{ mapa.num_registro|default:'' }}</td>
                         <td class="text-center">{{ mapa.sede|default:'LA PLATA' }}</td>
                         <td class="disponibilidad-cell">

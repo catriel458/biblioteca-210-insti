@@ -222,7 +222,7 @@
 {% block content %}
 <div class="form-container">
     <div class="form-card">
-        <form id="editFormNotebook" method="POST" class="form-grid">
+        <form id="editFormNotebook" method="POST" enctype="multipart/form-data" action="{% url 'editar_notebook' notebook.id_not %}" class="form-grid">
             {% csrf_token %}
             
             <div class="form-group">
@@ -268,11 +268,11 @@
                     </p>
                 </div>
                 <div style="display: flex; gap: 1rem; justify-content: center;">
-                    <button type="button" class="btn" data-bs-dismiss="modal"
+                    <button type="button" class="btn-modal-cancelar" data-bs-dismiss="modal"
                             style="background: #4285F4; color: white; border: none; padding: 10px 24px; border-radius: 4px; font-weight: 500; text-transform: uppercase; cursor: pointer;">
                         CANCELAR
                     </button>
-                    <button type="button" class="btn" onclick="confirmarGuardado()"
+                    <button type="button" class="btn-modal-confirmar" onclick="confirmarGuardado()"
                             style="background: #ff6b35; color: white; border: none; padding: 10px 24px; border-radius: 4px; font-weight: 500; text-transform: uppercase; cursor: pointer;">
                         CONFIRMAR
                     </button>
@@ -281,17 +281,24 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
 {% block extra_scripts %}
 <script>
+// Función para mostrar el modal de confirmación
 function mostrarModalConfirmacion() {
     const modal = new bootstrap.Modal(document.getElementById('confirmacionModal'));
     modal.show();
 }
+
+// Función para confirmar el guardado
 function confirmarGuardado() {
+    // Cerrar el modal
     const modal = bootstrap.Modal.getInstance(document.getElementById('confirmacionModal'));
-    if (modal) modal.hide();
+    modal.hide();
+    
+    // Enviar el formulario
     document.getElementById('editFormNotebook').submit();
 }
 </script>
-{% endblock %}
 {% endblock %}

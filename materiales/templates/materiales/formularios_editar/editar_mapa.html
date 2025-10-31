@@ -99,6 +99,18 @@
         background: white;
         color: #2d3748;
         box-sizing: border-box;
+        min-height: 48px;
+        font-family: inherit;
+    }
+
+    /* Asegurar que todos los inputs tengan exactamente el mismo tamaño */
+    .form-group input[type="text"],
+    .form-group input[type="email"],
+    .form-group input[type="number"],
+    .form-group input[type="url"],
+    .form-group select {
+        height: 48px;
+        line-height: 1.4;
     }
 
     .form-group input:focus,
@@ -110,12 +122,17 @@
     }
 
     .form-group textarea {
-        min-height: 100px;
+        height: 48px;
+        min-height: 48px;
         resize: vertical;
+        line-height: 1.4;
+        font-family: inherit;
+        overflow-y: auto;
     }
 
     .textarea-large {
-        min-height: 120px;
+        height: 48px;
+        min-height: 48px;
     }
 
     /* Sección de imagen */
@@ -322,40 +339,20 @@
 
 {% block content %}
 <div class="form-container">
-    <!-- Formulario real (oculto) que se enviará -->
-    <form id="realForm" method="post" enctype="multipart/form-data" style="display: none;">
-        {% csrf_token %}
-        {% for field in form %}
-            {% if field.name != 'img' %}
-                {{ field }}
-            {% endif %}
-        {% endfor %}
-        <input type="hidden" name="img" id="real_img" value="{{ mapa.img|default:'' }}">
-    </form>
-
-    <!-- Formulario visual para el usuario -->
     <div class="form-card">
-        <div class="form-grid">
-            {% for field in form %}
-            {% if field.name != 'img' %}
-            <div class="form-group {% if field.field.required %}required{% endif %} {% if field.name == 'descripcion' or field.name == 'observaciones' %}full-width{% endif %}">
-                <label for="visual_{{ field.name }}" {% if field.field.required %}class="required"{% endif %}>{{ field.label }}</label>
-                {% if field.field.widget.input_type == 'textarea' %}
-                <textarea id="visual_{{ field.name }}" class="{% if field.name == 'descripcion' or field.name == 'observaciones' %}textarea-large{% endif %}">{{ field.value|default:'' }}</textarea>
-                {% elif field.field.widget.input_type == 'select' %}
-                <select id="visual_{{ field.name }}">
-                    {% for option in field.field.choices %}
-                    <option value="{{ option.0 }}" {% if field.value == option.0 %}selected{% endif %}>{{ option.1 }}</option>
-                    {% endfor %}
-                </select>
-                {% else %}
-                <input type="{{ field.field.widget.input_type }}" id="visual_{{ field.name }}" value="{{ field.value|default:'' }}" {% if field.field.required %}required{% endif %}>
-                {% endif %}
-            </div>
-            {% endif %}
-            {% endfor %}
+        <!-- FORMULARIO PRINCIPAL -->
+        <form id="editForm" method="POST" enctype="multipart/form-data" action="{% url 'editar_mapa' mapa.id_mapa %}">
+            {% csrf_token %}
             
-            <!-- Botones de acción -->
+            <div class="form-grid">
+                {% for field in form %}
+                <div class="form-group {% if field.field.required %}required{% endif %} {% if field.name == 'descripcion' %}full-width{% endif %}">
+                    <label for="{{ field.id_for_label }}" {% if field.field.required %}class="required"{% endif %}>{{ field.label }}</label>
+                    {{ field }}
+                </div>
+                {% endfor %}
+            </div>
+
             <div class="action-buttons">
                 <div></div>
                 <div style="display: flex; gap: 2rem; align-items: center;">
@@ -367,7 +364,7 @@
                     </button>
                 </div>
             </div>
-        </div>
+        </form>
     </div>
 </div>
 
@@ -384,12 +381,13 @@
                         Pulse un botón para continuar. Una vez aceptado, los datos serán guardados en la base de datos.
                     </p>
                 </div>
+                
                 <div style="display: flex; gap: 1rem; justify-content: center;">
-                    <button type="button" class="btn" data-bs-dismiss="modal"
+                    <button type="button" class="btn-modal-cancelar" data-bs-dismiss="modal" 
                             style="background: #4285F4; color: white; border: none; padding: 10px 24px; border-radius: 4px; font-weight: 500; text-transform: uppercase; cursor: pointer;">
                         CANCELAR
                     </button>
-                    <button type="button" class="btn" onclick="confirmarGuardado()"
+                    <button type="button" class="btn-modal-confirmar" onclick="confirmarGuardado()" 
                             style="background: #ff6b35; color: white; border: none; padding: 10px 24px; border-radius: 4px; font-weight: 500; text-transform: uppercase; cursor: pointer;">
                         CONFIRMAR
                     </button>
@@ -397,12 +395,11 @@
             </div>
         </div>
     </div>
-    </div>
+</div>
 
 {% endblock %}
 
 {% block extra_scripts %}
-<!-- Script simplificado para guardar directamente -->
 <script>
 // Mostrar modal de confirmación
 function mostrarModalConfirmacion() {
@@ -410,60 +407,13 @@ function mostrarModalConfirmacion() {
     modal.show();
 }
 
-// Confirmar guardado y enviar formulario real
+// Confirmar guardado y enviar formulario
 function confirmarGuardado() {
     const modal = bootstrap.Modal.getInstance(document.getElementById('confirmacionModal'));
     if (modal) modal.hide();
-    // Copiar datos al formulario real
-    copiarDatosAlFormularioReal();
-    // Enviar formulario
-    document.getElementById('realForm').submit();
-}
-
-// Función simplificada para guardar directamente sin modal
-function guardarDirectamente() {
-    // Copiar datos al formulario real
-    copiarDatosAlFormularioReal();
     
-    // Enviar formulario
-    document.getElementById('realForm').submit();
-}
-
-// Copiar datos del formulario visual al formulario real
-function copiarDatosAlFormularioReal() {
-    // Obtener referencia al formulario real
-    const form = document.getElementById('realForm');
-    
-    // Mapeo de campos visuales a campos reales para mapas
-    const camposMapeados = {
-        'id_mapa': 'visual_id_mapa',
-        'tipo': 'visual_tipo',
-        'denominacion': 'visual_denominacion',
-        'sede': 'visual_sede',
-        'descripcion': 'visual_descripcion'
-    };
-    
-    // Copiar valores de campos visuales a campos reales
-    for (const [campoReal, campoVisual] of Object.entries(camposMapeados)) {
-        const campoVisualElement = document.getElementById(campoVisual);
-        const campoRealElement = form.querySelector(`[name="${campoReal}"]`);
-        
-        if (campoVisualElement && campoRealElement) {
-            campoRealElement.value = campoVisualElement.value;
-        }
-    }
-    
-    // Manejar imagen especialmente
-    const imageFileInput = document.getElementById('imageFile');
-    const realImgInput = document.getElementById('real_img');
-    
-    if (imageFileInput && imageFileInput.files.length > 0) {
-        // Si hay archivo seleccionado, necesitaríamos manejar la subida
-        // Por ahora, mantener el valor actual
-        console.log('Archivo seleccionado para subir');
-    }
-    
-    console.log('✅ Datos copiados al formulario real');
+    // Enviar formulario directamente
+    document.getElementById('editForm').submit();
 }
 </script>
 {% endblock %}

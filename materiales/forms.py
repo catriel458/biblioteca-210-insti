@@ -8,12 +8,38 @@ from .models import Usuario
 from .models import Programa
 
 class LibroForm(forms.ModelForm):
+    # Opciones para sede
+    SEDE_CHOICES = [
+        ('LA_PLATA', 'La Plata'),
+        ('ABASTO', 'Abasto'),
+    ]
+    
+    # Opciones para disponibilidad
+    DISPONIBILIDAD_CHOICES = [
+        ('AULA', 'Aula'),
+        ('SALON', 'Salon'),
+    ]
+    
+    # Redefinir campos con widgets personalizados
+    sede = forms.ChoiceField(
+        choices=SEDE_CHOICES,
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        required=True
+    )
+    
+    disponibilidad = forms.ChoiceField(
+        choices=DISPONIBILIDAD_CHOICES,
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        required=True
+    )
+    
     class Meta:
         model = Libro
         fields = [
             'titulo', 'autor', 'editorial', 'descripcion',
             'siglas_autor_titulo', 'clasificacion_cdu', 
-            'etiqueta_palabra_clave', 'img'
+            'etiqueta_palabra_clave', 'sede', 'disponibilidad', 
+            'observaciones', 'img'
         ]
         
         widgets = {
@@ -24,6 +50,7 @@ class LibroForm(forms.ModelForm):
             'siglas_autor_titulo': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese las siglas del autor y título', 'required': True}),
             'clasificacion_cdu': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese la clasificación CDU', 'required': True}),
             'etiqueta_palabra_clave': forms.Textarea(attrs={'class': 'form-control', 'rows': 2, 'placeholder': 'Ingrese palabras clave separadas por comas'}),
+            'observaciones': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Observaciones sobre este ejemplar'}),
             'img': forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'URL de la imagen del libro'}),
         }
         
@@ -32,16 +59,19 @@ class LibroForm(forms.ModelForm):
         
         # Hacer campos obligatorios
         self.fields['titulo'].required = True
-        self.fields['autor'].required = True
-        self.fields['editorial'].required = True
         self.fields['siglas_autor_titulo'].required = True
-        self.fields['clasificacion_cdu'].required = True
+        self.fields['sede'].required = True
+        self.fields['disponibilidad'].required = True
         
         # Hacer campos opcionales
+        self.fields['autor'].required = False
+        self.fields['editorial'].required = False
+        self.fields['clasificacion_cdu'].required = False
         self.fields['img'].required = False
         self.fields['img'].help_text = 'Ingrese la URL completa de la imagen del libro'
         self.fields['descripcion'].required = False
         self.fields['etiqueta_palabra_clave'].required = False
+        self.fields['observaciones'].required = False
         self.fields['etiqueta_palabra_clave'].initial = ''
         
     def clean_img(self):
@@ -56,9 +86,36 @@ class LibroForm(forms.ModelForm):
 
 # Mantener el resto de formularios igual
 class MapaForm(forms.ModelForm):
+    # Opciones para sede
+    SEDE_CHOICES = [
+        ('LA_PLATA', 'La Plata'),
+        ('ABASTO', 'Abasto'),
+    ]
+    
+    # Redefinir campos con widgets personalizados
+    sede = forms.ChoiceField(
+        choices=SEDE_CHOICES,
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        required=True
+    )
+    
     class Meta:
         model = Mapas
-        fields = ['id_mapa', 'tipo', 'descripcion', 'num_ejemplar']
+        fields = ['id_mapa', 'tipo', 'sede', 'denominacion', 'descripcion']
+        
+        widgets = {
+            'id_mapa': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'ID del mapa'}),
+            'tipo': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Tipo de mapa', 'required': True}),
+            'denominacion': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Denominación del mapa', 'required': True}),
+            'descripcion': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Descripción del mapa'}),
+        }
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Hacer campos explícitamente requeridos
+        self.fields['tipo'].required = True
+        self.fields['denominacion'].required = True
+        self.fields['sede'].required = True
 
 class MultimediaEditForm(forms.ModelForm):
     # Carreras REALES del Instituto Superior de Formación Docente y Técnica Nº 210
@@ -716,12 +773,12 @@ class ProyectorForm(forms.ModelForm):
 class VariosForm(forms.ModelForm):
     class Meta:
         model = Varios
-        fields = ['id_varios', 'tipo', 'descripcion', 'cantidad', 'cantidad_disponible']
+        fields = ['id_varios', 'tipo', 'sede', 'cantidad', 'cantidad_disponible']
 
         widgets = {
             'id_varios': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese el ID del artículo'}),
             'tipo': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese el tipo de artículo'}),
-            'descripcion': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Ingrese una descripción del artículo'}),
+            'sede': forms.Select(attrs={'class': 'form-control'}, choices=[('La Plata', 'La Plata'), ('Abasto', 'Abasto')]),
             'cantidad': forms.NumberInput(attrs={'class': 'form-control', 'min': 1, 'placeholder': 'Cantidad total'}),
             'cantidad_disponible': forms.NumberInput(attrs={'class': 'form-control', 'min': 0, 'placeholder': 'Cantidad disponible'}),
         }

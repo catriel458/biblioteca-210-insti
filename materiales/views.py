@@ -766,7 +766,7 @@ def editar_mapa(request, mapa_id):
         form = MapaForm(request.POST, instance=mapa)
         if form.is_valid():
             form.save()
-            return redirect('mapas')
+            return redirect('modificacion_materiales')
     else:
         form = MapaForm(instance=mapa)
 
@@ -884,16 +884,73 @@ def alta_notebook(request):
 
 def editar_notebook(request, not_id):
     notebook = get_object_or_404(Notebook, id_not=not_id)
-
+    
     if request.method == 'POST':
-        form = NotebookForm(request.POST, instance=notebook)
+        print(f"🔥 POST recibido para editar notebook ID: {not_id}")
+        print(f"🔥 Datos POST: {dict(request.POST)}")
+        
+        # Crear una copia mutable de POST para modificar
+        post_data = request.POST.copy()
+        
+        # ARREGLAR: Verificar campos requeridos vacíos
+        if not post_data.get('sede'):
+            print("⚠️ Sede vacía, usando valor actual del notebook")
+            post_data['sede'] = notebook.sede or 'La Plata'  # Valor por defecto
+            
+        if not post_data.get('num_registro'):
+            print("⚠️ Num_registro vacío, usando valor actual del notebook")
+            post_data['num_registro'] = notebook.num_registro or '1'  # Valor por defecto
+            
+        if not post_data.get('modelo_not'):
+            print("⚠️ Modelo_not vacío, usando valor actual del notebook")
+            post_data['modelo_not'] = notebook.modelo_not or 'Sin modelo'  # Valor por defecto
+            
+        if not post_data.get('num_ejemplar'):
+            print("⚠️ Num_ejemplar vacío, usando valor actual del notebook")
+            post_data['num_ejemplar'] = notebook.num_ejemplar or 1  # Valor por defecto
+        
+        print(f"🔧 Datos POST corregidos: {dict(post_data)}")
+        
+        # Imprimir datos del notebook antes de la modificación
+        print(f"🔥 Notebook ANTES - sede: {notebook.sede}, num_registro: {notebook.num_registro}, modelo_not: {notebook.modelo_not}, num_ejemplar: {notebook.num_ejemplar}")
+        
+        # Crear formulario con datos corregidos
+        form = NotebookForm(post_data, instance=notebook)
+        
         if form.is_valid():
-            form.save()
-            return redirect('modificacion_materiales')
+            print("✅ Formulario válido - guardando...")
+            
+            try:
+                # Guardar el formulario
+                notebook_actualizado = form.save()
+                
+                print(f"✅ Notebook actualizado: {notebook_actualizado}")
+                print(f"📋 Datos finales - sede: {notebook_actualizado.sede}, num_registro: {notebook_actualizado.num_registro}, modelo_not: {notebook_actualizado.modelo_not}, num_ejemplar: {notebook_actualizado.num_ejemplar}")
+                
+                # messages.success(request, f'✅ Notebook actualizado exitosamente.')
+                return redirect('modificacion_materiales')
+                
+            except Exception as e:
+                print(f"❌ Error al guardar: {e}")
+                import traceback
+                traceback.print_exc()
+                messages.error(request, f'❌ Error al actualizar el notebook: {str(e)}')
+        else:
+            print(f"❌ Formulario TODAVÍA inválido!")
+            print(f"❌ Errores: {form.errors}")
+            
+            # Mostrar errores específicos
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f'Error en {field}: {error}')
+                    print(f"❌ Error en {field}: {error}")
     else:
         form = NotebookForm(instance=notebook)
-
-    return render(request, 'materiales/formularios_editar/editar_notebook.html', {'form': form, 'notebook': notebook})
+    
+    return render(request, 'materiales/formularios_editar/editar_notebook.html', {
+        'form': form, 
+        'notebook': notebook
+    })
 
 # Proyector
 
@@ -961,7 +1018,7 @@ def editar_proyector(request, proyector_id):
 
 def varios_view(request):
     varios = Varios.objects.filter(estado='Disponible')
-    return render(request, 'libros/varios.html', {'varios': varios})
+    return render(request, 'materiales/varios/lista_varios.html', {'varios': varios})
 
 # Vista para dar de baja un mapa:
 
@@ -1005,16 +1062,92 @@ def alta_varios(request):
 
 def editar_varios(request, varios_id):
     varios = get_object_or_404(Varios, id_varios=varios_id)
-
+    
     if request.method == 'POST':
-        form = VariosForm(request.POST, instance=varios)
-        if form.is_valid():
-            form.save()
-            return redirect('modificacion_materiales')
+        try:
+            # Debug: Imprimir datos POST recibidos
+            print(f"DEBUG - POST data recibido: {dict(request.POST)}")
+            
+            # Crear una copia mutable de POST data
+            post_data = request.POST.copy()
+            
+            # Asignar valores por defecto para campos requeridos si están vacíos
+            if not post_data.get('tipo'):
+                post_data['tipo'] = varios.tipo or 'Material Varios'
+                print(f"DEBUG - Asignando tipo por defecto: {post_data['tipo']}")
+            
+            if not post_data.get('cantidad'):
+                post_data['cantidad'] = varios.cantidad or 1
+                print(f"DEBUG - Asignando cantidad por defecto: {post_data['cantidad']}")
+                
+            if not post_data.get('cantidad_disponible'):
+                post_data['cantidad_disponible'] = varios.cantidad_disponible or 1
+                print(f"DEBUG - Asignando cantidad_disponible por defecto: {post_data['cantidad_disponible']}")
+            
+            if not post_data.get('sede'):
+                post_data['sede'] = varios.sede or 'La Plata'
+                print(f"DEBUG - Asignando sede por defecto: {post_data['sede']}")
+            
+            # Debug: Imprimir datos antes de crear el formulario
+            print(f"DEBUG - Datos procesados para el formulario: {dict(post_data)}")
+            
+            # Crear formulario con datos procesados
+            form = VariosForm(post_data, instance=varios)
+            
+            # Debug: Verificar validez del formulario
+            print(f"DEBUG - Formulario válido: {form.is_valid()}")
+            if not form.is_valid():
+                print(f"DEBUG - Errores del formulario: {form.errors}")
+            
+            if form.is_valid():
+                # Debug: Imprimir datos antes de guardar
+                print(f"DEBUG - Datos del varios antes de guardar:")
+                print(f"  - ID: {varios.id_varios}")
+                print(f"  - Tipo: {varios.tipo}")
+                print(f"  - Cantidad: {varios.cantidad}")
+                print(f"  - Cantidad Disponible: {varios.cantidad_disponible}")
+                print(f"  - Sede: {varios.sede}")
+                
+                # Guardar el formulario
+                varios_actualizado = form.save()
+                
+                # Debug: Imprimir datos después de guardar
+                print(f"DEBUG - Datos del varios después de guardar:")
+                print(f"  - ID: {varios_actualizado.id_varios}")
+                print(f"  - Tipo: {varios_actualizado.tipo}")
+                print(f"  - Cantidad: {varios_actualizado.cantidad}")
+                print(f"  - Cantidad Disponible: {varios_actualizado.cantidad_disponible}")
+                print(f"  - Sede: {varios_actualizado.sede}")
+                
+                # Verificar que los cambios se guardaron
+                varios_verificacion = Varios.objects.get(id_varios=varios_id)
+                print(f"DEBUG - Verificación desde BD:")
+                print(f"  - Tipo: {varios_verificacion.tipo}")
+                print(f"  - Cantidad: {varios_verificacion.cantidad}")
+                print(f"  - Cantidad Disponible: {varios_verificacion.cantidad_disponible}")
+                print(f"  - Sede: {varios_verificacion.sede}")
+                
+                messages.success(request, 'Varios editado exitosamente.')
+                return redirect('modificacion_materiales')
+            else:
+                print(f"DEBUG - Formulario inválido. Errores: {form.errors}")
+                messages.error(request, f'Error al editar el varios: {form.errors}')
+                
+        except Exception as e:
+            print(f"DEBUG - Error en editar_varios: {str(e)}")
+            import traceback
+            traceback.print_exc()
+            messages.error(request, f'Error inesperado al editar el varios: {str(e)}')
     else:
         form = VariosForm(instance=varios)
-
-    return render(request, 'materiales/formularios_editar/editar_varios.html', {'form': form, 'varios': varios})
+    
+    context = {
+        'form': form,
+        'varios': varios,
+        'title': 'Editar Varios'
+    }
+    
+    return render(request, 'materiales/formularios_editar/editar_varios.html', context)
 
 
 # Vista para registro de bajas 
@@ -3744,11 +3877,66 @@ def editar_programa(request, programa_id):
     programa = get_object_or_404(Programa, id_programa=programa_id)
     
     if request.method == 'POST':
-        form = ProgramaForm(request.POST, instance=programa)
+        print(f"🔍 [DEBUG] POST data recibida: {dict(request.POST)}")
+        
+        # Crear una copia mutable de POST data
+        post_data = request.POST.copy()
+        
+        # Verificar y corregir campos vacíos requeridos
+        if not post_data.get('carrera'):
+            post_data['carrera'] = 'No especificado'
+            print(f"⚠️ [DEBUG] Campo 'carrera' vacío, asignando valor por defecto")
+            
+        if not post_data.get('materia'):
+            post_data['materia'] = 'No especificado'
+            print(f"⚠️ [DEBUG] Campo 'materia' vacío, asignando valor por defecto")
+            
+        if not post_data.get('profesor'):
+            post_data['profesor'] = 'No especificado'
+            print(f"⚠️ [DEBUG] Campo 'profesor' vacío, asignando valor por defecto")
+            
+        if not post_data.get('ciclo_lectivo'):
+            post_data['ciclo_lectivo'] = '2024'
+            print(f"⚠️ [DEBUG] Campo 'ciclo_lectivo' vacío, asignando valor por defecto")
+        
+        print(f"🔧 [DEBUG] POST data después de correcciones: {dict(post_data)}")
+        
+        # Crear el formulario con los datos corregidos
+        form = ProgramaForm(post_data, instance=programa)
+        
+        print(f"📋 [DEBUG] Formulario válido: {form.is_valid()}")
+        if not form.is_valid():
+            print(f"❌ [DEBUG] Errores del formulario: {form.errors}")
+            print(f"❌ [DEBUG] Errores no de campo: {form.non_field_errors()}")
+        
         if form.is_valid():
-            form.save()
-            # messages.success(request, f'Programa "{programa.nombre}" actualizado correctamente.')
-            return redirect('modificacion_materiales')
+            try:
+                print(f"💾 [DEBUG] Programa antes de guardar:")
+                print(f"    - ID: {programa.id_programa}")
+                print(f"    - Carrera: {programa.carrera}")
+                print(f"    - Materia: {programa.materia}")
+                print(f"    - Profesor: {programa.profesor}")
+                print(f"    - Ciclo Lectivo: {programa.ciclo_lectivo}")
+                print(f"    - Enlace: {programa.ingresar_enlace}")
+                
+                programa_guardado = form.save()
+                
+                print(f"✅ [DEBUG] Programa después de guardar:")
+                print(f"    - ID: {programa_guardado.id_programa}")
+                print(f"    - Carrera: {programa_guardado.carrera}")
+                print(f"    - Materia: {programa_guardado.materia}")
+                print(f"    - Profesor: {programa_guardado.profesor}")
+                print(f"    - Ciclo Lectivo: {programa_guardado.ciclo_lectivo}")
+                print(f"    - Enlace: {programa_guardado.ingresar_enlace}")
+                
+                messages.success(request, 'Programa editado exitosamente.')
+                return redirect('modificacion_materiales')
+                
+            except Exception as e:
+                print(f"💥 [ERROR] Error al guardar programa: {str(e)}")
+                messages.error(request, f'Error al guardar el programa: {str(e)}')
+        else:
+            messages.error(request, 'Error al editar el programa. Verifique los datos.')
     else:
         form = ProgramaForm(instance=programa)
     

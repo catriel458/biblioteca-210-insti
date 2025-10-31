@@ -374,127 +374,106 @@
 {% block content %}
 <div class="form-container">
     <div class="form-card">
-        <!-- FORMULARIO PRINCIPAL (OCULTO) -->
-        <form id="editForm" method="POST" enctype="multipart/form-data" action="{% url 'editar_libro' libro.id_libro %}" style="display: none;">
+        <!-- FORMULARIO PRINCIPAL -->
+        <form id="editForm" method="POST" enctype="multipart/form-data" action="{% url 'editar_libro' libro.id_libro %}">
             {% csrf_token %}
-            {{ form.as_p }}
-            <!-- Campo oculto para URL de imagen -->
-            <input type="hidden" name="url_input" id="hidden_url_input" value="">
-        </form>
-
-        <!-- FORMULARIO VISUAL (SOLO PARA MOSTRAR) -->
-        <div class="form-grid">
-            <!-- Título -->
-            <div class="form-group">
-                <label for="visual_titulo" class="required">Título</label>
-                <input type="text" id="visual_titulo" name="visual_titulo" value="{{ libro.titulo }}" required>
-            </div>
-
-            <!-- Autor -->
-            <div class="form-group">
-                <label for="visual_autor">Autor</label>
-                <input type="text" id="visual_autor" name="visual_autor" value="{{ libro.autor }}">
-            </div>
-
-            <!-- Editorial -->
-            <div class="form-group">
-                <label for="visual_editorial">Editorial</label>
-                <input type="text" id="visual_editorial" name="visual_editorial" value="{{ libro.editorial }}">
-            </div>
-
-            <!-- Clasificación / CDU -->
-            <div class="form-group">
-                <label for="visual_clasificacion_cdu">Clasificación / CDU</label>
-                <input type="text" id="visual_clasificacion_cdu" name="visual_clasificacion_cdu" value="{{ libro.clasificacion_cdu }}">
-            </div>
-
-            <!-- Siglas de autor / título -->
-            <div class="form-group">
-                <label for="visual_siglas_autor_titulo" class="required">Siglas de autor / título</label>
-                <input type="text" id="visual_siglas_autor_titulo" name="visual_siglas_autor_titulo" value="{{ libro.siglas_autor_titulo }}" required>
-            </div>
-
-
-
-            <!-- Etiquetas / palabras clave -->
-            <div class="form-group full-width">
-                <label for="visual_etiqueta_palabra_clave">Etiquetas / palabras clave</label>
-                <textarea id="visual_etiqueta_palabra_clave" name="visual_etiqueta_palabra_clave" rows="3">{{ libro.etiqueta_palabra_clave }}</textarea>
-                <div class="etiquetas-help">
-                    Las etiquetas deben estar separadas por comas. Ejemplo: etiqueta, etiqueta, ...
+            
+            <div class="form-grid">
+                <!-- Título -->
+                <div class="form-group">
+                    <label for="{{ form.titulo.id_for_label }}" class="required">Título</label>
+                    {{ form.titulo }}
                 </div>
-            </div>
 
-            <!-- Sede -->
-            <div class="form-group">
-                <label for="visual_sede" class="required">Sede</label>
-                <select id="visual_sede" name="visual_sede" required>
-                    <option value="">Seleccione una sede</option>
-                    <option value="LA_PLATA" {% if libro.sede == 'LA_PLATA' %}selected{% endif %}>La Plata</option>
-                    <option value="ABASTO" {% if libro.sede == 'ABASTO' %}selected{% endif %}>Abasto</option>
-                </select>
-            </div>
+                <!-- Autor -->
+                <div class="form-group">
+                    <label for="{{ form.autor.id_for_label }}">Autor</label>
+                    {{ form.autor }}
+                </div>
 
-            <!-- Disponibilidad -->
-            <div class="form-group">
-                <label for="visual_disponibilidad" class="required">Disponibilidad</label>
-                <select id="visual_disponibilidad" name="visual_disponibilidad" required>
-                    <option value="">Seleccione disponibilidad</option>
-                    <option value="AULA" {% if libro.disponibilidad == 'AULA' %}selected{% endif %}>Aula</option>
-                    <option value="SALON" {% if libro.disponibilidad == 'SALON' %}selected{% endif %}>Salon</option>
-                </select>
-            </div>
+                <!-- Editorial -->
+                <div class="form-group">
+                    <label for="{{ form.editorial.id_for_label }}">Editorial</label>
+                    {{ form.editorial }}
+                </div>
 
-            <!-- Descripción -->
-            <div class="form-group full-width">
-                <label for="visual_descripcion">Descripción</label>
-                <textarea id="visual_descripcion" name="visual_descripcion" rows="4" class="textarea-large">{{ libro.descripcion }}</textarea>
-            </div>
+                <!-- Clasificación / CDU -->
+                <div class="form-group">
+                    <label for="{{ form.clasificacion_cdu.id_for_label }}">Clasificación / CDU</label>
+                    {{ form.clasificacion_cdu }}
+                </div>
 
-            <!-- Observaciones -->
-            <div class="form-group full-width">
-                <label for="visual_observaciones">Observaciones</label>
-                <textarea id="visual_observaciones" name="visual_observaciones" rows="3" placeholder="Observaciones sobre este ejemplar">{{ libro.observaciones }}</textarea>
-            </div>
+                <!-- Siglas de autor / título -->
+                <div class="form-group">
+                    <label for="{{ form.siglas_autor_titulo.id_for_label }}" class="required">Siglas de autor / título</label>
+                    {{ form.siglas_autor_titulo }}
+                </div>
 
-
-
-
-            <!-- Sección de imagen -->
-            <div class="image-section">
-                <div class="image-upload">
-                    <label for="visual_img">Imagen</label>
-                    <div class="upload-container">
-                        <button type="button" class="upload-button" onclick="document.getElementById('real_img_input').click()">
-                            ↑ Elegir archivo aquí...
-                        </button>
-                        <input type="text" class="url-input" placeholder="O pegue un enlace aquí..." id="url_input" value="{{ libro.img|default:'' }}">
+                <!-- Etiquetas / palabras clave -->
+                <div class="form-group full-width">
+                    <label for="{{ form.etiqueta_palabra_clave.id_for_label }}">Etiquetas / palabras clave</label>
+                    {{ form.etiqueta_palabra_clave }}
+                    <div class="etiquetas-help">
+                        Las etiquetas deben estar separadas por comas. Ejemplo: etiqueta, etiqueta, ...
                     </div>
-                    <input type="file" id="real_img_input" style="display: none;" accept="image/*">
                 </div>
-                <div class="image-preview">
-                    {% if libro.img %}
-                        <img src="{{ libro.img }}" alt="{{ libro.titulo }}" id="preview-image">
-                    {% else %}
-                        <div class="image-placeholder" id="preview-placeholder">
-                            Sin imagen
-                        </div>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
 
-        <div class="action-buttons">
-            <div></div>
-            <div style="display: flex; gap: 2rem; align-items: center;">
-                <button type="button" class="btn btn-cancelar" onclick="window.history.back()">
-                    CANCELAR
-                </button>
-                <button type="button" class="btn btn-guardar" onclick="mostrarModalConfirmacion()">
-                    GUARDAR
-                </button>
+                <!-- Sede -->
+                <div class="form-group">
+                    <label for="{{ form.sede.id_for_label }}" class="required">Sede</label>
+                    {{ form.sede }}
+                </div>
+
+                <!-- Disponibilidad -->
+                <div class="form-group">
+                    <label for="{{ form.disponibilidad.id_for_label }}" class="required">Disponibilidad</label>
+                    {{ form.disponibilidad }}
+                </div>
+
+                <!-- Descripción -->
+                <div class="form-group full-width">
+                    <label for="{{ form.descripcion.id_for_label }}">Descripción</label>
+                    {{ form.descripcion }}
+                </div>
+
+                <!-- Observaciones -->
+                <div class="form-group full-width">
+                    <label for="{{ form.observaciones.id_for_label }}">Observaciones</label>
+                    {{ form.observaciones }}
+                </div>
+
+                <!-- Sección de imagen -->
+                <div class="image-section">
+                    <div class="image-upload">
+                        <label for="{{ form.img.id_for_label }}">Imagen</label>
+                        <div class="upload-container">
+                            {{ form.img }}
+                        </div>
+                    </div>
+                    <div class="image-preview">
+                        {% if libro.img %}
+                            <img src="{{ libro.img }}" alt="{{ libro.titulo }}" id="preview-image">
+                        {% else %}
+                            <div class="image-placeholder" id="preview-placeholder">
+                                Sin imagen
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
             </div>
-        </div>
+
+            <div class="action-buttons">
+                <div></div>
+                <div style="display: flex; gap: 2rem; align-items: center;">
+                    <button type="button" class="btn btn-cancelar" onclick="window.history.back()">
+                        CANCELAR
+                    </button>
+                    <button type="button" class="btn btn-guardar" onclick="mostrarModalConfirmacion()">
+                        GUARDAR
+                    </button>
+                </div>
+            </div>
+        </form>
     </div>
 </div>
 
@@ -530,133 +509,83 @@
 
 {% block extra_scripts %}
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const fileInput = document.getElementById('real_img_input');
-    const urlInput = document.getElementById('url_input');
-    const previewImage = document.getElementById('preview-image');
-    const previewPlaceholder = document.getElementById('preview-placeholder');
-
-    // Manejar carga de archivo
-    if (fileInput) {
-        fileInput.addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    updatePreview(e.target.result);
-                    urlInput.value = ''; // Limpiar URL input
-                };
-                reader.readAsDataURL(file);
-            }
-        });
-    }
-
-    // Manejar URL de imagen
-    if (urlInput) {
-        urlInput.addEventListener('input', function() {
-            const url = this.value.trim();
-            if (url) {
-                updatePreview(url);
-                if (fileInput) fileInput.value = ''; // Limpiar file input
-            }
-        });
-    }
-
-    // Función para actualizar preview
-    function updatePreview(src) {
-        if (previewImage) {
-            previewImage.src = src;
-        } else if (previewPlaceholder) {
-            previewPlaceholder.style.display = 'none';
-            const img = document.createElement('img');
-            img.src = src;
-            img.id = 'preview-image';
-            img.style.maxWidth = '120px';
-            img.style.maxHeight = '160px';
-            img.style.borderRadius = '8px';
-            img.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
-            img.style.border = '2px solid #e0e6ed';
-            previewPlaceholder.parentNode.appendChild(img);
-        }
-    }
-});
-
-// Función para copiar datos del formulario visual al formulario real
-function copiarDatosAlFormularioReal() {
-    // Obtener referencia al formulario real
-    const form = document.getElementById('editForm');
-    
-    // Mapeo de campos visuales a campos reales
-    const camposMapeados = {
-        'titulo': 'visual_titulo',
-        'autor': 'visual_autor',
-        'editorial': 'visual_editorial',
-        'clasificacion_cdu': 'visual_clasificacion_cdu',
-        'siglas_autor_titulo': 'visual_siglas_autor_titulo',
-        'etiqueta_palabra_clave': 'visual_etiqueta_palabra_clave',
-        'sede': 'visual_sede',
-        'disponibilidad': 'visual_disponibilidad',
-        'descripcion': 'visual_descripcion',
-        'observaciones': 'visual_observaciones',
-        'resumen': 'visual_resumen'
-    };
-    
-    // Copiar valores de campos visuales a campos reales
-    for (const [campoReal, campoVisual] of Object.entries(camposMapeados)) {
-        const campoVisualElement = document.getElementById(campoVisual);
-        const campoRealElement = form.querySelector(`[name="${campoReal}"]`);
-        
-        if (campoVisualElement && campoRealElement) {
-            campoRealElement.value = campoVisualElement.value;
-        }
-    }
-    
-    // Manejar imagen especialmente
-    const urlInput = document.getElementById('url_input');
-    const fileInput = document.getElementById('real_img_input');
-    const hiddenUrlInput = document.getElementById('hidden_url_input');
-    const realImgInput = form.querySelector('[name="img"]');
-    
-    if (urlInput && urlInput.value.trim()) {
-        // Si hay URL de imagen
-        hiddenUrlInput.value = urlInput.value.trim();
-        // Limpiar el input de archivo real si existe
-        if (realImgInput) {
-            realImgInput.value = '';
-        }
-    } else if (fileInput && fileInput.files.length > 0) {
-        // Si hay archivo seleccionado
-        if (realImgInput) {
-            realImgInput.files = fileInput.files;
-        }
-        hiddenUrlInput.value = '';
-    }
-    
-    console.log('✅ Datos copiados al formulario real');
-}
-
-// Función para mostrar modal de confirmación
+// Función para mostrar el modal de confirmación
 function mostrarModalConfirmacion() {
-    // Mostrar el modal sin identificar el libro
     const modal = new bootstrap.Modal(document.getElementById('confirmacionModal'));
     modal.show();
 }
 
 // Función para confirmar el guardado
 function confirmarGuardado() {
-    console.log('🚀 Confirmando guardado...');
-    
     // Cerrar el modal
     const modal = bootstrap.Modal.getInstance(document.getElementById('confirmacionModal'));
     modal.hide();
     
-    // Copiar datos del formulario visual al real
-    copiarDatosAlFormularioReal();
-    
-    // Enviar el formulario real
-    const form = document.getElementById('editForm');
-    console.log('📤 Enviando formulario...');
-    form.submit();
+    // Enviar el formulario
+    document.getElementById('editForm').submit();
 }
+
+// Previsualización de imagen cuando se cambia el campo URL
+document.addEventListener('DOMContentLoaded', function() {
+    const imgField = document.querySelector('input[name="img"]');
+    const previewImage = document.getElementById('preview-image');
+    const previewPlaceholder = document.getElementById('preview-placeholder');
+    
+    if (imgField) {
+        imgField.addEventListener('input', function() {
+            const url = this.value.trim();
+            
+            if (url) {
+                // Crear una nueva imagen para probar si la URL es válida
+                const testImg = new Image();
+                testImg.onload = function() {
+                    // La imagen se cargó correctamente
+                    if (previewPlaceholder) {
+                        previewPlaceholder.style.display = 'none';
+                    }
+                    if (previewImage) {
+                        previewImage.src = url;
+                        previewImage.style.display = 'block';
+                    } else {
+                        // Crear elemento de imagen si no existe
+                        const newImg = document.createElement('img');
+                        newImg.src = url;
+                        newImg.alt = 'Vista previa';
+                        newImg.id = 'preview-image';
+                        newImg.style.maxWidth = '120px';
+                        newImg.style.maxHeight = '160px';
+                        newImg.style.borderRadius = '8px';
+                        newImg.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+                        newImg.style.border = '2px solid #e0e6ed';
+                        const imagePreview = document.querySelector('.image-preview');
+                        if (imagePreview) {
+                            imagePreview.appendChild(newImg);
+                        }
+                    }
+                };
+                testImg.onerror = function() {
+                    // Error al cargar la imagen
+                    if (previewImage) {
+                        previewImage.style.display = 'none';
+                    }
+                    if (previewPlaceholder) {
+                        previewPlaceholder.style.display = 'flex';
+                        previewPlaceholder.textContent = 'URL de imagen inválida';
+                    }
+                };
+                testImg.src = url;
+            } else {
+                // Campo vacío
+                if (previewImage) {
+                    previewImage.style.display = 'none';
+                }
+                if (previewPlaceholder) {
+                    previewPlaceholder.style.display = 'flex';
+                    previewPlaceholder.textContent = 'Sin imagen';
+                }
+            }
+        });
+    }
+});
 </script>
 {% endblock %}

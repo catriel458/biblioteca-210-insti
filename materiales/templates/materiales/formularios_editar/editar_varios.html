@@ -222,7 +222,7 @@
 {% block content %}
 <div class="form-container">
     <div class="form-card">
-        <form id="editFormVarios" method="POST" action="{% url 'editar_varios' varios.id_varios %}" class="form-grid">
+        <form id="editFormVarios" method="POST" enctype="multipart/form-data" action="{% url 'editar_varios' varios.id_varios %}" class="form-grid">
             {% csrf_token %}
             
             <!-- Campos ocultos necesarios para el formulario -->
@@ -250,11 +250,7 @@
             
             <div class="form-group">
                 <label for="{{ form.sede.id_for_label }}" class="required">Sede</label>
-                <select name="{{ form.sede.name }}" id="{{ form.sede.id_for_label }}" class="form-control" required>
-                    <option value="">Seleccione una sede</option>
-                    <option value="La Plata" {% if form.sede.value == "La Plata" %}selected{% endif %}>La Plata</option>
-                    <option value="Abasto" {% if form.sede.value == "Abasto" %}selected{% endif %}>Abasto</option>
-                </select>
+                {{ form.sede }}
             </div>
             
             <div class="action-buttons">
