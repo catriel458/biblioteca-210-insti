@@ -1627,7 +1627,7 @@ def alta_materiales(request):
 def alta_libro(request):
     """
     Vista para procesar el envío del formulario de alta de libro
-    Actualizada para manejar múltiples ejemplares
+    Actualizada para manejar múltiples ejemplares sin usar LibroForm
     """
     print(f"🔥🔥🔥 INICIO alta_libro")
     print(f"🔥 Método: {request.method}")
@@ -1641,67 +1641,84 @@ def alta_libro(request):
         if not request.POST:
             print("❌ POST está vacío!")
             return redirect('formulario_libro')
+        
+        # Validar campos requeridos manualmente
+        errores = []
+        
+        # Campos básicos requeridos
+        campos_requeridos = ['titulo', 'autor', 'editorial', 'siglas_autor_titulo', 'clasificacion_cdu']
+        for campo in campos_requeridos:
+            if not request.POST.get(campo, '').strip():
+                errores.append(f'El campo {campo} es requerido.')
+        
+        # Obtener cantidad de ejemplares
+        cant_ejemplares = int(request.POST.get('cant_ejemplares', 1))
+        print(f"📚 Cantidad de ejemplares: {cant_ejemplares}")
+        
+        # Validar campos dinámicos de ejemplares
+        ejemplares = []
+        for i in range(1, cant_ejemplares + 1):
+            sede = request.POST.get(f'sede_{i}', '').strip()
+            disponibilidad = request.POST.get(f'disponibilidad_{i}', '').strip()
+            observaciones = request.POST.get(f'observaciones_{i}', '').strip()
             
-        form = LibroForm(request.POST)  # Solo POST, no FILES porque usamos URL
-        print(f"🔍 Formulario creado. Es válido? {form.is_valid()}")
+            if not sede:
+                errores.append(f'La sede del ejemplar {i} es requerida.')
+            if not disponibilidad:
+                errores.append(f'La disponibilidad del ejemplar {i} es requerida.')
+            
+            ejemplar_data = {
+                'sede': sede,
+                'disponibilidad': disponibilidad,
+                'observaciones': observaciones
+            }
+            ejemplares.append(ejemplar_data)
         
-        if not form.is_valid():
-            print(f"❌ Errores del formulario: {form.errors}")
+        print(f"📋 Datos de ejemplares: {ejemplares}")
         
-        if form.is_valid():
-            print("✅ Formulario válido - guardando en sesión")
-            try:
-                # Obtener la URL de imagen del formulario
-                img_url = form.cleaned_data.get('img', '').strip()
-                print(f"📷 URL de imagen recibida: '{img_url}'")
-                
-                # Obtener la cantidad de ejemplares desde el campo dinámico
-                cant_ejemplares = int(request.POST.get('cant_ejemplares', 1))
-                print(f"📚 Cantidad de ejemplares: {cant_ejemplares}")
-                
-                # Recopilar datos de ejemplares dinámicos
-                ejemplares = []
-                for i in range(1, cant_ejemplares + 1):
-                    ejemplar_data = {
-                        'sede': request.POST.get(f'sede_{i}', ''),
-                        'disponibilidad': request.POST.get(f'disponibilidad_{i}', ''),
-                        'observaciones': request.POST.get(f'observaciones_{i}', '')
-                    }
-                    ejemplares.append(ejemplar_data)
-                
-                print(f"📋 Datos de ejemplares: {ejemplares}")
-                
-                # NO guardar en base de datos, solo en sesión
-                form_data = {
-                    'titulo': form.cleaned_data.get('titulo', ''),
-                    'autor': form.cleaned_data.get('autor', ''),
-                    'editorial': form.cleaned_data.get('editorial', ''),
-                    'descripcion': form.cleaned_data.get('descripcion', ''),
-                    'siglas_autor_titulo': form.cleaned_data.get('siglas_autor_titulo', ''),
-                    'clasificacion_cdu': form.cleaned_data.get('clasificacion_cdu', ''),
-                    'etiqueta_palabra_clave': form.cleaned_data.get('etiqueta_palabra_clave', ''),
-                    'num_ejemplar': cant_ejemplares,
-                    'ejemplares': ejemplares,  # Lista de ejemplares con sus datos
-                    'img': img_url  # Guardar la URL directamente
-                }
-                
-                # Guardar en sesión
-                request.session['libro_data'] = form_data
-                print(f"📦 Datos guardados en sesión: {form_data}")
-                
-                # Redirigir al modal de confirmación
-                print("🚀 Redirigiendo a confirmar_alta_libro")
-                return redirect('confirmar_alta_libro')
-                
-            except Exception as e:
-                print(f"❌ Error al procesar: {e}")
-                import traceback
-                traceback.print_exc()
-                messages.error(request, f'Error al procesar el libro: {str(e)}')
-                return render(request, 'materiales/formularios_altas/formulario_libro.html', {'form': form})
-        else:
-            print(f"❌ Formulario inválido: {form.errors}")
-            messages.error(request, 'Por favor corrige los errores en el formulario.')
+        # Si hay errores, mostrarlos
+        if errores:
+            print(f"❌ Errores de validación: {errores}")
+            for error in errores:
+                messages.error(request, error)
+            # Crear un formulario vacío para mostrar la página
+            form = LibroForm()
+            return render(request, 'materiales/formularios_altas/formulario_libro.html', {'form': form})
+        
+        print("✅ Validación exitosa - guardando en sesión")
+        try:
+            # Obtener la URL de imagen
+            img_url = request.POST.get('img', '').strip()
+            print(f"📷 URL de imagen recibida: '{img_url}'")
+            
+            # NO guardar en base de datos, solo en sesión
+            form_data = {
+                'titulo': request.POST.get('titulo', '').strip(),
+                'autor': request.POST.get('autor', '').strip(),
+                'editorial': request.POST.get('editorial', '').strip(),
+                'descripcion': request.POST.get('descripcion', '').strip(),
+                'siglas_autor_titulo': request.POST.get('siglas_autor_titulo', '').strip(),
+                'clasificacion_cdu': request.POST.get('clasificacion_cdu', '').strip(),
+                'etiqueta_palabra_clave': request.POST.get('etiqueta_palabra_clave', '').strip(),
+                'num_ejemplar': cant_ejemplares,
+                'ejemplares': ejemplares,  # Lista de ejemplares con sus datos
+                'img': img_url  # Guardar la URL directamente
+            }
+            
+            # Guardar en sesión
+            request.session['libro_data'] = form_data
+            print(f"📦 Datos guardados en sesión: {form_data}")
+            
+            # Redirigir al modal de confirmación
+            print("🚀 Redirigiendo a confirmar_alta_libro")
+            return redirect('confirmar_alta_libro')
+            
+        except Exception as e:
+            print(f"❌ Error al procesar: {e}")
+            import traceback
+            traceback.print_exc()
+            messages.error(request, f'Error al procesar el libro: {str(e)}')
+            form = LibroForm()
             return render(request, 'materiales/formularios_altas/formulario_libro.html', {'form': form})
     else:
         # Si es GET, redirigir al formulario
