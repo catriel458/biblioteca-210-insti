@@ -105,6 +105,8 @@
   {% include 'modals/alertas/imagenlibro_novalido.html' %}
   <!-- Incluir el modal de error seleccionado -->
   {% include 'modals/alertas/error_seleccionado.html' %}
+  <!-- Incluir el modal de archivo vacío en carga masiva -->
+  {% include 'modals/alertas/archivovacio_cargamasiva.html' %}
   
   <!-- Backdrop para los modales -->
   <div id="modal-backdrop" class="modal-backdrop"></div>
@@ -116,59 +118,163 @@
 function manejarSeleccionArchivo(input) {
     if (input.files && input.files[0]) {
         const archivo = input.files[0];
+        const nombreArchivoDiv = document.getElementById('nombre_archivo_carga_simple');
         
-        try {
-            // Verificar la extensión del archivo ANTES de mostrar el nombre
-            const nombreArchivo = archivo.name.toLowerCase();
-            const extensionesValidas = ['.csv', '.xls', '.xlsx'];
-            const esArchivoValido = extensionesValidas.some(ext => nombreArchivo.endsWith(ext));
-            
-            // Si el archivo está vacío (tamaño 0) o no es válido, mostrar alerta de error
-            if (!esArchivoValido || archivo.size === 0) {
-                // Limpiar el input de archivo INMEDIATAMENTE para evitar que se cargue
-                input.value = '';
-                
-                // Mostrar el modal de error seleccionado
-                mostrarModalErrorSeleccionado(function() {
-                    // Callback para aceptar - asegurarse que el input esté limpio
-                    input.value = '';
-                    const nombreArchivoDiv = document.getElementById('nombre_archivo_carga_simple');
-                    if (nombreArchivoDiv) {
-                        nombreArchivoDiv.textContent = '';
-                    }
-                    console.log('Archivo no válido o vacío rechazado');
-                });
-                return;
-            }
-            
-            // Solo si el archivo es válido, mostrar el nombre
-            const nombreArchivoDiv = document.getElementById('nombre_archivo_carga_simple');
-            if (nombreArchivoDiv) {
-                nombreArchivoDiv.textContent = archivo.name;
-            }
-        } catch (error) {
-            // Si ocurre cualquier error durante la validación, consideramos el archivo como dañado
-            console.error('❌ Error al validar el archivo:', error);
-            // Limpiar el input de archivo
-            input.value = '';
-            // Mostrar el modal de error
-            mostrarModalErrorSeleccionado();
-            return;
-        }
+        console.log('Archivo seleccionado:', archivo.name, 'Tamaño:', archivo.size, 'bytes');
         
-        // Mostrar el modal de confirmación CSV
-        mostrarModalCSV(archivo.name, function() {
-            // Callback para confirmar - aquí iría el código para procesar el archivo
-            console.log('Archivo confirmado:', archivo.name);
-            // Aquí puedes agregar el código para enviar el archivo al servidor
-        }, function() {
-            // Callback para cancelar - limpiar el input de archivo
+        // Verificar la extensión del archivo ANTES de mostrar el nombre
+        const nombreArchivo = archivo.name.toLowerCase();
+        const extensionesValidas = ['.csv', '.xls', '.xlsx'];
+        const esArchivoValido = extensionesValidas.some(ext => nombreArchivo.endsWith(ext));
+        
+        // Si el archivo no es válido (no es CSV o Excel), mostrar alerta de error
+        if (!esArchivoValido) {
+            console.log('Archivo con extensión no válida');
+        // Limpiar el input de archivo INMEDIATAMENTE para evitar que se cargue
+        input.value = '';
+        
+        // Mostrar el modal de archivo no válido con mensaje personalizado
+        mostrarModalArchivoNoValido('EL TIPO DE ARCHIVO SELECCIONADO NO ES VÁLIDO. ASEGÚRESE DE ESTAR SELECCIONANDO UN ARCHIVO .CSV O .XLSX Y VUELVA A INTENTARLO', function() {
+            // Callback para limpiar el input cuando se acepta el modal
             input.value = '';
             if (nombreArchivoDiv) {
                 nombreArchivoDiv.textContent = '';
             }
-            console.log('Carga de archivo cancelada');
         });
+        return;
+    }
+    
+    try {
+        console.log('Procesando archivo:', nombreArchivo, 'Tamaño:', archivo.size);
+            
+        // Verificar si el archivo está vacío (tamaño 0)
+        if (archivo.size === 0) {
+            console.log('Archivo vacío detectado (tamaño 0)');
+            mostrarModalArchivoVacioCargaMasiva();
+            input.value = '';
+            if (nombreArchivoDiv) {
+                nombreArchivoDiv.textContent = '';
+            }
+            return;
+        }
+        
+        // Para archivos Excel, verificamos si está vacío basado en el tamaño
+        if (nombreArchivo.endsWith('.xls') || nombreArchivo.endsWith('.xlsx')) {
+            if (archivo.size <= 8461) {
+                // Excel vacío (hasta 8,26 KB / 8.461 bytes inclusive)
+                console.log('Archivo Excel vacío detectado (tamaño <= 8,26 KB)');
+                mostrarModalArchivoVacioCargaMasiva();
+                input.value = '';
+                if (nombreArchivoDiv) {
+                    nombreArchivoDiv.textContent = '';
+                }
+            } else {
+                // Excel con contenido
+                console.log('Archivo Excel con contenido detectado');
+                mostrarModalConfirmacionCSV(archivo);
+            }
+            return;
+        }
+        
+        // Para archivos CSV, verificamos si solo tiene estructura pero no datos
+        if (nombreArchivo.endsWith('.csv')) {
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                const contenido = e.target.result;
+                const lineas = contenido.split('\n').filter(linea => linea.trim() !== '');
+                
+                console.log('CSV analizado. Líneas encontradas:', lineas.length);
+                
+                // Si no hay líneas o solo hay una (encabezado), consideramos el archivo vacío
+                if (lineas.length <= 1) {
+                    console.log('Archivo CSV vacío o solo con encabezados detectado');
+                    mostrarModalArchivoVacioCargaMasiva();
+                    input.value = '';
+                    if (nombreArchivoDiv) {
+                        nombreArchivoDiv.textContent = '';
+                    }
+                } else {
+                    // Si llegamos aquí, el archivo CSV tiene contenido real
+                    console.log('Archivo CSV con contenido detectado');
+                    mostrarModalConfirmacionCSV(archivo);
+                }
+            };
+            
+            reader.onerror = function() {
+                console.error('Error al leer el archivo CSV');
+                input.value = '';
+            };
+            
+            // Iniciar la lectura del archivo como texto
+            reader.readAsText(archivo);
+            return;
+        }
+        
+        } catch (error) {
+            console.error('Error procesando archivo:', error);
+            input.value = '';
+            if (nombreArchivoDiv) {
+                nombreArchivoDiv.textContent = '';
+            }
+            return;
+        }
+        
+        // Función para mostrar el modal de confirmación CSV
+        function mostrarModalConfirmacionCSV(archivo) {
+            console.log('Mostrando modal de confirmación CSV para archivo con contenido:', archivo.name);
+            
+            // Mostrar el nombre del archivo en la interfaz
+            if (nombreArchivoDiv) {
+                nombreArchivoDiv.textContent = archivo.name;
+            }
+            
+            // Actualizar el nombre del archivo en el modal
+            const nombreArchivoElement = document.getElementById('nombre-archivo-csv');
+            if (nombreArchivoElement) {
+                nombreArchivoElement.textContent = archivo.name;
+            }
+            
+            // Configurar funciones para los botones
+            window.confirmarModalCSV = function() {
+                console.log('Archivo confirmado:', archivo.name);
+                const modalCSV = document.getElementById('modal-confirmacion-csv');
+                const backdrop = document.getElementById('modal-backdrop');
+                if (modalCSV && backdrop) {
+                    modalCSV.style.display = 'none';
+                    backdrop.style.display = 'none';
+                    document.body.style.overflow = '';
+                }
+                // Aquí iría el código para procesar el archivo
+            };
+            
+            window.cerrarModalCSV = function() {
+                console.log('Carga de archivo cancelada');
+                const modalCSV = document.getElementById('modal-confirmacion-csv');
+                const backdrop = document.getElementById('modal-backdrop');
+                if (modalCSV && backdrop) {
+                    modalCSV.style.display = 'none';
+                    backdrop.style.display = 'none';
+                    document.body.style.overflow = '';
+                }
+                input.value = '';
+                if (nombreArchivoDiv) {
+                    nombreArchivoDiv.textContent = '';
+                }
+            };
+            
+            // Mostrar el modal
+            const modalCSV = document.getElementById('modal-confirmacion-csv');
+            const backdrop = document.getElementById('modal-backdrop');
+            if (modalCSV && backdrop) {
+                modalCSV.style.display = 'flex';
+                backdrop.style.display = 'block';
+                document.body.style.overflow = 'hidden';
+                console.log('Modal confirmación CSV mostrado correctamente');
+            } else {
+                console.error('No se encontró el modal de confirmación CSV');
+            }
+        }
     }
 }
 

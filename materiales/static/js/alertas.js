@@ -137,9 +137,12 @@ function validarImagenLibro(inputElement) {
             console.log('❌ Archivo no válido, limpiando input y mostrando modal');
             // Limpiar el input de archivo
             inputElement.value = '';
-            // Mostrar el modal de error seleccionado
-            mostrarModalErrorSeleccionado();
-            console.log('🚨 Modal de error seleccionado mostrado para archivo no válido: ' + fileName);
+            // Mostrar el modal de imagen no válida
+            mostrarModalImagenLibroNoValido(function() {
+                // Callback para limpiar el input después de cerrar el modal
+                inputElement.value = '';
+            });
+            console.log('🚨 Modal de imagen no válida mostrado para archivo no válido: ' + fileName);
             return false;
         }
         
@@ -167,36 +170,44 @@ function mostrarModalImagenLibroNoValido(onAccept = null) {
     callbackAceptarImagenLibroNoValido = onAccept;
     
     const modalImagenNoValida = document.getElementById('modal-imagenlibro-novalido');
-    const backdrop = document.getElementById('modal-backdrop');
     
     console.log('🔍 Modal element:', modalImagenNoValida);
-    console.log('🔍 Backdrop element:', backdrop);
     
-    if (modalImagenNoValida && backdrop) {
+    if (modalImagenNoValida) {
         console.log('✅ Mostrando modal de imagen no válida');
-        modalImagenNoValida.style.display = 'block';
+        modalImagenNoValida.style.display = 'flex';
         modalImagenNoValida.classList.add('show');
-        backdrop.style.display = 'block';
-        backdrop.classList.add('show');
+        
+        // Usar el backdrop del archivo base
+        let backdrop = document.getElementById('modal-backdrop');
+        if (backdrop) {
+            backdrop.style.display = 'block';
+            backdrop.classList.add('show');
+        }
+        
         document.body.style.overflow = 'hidden'; // Evitar scroll
         console.log('Modal imagen libro no válida mostrado correctamente');
     } else {
-        console.error('❌ No se encontró el modal o el backdrop');
+        console.error('❌ No se encontró el modal');
         console.error('Modal encontrado:', !!modalImagenNoValida);
-        console.error('Backdrop encontrado:', !!backdrop);
     }
 }
 
 // Función para ocultar el modal de imagen de libro no válida
 function ocultarModalImagenLibroNoValido() {
     const modalImagenNoValida = document.getElementById('modal-imagenlibro-novalido');
-    const backdrop = document.getElementById('modal-backdrop');
     
-    if (modalImagenNoValida && backdrop) {
+    if (modalImagenNoValida) {
         modalImagenNoValida.style.display = 'none';
         modalImagenNoValida.classList.remove('show');
-        backdrop.style.display = 'none';
-        backdrop.classList.remove('show');
+        
+        // Ocultar el backdrop del archivo base
+        const backdrop = document.getElementById('modal-backdrop');
+        if (backdrop) {
+            backdrop.style.display = 'none';
+            backdrop.classList.remove('show');
+        }
+        
         document.body.style.overflow = ''; // Restaurar scroll
     }
 }
@@ -454,12 +465,86 @@ function esArchivoCSV(nombreArchivo) {
     return extension.endsWith('.csv') || extension.endsWith('.xls') || extension.endsWith('.xlsx');
 }
 
+// Función para mostrar el modal de archivo vacío en carga masiva
+function mostrarModalArchivoVacioCargaMasiva(onAccept = null) {
+    console.log('🚨 mostrarModalArchivoVacioCargaMasiva llamada');
+    
+    // Guardar callback
+    callbackAceptarArchivoVacioCargaMasiva = onAccept;
+    
+    const modalArchivoVacio = document.getElementById('modal-archivovacio-cargamasiva');
+    
+    console.log('🔍 Modal element:', modalArchivoVacio);
+    
+    if (modalArchivoVacio) {
+        console.log('✅ Mostrando modal de archivo vacío en carga masiva');
+        modalArchivoVacio.style.display = 'flex';
+        modalArchivoVacio.classList.add('show');
+        document.body.style.overflow = 'hidden'; // Evitar scroll
+        
+        // Crear backdrop si no existe
+        let backdrop = document.getElementById('modal-backdrop');
+        if (!backdrop) {
+            backdrop = document.createElement('div');
+            backdrop.id = 'modal-backdrop';
+            backdrop.className = 'modal-backdrop show';
+            backdrop.style.display = 'block';
+            document.body.appendChild(backdrop);
+        } else {
+            backdrop.style.display = 'block';
+            backdrop.classList.add('show');
+        }
+        
+        console.log('Modal archivo vacío en carga masiva mostrado correctamente');
+    } else {
+        console.error('❌ No se encontró el modal');
+        console.error('Modal encontrado:', !!modalArchivoVacio);
+    }
+}
+
+// Función para ocultar el modal de archivo vacío en carga masiva
+function ocultarModalArchivoVacioCargaMasiva() {
+    const modalArchivoVacio = document.getElementById('modal-archivovacio-cargamasiva');
+    const backdrop = document.getElementById('modal-backdrop');
+    
+    if (modalArchivoVacio) {
+        modalArchivoVacio.style.display = 'none';
+        modalArchivoVacio.classList.remove('show');
+        document.body.style.overflow = ''; // Restaurar scroll
+    }
+    
+    if (backdrop) {
+        backdrop.style.display = 'none';
+        backdrop.classList.remove('show');
+    }
+}
+
+// Función para cerrar el modal de archivo vacío en carga masiva
+function cerrarModalArchivoVacioCargaMasiva() {
+    if (callbackAceptarArchivoVacioCargaMasiva) {
+        callbackAceptarArchivoVacioCargaMasiva();
+        callbackAceptarArchivoVacioCargaMasiva = null;
+    }
+    ocultarModalArchivoVacioCargaMasiva();
+}
+
 // Función para mostrar el modal de confirmación CSV
-function mostrarModalCSV(nombreArchivo, onConfirm = null, onCancel = null) {
+function mostrarModalCSV(nombreArchivo, onConfirm = null, onCancel = null, archivo = null) {
     // Validar que el archivo sea CSV
     if (!esArchivoCSV(nombreArchivo)) {
         // Si no es CSV, mostrar el modal de archivo no válido
         mostrarModalArchivoNoValido();
+        // Ejecutar el callback de cancelar si existe
+        if (onCancel) {
+            onCancel();
+        }
+        return false;
+    }
+    
+    // Verificar si el archivo está vacío (si se proporciona el objeto archivo)
+    if (archivo && archivo.size === 0) {
+        // Si el archivo está vacío, mostrar el modal de archivo vacío
+        mostrarModalArchivoVacioCargaMasiva();
         // Ejecutar el callback de cancelar si existe
         if (onCancel) {
             onCancel();
