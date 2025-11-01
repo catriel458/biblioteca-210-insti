@@ -1,16 +1,20 @@
-<!-- Modal para alertar cuando se intenta cargar una imagen no válida para un libro -->
-<div class="tarjeta-alerta tarjeta-alerta-imagen-novalida" id="modal-imagenlibro-novalido">
-    <p class="atencion">ERROR</p>
+<!-- Modal para alertar cuando ocurre un error al cargar el archivo seleccionado -->
+<div class="tarjeta-alerta tarjeta-alerta-error" id="modal-error-seleccionado" style="background-color: #FFB3BA !important; background: #FFB3BA !important; border: 2px solid #FF0000; max-width: 280px; padding: 0.6em 0.6em;">
+    <p class="atencion" style="font-size: 0.5em; margin-bottom: 5px;">ERROR</p>
     
-    <p class="texto-alerta">
-EL TIPO DE ARCHIVO
-SELECCIONADO NO ES UN
-TIPO DE IMAGEN VÁLIDO.
-(SELECCIONE UN ARCHIVO <span class="imagen-text">.JPG, .JPEG O .PNG</span>)
+    <p class="texto-alerta" style="margin: 0 0 8px; padding: 0;">
+OCURRIÓ UN ERROR AL CARGAR
+EL ARCHIVO SELECCIONADO,
+VERIFIQUE EL ESTADO DEL
+MISMO Y VUELVA A INTENTARLO
+    </p>
+    
+    <p class="texto-alerta" style="margin: 0 0 8px; padding: 0; font-size: 0.8em;">
+(SELECCIONE UN ARCHIVO <span class="imagen-text" style="color: #8A2BE2; font-weight: bold;">.JPG, .JPEG O .PNG</span>)
     </p>
     
     <div class="botones-tarjeta">
-        <button type="button" class="btn btn-confirmar-modal" id="btn-aceptar-imagen-novalida" onclick="cerrarModalImagenLibroNoValido()">ACEPTAR</button>
+        <button type="button" class="btn btn-confirmar-modal" id="btn-aceptar-error-seleccionado" onclick="cerrarModalErrorSeleccionado()" style="background-color: #4169E1 !important;">ACEPTAR</button>
     </div>
 </div>
 

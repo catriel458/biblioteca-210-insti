@@ -96,6 +96,7 @@
 {% include 'modals/alertas/vaciar_campos.html' %}
 {% include 'modals/alertas/reducir_ejemplares.html' %}
 {% include 'modals/alertas/imagenlibro_novalido.html' %}
+{% include 'modals/alertas/error_seleccionado.html' %}
 <div class="container-fluid">
     {% if success %}
         <div class="alert alert-success">{{ success }}</div>
@@ -316,10 +317,14 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Configurar el evento para el campo de cantidad de ejemplares
-    const cantEjemplaresInput = document.getElementById('cant_ejemplares');
+    let cantEjemplaresInput = document.getElementById('cant_ejemplares');
     if (cantEjemplaresInput) {
         cantEjemplaresInput.addEventListener('change', function() {
-            manejarReduccionEjemplaresLibro();
+            if (typeof manejarReduccionEjemplaresLibro === 'function') {
+                manejarReduccionEjemplaresLibro();
+            } else {
+                console.error('La función manejarReduccionEjemplaresLibro no está definida');
+            }
         });
     }
     
@@ -486,10 +491,6 @@ document.addEventListener('DOMContentLoaded', function() {
             const cantidad = parseInt(cantidadEjemplares) || 1;
             
             // Mapear información de inventario (si existe)
-            // Línea 468 - CAMBIAR DE:
-            const inventario = form.querySelector('[name="inventario"]')?.value || 'Sin especificar';
-            
-            // A:
             const inventario = form.querySelector('[name="inventario_ptr_id"]')?.value || 'Sin especificar';
             document.getElementById('confirmInventario').textContent = inventario;
             
@@ -729,7 +730,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Agregar evento change al campo cantidad de ejemplares
-    const cantEjemplaresInput = document.querySelector('input[name="cant_ejemplares"]');
+    cantEjemplaresInput = document.querySelector('input[name="cant_ejemplares"]');
     if (cantEjemplaresInput) {
         cantEjemplaresInput.addEventListener('change', function() {
             console.log('📝 Cantidad de ejemplares cambió a:', this.value);
@@ -737,6 +738,28 @@ document.addEventListener('DOMContentLoaded', function() {
             generarCamposDinamicos();
         });
         console.log('✅ Evento change agregado al campo cantidad');
+    }
+    
+    // Agregar evento change al campo de imagen para validar el archivo seleccionado
+    const inputImagen = document.querySelector('input[type="file"][name="img"]');
+    if (inputImagen) {
+        inputImagen.addEventListener('change', function() {
+            console.log('📝 Archivo de imagen seleccionado:', this.value);
+            
+            // Primero validamos que sea una imagen válida
+            if (!validarImagenLibro(this)) {
+                return; // Si no es válida, ya se muestra el modal correspondiente
+            }
+            
+            // Luego validamos que el archivo no esté dañado o vacío
+            if (!validarArchivoSeleccionado(this)) {
+                console.log('❌ Error al cargar el archivo seleccionado');
+                // El modal ya se muestra dentro de validarArchivoSeleccionado
+            } else {
+                console.log('✅ Archivo seleccionado válido');
+            }
+        });
+        console.log('✅ Evento change agregado al campo de imagen');
     } else {
         console.error('❌ Campo cant_ejemplares no encontrado');
     }

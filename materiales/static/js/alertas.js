@@ -17,6 +17,92 @@ function esImagenValida(nombreArchivo) {
     return esValida;
 }
 
+// Función para validar si un archivo seleccionado es válido (no está dañado o vacío)
+function validarArchivoSeleccionado(inputElement) {
+    console.log('🔍 validarArchivoSeleccionado llamada');
+    
+    if (!inputElement || !inputElement.files || inputElement.files.length === 0) {
+        console.log('❌ No hay archivo seleccionado');
+        return false;
+    }
+    
+    const file = inputElement.files[0];
+    
+    // Verificar si el archivo está vacío
+    if (file.size === 0) {
+        console.log('❌ El archivo está vacío');
+        mostrarModalErrorSeleccionado();
+        return false;
+    }
+    
+    // Aquí se pueden agregar más validaciones según sea necesario
+    
+    return true;
+}
+
+// Función para mostrar el modal de error al cargar archivo seleccionado
+function mostrarModalErrorSeleccionado(onAccept = null) {
+    console.log('🚨 mostrarModalErrorSeleccionado llamada');
+    
+    // Guardar callback
+    callbackAceptarErrorSeleccionado = onAccept;
+    
+    const modalErrorSeleccionado = document.getElementById('modal-error-seleccionado');
+    
+    console.log('🔍 Modal element:', modalErrorSeleccionado);
+    
+    if (modalErrorSeleccionado) {
+        console.log('✅ Mostrando modal de error al cargar archivo');
+        modalErrorSeleccionado.style.display = 'flex';
+        modalErrorSeleccionado.classList.add('show');
+        document.body.style.overflow = 'hidden'; // Evitar scroll
+        
+        // Crear backdrop si no existe
+        let backdrop = document.getElementById('modal-backdrop');
+        if (!backdrop) {
+            backdrop = document.createElement('div');
+            backdrop.id = 'modal-backdrop';
+            backdrop.className = 'modal-backdrop show';
+            backdrop.style.display = 'block';
+            document.body.appendChild(backdrop);
+        } else {
+            backdrop.style.display = 'block';
+            backdrop.classList.add('show');
+        }
+        
+        console.log('Modal error al cargar archivo mostrado correctamente');
+    } else {
+        console.error('❌ No se encontró el modal');
+        console.error('Modal encontrado:', !!modalErrorSeleccionado);
+    }
+}
+
+// Función para ocultar el modal de error al cargar archivo seleccionado
+function ocultarModalErrorSeleccionado() {
+    const modalErrorSeleccionado = document.getElementById('modal-error-seleccionado');
+    const backdrop = document.getElementById('modal-backdrop');
+    
+    if (modalErrorSeleccionado) {
+        modalErrorSeleccionado.style.display = 'none';
+        modalErrorSeleccionado.classList.remove('show');
+        document.body.style.overflow = ''; // Restaurar scroll
+    }
+    
+    if (backdrop) {
+        backdrop.style.display = 'none';
+        backdrop.classList.remove('show');
+    }
+}
+
+// Función para cerrar el modal de error al cargar archivo seleccionado
+function cerrarModalErrorSeleccionado() {
+    if (callbackAceptarErrorSeleccionado) {
+        callbackAceptarErrorSeleccionado();
+        callbackAceptarErrorSeleccionado = null;
+    }
+    ocultarModalErrorSeleccionado();
+}
+
 // Función para validar la imagen del libro
 function validarImagenLibro(inputElement) {
     console.log('🔍 validarImagenLibro llamada');
@@ -28,6 +114,18 @@ function validarImagenLibro(inputElement) {
     }
     
     const file = inputElement.files[0];
+    
+    // Verificar si el archivo está vacío
+    if (file.size === 0) {
+        console.log('❌ El archivo está vacío');
+        // Limpiar el input de archivo
+        inputElement.value = '';
+        // Mostrar el modal de error
+        mostrarModalErrorSeleccionado();
+        console.log('🚨 Modal de error seleccionado mostrado para archivo vacío');
+        return false;
+    }
+    
     const fileName = file.name.toLowerCase();
     console.log('📁 Archivo seleccionado:', fileName);
     
@@ -38,9 +136,9 @@ function validarImagenLibro(inputElement) {
         console.log('❌ Archivo no válido, limpiando input y mostrando modal');
         // Limpiar el input de archivo
         inputElement.value = '';
-        // Mostrar el modal de error
-        mostrarModalImagenLibroNoValido();
-        console.log('🚨 Modal mostrado para archivo no válido: ' + fileName);
+        // Mostrar el modal de error seleccionado
+        mostrarModalErrorSeleccionado();
+        console.log('🚨 Modal de error seleccionado mostrado para archivo no válido: ' + fileName);
         return false;
     }
     
@@ -106,6 +204,7 @@ let callbackConfirmarCSV = null;
 let callbackCancelarCSV = null;
 let callbackAceptarArchivoNoValido = null;
 let callbackAceptarImagenLibroNoValido = null;
+let callbackAceptarErrorSeleccionado = null;
 
 // Función principal que se llama al hacer clic en CANCELAR
 function cancelarFormulario() {
