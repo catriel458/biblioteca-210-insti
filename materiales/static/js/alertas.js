@@ -115,35 +115,48 @@ function validarImagenLibro(inputElement) {
     
     const file = inputElement.files[0];
     
-    // Verificar si el archivo está vacío
-    if (file.size === 0) {
-        console.log('❌ El archivo está vacío');
+    try {
+        // Verificar si el archivo está vacío
+        if (file.size === 0) {
+            console.log('❌ El archivo está vacío');
+            // Limpiar el input de archivo
+            inputElement.value = '';
+            // Mostrar el modal de error
+            mostrarModalErrorSeleccionado();
+            console.log('🚨 Modal de error seleccionado mostrado para archivo vacío');
+            return false;
+        }
+        
+        const fileName = file.name.toLowerCase();
+        console.log('📁 Archivo seleccionado:', fileName);
+        
+        const esValida = esImagenValida(fileName);
+        console.log('✅ ¿Es imagen válida?', esValida);
+        
+        if (!esValida) {
+            console.log('❌ Archivo no válido, limpiando input y mostrando modal');
+            // Limpiar el input de archivo
+            inputElement.value = '';
+            // Mostrar el modal de error seleccionado
+            mostrarModalErrorSeleccionado();
+            console.log('🚨 Modal de error seleccionado mostrado para archivo no válido: ' + fileName);
+            return false;
+        }
+        
+        // Aquí podríamos agregar más validaciones para archivos dañados si es necesario
+        
+        console.log('✅ Archivo válido: ' + fileName);
+        return true;
+    } catch (error) {
+        // Si ocurre cualquier error durante la validación, consideramos el archivo como dañado
+        console.error('❌ Error al validar el archivo:', error);
         // Limpiar el input de archivo
         inputElement.value = '';
         // Mostrar el modal de error
         mostrarModalErrorSeleccionado();
-        console.log('🚨 Modal de error seleccionado mostrado para archivo vacío');
+        console.log('🚨 Modal de error seleccionado mostrado para archivo dañado');
         return false;
     }
-    
-    const fileName = file.name.toLowerCase();
-    console.log('📁 Archivo seleccionado:', fileName);
-    
-    const esValida = esImagenValida(fileName);
-    console.log('✅ ¿Es imagen válida?', esValida);
-    
-    if (!esValida) {
-        console.log('❌ Archivo no válido, limpiando input y mostrando modal');
-        // Limpiar el input de archivo
-        inputElement.value = '';
-        // Mostrar el modal de error seleccionado
-        mostrarModalErrorSeleccionado();
-        console.log('🚨 Modal de error seleccionado mostrado para archivo no válido: ' + fileName);
-        return false;
-    }
-    
-    console.log('✅ Archivo válido: ' + fileName);
-    return true;
 }
 
 // Función para mostrar el modal de imagen de libro no válida

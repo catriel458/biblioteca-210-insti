@@ -103,6 +103,8 @@
   {% include 'modals/alertas/archivo_novalido.html' %}
   <!-- Incluir el modal de imagen libro no válido -->
   {% include 'modals/alertas/imagenlibro_novalido.html' %}
+  <!-- Incluir el modal de error seleccionado -->
+  {% include 'modals/alertas/error_seleccionado.html' %}
   
   <!-- Backdrop para los modales -->
   <div id="modal-backdrop" class="modal-backdrop"></div>
@@ -115,41 +117,42 @@ function manejarSeleccionArchivo(input) {
     if (input.files && input.files[0]) {
         const archivo = input.files[0];
         
-        // Verificar la extensión del archivo ANTES de mostrar el nombre
-        const nombreArchivo = archivo.name.toLowerCase();
-        const extensionesValidas = ['.csv', '.xls', '.xlsx'];
-        const esArchivoValido = extensionesValidas.some(ext => nombreArchivo.endsWith(ext));
-        
-        if (!esArchivoValido) {
-            // Limpiar el input de archivo INMEDIATAMENTE para evitar que se cargue
-            input.value = '';
+        try {
+            // Verificar la extensión del archivo ANTES de mostrar el nombre
+            const nombreArchivo = archivo.name.toLowerCase();
+            const extensionesValidas = ['.csv', '.xls', '.xlsx'];
+            const esArchivoValido = extensionesValidas.some(ext => nombreArchivo.endsWith(ext));
             
-            // Mostrar el modal de archivo no válido
-            mostrarModalArchivoNoValido(function() {
-                // Callback para aceptar - asegurarse que el input esté limpio
+            // Si el archivo está vacío (tamaño 0) o no es válido, mostrar alerta de error
+            if (!esArchivoValido || archivo.size === 0) {
+                // Limpiar el input de archivo INMEDIATAMENTE para evitar que se cargue
                 input.value = '';
-                const nombreArchivoDiv = document.getElementById('nombre_archivo_carga_simple');
-                if (nombreArchivoDiv) {
-                    nombreArchivoDiv.textContent = '';
-                }
-                console.log('Archivo no válido rechazado');
-            });
-            return;
-        }
-        
-        // Solo si el archivo es válido, mostrar el nombre
-        const nombreArchivoDiv = document.getElementById('nombre_archivo_carga_simple');
-        if (nombreArchivoDiv) {
-            nombreArchivoDiv.textContent = archivo.name;
-        }
-        
-        // Si el archivo está vacío (tamaño 0), mostrar alerta
-        if (archivo.size === 0) {
-            mostrarModalArchivoVacio();
-            input.value = '';
-            if (nombreArchivoDiv) {
-                nombreArchivoDiv.textContent = '';
+                
+                // Mostrar el modal de error seleccionado
+                mostrarModalErrorSeleccionado(function() {
+                    // Callback para aceptar - asegurarse que el input esté limpio
+                    input.value = '';
+                    const nombreArchivoDiv = document.getElementById('nombre_archivo_carga_simple');
+                    if (nombreArchivoDiv) {
+                        nombreArchivoDiv.textContent = '';
+                    }
+                    console.log('Archivo no válido o vacío rechazado');
+                });
+                return;
             }
+            
+            // Solo si el archivo es válido, mostrar el nombre
+            const nombreArchivoDiv = document.getElementById('nombre_archivo_carga_simple');
+            if (nombreArchivoDiv) {
+                nombreArchivoDiv.textContent = archivo.name;
+            }
+        } catch (error) {
+            // Si ocurre cualquier error durante la validación, consideramos el archivo como dañado
+            console.error('❌ Error al validar el archivo:', error);
+            // Limpiar el input de archivo
+            input.value = '';
+            // Mostrar el modal de error
+            mostrarModalErrorSeleccionado();
             return;
         }
         
