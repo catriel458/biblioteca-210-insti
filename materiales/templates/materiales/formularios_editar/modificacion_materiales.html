@@ -803,7 +803,6 @@
                     <th>Carrera</th>
                     <th>Ciclo Lectivo</th>
                     <th>Enlace</th>
-                    <th class="text-center">Sede</th>
                     <th class="text-center">Disponibilidad</th>
                     <th class="text-center">Acciones</th>
                 </tr>
@@ -828,7 +827,6 @@
                                 -
                             {% endif %}
                         </td>
-                        <td class="text-center">{{ programa.sede|default:'La Plata' }}</td>
                         <td class="disponibilidad-cell">
                             {% if programa.estado == 'Disponible' %}
                                 <span class="disponible">Disponible para préstamo</span>
@@ -1163,7 +1161,6 @@
                 profesor: "{{ programa.profesor|escapejs }}",
                 carrera: "{{ programa.carrera|escapejs }}",
                 ciclo: "{{ programa.ciclo|escapejs }}",
-                sede: "{{ programa.sede|escapejs }}",
                 estado: "{{ programa.estado|escapejs }}",
                 motivo_baja: "{{ programa.motivo_baja|escapejs }}",
                 descripcion: "{{ programa.descripcion|escapejs }}"
@@ -1307,9 +1304,7 @@
                         setTextContent('detalle_programa_tipo', detalles.detalle_programa_tipo);
                         setTextContent('detalle_programa_denominacion', detalles.detalle_programa_denominacion);
                         setTextContent('detalle_programa_enlace', detalles.detalle_programa_enlace);
-                        setTextContent('detalle_programa_sede', detalles.detalle_programa_sede);
                         setTextContent('detalle_programa_disponibilidad', detalles.detalle_programa_disponibilidad);
-                        setTextContent('detalle_programa_observaciones', detalles.detalle_programa_observaciones || 'Sin observaciones');
                         
                         // Mostrar el modal
                         const modalElement = document.getElementById('detallesProgramaModal');
@@ -2300,7 +2295,6 @@
             document.getElementById('modal_programa_profesor').textContent = programaData.profesor || 'Sin profesor';
             document.getElementById('modal_programa_carrera').textContent = programaData.carrera || 'Sin carrera';
             document.getElementById('modal_programa_ciclo').textContent = programaData.ciclo_lectivo || 'Sin ciclo lectivo';
-            document.getElementById('modal_programa_sede').textContent = programaData.sede || 'Sin sede';
             
             // Configurar el campo oculto del ID del programa
             document.getElementById('programa_id_baja').value = id;
@@ -2731,7 +2725,6 @@
             document.getElementById('informe_autor').textContent = programaData.profesor;
             document.getElementById('informe_cdu').textContent = programaData.carrera;
             document.getElementById('informe_siglas').textContent = programaData.ciclo;
-            document.getElementById('informe_sede').textContent = programaData.sede;
             
             // Obtener elementos para mostrar información de baja
             const motivoElement = document.getElementById('informe_motivo');
@@ -2749,12 +2742,6 @@
                 imagenModal.style.display = 'none';
                 placeholderModal.style.display = 'flex';
                 placeholderModal.innerHTML = 'Programa<br>Académico';
-            }
-            
-            // Ocultar contenedor de imagen de baja inicialmente
-            const imagenBajaContainer = document.getElementById('imagen_baja_programa_container');
-            if (imagenBajaContainer) {
-                imagenBajaContainer.style.display = 'none';
             }
             
             // Obtener datos reales del informe de baja
@@ -2818,21 +2805,6 @@
                     fechaElement.style.fontStyle = 'italic';
                 }
                 
-                // Manejar imagen de baja si existe
-                const imagenBaja = document.getElementById('imagen_baja_programa');
-                
-                if (imagenBajaContainer && imagenBaja) {
-                    if (informe.imagen_baja && informe.imagen_baja.trim() !== '') {
-                        imagenBaja.src = informe.imagen_baja;
-                        imagenBajaContainer.style.display = 'block';
-                        console.log('Mostrando imagen de baja:', informe.imagen_baja);
-                    } else {
-                        imagenBajaContainer.style.display = 'none';
-                        console.log('No hay imagen de baja para mostrar');
-                    }
-                } else {
-                    console.error('No se encontraron elementos para la imagen de baja');
-                }
             })
             .catch(error => {
                 console.error('Error al obtener o procesar informe de baja:', error);
@@ -3955,10 +3927,6 @@
                                     <td style="padding: 12px 0; font-weight: 600;">Enlace:</td>
                                     <td style="padding: 12px 0;" id="detalle_programa_enlace">-</td>
                                 </tr>
-                                <tr style="border-bottom: 1px solid #dee2e6;">
-                                    <td style="padding: 12px 0; font-weight: 600;">Sede:</td>
-                                    <td style="padding: 12px 0;" id="detalle_programa_sede">-</td>
-                                </tr>
                                 <tr>
                                     <td style="padding: 12px 0; font-weight: 600;">Disponibilidad:</td>
                                     <td style="padding: 12px 0;" id="detalle_programa_disponibilidad">-</td>
@@ -3968,19 +3936,6 @@
                     </div>
                 </div>
 
-                <!-- Observaciones -->
-                <div class="row">
-                    <div class="col-12">
-                        <div style="background: white; padding: 1.5rem; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
-                            <h6 style="color: #8e44ad; font-weight: 700; text-transform: uppercase; margin-bottom: 1rem; font-size: 14px;">
-                                Observaciones
-                            </h6>
-                            <div id="detalle_programa_observaciones" style="padding: 1rem; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #8e44ad; font-size: 14px; line-height: 1.5; min-height: 80px;">
-                                Cargando observaciones...
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </div>
 
             <!-- Footer del modal -->
@@ -4588,7 +4543,6 @@
                                         <td style="padding: 8px 12px; font-weight: 600; background: #ecf0f1; width: 20%;">Profesor</td>
                                         <td style="padding: 8px 12px; font-weight: 600; background: #ecf0f1; width: 15%;">Carrera</td>
                                         <td style="padding: 8px 12px; font-weight: 600; background: #ecf0f1; width: 10%; text-align: center;">Ciclo</td>
-                                        <td style="padding: 8px 12px; font-weight: 600; background: #ecf0f1; width: 15%; text-align: center;">Sede</td>
                                     </tr>
                                     <tr style="background: rgba(78, 205, 196, 0.1);">
                                         <td style="padding: 12px 12px; text-align: center; font-weight: 600;" id="modal_programa_id">1</td>
@@ -4596,7 +4550,6 @@
                                         <td style="padding: 12px 12px;" id="modal_programa_profesor">Profesor</td>
                                         <td style="padding: 12px 12px;" id="modal_programa_carrera">Carrera</td>
                                         <td style="padding: 12px 12px; text-align: center;" id="modal_programa_ciclo">2024</td>
-                                        <td style="padding: 12px 12px; text-align: center;" id="modal_programa_sede">La Plata</td>
                                     </tr>
                                 </table>
                             </div>
@@ -4802,10 +4755,6 @@
                                     <td style="padding: 8px 0; font-weight: 600;">Carrera:</td>
                                     <td style="padding: 8px 0;" id="informe_programa_carrera">-</td>
                                 </tr>
-                                <tr style="border-bottom: 1px solid #dee2e6;">
-                                    <td style="padding: 8px 0; font-weight: 600;">Sede:</td>
-                                    <td style="padding: 8px 0;" id="informe_programa_sede">-</td>
-                                </tr>
                                 <tr>
                                     <td style="padding: 8px 0; font-weight: 600;">Fecha de ingreso:</td>
                                     <td style="padding: 8px 0; color: #dc3545;" id="informe_programa_fecha_ingreso">Cargando...</td>
@@ -4826,14 +4775,6 @@
                 </div>
 
                 <!-- Imagen de la baja (si existe) -->
-                <div id="imagen_baja_programa_container" style="background: white; padding: 1.5rem; border-radius: 10px; margin-bottom: 1.5rem; display: none;">
-                    <h6 style="color: #dc3545; font-weight: 700; text-transform: uppercase; margin-bottom: 1rem; font-size: 14px; letter-spacing: 0.5px;">
-                        Imagen de la baja
-                    </h6>
-                    <div style="text-align: center;">
-                        <img id="imagen_baja_programa" src="" alt="Imagen de baja" style="max-width: 300px; max-height: 200px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
-                    </div>
-                </div>
             </div>
 
             <!-- Footer del modal -->

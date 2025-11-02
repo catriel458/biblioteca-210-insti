@@ -2308,10 +2308,7 @@ def ver_detalles_material(request, libro_id):
                 'detalle_programa_materia': material.materia,
                 'detalle_programa_enlace': material.ingresar_enlace,
                 'detalle_programa_ciclo': material.ciclo_lectivo,
-                'detalle_programa_sede': material.sede,
                 'detalle_programa_disponibilidad': material.disponibilidad,
-                'detalle_programa_observaciones': material.observaciones,
-                'detalle_programa_img': material.img if material.img else None,
                 'detalle_programa_num_registro': 'N/A',
                 'detalle_programa_denominacion': f"{material.materia} - {material.carrera}",
             }
@@ -3217,15 +3214,12 @@ def guardar_programa_confirmado(request):
                 # Valores por defecto para campos no incluidos en el formulario
                 disponibilidad='Disponible',  # Valor por defecto
                 descripcion='',  # Vacío
-                observaciones='',  # Vacío
                 num_ejemplar=1,  # Valor por defecto
-                img=''  # Campo img sí existe en el modelo Programa
             )
             
             # GUARDAR EN BASE DE DATOS
             programa.save()
             print(f"✅ Programa guardado en BD con ID: {programa.id_programa}")  # Debug
-            print(f"📷 URL de imagen guardada: '{programa.img}'")  # Debug
             
             # Limpiar sesión si existe
             if 'programa_data' in request.session:

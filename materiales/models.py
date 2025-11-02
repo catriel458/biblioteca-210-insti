@@ -243,14 +243,6 @@ class Programa(Inventario):
     ingresar_enlace = models.URLField(max_length=500, blank=True, null=True, help_text="Ingrese la URL del programa")
     ciclo_lectivo = models.CharField(max_length=4)  # Para año
     disponibilidad = models.CharField(max_length=255, default='Disponible')
-    observaciones = models.TextField(blank=True, null=True)
-    
-    # Campo para imagen URL (similar a Libro)
-    img = models.URLField(max_length=500, blank=True, null=True, default='')
 
     def __str__(self):
         return f"{self.materia} - {self.profesor} - {self.carrera}"
-    
-    def get_imagen_url(self):
-        """Método para obtener la URL de la imagen"""
-        return self.img if self.img else None
