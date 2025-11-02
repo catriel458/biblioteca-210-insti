@@ -803,7 +803,6 @@
                     <th>Carrera</th>
                     <th>Ciclo Lectivo</th>
                     <th>Enlace</th>
-                    <th class="text-center">Disponibilidad</th>
                     <th class="text-center">Acciones</th>
                 </tr>
             </thead>
@@ -825,15 +824,6 @@
                                 <a href="{{ programa.ingresar_enlace }}" target="_blank" title="Ver enlace">🔗</a>
                             {% else %}
                                 -
-                            {% endif %}
-                        </td>
-                        <td class="disponibilidad-cell">
-                            {% if programa.estado == 'Disponible' %}
-                                <span class="disponible">Disponible para préstamo</span>
-                            {% elif programa.estado == 'Reservado' %}
-                                <span class="reservado">{{ programa.estado }}</span>
-                            {% else %}
-                                <span class="no-disponible">{{ programa.estado }}</span>
                             {% endif %}
                         </td>
                         <td class="acciones-cell">
@@ -874,7 +864,6 @@
                     <th>Carrera</th>
                     <th>Título Contenido</th>
                     <th>Enlace</th>
-                    <th class="text-center">Disponibilidad</th>
                     <th class="text-center">Acciones</th>
                 </tr>
             </thead>
@@ -895,15 +884,6 @@
                                 <a href="{{ multi.ingresar_enlace }}" target="_blank" title="Ver enlace">🔗</a>
                             {% else %}
                                 -
-                            {% endif %}
-                        </td>
-                        <td class="disponibilidad-cell">
-                            {% if multi.estado == 'Disponible' %}
-                                <span class="disponible">Disponible para préstamo</span>
-                            {% elif multi.estado == 'Reservado' %}
-                                <span class="reservado">{{ multi.estado }}</span>
-                            {% else %}
-                                <span class="no-disponible">{{ multi.estado }}</span>
                             {% endif %}
                         </td>
                         <td class="acciones-cell">
@@ -1304,7 +1284,6 @@
                         setTextContent('detalle_programa_tipo', detalles.detalle_programa_tipo);
                         setTextContent('detalle_programa_denominacion', detalles.detalle_programa_denominacion);
                         setTextContent('detalle_programa_enlace', detalles.detalle_programa_enlace);
-                        setTextContent('detalle_programa_disponibilidad', detalles.detalle_programa_disponibilidad);
                         
                         // Mostrar el modal
                         const modalElement = document.getElementById('detallesProgramaModal');
@@ -1525,7 +1504,6 @@
                         setTextContent('detalle_cdu', detalles.detalle_cdu);
                         setTextContent('detalle_siglas', detalles.detalle_siglas);
                         setTextContent('detalle_sede', detalles.detalle_sede);
-                        setTextContent('detalle_disponibilidad', detalles.detalle_disponibilidad);
                         setTextContent('detalle_estado', detalles.detalle_estado);
                         setTextContent('detalle_descripcion', detalles.detalle_descripcion || 'Sin descripción disponible');
                         setTextContent('detalle_observaciones', detalles.detalle_observaciones || 'Sin observaciones');
@@ -3372,7 +3350,6 @@
         const formData = new FormData();
         formData.append('libro_id', libroId);
         formData.append('sede', 'La Plata'); // Valor por defecto
-        formData.append('disponibilidad', 'Domicilio'); // Valor por defecto
         formData.append('observaciones', 'Material reactivado desde sistema de gestión');
         
         // Obtener token CSRF
@@ -3699,7 +3676,6 @@
         const formData = new FormData();
         formData.append('varios_id', variosId);
         formData.append('sede', 'La Plata'); // Valor por defecto
-        formData.append('disponibilidad', 'Domicilio'); // Valor por defecto
         formData.append('observaciones', ''); // Observaciones vacías por defecto
         formData.append('csrfmiddlewaretoken', csrfToken);
         
@@ -3923,13 +3899,9 @@
                                     <td style="padding: 12px 0; font-weight: 600;">Denominación:</td>
                                     <td style="padding: 12px 0;" id="detalle_programa_denominacion">-</td>
                                 </tr>
-                                <tr style="border-bottom: 1px solid #dee2e6;">
+                                <tr>
                                     <td style="padding: 12px 0; font-weight: 600;">Enlace:</td>
                                     <td style="padding: 12px 0;" id="detalle_programa_enlace">-</td>
-                                </tr>
-                                <tr>
-                                    <td style="padding: 12px 0; font-weight: 600;">Disponibilidad:</td>
-                                    <td style="padding: 12px 0;" id="detalle_programa_disponibilidad">-</td>
                                 </tr>
                             </table>
                         </div>
@@ -4280,10 +4252,6 @@
                                 <tr style="border-bottom: 1px solid #dee2e6;">
                                     <td style="padding: 12px 0; font-weight: 600;">Sede:</td>
                                     <td style="padding: 12px 0;" id="detalle_sede">-</td>
-                                </tr>
-                                <tr style="border-bottom: 1px solid #dee2e6;">
-                                    <td style="padding: 12px 0; font-weight: 600;">Disponibilidad:</td>
-                                    <td style="padding: 12px 0;" id="detalle_disponibilidad">-</td>
                                 </tr>
                                 <tr>
                                     <td style="padding: 12px 0; font-weight: 600;">Estado:</td>
@@ -4853,17 +4821,6 @@
                                 <select class="form-control-custom select-custom" id="alta_sede" name="sede" required>
                                     <option value="La Plata" selected>La Plata</option>
                                     <option value="Abasto">Abasto</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <!-- Disponibilidad -->
-                        <div class="col-md-6">
-                            <div class="form-group-custom">
-                                <label for="alta_disponibilidad">Disponibilidad*</label>
-                                <select class="form-control-custom select-custom" id="alta_disponibilidad" name="disponibilidad" required>
-                                    <option value="Domicilio" selected>Domicilio</option>
-                                    <option value="Aula">Aula</option>
                                 </select>
                             </div>
                         </div>

@@ -163,6 +163,7 @@ class Proyector(Inventario):
     sede = models.TextField(default='La Plata')
     num_registro = models.CharField(max_length=255, default='1')
     modelo_pro = models.CharField(max_length=255)
+    fecha_baja = models.DateTimeField(null=True, blank=True)
     
     def __str__(self):
         return f"id_proyector: {self.id_proyector}, sede: {self.sede}, num_registro: {self.num_registro}, modelo_pro: {self.modelo_pro}"
@@ -242,7 +243,7 @@ class Programa(Inventario):
     materia = models.CharField(max_length=255)
     ingresar_enlace = models.URLField(max_length=500, blank=True, null=True, help_text="Ingrese la URL del programa")
     ciclo_lectivo = models.CharField(max_length=4)  # Para año
-    disponibilidad = models.CharField(max_length=255, default='Disponible')
+    fecha_baja = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
         return f"{self.materia} - {self.profesor} - {self.carrera}"
