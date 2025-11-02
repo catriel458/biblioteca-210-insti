@@ -1972,12 +1972,21 @@ def obtener_informe_baja_mapa(request):
             imagen_baja_url = request.build_absolute_uri(mapa.imagen_rota.url)
         
         # Obtener los datos reales de la baja desde el modelo
+        from datetime import datetime
+        fecha_baja_str = mapa.fecha_baja.strftime('%d/%m/%Y') if getattr(mapa, 'fecha_baja', None) else datetime.now().strftime('%d/%m/%Y')
+        
         informe_data = {
+            # Información específica del mapa según requerimientos
+            'num_inventario': mapa.num_registro or 'Sin número de inventario',
+            'tipo': mapa.tipo or 'Sin tipo especificado',
+            'denominacion': mapa.denominacion or 'Sin denominación',
+            'descripcion': mapa.descripcion if mapa.descripcion else 'Sin descripción',
+            'sede': mapa.sede or 'Sin sede',
+            'fecha_baja': fecha_baja_str,  # Usa fecha real o fecha actual
+            # Información adicional de la baja (mantenida para compatibilidad)
             'motivo': mapa.motivo_baja if mapa.motivo_baja else 'Motivo no registrado',
-            'fecha_baja': '30/10/2024',  # Puedes agregar este campo al modelo si lo necesitas
             'imagen_baja': imagen_baja_url,  # URL completa o None
-            'usuario_baja': 'Admin',  # Puedes agregar este campo al modelo si lo necesitas
-            'descripcion': mapa.descripcion if mapa.descripcion else '',
+            'usuario_baja': 'Admin',
         }
         
         print(f"📋 Datos del informe de mapa enviados: {informe_data}")
@@ -2087,16 +2096,20 @@ def obtener_informe_baja_multimedia(request):
             }, status=400)
         
         # Preparar datos del informe
+        from datetime import datetime
+        fecha_baja_str = multimedia.fecha_baja.strftime('%d/%m/%Y') if getattr(multimedia, 'fecha_baja', None) else datetime.now().strftime('%d/%m/%Y')
+        
         informe_data = {
-            'titulo_contenido': multimedia.titulo_contenido or 'Sin título',
-            'profesor': multimedia.profesor or 'Sin especificar',
-            'carrera': multimedia.carrera or 'Sin especificar',
-            'materia': multimedia.materia or 'Sin especificar',
+            # Campos específicos solicitados para multimedia
+            'id_inventario': multimedia.id_inventario,  # N° Inventario
+            'materia': multimedia.materia or 'Sin especificar',  # Materia
+            'profesor': multimedia.profesor or 'Sin especificar',  # Profesor
+            'carrera': multimedia.carrera or 'Sin especificar',  # Carrera
+            'titulo_contenido': multimedia.titulo_contenido or 'Sin título',  # Título del Contenido
+            # Información de la baja
             'motivo_baja': multimedia.motivo_baja or 'Sin motivo especificado',
-            'fecha_baja': '15/01/2025',  # Fecha hardcodeada como en los otros casos
+            'fecha_baja': fecha_baja_str,  # Usa fecha real o fecha actual
             'usuario_baja': 'Admin Sistema',  # Usuario hardcodeado
-            'enlace': multimedia.ingresar_enlace or 'Sin enlace',
-            'sede': 'No especificado'  # Multimedia no tiene campo sede
         }
         
         # Agregar URL de imagen si existe
@@ -2149,10 +2162,8 @@ def dar_alta_multimedia(request):
         multimedia.estado = 'Disponible'
         multimedia.sede = sede
         
-        # Agregar observaciones si las hay (usar un campo apropiado)
-        if observaciones:
-            # Para multimedia, podemos usar el campo profesor para observaciones adicionales
-            multimedia.profesor = f"{multimedia.profesor} - {observaciones}" if multimedia.profesor else observaciones
+        # No agregamos las observaciones al campo profesor
+        # Las observaciones se pueden guardar en otro campo si fuera necesario, pero no en profesor
         
         # Limpiar motivo de baja al reactivar
         multimedia.motivo_baja = ''
@@ -2214,9 +2225,23 @@ def obtener_informe_baja(request):
             print("❌ No hay imagen de baja")
         
         # Obtener los datos reales de la baja desde tu modelo
+        from datetime import datetime
+        fecha_baja_str = libro.fecha_baja.strftime('%d/%m/%Y') if getattr(libro, 'fecha_baja', None) else datetime.now().strftime('%d/%m/%Y')
+        
         informe_data = {
+            # Información específica del libro
+            'titulo': libro.titulo or 'Sin título',
+            'autor': libro.autor or 'Sin autor',
+            'editorial': libro.editorial or 'Sin editorial',
+            'clasificacion_cdu': libro.clasificacion_cdu or 'Sin CDU',
+            'siglas_autor_titulo': libro.siglas_autor_titulo or 'Sin siglas',
+            'num_ejemplar': libro.num_ejemplar or 'Sin número',
+            'sede': libro.sede or 'Sin sede',
+            'etiqueta_palabra_clave': libro.etiqueta_palabra_clave or 'Sin etiquetas',
+            'observaciones': libro.observaciones or 'Sin observaciones',
+            # Información de la baja
             'motivo': libro.motivo_baja if libro.motivo_baja else 'Motivo no registrado',
-            'fecha_baja': '30/10/2024',  # Puedes agregar este campo a tu modelo si lo necesitas
+            'fecha_baja': fecha_baja_str,  # Usa fecha real o fecha actual
             'imagen_baja': imagen_baja_url,  # URL completa o None
             'usuario_baja': 'Admin',  # Puedes agregar este campo a tu modelo si lo necesitas
             'descripcion': libro.descripcion if libro.descripcion else '',
@@ -4596,9 +4621,20 @@ def obtener_informe_baja_programa(request):
             print("❌ No hay imagen de baja")
         
         # Obtener los datos reales de la baja desde el modelo - IGUAL QUE EN LIBROS
+        from datetime import datetime
+        fecha_baja_str = programa.fecha_baja.strftime('%d/%m/%Y') if getattr(programa, 'fecha_baja', None) else datetime.now().strftime('%d/%m/%Y')
+        
         informe_data = {
+            # Información específica del programa
+            'materia': programa.materia or 'Sin materia especificada',
+            'profesor': programa.profesor or 'Sin profesor especificado',
+            'carrera': programa.carrera or 'Sin carrera especificada',
+            'ciclo_lectivo': getattr(programa, 'ciclo_lectivo', 'Sin ciclo lectivo'),
+            'enlace': getattr(programa, 'enlace', 'Sin enlace'),
+            'sede': getattr(programa, 'sede', 'Sin sede especificada'),
+            # Información de la baja
             'motivo_baja': programa.motivo_baja if programa.motivo_baja else 'Motivo no registrado',
-            'fecha_baja': '30/10/2024',  # Puedes agregar este campo a tu modelo si lo necesitas
+            'fecha_baja': fecha_baja_str,  # Usa fecha real o fecha actual
             'imagen_baja': imagen_baja_url,  # URL completa o None
             'usuario_baja': 'Admin',  # Puedes agregar este campo a tu modelo si lo necesitas
             'descripcion': programa.descripcion if programa.descripcion else '',
@@ -4651,9 +4687,18 @@ def obtener_informe_baja_notebook(request):
             print("❌ No hay imagen de baja")
         
         # Obtener los datos reales de la baja desde el modelo - IGUAL QUE EN LIBROS
+        from datetime import datetime
+        fecha_baja_str = notebook.fecha_baja.strftime('%d/%m/%Y') if getattr(notebook, 'fecha_baja', None) else datetime.now().strftime('%d/%m/%Y')
+        
         informe_data = {
+            # Información específica del notebook
+            'modelo_not': notebook.modelo_not or 'Sin modelo especificado',
+            'num_registro': notebook.num_registro or 'Sin número de registro',
+            'sede': notebook.sede or 'Sin sede especificada',
+            'id_not': notebook.id_not,
+            # Información de la baja
             'motivo_baja': notebook.motivo_baja if notebook.motivo_baja else 'Motivo no registrado',
-            'fecha_baja': '30/10/2024',  # Puedes agregar este campo a tu modelo si lo necesitas
+            'fecha_baja': fecha_baja_str,  # Usa fecha real o fecha actual
             'imagen_baja': imagen_baja_url,  # URL completa o None
             'usuario_baja': 'Admin',  # Puedes agregar este campo a tu modelo si lo necesitas
             'descripcion': notebook.descripcion if notebook.descripcion else '',
@@ -4751,10 +4796,31 @@ def obtener_informe_baja_proyector(request):
         # Preparar datos del informe
         from datetime import datetime
         
+        # Construir URL de imagen si existe
+        imagen_baja_url = None
+        if hasattr(proyector, 'imagen_rota') and proyector.imagen_rota:
+            imagen_baja_url = proyector.imagen_rota.url
+        
+        # Obtener fecha de baja
+        fecha_baja_str = proyector.fecha_baja.strftime('%d/%m/%Y') if hasattr(proyector, 'fecha_baja') and proyector.fecha_baja else datetime.now().strftime('%d/%m/%Y')
+        
+        informe_data = {
+            # Información específica del proyector
+            'modelo_pro': proyector.modelo_pro or 'Sin modelo especificado',
+            'num_registro': proyector.num_registro or 'Sin número de registro',
+            'sede': proyector.sede or 'Sin sede especificada',
+            'id_proyector': proyector.id_proyector,
+            # Información de la baja
+            'motivo_baja': proyector.motivo_baja or 'Sin motivo especificado',
+            'fecha_baja': fecha_baja_str,
+            'imagen_baja': imagen_baja_url,
+            'usuario_baja': 'Admin',
+            'descripcion': getattr(proyector, 'descripcion', ''),
+        }
+        
         return JsonResponse({
             'success': True,
-            'motivo': proyector.motivo_baja or 'Sin motivo especificado',
-            'fecha_baja': proyector.fecha_baja.strftime('%d/%m/%Y') if hasattr(proyector, 'fecha_baja') and proyector.fecha_baja else datetime.now().strftime('%d/%m/%Y')
+            'informe': informe_data
         })
         
     except Exception as e:
@@ -4839,6 +4905,13 @@ def obtener_informe_baja_varios(request):
         from datetime import datetime
         fecha_baja_str = varios.fecha_baja.strftime('%d/%m/%Y') if getattr(varios, 'fecha_baja', None) else datetime.now().strftime('%d/%m/%Y')
         informe_data = {
+            # Información específica del material varios
+            'tipo': varios.tipo or 'Sin tipo especificado',
+            'sede': varios.sede or 'Sin sede especificada',
+            'cantidad': varios.cantidad or 0,
+            'cantidad_disponible': varios.cantidad_disponible or 0,
+            'id_varios': varios.id_varios,
+            # Información de la baja
             'motivo': varios.motivo_baja if varios.motivo_baja else 'Motivo no registrado',
             'fecha_baja': fecha_baja_str,
             'imagen_baja': imagen_baja_url,

@@ -139,34 +139,30 @@
     }
 
     .btn-guardar {
-        background: #4285F4;
-        color: white;
-        border: none;
-        border-radius: 4px;
-        padding: 8px 16px;
-        font-size: 13px;
-        font-weight: 500;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
+        background: #4363FF; /* fondo azul mejorado */
+        color: #ffffff;      /* texto blanco */
+        border: 2px solid #000000; /* reborde negro */
+        border-radius: 12px; /* redondeado mejorado */
+        padding: 10px 24px;
+        font-size: 16px;
+        font-weight: 700;
         cursor: pointer;
         transition: background-color 0.2s ease;
     }
 
     .btn-guardar:hover {
-        background: #3367D6;
-        color: white;
+        background: #3A56E8;
+        color: #ffffff;
         text-decoration: none;
     }
 
     .btn-cancelar {
         background: none;
-        color: #d93025;
+        color: #d93025; /* color rojo mejorado */
         border: none;
-        padding: 8px 16px;
-        font-size: 13px;
+        padding: 0; /* texto simple */
+        font-size: 14px;
         font-weight: 500;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
         cursor: pointer;
         text-decoration: none;
         transition: color 0.2s ease;
@@ -178,23 +174,39 @@
         text-decoration: none;
     }
 
+    /* Salvaguarda de especificidad para evitar conflictos con CSS globales */
+    .action-buttons .btn-guardar {
+        background: #4363FF !important;
+        color: #ffffff !important;
+        border: 2px solid #000000 !important;
+        border-radius: 12px !important;
+    }
+    .action-buttons .btn-cancelar {
+        color: #d93025 !important;
+        background: none !important;
+        border: none !important;
+        padding: 0 !important;
+    }
+
     /* Estilos específicos para los select de carrera y materia */
     #id_carrera_edit, #id_materia_edit {
         background-color: white !important;
         color: #333 !important;
-        border: 1px solid #ddd !important;
-        padding: 8px 12px !important;
+        border: none !important;
+        border-bottom: 2px solid #8B1D69 !important;
+        padding: 12px 16px !important;
         font-size: 14px !important;
         appearance: menulist !important;
         -webkit-appearance: menulist !important;
         -moz-appearance: menulist !important;
         height: auto !important;
         line-height: normal !important;
+        border-radius: 4px !important;
     }
     
     #id_carrera_edit:focus, #id_materia_edit:focus {
-        border-color: #007bff !important;
-        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25) !important;
+        border-bottom: 2px solid #8B1D69 !important;
+        box-shadow: none !important;
         outline: none !important;
         background-color: white !important;
     }
@@ -259,6 +271,11 @@
             </div>
             
             <div class="form-group">
+                <label for="{{ form.carrera.id_for_label }}">Carrera</label>
+                {{ form.carrera }}
+            </div>
+            
+            <div class="form-group">
                 <label for="{{ form.materia.id_for_label }}" class="required">Materia</label>
                 {{ form.materia }}
             </div>
@@ -269,11 +286,6 @@
             </div>
             
             <div class="form-group">
-                <label for="{{ form.carrera.id_for_label }}">Carrera</label>
-                {{ form.carrera }}
-            </div>
-            
-            <div class="form-group">
                 <label for="{{ form.ingresar_enlace.id_for_label }}">Enlace (URL)</label>
                 {{ form.ingresar_enlace }}
             </div>
@@ -281,9 +293,9 @@
             <div class="action-buttons">
                 <div></div>
                 <div style="display: flex; gap: 2rem; align-items: center;">
-                    <button type="button" class="btn btn-cancelar" onclick="window.history.back()">
+                    <a href="{% url 'modificacion_materiales' %}" class="btn btn-cancelar">
                         CANCELAR
-                    </button>
+                    </a>
                     <button type="button" class="btn btn-guardar" onclick="mostrarModalConfirmacion()">
                         GUARDAR
                     </button>

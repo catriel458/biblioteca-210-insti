@@ -2589,11 +2589,11 @@
                 return;
             }
             
-            // Llenar datos básicos del mapa en el modal
+            // Llenar datos básicos del mapa en el modal usando los nuevos campos
             document.getElementById('informe_num_inventario').textContent = mapaData.num_registro;
             document.getElementById('informe_titulo').textContent = mapaData.denominacion;
             document.getElementById('informe_autor').textContent = mapaData.tipo;
-            document.getElementById('informe_cdu').textContent = '-';
+            document.getElementById('informe_cdu').textContent = mapaData.descripcion || 'Sin descripción';
             document.getElementById('informe_siglas').textContent = mapaData.sede;
             
             // Mostrar indicador de carga
@@ -2637,6 +2637,23 @@
             .then(data => {
                 if (data.success) {
                     const informe = data.informe;
+                    
+                    // Actualizar campos específicos del mapa con datos del backend
+                    if (informe.num_inventario) {
+                        document.getElementById('informe_num_inventario').textContent = informe.num_inventario;
+                    }
+                    if (informe.denominacion) {
+                        document.getElementById('informe_titulo').textContent = informe.denominacion;
+                    }
+                    if (informe.tipo) {
+                        document.getElementById('informe_autor').textContent = informe.tipo;
+                    }
+                    if (informe.descripcion) {
+                        document.getElementById('informe_cdu').textContent = informe.descripcion;
+                    }
+                    if (informe.sede) {
+                        document.getElementById('informe_siglas').textContent = informe.sede;
+                    }
                     
                     // Actualizar motivo de baja
                     if (informe.motivo && informe.motivo.trim() !== '') {
@@ -2713,7 +2730,8 @@
             document.getElementById('informe_titulo').textContent = programaData.materia;
             document.getElementById('informe_autor').textContent = programaData.profesor;
             document.getElementById('informe_cdu').textContent = programaData.carrera;
-            document.getElementById('informe_siglas').textContent = programaData.sede;
+            document.getElementById('informe_siglas').textContent = programaData.ciclo;
+            document.getElementById('informe_sede').textContent = programaData.sede;
             
             // Obtener elementos para mostrar información de baja
             const motivoElement = document.getElementById('informe_motivo');
@@ -2866,12 +2884,12 @@
                 return;
             }
             
-            // Llenar datos básicos del multimedia en el modal
+            // Llenar datos básicos del multimedia en el modal (usando datos de tabla temporalmente)
             document.getElementById('informe_num_inventario').textContent = multimediaData.id;
             document.getElementById('informe_titulo').textContent = multimediaData.titulo_contenido;
             document.getElementById('informe_autor').textContent = multimediaData.profesor;
             document.getElementById('informe_cdu').textContent = multimediaData.carrera;
-            document.getElementById('informe_siglas').textContent = multimediaData.sede;
+            document.getElementById('informe_siglas').textContent = multimediaData.materia;
             
             // Mostrar indicador de carga
             const motivoElement = document.getElementById('informe_motivo');
@@ -2915,6 +2933,15 @@
             .then(data => {
                 if (data.success) {
                     const informe = data.informe;
+                    
+                    // Actualizar campos con datos del backend
+                    if (informe) {
+                        document.getElementById('informe_num_inventario').textContent = informe.id_inventario || 'N/A';
+                        document.getElementById('informe_titulo').textContent = informe.titulo_contenido || 'Sin título';
+                        document.getElementById('informe_autor').textContent = informe.profesor || 'Sin especificar';
+                        document.getElementById('informe_cdu').textContent = informe.carrera || 'Sin especificar';
+                        document.getElementById('informe_siglas').textContent = informe.materia || 'Sin especificar';
+                    }
                     
                     // Actualizar motivo de baja
                     if (informe && informe.motivo_baja && informe.motivo_baja.trim() !== '') {
@@ -2973,12 +3000,12 @@
                 return;
             }
             
-            // Llenar datos básicos del notebook en el modal (usando los mismos elementos que libros y mapas)
-            document.getElementById('informe_num_inventario').textContent = notebookData.id_not || 'N/A';
-            document.getElementById('informe_titulo').textContent = notebookData.modelo_not || 'Notebook';
-            document.getElementById('informe_autor').textContent = notebookData.num_registro || '-';
-            document.getElementById('informe_cdu').textContent = '-';
-            document.getElementById('informe_siglas').textContent = notebookData.sede || 'N/A';
+            // Llenar datos básicos del notebook en el modal con los campos específicos
+            document.getElementById('informe_num_inventario').textContent = notebookData.id_not || 'N/A';  // N° de Inventario
+            document.getElementById('informe_titulo').textContent = notebookData.num_registro || '-';      // N° Registro
+            document.getElementById('informe_autor').textContent = notebookData.modelo_not || 'Sin modelo'; // Modelo
+            document.getElementById('informe_cdu').textContent = notebookData.sede || 'Sin sede';          // Sede
+            document.getElementById('informe_siglas').textContent = '-'; // Campo oculto
             
             // Mostrar indicador de carga
             const motivoElement = document.getElementById('informe_motivo');
@@ -3085,10 +3112,9 @@
         
         // Llenar datos básicos del proyector en el modal
         document.getElementById('informe_num_inventario').textContent = proyectorData.id_proyector || 'N/A';
-        document.getElementById('informe_titulo').textContent = proyectorData.modelo_pro || 'Proyector';
-        document.getElementById('informe_autor').textContent = proyectorData.num_registro || '-';
-        document.getElementById('informe_cdu').textContent = '-';
-        document.getElementById('informe_siglas').textContent = proyectorData.sede || 'N/A';
+        document.getElementById('informe_titulo').textContent = proyectorData.num_registro || '-';
+        document.getElementById('informe_autor').textContent = proyectorData.modelo_pro || '-';
+        document.getElementById('informe_cdu').textContent = proyectorData.sede || 'N/A';
         
         // Mostrar indicador de carga
         const motivoElement = document.getElementById('informe_motivo');
@@ -3134,15 +3160,27 @@
         .then(response => response.json())
         .then(data => {
             console.log('Datos recibidos del servidor:', data);
-            if (data.success) {
+            if (data.success && data.informe) {
                 // Actualizar datos reales del informe
-                document.getElementById('informe_motivo').textContent = data.motivo || 'Sin motivo especificado';
-                document.getElementById('informe_fecha_baja').textContent = data.fecha_baja || 'Fecha no disponible';
+                document.getElementById('informe_motivo').textContent = data.informe.motivo_baja || 'Sin motivo especificado';
+                document.getElementById('informe_fecha_baja').textContent = data.informe.fecha_baja || 'Fecha no disponible';
+                
+                // Manejar imagen de baja si existe
+                const imagenContainer = document.getElementById('imagen_baja_container');
+                const imagenElement = document.getElementById('imagen_baja');
+                
+                if (data.informe.imagen_baja && imagenContainer && imagenElement) {
+                    imagenElement.src = data.informe.imagen_baja;
+                    imagenContainer.style.display = 'block';
+                    console.log('✅ Imagen de baja cargada:', data.informe.imagen_baja);
+                } else if (imagenContainer) {
+                    imagenContainer.style.display = 'none';
+                }
                 
                 console.log('✅ Informe de baja cargado exitosamente para proyector:', id);
             } else {
                 console.error('❌ Error al obtener informe de baja:', data.error);
-                document.getElementById('informe_motivo').textContent = 'Error al cargar motivo';
+                document.getElementById('informe_motivo').textContent = 'Error al cargar motivo: ' + (data.error || 'Error desconocido');
                 document.getElementById('informe_fecha_baja').textContent = 'Error al cargar fecha';
             }
         })
@@ -3167,9 +3205,9 @@
                     variosData = {
                         id: celdas[0].textContent.trim(),
                         tipo: celdas[1].textContent.trim(),
-                        denominacion: celdas[2].textContent.trim(),
-                        num_registro: celdas[3].textContent.trim(),
-                        sede: celdas[4].textContent.trim()
+                        sede: celdas[2].textContent.trim(),
+                        cantidad: celdas[3].textContent.trim(),
+                        cantidad_disponible: celdas[4].textContent.trim()
                     };
                 }
             });
@@ -3180,11 +3218,10 @@
             }
             
             // Llenar datos básicos en el modal de informe
-            document.getElementById('informe_num_inventario').textContent = variosData.num_registro || variosId;
-            document.getElementById('informe_titulo').textContent = variosData.denominacion || 'Material Varios';
-            document.getElementById('informe_autor').textContent = variosData.tipo || 'Varios';
-            document.getElementById('informe_cdu').textContent = 'N/A';
-            document.getElementById('informe_siglas').textContent = 'VAR';
+            document.getElementById('informe_num_inventario').textContent = variosData.id || variosId;
+            document.getElementById('informe_titulo').textContent = variosData.tipo || 'Material Varios';
+            document.getElementById('informe_autor').textContent = variosData.cantidad || '-';
+            document.getElementById('informe_cdu').textContent = variosData.sede || 'N/A';
             
             // Mostrar indicadores de carga
             document.getElementById('informe_motivo').textContent = 'Cargando motivo de baja...';
@@ -4657,24 +4694,28 @@
                         <div class="col-9">
                             <table style="width: 100%; font-size: 14px; color: #2c3e50;">
                                 <tr style="border-bottom: 1px solid #dee2e6;">
-                                    <td style="padding: 8px 0; font-weight: 600; width: 30%;">N° Inventario:</td>
+                                    <td style="padding: 8px 0; font-weight: 600; width: 30%;">ID:</td>
                                     <td style="padding: 8px 0;" id="informe_num_inventario">-</td>
                                 </tr>
                                 <tr style="border-bottom: 1px solid #dee2e6;">
-                                    <td style="padding: 8px 0; font-weight: 600;">Título:</td>
+                                    <td style="padding: 8px 0; font-weight: 600;" id="informe_titulo_label">N° Registro:</td>
                                     <td style="padding: 8px 0; font-weight: 600; color: #dc3545;" id="informe_titulo">-</td>
                                 </tr>
                                 <tr style="border-bottom: 1px solid #dee2e6;">
-                                    <td style="padding: 8px 0; font-weight: 600;">Autor:</td>
+                                    <td style="padding: 8px 0; font-weight: 600;" id="informe_autor_label">Modelo:</td>
                                     <td style="padding: 8px 0;" id="informe_autor">-</td>
                                 </tr>
                                 <tr style="border-bottom: 1px solid #dee2e6;">
-                                    <td style="padding: 8px 0; font-weight: 600;">CDU:</td>
+                                    <td style="padding: 8px 0; font-weight: 600;" id="informe_cdu_label">Sede:</td>
                                     <td style="padding: 8px 0;" id="informe_cdu">-</td>
                                 </tr>
-                                <tr style="border-bottom: 1px solid #dee2e6;">
-                                    <td style="padding: 8px 0; font-weight: 600;">Siglas:</td>
+                                <tr style="border-bottom: 1px solid #dee2e6; display: none;">
+                                    <td style="padding: 8px 0; font-weight: 600;" id="informe_siglas_label">Ciclo Lectivo:</td>
                                     <td style="padding: 8px 0;" id="informe_siglas">-</td>
+                                </tr>
+                                <tr style="border-bottom: 1px solid #dee2e6; display: none;">
+                                    <td style="padding: 8px 0; font-weight: 600;" id="informe_sede_label">Sede:</td>
+                                    <td style="padding: 8px 0;" id="informe_sede">-</td>
                                 </tr>
                                 <tr>
                             <td style="padding: 8px 0; font-weight: 600;">Fecha de baja:</td>

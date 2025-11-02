@@ -261,34 +261,30 @@
     }
 
     .btn-guardar {
-        background: #4285F4;
-        color: white;
-        border: none;
-        border-radius: 4px;
-        padding: 8px 16px;
-        font-size: 13px;
-        font-weight: 500;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
+        background: #4363FF; /* fondo azul mejorado */
+        color: #ffffff;      /* texto blanco */
+        border: 2px solid #000000; /* reborde negro */
+        border-radius: 12px; /* redondeado mejorado */
+        padding: 10px 24px;
+        font-size: 16px;
+        font-weight: 700;
         cursor: pointer;
         transition: background-color 0.2s ease;
     }
 
     .btn-guardar:hover {
-        background: #3367D6;
-        color: white;
+        background: #3A56E8;
+        color: #ffffff;
         text-decoration: none;
     }
 
     .btn-cancelar {
         background: none;
-        color: #d93025;
+        color: #d93025; /* color rojo mejorado */
         border: none;
-        padding: 8px 16px;
-        font-size: 13px;
+        padding: 0; /* texto simple */
+        font-size: 14px;
         font-weight: 500;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
         cursor: pointer;
         text-decoration: none;
         transition: color 0.2s ease;
@@ -298,6 +294,20 @@
         background: none;
         color: #b52d20;
         text-decoration: none;
+    }
+
+    /* Salvaguarda de especificidad para evitar conflictos con CSS globales */
+    .action-buttons .btn-guardar {
+        background: #4363FF !important;
+        color: #ffffff !important;
+        border: 2px solid #000000 !important;
+        border-radius: 12px !important;
+    }
+    .action-buttons .btn-cancelar {
+        color: #d93025 !important;
+        background: none !important;
+        border: none !important;
+        padding: 0 !important;
     }
 
     /* Dropdown personalizado */
@@ -465,9 +475,9 @@
             <div class="action-buttons">
                 <div></div>
                 <div style="display: flex; gap: 2rem; align-items: center;">
-                    <button type="button" class="btn btn-cancelar" onclick="window.history.back()">
+                    <a href="{% url 'modificacion_materiales' %}" class="btn btn-cancelar">
                         CANCELAR
-                    </button>
+                    </a>
                     <button type="button" class="btn btn-guardar" onclick="mostrarModalConfirmacion()">
                         GUARDAR
                     </button>
@@ -522,6 +532,11 @@ function confirmarGuardado() {
     modal.hide();
     
     // Enviar el formulario
+    document.getElementById('editForm').submit();
+}
+
+// Función para guardar directamente sin modal (similar a proyecto pepe)
+function guardarDirectamente() {
     document.getElementById('editForm').submit();
 }
 

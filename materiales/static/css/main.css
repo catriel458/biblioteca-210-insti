@@ -6,7 +6,7 @@
     --danger-color: #DC3545;
     --background-color: #DFD9E1;
     --footer-background: rgba(239, 241, 250, 0.81);
-    --input-background: rgba(49, 183, 188, 0.2);
+    --input-background: #ffffff;
     --purple-accent: #B772A1;
     --text-color: #333;
     --text-muted: rgba(0, 0, 0, 0.5);
@@ -162,4 +162,24 @@ input:focus, textarea:focus, select:focus {
     font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
     letter-spacing: 10%;
     font-weight: bold;
+}
+
+/* Estilos específicos para formularios de ALTA - fondo turquesa */
+form[id*="form_alta"] input,
+form[id*="form_alta"] textarea,
+form[id*="form_alta"] select,
+form[id*="alta_"] input,
+form[id*="alta_"] textarea,
+form[id*="alta_"] select {
+    background-color: rgba(49, 183, 188, 0.2) !important;
+}
+
+/* Estilos específicos para formularios de EDICIÓN - fondo blanco */
+form[id*="editForm"] input,
+form[id*="editForm"] textarea,
+form[id*="editForm"] select,
+form[id*="edit"] input,
+form[id*="edit"] textarea,
+form[id*="edit"] select {
+    background-color: #ffffff !important;
 }
