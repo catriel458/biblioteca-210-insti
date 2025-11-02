@@ -1959,6 +1959,54 @@
         }
     };
 
+    // ===== FUNCIÓN AUXILIAR PARA MODIFICAR ENCABEZADOS DEL MODAL =====
+    function modificarEncabezadosModal(encabezados) {
+        const headerRow = document.querySelector('#bajaModal table tr:first-child');
+        if (headerRow) {
+            const cells = headerRow.querySelectorAll('td');
+            encabezados.forEach((encabezado, index) => {
+                if (cells[index]) {
+                    cells[index].textContent = encabezado;
+                }
+            });
+        }
+    }
+
+    // ===== FUNCIÓN AUXILIAR PARA MODIFICAR ENCABEZADOS DEL MODAL DE INFORME DE BAJA =====
+    function modificarEncabezadosInforme(encabezados) {
+        // Obtener las filas específicas del modal verInformeModal
+        const filasTitulo = document.querySelector('#verInformeModal tr:nth-child(2)'); // N° Registro/Título
+        const filasAutor = document.querySelector('#verInformeModal tr:nth-child(3)');   // Modelo/Autor
+        const filasCdu = document.querySelector('#verInformeModal tr:nth-child(4)');     // Sede/CDU
+        const filasSiglas = document.querySelector('#verInformeModal tr:nth-child(5)'); // Siglas (oculta por defecto)
+        const filasSede = document.querySelector('#verInformeModal tr:nth-child(6)');   // Sede adicional (oculta por defecto)
+        
+        // Ocultar todas las filas variables primero
+        if (filasTitulo) filasTitulo.style.display = 'none';
+        if (filasAutor) filasAutor.style.display = 'none';
+        if (filasCdu) filasCdu.style.display = 'none';
+        if (filasSiglas) filasSiglas.style.display = 'none';
+        if (filasSede) filasSede.style.display = 'none';
+        
+        // Obtener los labels y mostrar solo los necesarios
+        const labels = [
+            document.getElementById('informe_titulo_label'),
+            document.getElementById('informe_autor_label'),
+            document.getElementById('informe_cdu_label'),
+            document.getElementById('informe_siglas_label')
+        ];
+        
+        const filas = [filasTitulo, filasAutor, filasCdu, filasSiglas];
+        
+        // Configurar y mostrar solo las filas necesarias
+        encabezados.forEach((encabezado, index) => {
+            if (labels[index] && filas[index] && index < encabezados.length) {
+                labels[index].textContent = encabezado + ':';
+                filas[index].style.display = '';
+            }
+        });
+    }
+
     // ===== FUNCIÓN PARA DAR DE BAJA LIBRO ACTUALIZADA =====
     window.darDeBaja = function(libroId, titulo) {
         try {
@@ -1985,6 +2033,9 @@
             const imagenElement = filaLibro.querySelector('.libro-thumbnail');
             const imagenSrc = imagenElement ? imagenElement.src : '';
             
+            // Restaurar encabezados originales para libros
+            modificarEncabezadosModal(['N° Inv.', 'Título', 'Autor', 'Editorial', 'CDU', 'Siglas', 'Sede']);
+            
             // Llenar el formulario oculto
             document.getElementById('libro_id').value = libroId;
             
@@ -1996,6 +2047,12 @@
             document.getElementById('modal_cdu').textContent = cdu || 'Sin CDU';
             document.getElementById('modal_siglas').textContent = siglas || 'ABC';
             document.getElementById('modal_sede').textContent = sede || 'La Plata';
+            
+            // Mostrar la columna de Siglas para libros (ya que sí aplica)
+            const siglasCells = document.querySelectorAll('#bajaModal td:nth-child(6), #bajaModal th:nth-child(6)');
+            siglasCells.forEach(cell => {
+                cell.style.display = '';
+            });
             
             // Manejar la imagen
             const imagenModal = document.getElementById('libro_imagen_modal');
@@ -2013,6 +2070,17 @@
             // Limpiar el formulario
             document.getElementById('motivo_baja').value = '';
             document.getElementById('imagen_rota').value = '';
+            
+            // Restaurar la imagen lateral para libros (mostrar la imagen)
+            const imagenContainer = document.querySelector('#bajaModal .col-2.text-center');
+            const tablaContainer = document.querySelector('#bajaModal .col-10, #bajaModal .col-12');
+            
+            if (imagenContainer) {
+                imagenContainer.style.display = 'block';
+            }
+            if (tablaContainer) {
+                tablaContainer.className = 'col-10';
+            }
             
             // Mostrar el modal
             const modal = new bootstrap.Modal(document.getElementById('bajaModal'));
@@ -2040,43 +2108,42 @@
             const filaLibro = botonInforme.closest('tr');
             const celdas = filaLibro.querySelectorAll('td');
             
-            // Extraer datos del libro de la tabla
+            // Extraer datos del libro de la tabla (orden correcto según HTML)
+            // ID (0), Título (1), Autor (2), Editorial (3), Clasificación (4), Etiquetas (5), Sede (6), Observaciones (7), Disponibilidad (8), Acciones (9)
             const datosLibro = {
                 id: libroId,
-                numInventario: celdas[0]?.textContent.trim() || 'N/A',
                 titulo: celdas[1]?.textContent.trim() || 'N/A',
                 autor: celdas[2]?.textContent.trim() || 'N/A',
                 editorial: celdas[3]?.textContent.trim() || 'N/A',
                 cdu: celdas[4]?.textContent.trim() || 'N/A',
-                siglas: celdas[5]?.textContent.trim() || 'N/A',
+                etiquetas: celdas[5]?.textContent.trim() || 'N/A',
                 sede: celdas[6]?.textContent.trim() || 'N/A'
             };
+            
+            // Configurar encabezados para libros
+            modificarEncabezadosInforme(['Título', 'Autor', 'CDU', 'Etiquetas']);
             
             // Guardar el ID del libro para usar en el botón DAR DE ALTA
             window.currentLibroId = libroId;
             
             // Llenar los datos básicos en el modal
-            document.getElementById('informe_num_inventario').textContent = datosLibro.numInventario;
+            document.getElementById('informe_num_inventario').textContent = datosLibro.id;
             document.getElementById('informe_titulo').textContent = datosLibro.titulo;
             document.getElementById('informe_autor').textContent = datosLibro.autor;
             document.getElementById('informe_cdu').textContent = datosLibro.cdu;
-            document.getElementById('informe_siglas').textContent = datosLibro.siglas;
+            document.getElementById('informe_siglas').textContent = datosLibro.etiquetas;
             
-            // Manejar imagen del libro
+            // Manejar imagen del libro (ocultar completamente la sección de imagen)
             const imagenModal = document.getElementById('informe_imagen');
             const placeholderModal = document.getElementById('informe_placeholder');
+            const imagenContainer = imagenModal ? imagenModal.closest('.col-3') : null;
+            const infoContainer = document.querySelector('#verInformeModal .col-9');
             
-            // Buscar imagen en la fila (si existe)
-            const imagenEnFila = filaLibro.querySelector('img');
-            const imagenSrc = imagenEnFila ? imagenEnFila.src : null;
-            
-            if (imagenSrc && !imagenSrc.includes('placeholder')) {
-                imagenModal.src = imagenSrc;
-                imagenModal.style.display = 'block';
-                placeholderModal.style.display = 'none';
-            } else {
-                imagenModal.style.display = 'none';
-                placeholderModal.style.display = 'flex';
+            if (imagenContainer && infoContainer) {
+                // Ocultar completamente la columna de imagen
+                imagenContainer.style.display = 'none';
+                // Hacer que la información ocupe todo el ancho
+                infoContainer.className = 'col-12';
             }
             
             // Mostrar el modal
@@ -2201,11 +2268,12 @@
                 const celdas = fila.querySelectorAll('td');
                 if (celdas.length > 0 && celdas[0].textContent.trim() === id.toString()) {
                     mapaData = {
-                        id: celdas[0].textContent.trim(),
+                        id_mapa: celdas[0].textContent.trim(),
                         tipo: celdas[1].textContent.trim(),
                         denominacion: celdas[2].textContent.trim(),
-                        num_registro: celdas[3].textContent.trim(),
-                        sede: celdas[4].textContent.trim()
+                        descripcion: celdas[3].textContent.trim(),
+                        num_registro: celdas[4].textContent.trim(),
+                        sede: celdas[5].textContent.trim()
                     };
                 }
             });
@@ -2215,14 +2283,23 @@
                 return;
             }
             
-            // Llenar datos en el modal de baja
-            document.getElementById('modal_num_inventario').textContent = mapaData.num_registro;
+            // Modificar encabezados de la tabla para mapas
+            modificarEncabezadosModal(['ID', 'Denominación', 'Tipo', 'Descripción', 'N° Registro', 'Siglas', 'Sede']);
+            
+            // Llenar datos en el modal de baja - Solo campos que aplican para mapas
+            document.getElementById('modal_num_inventario').textContent = mapaData.id_mapa;
             document.getElementById('modal_titulo').textContent = mapaData.denominacion;
             document.getElementById('modal_autor').textContent = mapaData.tipo;
-            document.getElementById('modal_editorial').textContent = '-';
-            document.getElementById('modal_cdu').textContent = '-';
-            document.getElementById('modal_siglas').textContent = '-';
+            document.getElementById('modal_editorial').textContent = mapaData.descripcion || '-';
+            document.getElementById('modal_cdu').textContent = mapaData.num_registro || '-';
+            document.getElementById('modal_siglas').textContent = '';
             document.getElementById('modal_sede').textContent = mapaData.sede;
+            
+            // Ocultar la columna de Siglas para mapas ya que no aplica
+            const siglasCells = document.querySelectorAll('#bajaModal td:nth-child(6), #bajaModal th:nth-child(6)');
+            siglasCells.forEach(cell => {
+                cell.style.display = 'none';
+            });
             
             // Configurar el formulario para mapas
             const form = document.querySelector('#bajaModal form');
@@ -2241,6 +2318,17 @@
             
             // Limpiar el campo libro_id para evitar conflictos
             document.getElementById('libro_id').value = '';
+            
+            // Restaurar la imagen lateral para mapas (mostrar la imagen)
+            const imagenContainer = document.querySelector('#bajaModal .col-2.text-center');
+            const tablaContainer = document.querySelector('#bajaModal .col-10, #bajaModal .col-12');
+            
+            if (imagenContainer) {
+                imagenContainer.style.display = 'block';
+            }
+            if (tablaContainer) {
+                tablaContainer.className = 'col-10';
+            }
             
             // Mostrar el modal
             const modal = new bootstrap.Modal(document.getElementById('bajaModal'));
@@ -2305,14 +2393,22 @@
             
             console.log('📊 Datos del multimedia encontrados:', multimediaData);
             
+            // Restaurar encabezados específicos para multimedia (sin Siglas)
+            modificarEncabezadosModal(['ID', 'Materia', 'Profesor', 'Carrera', 'Título Contenido', 'Enlace']);
+            
             // Llenar datos en el modal de baja
-            document.getElementById('modal_num_inventario').textContent = multimediaData.id_inventario || 'N/A';
-            document.getElementById('modal_titulo').textContent = multimediaData.titulo_contenido || 'Sin título';
-            document.getElementById('modal_autor').textContent = multimediaData.profesor || 'Sin especificar';
-            document.getElementById('modal_editorial').textContent = multimediaData.carrera || 'Sin especificar';
-            document.getElementById('modal_cdu').textContent = multimediaData.materia || 'Sin especificar';
+            document.getElementById('modal_num_inventario').textContent = multimediaData.id_multi || id;
+            document.getElementById('modal_titulo').textContent = multimediaData.materia || 'Sin materia';
+            document.getElementById('modal_autor').textContent = multimediaData.profesor || 'Sin profesor';
+            document.getElementById('modal_editorial').textContent = multimediaData.carrera || 'Sin carrera';
+            document.getElementById('modal_cdu').textContent = multimediaData.titulo_contenido || 'Sin título';
             document.getElementById('modal_siglas').textContent = multimediaData.ingresar_enlace || 'Sin enlace';
-            document.getElementById('modal_sede').textContent = multimediaData.sede || 'Sin especificar';
+            
+            // Ocultar la columna de Siglas para multimedia
+            const siglasCells = document.querySelectorAll('#bajaModal td:nth-child(6), #bajaModal th:nth-child(6)');
+            siglasCells.forEach(cell => {
+                cell.style.display = 'none';
+            });
             
             // Configurar el formulario para multimedia
             const form = document.querySelector('#bajaModal form');
@@ -2331,6 +2427,17 @@
             
             // Limpiar el campo libro_id para evitar conflictos
             document.getElementById('libro_id').value = '';
+            
+            // Ocultar la imagen lateral para multimedia
+            const imagenContainer = document.querySelector('#bajaModal .col-2.text-center');
+            const tablaContainer = document.querySelector('#bajaModal .col-10, #bajaModal .col-12');
+            
+            if (imagenContainer) {
+                imagenContainer.style.display = 'none';
+            }
+            if (tablaContainer) {
+                tablaContainer.className = 'col-12';
+            }
             
             // Mostrar el modal
             const modal = new bootstrap.Modal(document.getElementById('bajaModal'));
@@ -2357,14 +2464,21 @@
             
             console.log('📊 Datos del notebook encontrados:', notebookData);
             
+            // Restaurar encabezados específicos para notebooks (sin Siglas)
+            modificarEncabezadosModal(['ID', 'N° Registro', 'Modelo', 'Sede', 'Estado']);
+            
             // Llenar datos en el modal de baja
             document.getElementById('modal_num_inventario').textContent = notebookData.id_not || 'N/A';
-            document.getElementById('modal_titulo').textContent = notebookData.modelo_not || 'Sin modelo';
-            document.getElementById('modal_autor').textContent = notebookData.num_registro || 'Sin registro';
+            document.getElementById('modal_titulo').textContent = notebookData.num_registro || 'Sin registro';
+            document.getElementById('modal_autor').textContent = notebookData.modelo_not || 'Sin modelo';
             document.getElementById('modal_editorial').textContent = notebookData.sede || 'Sin especificar';
             document.getElementById('modal_cdu').textContent = notebookData.estado || 'Sin estado';
-            document.getElementById('modal_siglas').textContent = notebookData.descripcion || 'Sin descripción';
-            document.getElementById('modal_sede').textContent = notebookData.sede || 'Sin especificar';
+            
+            // Ocultar la columna de Siglas para notebooks
+            const siglasCells = document.querySelectorAll('#bajaModal td:nth-child(6), #bajaModal th:nth-child(6)');
+            siglasCells.forEach(cell => {
+                cell.style.display = 'none';
+            });
             
             // Configurar el formulario para notebook
             const form = document.querySelector('#bajaModal form');
@@ -2383,6 +2497,17 @@
             
             // Limpiar otros campos para evitar conflictos
             document.getElementById('libro_id').value = '';
+            
+            // Restaurar la imagen lateral para notebooks (mostrar la imagen)
+            const imagenContainer = document.querySelector('#bajaModal .col-2.text-center');
+            const tablaContainer = document.querySelector('#bajaModal .col-10, #bajaModal .col-12');
+            
+            if (imagenContainer) {
+                imagenContainer.style.display = 'block';
+            }
+            if (tablaContainer) {
+                tablaContainer.className = 'col-10';
+            }
             
             // Mostrar el modal
             const modal = new bootstrap.Modal(document.getElementById('bajaModal'));
@@ -2429,14 +2554,21 @@
                 }
             }
             
+            // Restaurar encabezados específicos para proyectores (sin Siglas)
+            modificarEncabezadosModal(['ID', 'N° Registro', 'Modelo', 'Sede', 'Estado']);
+            
             // Llenar datos básicos del proyector en el modal
-            document.getElementById('modal_num_inventario').textContent = numRegistro || id;
-            document.getElementById('modal_titulo').textContent = modelo || 'Proyector';
-            document.getElementById('modal_autor').textContent = tipo || 'Proyector';
-            document.getElementById('modal_editorial').textContent = modelo || '-';
-            document.getElementById('modal_cdu').textContent = '-';
-            document.getElementById('modal_siglas').textContent = sede || 'La Plata';
-            document.getElementById('modal_sede').textContent = sede || 'La Plata';
+            document.getElementById('modal_num_inventario').textContent = proyectorData?.id_proyector || id;
+            document.getElementById('modal_titulo').textContent = numRegistro || 'Sin registro';
+            document.getElementById('modal_autor').textContent = modelo || 'Sin modelo';
+            document.getElementById('modal_editorial').textContent = sede || 'La Plata';
+            document.getElementById('modal_cdu').textContent = proyectorData?.estado || 'Sin estado';
+            
+            // Ocultar la columna de Siglas para proyectores
+            const siglasCells = document.querySelectorAll('#bajaModal td:nth-child(6), #bajaModal th:nth-child(6)');
+            siglasCells.forEach(cell => {
+                cell.style.display = 'none';
+            });
             
             // Configurar el formulario para proyector
             const form = document.querySelector('#bajaForm');
@@ -2459,6 +2591,17 @@
                 const field = document.getElementById(fieldId);
                 if (field) field.value = '';
             });
+            
+            // Restaurar la imagen lateral para proyectores (mostrar la imagen)
+            const imagenContainer = document.querySelector('#bajaModal .col-2.text-center');
+            const tablaContainer = document.querySelector('#bajaModal .col-10, #bajaModal .col-12');
+            
+            if (imagenContainer) {
+                imagenContainer.style.display = 'block';
+            }
+            if (tablaContainer) {
+                tablaContainer.className = 'col-10';
+            }
             
             // Mostrar el modal
             const modal = new bootstrap.Modal(document.getElementById('bajaModal'));
@@ -2503,14 +2646,22 @@
             // Cambiar el nombre del campo para que coincida con lo que espera la vista baja_varios
             libroIdField.name = 'varios_id';
             
+            // Restaurar encabezados específicos para varios (sin Siglas)
+            modificarEncabezadosModal(['ID', 'Tipo', 'Sede', 'Cantidad', 'Disponible', 'Estado']);
+            
             // Llenar los datos en el modal (adaptando los campos para varios)
-            document.getElementById('modal_num_inventario').textContent = variosData.num_registro || id;
-            document.getElementById('modal_titulo').textContent = variosData.denominacion || 'Material Varios';
-            document.getElementById('modal_autor').textContent = variosData.tipo || 'Varios';
-            document.getElementById('modal_editorial').textContent = 'N/A';
-            document.getElementById('modal_cdu').textContent = 'N/A';
-            document.getElementById('modal_siglas').textContent = 'VAR';
-            document.getElementById('modal_sede').textContent = variosData.sede || 'La Plata';
+            document.getElementById('modal_num_inventario').textContent = variosData.id_varios || id;
+            document.getElementById('modal_titulo').textContent = variosData.tipo || 'Sin tipo';
+            document.getElementById('modal_autor').textContent = variosData.sede || 'La Plata';
+            document.getElementById('modal_editorial').textContent = variosData.cantidad || '1';
+            document.getElementById('modal_cdu').textContent = variosData.cantidad_disponible || '1';
+            document.getElementById('modal_siglas').textContent = variosData.estado || 'Sin estado';
+            
+            // Ocultar la columna de Siglas para varios
+            const siglasCells = document.querySelectorAll('#bajaModal td:nth-child(6), #bajaModal th:nth-child(6)');
+            siglasCells.forEach(cell => {
+                cell.style.display = 'none';
+            });
             
             // Manejar la imagen (varios generalmente no tienen imagen)
             const imagenModal = document.getElementById('libro_imagen_modal');
@@ -2526,6 +2677,17 @@
             // Cambiar la acción del formulario para varios
             const form = document.querySelector('#bajaForm');
             form.action = "{% url 'baja_varios' %}";
+            
+            // Restaurar la imagen lateral para varios (mostrar la imagen)
+            const imagenContainer = document.querySelector('#bajaModal .col-2.text-center');
+            const tablaContainer = document.querySelector('#bajaModal .col-10, #bajaModal .col-12');
+            
+            if (imagenContainer) {
+                imagenContainer.style.display = 'block';
+            }
+            if (tablaContainer) {
+                tablaContainer.className = 'col-10';
+            }
             
             // Mostrar el modal
             const modal = new bootstrap.Modal(document.getElementById('bajaModal'));
@@ -2546,12 +2708,14 @@
             filasMapa.forEach(fila => {
                 const celdas = fila.querySelectorAll('td');
                 if (celdas.length > 0 && celdas[0].textContent.trim() === id.toString()) {
+                    // Orden correcto según HTML: ID (0), Tipo (1), Denominación (2), Descripción (3), N° Registro (4), Sede (5), Disponibilidad (6), Acciones (7)
                     mapaData = {
                         id: celdas[0].textContent.trim(),
                         tipo: celdas[1].textContent.trim(),
                         denominacion: celdas[2].textContent.trim(),
-                        num_registro: celdas[3].textContent.trim(),
-                        sede: celdas[4].textContent.trim()
+                        descripcion: celdas[3].textContent.trim(),
+                        num_registro: celdas[4].textContent.trim(),
+                        sede: celdas[5].textContent.trim()
                     };
                 }
             });
@@ -2561,12 +2725,14 @@
                 return;
             }
             
+            // Configurar encabezados para mapas
+            modificarEncabezadosInforme(['Denominación', 'Tipo', 'N° Registro', 'Sede']);
+            
             // Llenar datos básicos del mapa en el modal usando los nuevos campos
-            document.getElementById('informe_num_inventario').textContent = mapaData.num_registro;
-            document.getElementById('informe_titulo').textContent = mapaData.denominacion;
-            document.getElementById('informe_autor').textContent = mapaData.tipo;
-            document.getElementById('informe_cdu').textContent = mapaData.descripcion || 'Sin descripción';
-            document.getElementById('informe_siglas').textContent = mapaData.sede;
+            document.getElementById('informe_num_inventario').textContent = mapaData.denominacion;
+            document.getElementById('informe_titulo').textContent = mapaData.tipo;
+            document.getElementById('informe_autor').textContent = mapaData.num_registro;
+            document.getElementById('informe_cdu').textContent = mapaData.sede;
             
             // Mostrar indicador de carga
             const motivoElement = document.getElementById('informe_motivo');
@@ -2575,13 +2741,17 @@
             motivoElement.textContent = 'Cargando motivo de baja...';
             fechaElement.textContent = 'Cargando...';
             
-            // Manejar imagen del mapa
+            // Manejar imagen del mapa (ocultar completamente la sección de imagen)
             const imagenModal = document.getElementById('informe_imagen');
             const placeholderModal = document.getElementById('informe_placeholder');
+            const imagenContainer = imagenModal ? imagenModal.closest('.col-3') : null;
+            const infoContainer = document.querySelector('#verInformeModal .col-9');
             
-            if (imagenModal && placeholderModal) {
-                imagenModal.style.display = 'none';
-                placeholderModal.style.display = 'flex';
+            if (imagenContainer && infoContainer) {
+                // Ocultar completamente la columna de imagen
+                imagenContainer.style.display = 'none';
+                // Hacer que la información ocupe todo el ancho
+                infoContainer.className = 'col-12';
             }
             
             // Guardar ID del mapa actual para el botón de dar de alta
@@ -2677,14 +2847,32 @@
         try {
             console.log('Iniciando verInformeBajaPrograma para ID:', id);
             
-            // Obtener datos del programa desde la tabla
-            const programaData = window.programaTableData?.find(item => item.id_programa == id);
+            // Obtener datos del programa desde la fila de la tabla
+            const filasPrograma = document.querySelectorAll('#programas-table tr');
+            let programaData = null;
+            
+            filasPrograma.forEach(fila => {
+                const celdas = fila.querySelectorAll('td');
+                if (celdas.length > 0 && celdas[0].textContent.trim() === id.toString()) {
+                    // Orden correcto según HTML: ID (0), Materia (1), Profesor (2), Carrera (3), Ciclo Lectivo (4), Enlace (5), Acciones (6)
+                    programaData = {
+                        id: celdas[0].textContent.trim(),
+                        materia: celdas[1].textContent.trim(),
+                        profesor: celdas[2].textContent.trim(),
+                        carrera: celdas[3].textContent.trim(),
+                        ciclo_lectivo: celdas[4].textContent.trim()
+                    };
+                }
+            });
             
             if (!programaData) {
                 console.error('No se encontraron datos para programa ID:', id);
                 alert('Error: No se pudieron obtener los datos del programa');
                 return;
             }
+            
+            // Configurar encabezados para programas
+            modificarEncabezadosInforme(['Materia', 'Profesor', 'Carrera']);
             
             // Guardar ID del programa actual para el botón de dar de alta
             window.currentProgramaId = id;
@@ -2698,11 +2886,10 @@
             modal.show();
             
             // Llenar datos básicos del programa en el modal
-            document.getElementById('informe_num_inventario').textContent = programaData.id_programa;
+            document.getElementById('informe_num_inventario').textContent = programaData.id;
             document.getElementById('informe_titulo').textContent = programaData.materia;
             document.getElementById('informe_autor').textContent = programaData.profesor;
             document.getElementById('informe_cdu').textContent = programaData.carrera;
-            document.getElementById('informe_siglas').textContent = programaData.ciclo;
             
             // Obtener elementos para mostrar información de baja
             const motivoElement = document.getElementById('informe_motivo');
@@ -2712,14 +2899,17 @@
             motivoElement.innerHTML = '<span style="color: #6c757d; font-style: italic;">Cargando motivo de baja...</span>';
             fechaElement.innerHTML = '<span style="color: #6c757d; font-style: italic;">Cargando fecha...</span>';
             
-            // Manejar imagen del programa (ocultar ya que los programas no tienen imagen)
+            // Manejar imagen del programa (ocultar completamente la sección de imagen)
             const imagenModal = document.getElementById('informe_imagen');
             const placeholderModal = document.getElementById('informe_placeholder');
+            const imagenContainer = imagenModal ? imagenModal.closest('.col-3') : null;
+            const infoContainer = document.querySelector('#verInformeModal .col-9');
             
-            if (imagenModal && placeholderModal) {
-                imagenModal.style.display = 'none';
-                placeholderModal.style.display = 'flex';
-                placeholderModal.innerHTML = 'Programa<br>Académico';
+            if (imagenContainer && infoContainer) {
+                // Ocultar completamente la columna de imagen
+                imagenContainer.style.display = 'none';
+                // Hacer que la información ocupe todo el ancho
+                infoContainer.className = 'col-12';
             }
             
             // Obtener datos reales del informe de baja
@@ -2819,12 +3009,11 @@
                 if (celdas.length > 0 && celdas[0].textContent.trim() === id.toString()) {
                     multimediaData = {
                         id: celdas[0].textContent.trim(),
-                        titulo_contenido: celdas[1].textContent.trim(),
+                        materia: celdas[1].textContent.trim(),
                         profesor: celdas[2].textContent.trim(),
                         carrera: celdas[3].textContent.trim(),
-                        materia: celdas[4].textContent.trim(),
-                        enlace: celdas[5].textContent.trim(),
-                        sede: celdas[6].textContent.trim()
+                        titulo_contenido: celdas[4].textContent.trim(),
+                        enlace: celdas[5].textContent.trim()
                     };
                 }
             });
@@ -2834,12 +3023,14 @@
                 return;
             }
             
-            // Llenar datos básicos del multimedia en el modal (usando datos de tabla temporalmente)
+            // Configurar encabezados específicos para multimedia (solo 3 campos más relevantes)
+            modificarEncabezadosInforme(['Materia', 'Profesor', 'Carrera']);
+            
+            // Llenar datos básicos del multimedia en el modal
             document.getElementById('informe_num_inventario').textContent = multimediaData.id;
-            document.getElementById('informe_titulo').textContent = multimediaData.titulo_contenido;
+            document.getElementById('informe_titulo').textContent = multimediaData.materia;
             document.getElementById('informe_autor').textContent = multimediaData.profesor;
             document.getElementById('informe_cdu').textContent = multimediaData.carrera;
-            document.getElementById('informe_siglas').textContent = multimediaData.materia;
             
             // Mostrar indicador de carga
             const motivoElement = document.getElementById('informe_motivo');
@@ -2848,13 +3039,17 @@
             motivoElement.textContent = 'Cargando motivo de baja...';
             fechaElement.textContent = 'Cargando...';
             
-            // Manejar imagen del multimedia
+            // Manejar imagen del multimedia (ocultar completamente la sección de imagen)
             const imagenModal = document.getElementById('informe_imagen');
             const placeholderModal = document.getElementById('informe_placeholder');
+            const imagenContainer = imagenModal ? imagenModal.closest('.col-3') : null;
+            const infoContainer = document.querySelector('#verInformeModal .col-9');
             
-            if (imagenModal && placeholderModal) {
-                imagenModal.style.display = 'none';
-                placeholderModal.style.display = 'flex';
+            if (imagenContainer && infoContainer) {
+                // Ocultar completamente la columna de imagen
+                imagenContainer.style.display = 'none';
+                // Hacer que la información ocupe todo el ancho
+                infoContainer.className = 'col-12';
             }
             
             // Guardar ID del multimedia actual para el botón de dar de alta
@@ -2942,20 +3137,36 @@
     window.verInformeBajaNotebook = function(id) {
             console.log('📋 Mostrando informe de baja para notebook:', id);
             
-            // Buscar datos del notebook
-            const notebookData = window.notebookTableData?.find(item => item.id_not == id);
+            // Buscar datos del notebook en la tabla HTML
+            const filasNotebook = document.querySelectorAll('#notebook-table tr');
+            let notebookData = null;
+            
+            filasNotebook.forEach(fila => {
+                const celdas = fila.querySelectorAll('td');
+                if (celdas.length > 0 && celdas[0].textContent.trim() === id.toString()) {
+                    notebookData = {
+                        id: celdas[0].textContent.trim(),
+                        num_registro: celdas[1].textContent.trim(),
+                        modelo: celdas[2].textContent.trim(),
+                        sede: celdas[3].textContent.trim()
+                    };
+                }
+            });
+            
             if (!notebookData) {
                 console.error('❌ No se encontraron datos para notebook ID:', id);
                 alert('Error: No se encontraron datos del notebook');
                 return;
             }
             
-            // Llenar datos básicos del notebook en el modal con los campos específicos
-            document.getElementById('informe_num_inventario').textContent = notebookData.id_not || 'N/A';  // N° de Inventario
-            document.getElementById('informe_titulo').textContent = notebookData.num_registro || '-';      // N° Registro
-            document.getElementById('informe_autor').textContent = notebookData.modelo_not || 'Sin modelo'; // Modelo
-            document.getElementById('informe_cdu').textContent = notebookData.sede || 'Sin sede';          // Sede
-            document.getElementById('informe_siglas').textContent = '-'; // Campo oculto
+            // Configurar encabezados específicos para notebook
+            modificarEncabezadosInforme(['N° Registro', 'Modelo', 'Sede']);
+            
+            // Llenar datos básicos del notebook en el modal
+            document.getElementById('informe_num_inventario').textContent = notebookData.id;
+            document.getElementById('informe_titulo').textContent = notebookData.num_registro || '-';
+            document.getElementById('informe_autor').textContent = notebookData.modelo || 'Sin modelo';
+            document.getElementById('informe_cdu').textContent = notebookData.sede || 'Sin sede';
             
             // Mostrar indicador de carga
             const motivoElement = document.getElementById('informe_motivo');
@@ -2964,13 +3175,17 @@
             motivoElement.textContent = 'Cargando motivo de baja...';
             fechaElement.textContent = 'Cargando...';
             
-            // Manejar imagen del notebook
+            // Manejar imagen del notebook (ocultar completamente la sección de imagen)
             const imagenModal = document.getElementById('informe_imagen');
             const placeholderModal = document.getElementById('informe_placeholder');
+            const imagenContainer = imagenModal ? imagenModal.closest('.col-3') : null;
+            const infoContainer = document.querySelector('#verInformeModal .col-9');
             
-            if (imagenModal && placeholderModal) {
-                imagenModal.style.display = 'none';
-                placeholderModal.style.display = 'flex';
+            if (imagenContainer && infoContainer) {
+                // Ocultar completamente la columna de imagen
+                imagenContainer.style.display = 'none';
+                // Hacer que la información ocupe todo el ancho
+                infoContainer.className = 'col-12';
             }
             
             // Guardar ID del notebook actual para el botón de dar de alta
@@ -3052,18 +3267,35 @@
     window.verInformeBajaProyector = function(id) {
         console.log('📽️ Mostrando informe de baja para proyector:', id);
         
-        // Buscar datos del proyector
-        const proyectorData = window.proyectorTableData?.find(item => item.id_proyector == id);
+        // Buscar datos del proyector en la tabla HTML
+        const filasProyector = document.querySelectorAll('#proyector-table tr');
+        let proyectorData = null;
+        
+        filasProyector.forEach(fila => {
+            const celdas = fila.querySelectorAll('td');
+            if (celdas.length > 0 && celdas[0].textContent.trim() === id.toString()) {
+                proyectorData = {
+                    id: celdas[0].textContent.trim(),
+                    num_registro: celdas[1].textContent.trim(),
+                    modelo: celdas[2].textContent.trim(),
+                    sede: celdas[3].textContent.trim()
+                };
+            }
+        });
+        
         if (!proyectorData) {
             console.error('❌ No se encontraron datos para proyector ID:', id);
             alert('Error: No se encontraron datos del proyector');
             return;
         }
         
+        // Configurar encabezados específicos para proyector
+        modificarEncabezadosInforme(['N° Registro', 'Modelo', 'Sede']);
+        
         // Llenar datos básicos del proyector en el modal
-        document.getElementById('informe_num_inventario').textContent = proyectorData.id_proyector || 'N/A';
+        document.getElementById('informe_num_inventario').textContent = proyectorData.id;
         document.getElementById('informe_titulo').textContent = proyectorData.num_registro || '-';
-        document.getElementById('informe_autor').textContent = proyectorData.modelo_pro || '-';
+        document.getElementById('informe_autor').textContent = proyectorData.modelo || '-';
         document.getElementById('informe_cdu').textContent = proyectorData.sede || 'N/A';
         
         // Mostrar indicador de carga
@@ -3073,13 +3305,17 @@
         motivoElement.textContent = 'Cargando motivo de baja...';
         fechaElement.textContent = 'Cargando...';
         
-        // Manejar imagen del proyector
+        // Manejar imagen del proyector (ocultar completamente la sección de imagen)
         const imagenModal = document.getElementById('informe_imagen');
         const placeholderModal = document.getElementById('informe_placeholder');
+        const imagenContainer = imagenModal ? imagenModal.closest('.col-3') : null;
+        const infoContainer = document.querySelector('#verInformeModal .col-9');
         
-        if (imagenModal && placeholderModal) {
-            imagenModal.style.display = 'none';
-            placeholderModal.style.display = 'flex';
+        if (imagenContainer && infoContainer) {
+            // Ocultar completamente la columna de imagen
+            imagenContainer.style.display = 'none';
+            // Hacer que la información ocupe todo el ancho
+            infoContainer.className = 'col-12';
         }
         
         // Guardar ID del proyector actual para el botón de dar de alta
@@ -3156,8 +3392,7 @@
                         id: celdas[0].textContent.trim(),
                         tipo: celdas[1].textContent.trim(),
                         sede: celdas[2].textContent.trim(),
-                        cantidad: celdas[3].textContent.trim(),
-                        cantidad_disponible: celdas[4].textContent.trim()
+                        cantidad: celdas[3].textContent.trim()
                     };
                 }
             });
@@ -3166,6 +3401,9 @@
                 alert('Error: No se pudieron obtener los datos del material varios');
                 return;
             }
+            
+            // Configurar encabezados específicos para varios
+            modificarEncabezadosInforme(['Tipo', 'Cantidad', 'Sede']);
             
             // Llenar datos básicos en el modal de informe
             document.getElementById('informe_num_inventario').textContent = variosData.id || variosId;
@@ -3177,13 +3415,17 @@
             document.getElementById('informe_motivo').textContent = 'Cargando motivo de baja...';
             document.getElementById('informe_fecha_baja').textContent = 'Cargando...';
             
-            // Manejar imagen (varios generalmente no tienen imagen)
+            // Manejar imagen (varios generalmente no tienen imagen - ocultar completamente la sección de imagen)
             const imagenModal = document.getElementById('informe_imagen');
             const placeholderModal = document.getElementById('informe_placeholder');
+            const imagenContainer = imagenModal ? imagenModal.closest('.col-3') : null;
+            const infoContainer = document.querySelector('#verInformeModal .col-9');
             
-            if (imagenModal && placeholderModal) {
-                imagenModal.style.display = 'none';
-                placeholderModal.style.display = 'flex';
+            if (imagenContainer && infoContainer) {
+                // Ocultar completamente la columna de imagen
+                imagenContainer.style.display = 'none';
+                // Hacer que la información ocupe todo el ancho
+                infoContainer.className = 'col-12';
             }
             
             // Guardar el ID del varios para usar en el botón DAR DE ALTA
@@ -3350,7 +3592,7 @@
         const formData = new FormData();
         formData.append('libro_id', libroId);
         formData.append('sede', 'La Plata'); // Valor por defecto
-        formData.append('observaciones', 'Material reactivado desde sistema de gestión');
+        formData.append('observaciones', ''); // Observaciones vacías por defecto
         
         // Obtener token CSRF
         const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
@@ -3417,7 +3659,7 @@
         const formData = new FormData();
         formData.append('multimedia_id', multimediaId);
         formData.append('sede', 'La Plata'); // Valor por defecto
-        formData.append('observaciones', 'Material reactivado desde sistema de gestión');
+        formData.append('observaciones', ''); // Observaciones vacías por defecto
         
         // Obtener token CSRF
         const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
@@ -3543,7 +3785,7 @@
         const formData = new FormData();
         formData.append('mapa_id', mapaId);
         formData.append('sede', 'La Plata'); // Valor por defecto
-        formData.append('observaciones', 'Material reactivado desde sistema de gestión');
+        formData.append('observaciones', ''); // Observaciones vacías por defecto
         
         // Obtener token CSRF
         const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
@@ -4498,12 +4740,7 @@
                     <!-- Información del programa -->
                     <div style="background: linear-gradient(135deg, #e8f4f8, #f0f8ff); padding: 1.5rem; border-bottom: 2px solid #4ECDC4;">
                         <div class="row align-items-center">
-                            <div class="col-2 text-center">
-                                <div style="width: 80px; height: 100px; background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 8px; margin: 0 auto; position: relative; overflow: hidden; box-shadow: 0 4px 8px rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: center; color: white; font-size: 24px;">
-                                    📚
-                                </div>
-                            </div>
-                            <div class="col-10">
+                            <div class="col-12">
                                 <table style="width: 100%; font-size: 14px; color: #2c3e50;">
                                     <tr style="border-bottom: 1px solid #ddd;">
                                         <td style="padding: 8px 12px; font-weight: 600; background: #ecf0f1; width: 15%; text-align: center;">ID</td>
