@@ -449,7 +449,8 @@
         
         // Guardar los valores iniciales (para preservar la materia seleccionada al editar)
         const carreraInicial = carreraSelect.value;
-        const materiaInicial = materiaSelect.value;
+        // Obtener la materia inicial desde el objeto programa de Django
+        const materiaInicial = '{{ programa.materia|escapejs }}';
         
         console.log('📋 Valores iniciales:', { carreraInicial, materiaInicial });
         

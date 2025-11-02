@@ -1897,7 +1897,7 @@ def dar_alta_libro(request):
     """Vista para dar de alta un libro (cambiar estado a disponible)"""
     try:
         libro_id = request.POST.get('libro_id')
-        sede = request.POST.get('sede', 'LA PLATA')
+        sede = request.POST.get('sede', 'La Plata')
         disponibilidad = request.POST.get('disponibilidad', 'Domicilio')  # Cambio aquí
         observaciones = request.POST.get('observaciones', '')
         
@@ -2010,7 +2010,7 @@ def dar_alta_mapa(request):
     """Vista para dar de alta un mapa (cambiar estado a disponible)"""
     try:
         mapa_id = request.POST.get('mapa_id')
-        sede = request.POST.get('sede', 'LA PLATA')
+        sede = request.POST.get('sede', 'La Plata')
         observaciones = request.POST.get('observaciones', '')
         
         if not mapa_id:
@@ -2139,7 +2139,7 @@ def dar_alta_multimedia(request):
     """
     try:
         multimedia_id = request.POST.get('multimedia_id')
-        sede = request.POST.get('sede', 'LA PLATA')
+        sede = request.POST.get('sede', 'La Plata')
         observaciones = request.POST.get('observaciones', '')
         
         if not multimedia_id:
@@ -3645,7 +3645,7 @@ def confirmar_mapa_final(request):
     if request.method == 'POST':
         try:
             # Obtener la sede del formulario
-            sede = request.POST.get('sede', 'LA PLATA')
+            sede = request.POST.get('sede', 'La Plata')
             print(f"📍 Sede recibida: {sede}")
             
             # Obtener los datos de los ejemplares del formulario
@@ -4727,7 +4727,7 @@ def dar_alta_notebook(request):
     """
     try:
         notebook_id = request.POST.get('notebook_id')
-        sede = request.POST.get('sede', 'LA PLATA')
+        sede = request.POST.get('sede', 'La Plata')
         observaciones = request.POST.get('observaciones', '')
         
         if not notebook_id:
@@ -4836,7 +4836,7 @@ def dar_alta_proyector(request):
     """
     try:
         proyector_id = request.POST.get('proyector_id')
-        sede = request.POST.get('sede', 'LA PLATA')
+        sede = request.POST.get('sede', 'La Plata')
         observaciones = request.POST.get('observaciones', '')
         
         if not proyector_id:
@@ -4936,7 +4936,7 @@ def dar_alta_varios(request):
     """Vista para dar de alta varios (cambiar estado a disponible)"""
     try:
         varios_id = request.POST.get('varios_id')
-        sede = request.POST.get('sede', 'LA PLATA')
+        sede = request.POST.get('sede', 'La Plata')
         disponibilidad = request.POST.get('disponibilidad', 'Domicilio')
         observaciones = request.POST.get('observaciones', '')
         

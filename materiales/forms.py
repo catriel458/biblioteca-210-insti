@@ -10,8 +10,8 @@ from .models import Programa
 class LibroForm(forms.ModelForm):
     # Opciones para sede
     SEDE_CHOICES = [
-        ('LA_PLATA', 'La Plata'),
-        ('ABASTO', 'Abasto'),
+        ('La Plata', 'La Plata'),
+        ('Abasto', 'Abasto'),
     ]
     
     # Opciones para disponibilidad
@@ -88,8 +88,8 @@ class LibroForm(forms.ModelForm):
 class MapaForm(forms.ModelForm):
     # Opciones para sede
     SEDE_CHOICES = [
-        ('LA_PLATA', 'La Plata'),
-        ('ABASTO', 'Abasto'),
+        ('La Plata', 'La Plata'),
+        ('Abasto', 'Abasto'),
     ]
     
     # Redefinir campos con widgets personalizados

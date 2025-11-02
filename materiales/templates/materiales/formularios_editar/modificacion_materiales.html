@@ -682,7 +682,7 @@
                         <td>{{ libro.editorial }}</td>
                         <td class="text-center">{{ libro.clasificacion_cdu|default:'' }}</td>
                         <td>{{ libro.etiqueta_palabra_clave|default:'' }}</td>
-                        <td class="text-center">{{ libro.sede|default:'LA PLATA' }}</td>
+                        <td class="text-center">{{ libro.sede|default:'La Plata' }}</td>
                         <td>{{ libro.observaciones|default:'' }}</td>
                         <td class="disponibilidad-cell">
                             {% if libro.estado == 'Disponible' %}
@@ -755,7 +755,7 @@
                         <td>{{ mapa.denominacion }}</td>
                         <td>{{ mapa.descripcion|default:'' }}</td>
                         <td class="text-center">{{ mapa.num_registro|default:'' }}</td>
-                        <td class="text-center">{{ mapa.sede|default:'LA PLATA' }}</td>
+                        <td class="text-center">{{ mapa.sede|default:'La Plata' }}</td>
                         <td class="disponibilidad-cell">
                             {% if mapa.estado == 'Disponible' %}
                                 <span class="disponible">Disponible para préstamo</span>
@@ -828,7 +828,7 @@
                                 -
                             {% endif %}
                         </td>
-                        <td class="text-center">{{ programa.sede|default:'LA PLATA' }}</td>
+                        <td class="text-center">{{ programa.sede|default:'La Plata' }}</td>
                         <td class="disponibilidad-cell">
                             {% if programa.estado == 'Disponible' %}
                                 <span class="disponible">Disponible para préstamo</span>
@@ -958,7 +958,7 @@
                         <td class="text-center">{{ not.id_not|default:'' }}</td>
                         <td class="text-center">{{ not.num_registro|default:'' }}</td>
                         <td class="titulo-cell">{{ not.modelo_not }}</td>
-                        <td class="text-center">{{ not.sede|default:'LA PLATA' }}</td>
+                        <td class="text-center">{{ not.sede|default:'La Plata' }}</td>
                         <td class="disponibilidad-cell">
                             {% if not.estado == 'Disponible' %}
                                 <span class="disponible">Disponible para préstamo</span>
@@ -1018,7 +1018,7 @@
                         <td class="text-center">{{ pro.id_proyector|default:'' }}</td>
                         <td class="text-center">{{ pro.num_registro|default:'' }}</td>
                         <td class="titulo-cell">{{ pro.modelo_pro }}</td>
-                        <td class="text-center">{{ pro.sede|default:'LA PLATA' }}</td>
+                        <td class="text-center">{{ pro.sede|default:'La Plata' }}</td>
                         <td class="disponibilidad-cell">
                             {% if pro.estado == 'Disponible' %}
                                 <span class="disponible">Disponible para préstamo</span>
@@ -1077,7 +1077,7 @@
                         data-tipo="{{ var.tipo|lower }}">
                         <td class="text-center">{{ var.id_varios|default:'' }}</td>
                         <td class="titulo-cell">{{ var.tipo }}</td>
-                        <td class="text-center">{{ var.sede|default:'LA PLATA' }}</td>
+                        <td class="text-center">{{ var.sede|default:'La Plata' }}</td>
                         <td class="text-center">{{ var.cantidad|default:'1' }}</td>
                         <td class="text-center">{{ var.cantidad_disponible|default:'1' }}</td>
                         <td class="disponibilidad-cell">
@@ -2022,7 +2022,7 @@
             document.getElementById('modal_editorial').textContent = editorial || 'Sin editorial';
             document.getElementById('modal_cdu').textContent = cdu || 'Sin CDU';
             document.getElementById('modal_siglas').textContent = siglas || 'ABC';
-            document.getElementById('modal_sede').textContent = sede || 'LA PLATA';
+            document.getElementById('modal_sede').textContent = sede || 'La Plata';
             
             // Manejar la imagen
             const imagenModal = document.getElementById('libro_imagen_modal');
@@ -2463,8 +2463,8 @@
             document.getElementById('modal_autor').textContent = tipo || 'Proyector';
             document.getElementById('modal_editorial').textContent = modelo || '-';
             document.getElementById('modal_cdu').textContent = '-';
-            document.getElementById('modal_siglas').textContent = sede || 'LA PLATA';
-            document.getElementById('modal_sede').textContent = sede || 'LA PLATA';
+            document.getElementById('modal_siglas').textContent = sede || 'La Plata';
+            document.getElementById('modal_sede').textContent = sede || 'La Plata';
             
             // Configurar el formulario para proyector
             const form = document.querySelector('#bajaForm');
@@ -2538,7 +2538,7 @@
             document.getElementById('modal_editorial').textContent = 'N/A';
             document.getElementById('modal_cdu').textContent = 'N/A';
             document.getElementById('modal_siglas').textContent = 'VAR';
-            document.getElementById('modal_sede').textContent = variosData.sede || 'LA PLATA';
+            document.getElementById('modal_sede').textContent = variosData.sede || 'La Plata';
             
             // Manejar la imagen (varios generalmente no tienen imagen)
             const imagenModal = document.getElementById('libro_imagen_modal');
@@ -3399,7 +3399,7 @@
         // Preparar datos para enviar
         const formData = new FormData();
         formData.append('libro_id', libroId);
-        formData.append('sede', 'LA PLATA'); // Valor por defecto
+        formData.append('sede', 'La Plata'); // Valor por defecto
         formData.append('disponibilidad', 'Domicilio'); // Valor por defecto
         formData.append('observaciones', 'Material reactivado desde sistema de gestión');
         
@@ -3467,7 +3467,7 @@
         // Preparar datos para enviar
         const formData = new FormData();
         formData.append('multimedia_id', multimediaId);
-        formData.append('sede', 'LA PLATA'); // Valor por defecto
+        formData.append('sede', 'La Plata'); // Valor por defecto
         formData.append('observaciones', 'Material reactivado desde sistema de gestión');
         
         // Obtener token CSRF
@@ -3593,7 +3593,7 @@
         // Preparar datos para enviar
         const formData = new FormData();
         formData.append('mapa_id', mapaId);
-        formData.append('sede', 'LA PLATA'); // Valor por defecto
+        formData.append('sede', 'La Plata'); // Valor por defecto
         formData.append('observaciones', 'Material reactivado desde sistema de gestión');
         
         // Obtener token CSRF
@@ -3726,7 +3726,7 @@
         // Preparar datos para enviar
         const formData = new FormData();
         formData.append('varios_id', variosId);
-        formData.append('sede', 'LA PLATA'); // Valor por defecto
+        formData.append('sede', 'La Plata'); // Valor por defecto
         formData.append('disponibilidad', 'Domicilio'); // Valor por defecto
         formData.append('observaciones', ''); // Observaciones vacías por defecto
         formData.append('csrfmiddlewaretoken', csrfToken);
@@ -3795,7 +3795,7 @@
         // Preparar datos para enviar
         const formData = new FormData();
         formData.append('proyector_id', proyectorId);
-        formData.append('sede', 'LA PLATA'); // Valor por defecto
+        formData.append('sede', 'La Plata'); // Valor por defecto
         formData.append('observaciones', ''); // Observaciones vacías por defecto
         formData.append('csrfmiddlewaretoken', csrfToken);
         
@@ -4484,7 +4484,7 @@
                                         <td style="padding: 12px 12px;" id="modal_editorial">Editorial</td>
                                         <td style="padding: 12px 12px; text-align: center;" id="modal_cdu">CDU</td>
                                         <td style="padding: 12px 12px; text-align: center; font-weight: 600;" id="modal_siglas">ABC</td>
-                                        <td style="padding: 12px 12px; text-align: center;" id="modal_sede">LA PLATA</td>
+                                        <td style="padding: 12px 12px; text-align: center;" id="modal_sede">La Plata</td>
                                     </tr>
                                 </table>
                             </div>
@@ -4596,7 +4596,7 @@
                                         <td style="padding: 12px 12px;" id="modal_programa_profesor">Profesor</td>
                                         <td style="padding: 12px 12px;" id="modal_programa_carrera">Carrera</td>
                                         <td style="padding: 12px 12px; text-align: center;" id="modal_programa_ciclo">2024</td>
-                                        <td style="padding: 12px 12px; text-align: center;" id="modal_programa_sede">LA PLATA</td>
+                                        <td style="padding: 12px 12px; text-align: center;" id="modal_programa_sede">La Plata</td>
                                     </tr>
                                 </table>
                             </div>
@@ -4910,9 +4910,8 @@
                             <div class="form-group-custom">
                                 <label for="alta_sede">Sede*</label>
                                 <select class="form-control-custom select-custom" id="alta_sede" name="sede" required>
-                                    <option value="LA PLATA" selected>LA PLATA</option>
-                                    <option value="BERISSO">BERISSO</option>
-                                    <option value="ENSENADA">ENSENADA</option>
+                                    <option value="La Plata" selected>La Plata</option>
+                                    <option value="Abasto">Abasto</option>
                                 </select>
                             </div>
                         </div>

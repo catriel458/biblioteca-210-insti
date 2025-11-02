@@ -241,10 +241,10 @@
           <!-- Sede -->
           <div class="sede-section">
             <p class="sede-text">Sede</p>
-            <p class="sede-value" id="sedeValue">{{ form_data.sede_texto|default:"LA PLATA" }}</p>
-            <select class="form-select sede-select" id="sedeSelect" style="display: none;">
-              <option value="LA PLATA" {% if form_data.sede_texto == "LA PLATA" or not form_data.sede_texto %}selected{% endif %}>LA PLATA</option>
-              <option value="ABASTO" {% if form_data.sede_texto == "ABASTO" %}selected{% endif %}>ABASTO</option>
+            <p class="sede-value" id="sedeValue">{{ form_data.sede_texto|default:"La Plata" }}</p>
+                <select class="sede-select" id="sede-select" name="sede" style="display: none;">
+                    <option value="La Plata" {% if form_data.sede_texto == "La Plata" or not form_data.sede_texto %}selected{% endif %}>La Plata</option>
+              <option value="Abasto" {% if form_data.sede_texto == "Abasto" %}selected{% endif %}>Abasto</option>
             </select>
           </div>
 
