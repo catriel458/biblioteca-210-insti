@@ -3212,6 +3212,7 @@ def guardar_programa_confirmado(request):
                 ingresar_enlace=programa_data.get('ingresar_enlace', ''),
                 ciclo_lectivo=programa_data.get('ciclo_lectivo', ''),
                 # Valores por defecto para campos no incluidos en el formulario
+                disponibilidad='Disponible',  # Valor por defecto
                 descripcion='',  # Vacío
                 num_ejemplar=1,  # Valor por defecto
             )
