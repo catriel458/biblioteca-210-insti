@@ -4680,9 +4680,23 @@ def obtener_informe_baja_notebook(request):
         else:
             print("❌ No hay imagen de baja")
         
-        # Obtener los datos reales de la baja desde el modelo - IGUAL QUE EN LIBROS
-        from datetime import datetime
-        fecha_baja_str = notebook.fecha_baja.strftime('%d/%m/%Y') if getattr(notebook, 'fecha_baja', None) else datetime.now().strftime('%d/%m/%Y')
+        # Obtener los datos reales de la baja desde el modelo, ajustando a la zona horaria local
+        from django.utils import timezone
+        try:
+            # Usar zona horaria de Argentina explícitamente para evitar adelantos
+            from zoneinfo import ZoneInfo
+            arg_tz = ZoneInfo('America/Argentina/Buenos_Aires')
+        except Exception:
+            # Fallback: usa configuración del proyecto
+            arg_tz = None
+
+        # Convertir a hora local de Argentina si es posible
+        if getattr(notebook, 'fecha_baja', None):
+            fecha_local = timezone.localtime(notebook.fecha_baja, arg_tz) if arg_tz else timezone.localtime(notebook.fecha_baja)
+        else:
+            fecha_local = timezone.localtime(timezone.now(), arg_tz) if arg_tz else timezone.localtime(timezone.now())
+        # Formatear sólo la fecha (día/mes/año) para evitar desfasajes por hora
+        fecha_baja_str = fecha_local.strftime('%d/%m/%Y')
         
         informe_data = {
             # Información específica del notebook

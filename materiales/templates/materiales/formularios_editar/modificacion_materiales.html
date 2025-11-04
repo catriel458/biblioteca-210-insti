@@ -1140,7 +1140,7 @@
                 materia: "{{ programa.materia|escapejs }}",
                 profesor: "{{ programa.profesor|escapejs }}",
                 carrera: "{{ programa.carrera|escapejs }}",
-                ciclo: "{{ programa.ciclo|escapejs }}",
+                ciclo_lectivo: "{{ programa.ciclo_lectivo|escapejs }}",
                 estado: "{{ programa.estado|escapejs }}",
                 motivo_baja: "{{ programa.motivo_baja|escapejs }}",
                 descripcion: "{{ programa.descripcion|escapejs }}"
@@ -2053,6 +2053,12 @@
             siglasCells.forEach(cell => {
                 cell.style.display = '';
             });
+
+            // Mostrar la columna de Sede para libros (ya que sí aplica)
+            const sedeCellsLibros = document.querySelectorAll('#bajaModal td:nth-child(7), #bajaModal th:nth-child(7)');
+            sedeCellsLibros.forEach(cell => {
+                cell.style.display = '';
+            });
             
             // Manejar la imagen
             const imagenModal = document.getElementById('libro_imagen_modal');
@@ -2300,6 +2306,18 @@
             siglasCells.forEach(cell => {
                 cell.style.display = 'none';
             });
+
+            // Ocultar la columna de Sede para multimedia
+            const sedeCellsMultimedia = document.querySelectorAll('#bajaModal td:nth-child(7), #bajaModal th:nth-child(7)');
+            sedeCellsMultimedia.forEach(cell => {
+                cell.style.display = 'none';
+            });
+
+            // Ocultar celda específica de Sede por ID (fallback)
+            const sedeCell = document.getElementById('modal_sede');
+            if (sedeCell) {
+                sedeCell.style.display = 'none';
+            }
             
             // Configurar el formulario para mapas
             const form = document.querySelector('#bajaModal form');
@@ -2407,6 +2425,12 @@
             // Ocultar la columna de Siglas para multimedia
             const siglasCells = document.querySelectorAll('#bajaModal td:nth-child(6), #bajaModal th:nth-child(6)');
             siglasCells.forEach(cell => {
+                cell.style.display = 'none';
+            });
+
+            // Ocultar la columna de Sede para multimedia
+            const sedeCellsMultimedia = document.querySelectorAll('#bajaModal td:nth-child(7), #bajaModal th:nth-child(7)');
+            sedeCellsMultimedia.forEach(cell => {
                 cell.style.display = 'none';
             });
             
@@ -2728,11 +2752,16 @@
             // Configurar encabezados para mapas
             modificarEncabezadosInforme(['Denominación', 'Tipo', 'N° Registro', 'Sede']);
             
-            // Llenar datos básicos del mapa en el modal usando los nuevos campos
-            document.getElementById('informe_num_inventario').textContent = mapaData.denominacion;
-            document.getElementById('informe_titulo').textContent = mapaData.tipo;
-            document.getElementById('informe_autor').textContent = mapaData.num_registro;
-            document.getElementById('informe_cdu').textContent = mapaData.sede;
+            // Llenar datos básicos del mapa en el modal con mapeo correcto
+            document.getElementById('informe_num_inventario').textContent = mapaData.id;
+            document.getElementById('informe_titulo').textContent = mapaData.denominacion;
+            document.getElementById('informe_autor').textContent = mapaData.tipo;
+            document.getElementById('informe_cdu').textContent = mapaData.num_registro;
+            document.getElementById('informe_siglas').textContent = mapaData.sede;
+            const descripcionEl = document.getElementById('informe_descripcion');
+            if (descripcionEl) {
+                descripcionEl.textContent = mapaData.descripcion || 'Sin descripción';
+            }
             
             // Mostrar indicador de carga
             const motivoElement = document.getElementById('informe_motivo');
@@ -2781,8 +2810,8 @@
                     const informe = data.informe;
                     
                     // Actualizar campos específicos del mapa con datos del backend
-                    if (informe.num_inventario) {
-                        document.getElementById('informe_num_inventario').textContent = informe.num_inventario;
+                    if (informe.id_mapa || informe.id) {
+                        document.getElementById('informe_num_inventario').textContent = informe.id_mapa || informe.id;
                     }
                     if (informe.denominacion) {
                         document.getElementById('informe_titulo').textContent = informe.denominacion;
@@ -2790,11 +2819,15 @@
                     if (informe.tipo) {
                         document.getElementById('informe_autor').textContent = informe.tipo;
                     }
-                    if (informe.descripcion) {
-                        document.getElementById('informe_cdu').textContent = informe.descripcion;
+                    if (informe.num_registro) {
+                        document.getElementById('informe_cdu').textContent = informe.num_registro;
                     }
                     if (informe.sede) {
                         document.getElementById('informe_siglas').textContent = informe.sede;
+                    }
+                    const descEl = document.getElementById('informe_descripcion');
+                    if (descEl) {
+                        descEl.textContent = informe.descripcion || 'Sin descripción';
                     }
                     
                     // Actualizar motivo de baja
@@ -2871,8 +2904,18 @@
                 return;
             }
             
-            // Configurar encabezados para programas
-            modificarEncabezadosInforme(['Materia', 'Profesor', 'Carrera']);
+            // Configurar encabezados para programas en el orden solicitado
+            // Orden: Carrera, Materia, Profesor
+            modificarEncabezadosInforme(['Carrera', 'Materia', 'Profesor']);
+
+            // Mostrar fila de Ciclo Lectivo y ajustar su etiqueta
+            const cicloLabel = document.getElementById('informe_siglas_label');
+            const cicloCell = document.getElementById('informe_siglas');
+            if (cicloLabel && cicloCell) {
+                cicloLabel.textContent = 'Ciclo Lectivo:';
+                const cicloRow = cicloCell.closest('tr');
+                if (cicloRow) cicloRow.style.display = '';
+            }
             
             // Guardar ID del programa actual para el botón de dar de alta
             window.currentProgramaId = id;
@@ -2885,11 +2928,12 @@
             const modal = new bootstrap.Modal(document.getElementById('verInformeModal'));
             modal.show();
             
-            // Llenar datos básicos del programa en el modal
+            // Llenar datos básicos del programa en el modal (ID, Carrera, Materia, Profesor, Ciclo Lectivo)
             document.getElementById('informe_num_inventario').textContent = programaData.id;
-            document.getElementById('informe_titulo').textContent = programaData.materia;
-            document.getElementById('informe_autor').textContent = programaData.profesor;
-            document.getElementById('informe_cdu').textContent = programaData.carrera;
+            document.getElementById('informe_titulo').textContent = programaData.carrera;
+            document.getElementById('informe_autor').textContent = programaData.materia;
+            document.getElementById('informe_cdu').textContent = programaData.profesor;
+            if (cicloCell) cicloCell.textContent = programaData.ciclo_lectivo || 'Sin especificar';
             
             // Obtener elementos para mostrar información de baja
             const motivoElement = document.getElementById('informe_motivo');
@@ -2950,6 +2994,27 @@
                 console.log('Informe completo:', informe);
                 console.log('Motivo de baja:', informe && informe.motivo_baja ? informe.motivo_baja : 'No disponible');
                 console.log('Fecha de baja:', informe && informe.fecha_baja ? informe.fecha_baja : 'No disponible');
+                
+                // Actualizar campos visibles con datos del backend si están disponibles
+                if (informe) {
+                    const idValor = informe.id_programa || informe.id;
+                    if (idValor) {
+                        document.getElementById('informe_num_inventario').textContent = idValor;
+                    }
+                    if (informe.carrera) {
+                        document.getElementById('informe_titulo').textContent = informe.carrera;
+                    }
+                    if (informe.materia) {
+                        document.getElementById('informe_autor').textContent = informe.materia;
+                    }
+                    if (informe.profesor) {
+                        document.getElementById('informe_cdu').textContent = informe.profesor;
+                    }
+                    if (typeof informe.ciclo_lectivo !== 'undefined') {
+                        const cicloCell2 = document.getElementById('informe_siglas');
+                        if (cicloCell2) cicloCell2.textContent = informe.ciclo_lectivo || 'Sin especificar';
+                    }
+                }
                 
                 // Actualizar motivo de baja
                 if (informe && informe.motivo_baja && informe.motivo_baja.trim() !== '') {
@@ -3023,14 +3088,24 @@
                 return;
             }
             
-            // Configurar encabezados específicos para multimedia (solo 3 campos más relevantes)
-            modificarEncabezadosInforme(['Materia', 'Profesor', 'Carrera']);
+            // Configurar encabezados específicos para multimedia en el orden solicitado
+            modificarEncabezadosInforme(['Carrera', 'Materia', 'Profesor']);
+
+            // Mostrar fila adicional para "Título del Contenido"
+            const siglasLabel = document.getElementById('informe_siglas_label');
+            const siglasCell = document.getElementById('informe_siglas');
+            if (siglasLabel && siglasCell) {
+                siglasLabel.textContent = 'Título del Contenido:';
+                const siglasRow = siglasCell.closest('tr');
+                if (siglasRow) siglasRow.style.display = '';
+            }
             
             // Llenar datos básicos del multimedia en el modal
             document.getElementById('informe_num_inventario').textContent = multimediaData.id;
-            document.getElementById('informe_titulo').textContent = multimediaData.materia;
-            document.getElementById('informe_autor').textContent = multimediaData.profesor;
-            document.getElementById('informe_cdu').textContent = multimediaData.carrera;
+            document.getElementById('informe_titulo').textContent = multimediaData.carrera;
+            document.getElementById('informe_autor').textContent = multimediaData.materia;
+            document.getElementById('informe_cdu').textContent = multimediaData.profesor;
+            if (siglasCell) siglasCell.textContent = multimediaData.titulo_contenido || 'Sin título';
             
             // Mostrar indicador de carga
             const motivoElement = document.getElementById('informe_motivo');
@@ -3082,10 +3157,10 @@
                     // Actualizar campos con datos del backend
                     if (informe) {
                         document.getElementById('informe_num_inventario').textContent = informe.id_inventario || 'N/A';
-                        document.getElementById('informe_titulo').textContent = informe.titulo_contenido || 'Sin título';
-                        document.getElementById('informe_autor').textContent = informe.profesor || 'Sin especificar';
-                        document.getElementById('informe_cdu').textContent = informe.carrera || 'Sin especificar';
-                        document.getElementById('informe_siglas').textContent = informe.materia || 'Sin especificar';
+                        document.getElementById('informe_titulo').textContent = informe.carrera || 'Sin especificar';
+                        document.getElementById('informe_autor').textContent = informe.materia || 'Sin especificar';
+                        document.getElementById('informe_cdu').textContent = informe.profesor || 'Sin especificar';
+                        document.getElementById('informe_siglas').textContent = informe.titulo_contenido || 'Sin título';
                     }
                     
                     // Actualizar motivo de baja
@@ -4883,6 +4958,8 @@
                         </div>
                     </div>
                 </div>
+
+                
 
                 <!-- Motivo de baja -->
                 <div style="background: white; padding: 1.5rem; border-radius: 10px; margin-bottom: 1.5rem;">
