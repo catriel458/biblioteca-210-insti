@@ -1972,6 +1972,19 @@
         }
     }
 
+    // ===== FUNCIÓN AUXILIAR PARA RESTAURAR TODAS LAS COLUMNAS DEL MODAL =====
+    function restaurarColumnasModal() {
+        const headerRow = document.querySelector('#bajaModal table tr:first-child');
+        const valueRow = document.querySelector('#bajaModal table tr:nth-child(2)');
+        [headerRow, valueRow].forEach(row => {
+            if (row) {
+                Array.from(row.children).forEach(cell => {
+                    cell.style.display = '';
+                });
+            }
+        });
+    }
+
     // ===== FUNCIÓN AUXILIAR PARA MODIFICAR ENCABEZADOS DEL MODAL DE INFORME DE BAJA =====
     function modificarEncabezadosInforme(encabezados) {
         // Obtener las filas específicas del modal verInformeModal
@@ -2399,6 +2412,8 @@
     window.darDeBajaMultimedia = function(id, tipo) {
         try {
             console.log('🎬 Iniciando proceso de baja para multimedia:', id);
+            // Asegurar que todas las columnas estén visibles antes de personalizar
+            restaurarColumnasModal();
             
             // Buscar los datos del multimedia en la tabla
             const multimediaData = window.multimediaTableData?.find(item => item.id_multi == id);
@@ -2476,6 +2491,8 @@
     window.darDeBajaNotebook = function(id, tipo) {
         try {
             console.log('💻 Iniciando proceso de baja para notebook:', id);
+            // Asegurar que todas las columnas estén visibles antes de personalizar
+            restaurarColumnasModal();
             
             // Buscar los datos del notebook en la tabla
             const notebookData = window.notebookTableData?.find(item => item.id_not == id);
@@ -2488,8 +2505,8 @@
             
             console.log('📊 Datos del notebook encontrados:', notebookData);
             
-            // Restaurar encabezados específicos para notebooks (sin Siglas)
-            modificarEncabezadosModal(['ID', 'N° Registro', 'Modelo', 'Sede', 'Estado']);
+            // Restaurar encabezados específicos para notebooks
+            modificarEncabezadosModal(['ID', 'N° Registro', 'Modelo', 'Sede', 'Estado', 'Siglas', 'Sede']);
             
             // Llenar datos en el modal de baja
             document.getElementById('modal_num_inventario').textContent = notebookData.id_not || 'N/A';
@@ -2497,10 +2514,22 @@
             document.getElementById('modal_autor').textContent = notebookData.modelo_not || 'Sin modelo';
             document.getElementById('modal_editorial').textContent = notebookData.sede || 'Sin especificar';
             document.getElementById('modal_cdu').textContent = notebookData.estado || 'Sin estado';
-            
+
             // Ocultar la columna de Siglas para notebooks
             const siglasCells = document.querySelectorAll('#bajaModal td:nth-child(6), #bajaModal th:nth-child(6)');
             siglasCells.forEach(cell => {
+                cell.style.display = 'none';
+            });
+
+            // Ocultar la columna de Estado (5ta columna) para notebooks
+            const estadoCells = document.querySelectorAll('#bajaModal td:nth-child(5), #bajaModal th:nth-child(5)');
+            estadoCells.forEach(cell => {
+                cell.style.display = 'none';
+            });
+
+            // Ocultar la columna de Sede duplicada (7ma columna) para notebooks
+            const sedeCellsNotebook = document.querySelectorAll('#bajaModal td:nth-child(7), #bajaModal th:nth-child(7)');
+            sedeCellsNotebook.forEach(cell => {
                 cell.style.display = 'none';
             });
             
@@ -2546,6 +2575,8 @@
     window.darDeBajaProyector = function(id, tipo) {
         try {
             console.log('📽️ Iniciando proceso de baja para proyector:', id);
+            // Asegurar que todas las columnas estén visibles antes de personalizar
+            restaurarColumnasModal();
             
             // Buscar los datos del proyector en la tabla
             const proyectorData = window.proyectorTableData?.find(item => item.id_proyector == id);
@@ -2640,6 +2671,8 @@
     window.darDeBajaVarios = function(id, tipo) {
         try {
             console.log('🗑️ Dando de baja varios con ID:', id, 'Tipo:', tipo);
+            // Asegurar que todas las columnas estén visibles antes de personalizar
+            restaurarColumnasModal();
             
             // Buscar la fila del varios en la tabla
             const filasVarios = document.querySelectorAll('#varios-table tr');
