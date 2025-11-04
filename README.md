@@ -2,7 +2,7 @@
 
 Actualización 3-10-25
 
-Deploy en vercel: https://biblioteca-210-insti.vercel.app/libros/home/
+Deploy en vercel: https://biblioteca-210-insti.vercel.app/
 
 Este proyecto es parte del Instituto Educativo 210 y cuenta con 3 ramas: `front` (frontend) y `back` (backend) y main (master). Está construido con Django y utiliza Pillow para el manejo de imágenes.
 
