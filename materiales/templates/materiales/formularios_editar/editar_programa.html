@@ -1,0 +1,794 @@
+{% extends 'components/baseb.html' %}
+{% load static %}
+
+{% block title %}Editar Programa | Biblioteca Digital{% endblock %}
+
+{% block extra_styles %}
+<link rel="stylesheet" href="{% static 'css/modificacion_material.css' %}">
+<link rel="stylesheet" href="{% static 'css/style_form.css' %}">
+<link rel="stylesheet" href="{% static 'css/manual_modal.css' %}">
+<link rel="stylesheet" href="{% static 'css/main.css' %}">
+<link rel="stylesheet" href="{% static 'css/botones.css' %}">
+<style>
+    .page-header {
+        background: linear-gradient(135deg, #e8f4f8, #f0f8ff);
+        padding: 2rem 0;
+        text-align: center;
+        border-bottom: 1px solid #e0e6ed;
+        background-image: 
+            radial-gradient(circle at 20% 50%, rgba(78, 205, 196, 0.1) 0%, transparent 50%),
+            radial-gradient(circle at 80% 20%, rgba(123, 104, 238, 0.1) 0%, transparent 50%),
+            radial-gradient(circle at 40% 80%, rgba(78, 205, 196, 0.05) 0%, transparent 50%);
+        background-size: 400px 400px, 300px 300px, 500px 500px;
+        background-position: 0% 50%, 100% 0%, 50% 100%;
+        background-repeat: no-repeat;
+    }
+
+    .page-title {
+        color: #4ECDC4;
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin: 0 0 0.5rem 0;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .subtitle {
+        color: #7B68EE;
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin: 0;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .form-container {
+        max-width: 900px;
+        margin: 2rem auto;
+        padding: 0 2rem;
+    }
+
+    .form-card {
+        background: white;
+        padding: 3rem;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        border: 1px solid #e0e6ed;
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group.full-width {
+        grid-column: 1 / -1;
+    }
+
+    .form-group label {
+        display: block;
+        font-weight: 600;
+        color: #2d3748;
+        margin-bottom: 0.8rem;
+        font-size: 14px;
+    }
+
+    .required::after {
+        content: " *";
+        color: #e53e3e;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        width: 100%;
+        padding: 12px 16px;
+        border: 2px solid #e0e6ed;
+        border-radius: 8px;
+        font-size: 14px;
+        transition: all 0.3s ease;
+        background: white;
+        color: #2d3748;
+        box-sizing: border-box;
+        min-height: 48px;
+        font-family: inherit;
+    }
+
+    /* Asegurar que todos los inputs tengan exactamente el mismo tamaño */
+    .form-group input[type="text"],
+    .form-group input[type="email"],
+    .form-group input[type="number"],
+    .form-group input[type="url"],
+    .form-group select {
+        height: 48px;
+        line-height: 1.4;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+        outline: none;
+        border-color: #4ECDC4;
+        box-shadow: 0 0 0 3px rgba(78, 205, 196, 0.1);
+    }
+
+    .form-group textarea {
+        height: 48px;
+        min-height: 48px;
+        resize: vertical;
+        line-height: 1.4;
+        font-family: inherit;
+        overflow-y: auto;
+    }
+
+    .textarea-large {
+        height: 48px;
+        min-height: 48px;
+    }
+
+    /* Sección de imagen */
+    .image-section {
+        grid-column: 1 / -1;
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 2rem;
+        align-items: start;
+        background: #f8fafc;
+        padding: 2rem;
+        border-radius: 8px;
+        border: 1px solid #e0e6ed;
+        margin-top: 1rem;
+    }
+
+    .image-upload {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .upload-container {
+        display: flex;
+        gap: 1rem;
+        align-items: stretch;
+    }
+
+    .upload-button {
+        background: #4ECDC4;
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        min-width: 150px;
+        font-size: 14px;
+    }
+
+    .upload-button:hover {
+        background: #44C3B8;
+        transform: translateY(-2px);
+    }
+
+    .url-input {
+        flex: 1;
+        padding: 12px 16px;
+        border: 2px solid #e0e6ed;
+        border-radius: 8px;
+        font-size: 14px;
+        background: white;
+    }
+
+    .url-input:focus {
+        outline: none;
+        border-color: #4ECDC4;
+        box-shadow: 0 0 0 3px rgba(78, 205, 196, 0.1);
+    }
+
+    .image-preview {
+        text-align: center;
+    }
+
+    .image-preview img {
+        max-width: 120px;
+        max-height: 160px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        border: 2px solid #e0e6ed;
+    }
+
+    /* Botones de acción */
+    .action-buttons {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 3rem;
+        padding-top: 2rem;
+        border-top: 1px solid #e0e6ed;
+    }
+
+    .btn {
+        display: inline-block;
+        font-family: 'Roboto', sans-serif;
+        cursor: pointer;
+        border: none;
+        outline: none;
+    }
+
+    .btn-guardar {
+        background: #4363FF; /* fondo azul mejorado */
+        color: #ffffff;      /* texto blanco */
+        border: 2px solid #000000; /* reborde negro */
+        border-radius: 12px; /* redondeado mejorado */
+        padding: 10px 24px;
+        font-size: 16px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+    }
+
+    .btn-guardar:hover {
+        background: #3A56E8;
+        color: #ffffff;
+        text-decoration: none;
+    }
+
+    .btn-cancelar {
+        background: none;
+        color: #d93025; /* color rojo mejorado */
+        border: none;
+        padding: 0; /* texto simple */
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        text-decoration: none;
+        transition: color 0.2s ease;
+    }
+
+    .btn-cancelar:hover {
+        background: none;
+        color: #b52d20;
+        text-decoration: none;
+    }
+
+    /* Salvaguarda de especificidad para evitar conflictos con CSS globales */
+    .action-buttons .btn-guardar {
+        background: #4363FF !important;
+        color: #ffffff !important;
+        border: 2px solid #000000 !important;
+        border-radius: 12px !important;
+    }
+    .action-buttons .btn-cancelar {
+        color: #d93025 !important;
+        background: none !important;
+        border: none !important;
+        padding: 0 !important;
+    }
+
+    /* Modal de confirmación */
+    .modal-backdrop {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 1000;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .modal-content {
+        background: white;
+        border-radius: 12px;
+        width: 90%;
+        max-width: 500px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        overflow: hidden;
+    }
+
+    .modal-header {
+        background: #4ECDC4;
+        color: white;
+        padding: 1.5rem;
+        text-align: center;
+    }
+
+    .modal-header h3 {
+        margin: 0;
+        font-size: 1.5rem;
+        font-weight: 600;
+    }
+
+    .modal-body {
+        padding: 2rem;
+    }
+
+    .modal-footer {
+        padding: 1.5rem;
+        display: flex;
+        justify-content: space-between;
+        background: #f8fafc;
+        border-top: 1px solid #e0e6ed;
+    }
+
+    /* Media queries */
+    @media (max-width: 768px) {
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .form-card {
+            padding: 2rem;
+        }
+        
+        .image-section {
+            grid-template-columns: 1fr;
+        }
+        
+        .image-preview {
+            margin-top: 1rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <!-- Formulario principal usando Django Form -->
+    <div class="form-card">
+        <form id="editFormPrograma" method="post" enctype="multipart/form-data" action="{% url 'editar_programa' programa.id_programa %}" class="form-grid">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="{{ form.carrera.id_for_label }}" class="required">Carrera</label>
+                {{ form.carrera }}
+            </div>
+            
+            <div class="form-group">
+                <label for="{{ form.materia.id_for_label }}" class="required">Materia</label>
+                {{ form.materia }}
+            </div>
+            
+            <div class="form-group">
+                <label for="{{ form.profesor.id_for_label }}" class="required">Profesor/a</label>
+                {{ form.profesor }}
+            </div>
+            
+            <div class="form-group">
+                <label for="{{ form.ciclo_lectivo.id_for_label }}" class="required">Ciclo Lectivo</label>
+                {{ form.ciclo_lectivo }}
+            </div>
+            
+            <div class="form-group">
+                <label for="{{ form.ingresar_enlace.id_for_label }}">Enlace (URL)</label>
+                {{ form.ingresar_enlace }}
+            </div>
+
+            <!-- Botones de acción -->
+            <div class="action-buttons">
+                <div></div>
+                <div style="display: flex; gap: 2rem; align-items: center;">
+                    <a href="{% url 'modificacion_materiales' %}" class="btn btn-cancelar">
+                        CANCELAR
+                    </a>
+                    <button type="button" class="btn btn-guardar" onclick="mostrarModalConfirmacion()">
+                        GUARDAR
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal de confirmación -->
+<div class="modal fade" id="confirmacionModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius: 8px; border: none;">
+            <div class="modal-body text-center" style="padding: 2rem;">
+                <div style="margin-bottom: 1.5rem;">
+                    <h5 style="color: #2c3e50; font-weight: 600; font-size: 1.1rem; margin-bottom: 0.5rem;">
+                        ¿DESEA CONFIRMAR LOS CAMBIOS REALIZADOS?
+                    </h5>
+                    <p style="color: #666; font-size: 0.9rem; margin: 0;">
+                        Pulse un botón para continuar. Una vez aceptado, los datos serán guardados en la base de datos.
+                    </p>
+                </div>
+                <div style="display: flex; gap: 1rem; justify-content: center;">
+                    <button type="button" class="btn" data-bs-dismiss="modal"
+                            style="background: #4285F4; color: white; border: none; padding: 10px 24px; border-radius: 4px; font-weight: 500; text-transform: uppercase; cursor: pointer;">
+                        CANCELAR
+                    </button>
+                    <button type="button" class="btn" onclick="confirmarGuardado()"
+                            style="background: #ff6b35; color: white; border: none; padding: 10px 24px; border-radius: 4px; font-weight: 500; text-transform: uppercase; cursor: pointer;">
+                        CONFIRMAR
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<!-- Script para manejar la dependencia entre carrera y materia -->
+<script>
+    function mostrarModalConfirmacion() {
+        const modal = new bootstrap.Modal(document.getElementById('confirmacionModal'));
+        modal.show();
+    }
+    function confirmarGuardado() {
+        const modal = bootstrap.Modal.getInstance(document.getElementById('confirmacionModal'));
+        if (modal) modal.hide();
+        document.getElementById('editFormPrograma').submit();
+    }
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('✅ Editar programa cargado');
+        
+        const carreraSelect = document.getElementById('id_carrera');
+        const materiaSelect = document.getElementById('id_materia');
+        
+        // Verificar que los elementos existen
+        if (!carreraSelect || !materiaSelect) {
+            console.log('⚠️ No se encontraron elementos necesarios para editar programa');
+            return;
+        }
+        
+        // Guardar los valores iniciales (para preservar la materia seleccionada al editar)
+        const carreraInicial = carreraSelect.value;
+        // Obtener la materia inicial desde el objeto programa de Django
+        const materiaInicial = '{{ programa.materia|escapejs }}';
+        
+        console.log('📋 Valores iniciales:', { carreraInicial, materiaInicial });
+        
+        // Definir las materias por carrera (COMPLETO - copiado de alta_programa)
+        const materiasPorCarrera = {
+            'Profesorado de Educación Inicial': [
+                "Análisis del Mundo Contemporáneo",
+                "Ateneo de Naturaleza y Sociedad",
+                "Ateneo de Matemática",
+                "Ateneo de Nuevas Expresiones Estéticas",
+                "Ateneo de Prácticas del Lenguaje y la Literatura",
+                "Corporeidad y Motricidad",
+                "Cultura, Comunicación y Educación",
+                "Didáctica de la Matemática",
+                "Didáctica de las Ciencias Naturales",
+                "Didáctica de las Ciencias Sociales",
+                "Didáctica de las Prácticas del Lenguaje y la Literatura",
+                "Didáctica General",
+                "Didáctica y Curriculum de Nivel Inicial",
+                "Dimensión Ético-Política de la Praxis Docente",
+                "Educación en y para la Salud",
+                "Educación Física Escolar",
+                "Educación Musical",
+                "Educación Plástica",
+                "Educación Temprana",
+                "Filosofía",
+                "Historia y Prospectiva de la Educación",
+                "Juego y Desarrollo Infantil",
+                "Medios Audiovisuales, TICs y Educación",
+                "Pedagogía",
+                "Política, Legislación y Administración del Trabajo Escolar",
+                "Práctica Docente 1",
+                "Práctica Docente 2",
+                "Práctica Docente 3",
+                "Práctica Docente 4",
+                "Psicología del Desarrollo y el Aprendizaje 1",
+                "Psicología del Desarrollo y el Aprendizaje 2",
+                "Psicología Social e Institucional",
+                "Reflexión Filosófica de la Educación",
+                "Taller de Ciencias Naturales",
+                "Taller de Ciencias Sociales",
+                "Taller de Definición Institucional",
+                "Taller de Lectura, Escritura y Oralidad (LEO)",
+                "Taller de Literatura Infantil",
+                "Taller de la Matemática",
+                "Taller de Materiales y Objetos Lúdicos",
+                "Taller de Pensamiento Lógico Matemático",
+                "Teorías Sociopolíticas y Educación",
+                "Trayectos Formativos Opcionales"
+            ],
+            'Profesorado de Educación Primaria': [
+                "Análisis del Mundo Contemporáneo",
+                "Arte y Educación",
+                "Ateneo de Ciencias Naturales",
+                "Ateneo de Ciencias Sociales",
+                "Ateneo de Matemática",
+                "Ateneo de Prácticas del Lenguaje y la Literatura",
+                "Configuraciones Culturales del Sujeto Educativo de Primaria",
+                "Corporeidad y Motricidad",
+                "Cultura, Comunicación y Educación",
+                "Didáctica de la Matemática 1",
+                "Didáctica de la Matemática 2",
+                "Didáctica de las Ciencias Naturales 1",
+                "Didáctica de las Ciencias Naturales 2",
+                "Didáctica de las Ciencias Sociales 1",
+                "Didáctica de las Ciencias Sociales 2",
+                "Didáctica de Prácticas del Lenguaje y la Literatura 1",
+                "Didáctica de Prácticas del Lenguaje y la Literatura 2",
+                "Didáctica General",
+                "Didáctica y Curriculum de Nivel Primario",
+                "Dimensión Ético-Política de la Praxis Docente",
+                "Educación Artística",
+                "Educación Física Escolar",
+                "Filosofía",
+                "Historia y Prospectiva de la Educación",
+                "Medios Audiovisuales, TICs y Educación",
+                "Pedagogía",
+                "Pedagogía Crítica de las Diferencias",
+                "Política, Legislación y Administración del Trabajo Escolar",
+                "Práctica Docente 1",
+                "Práctica Docente 2",
+                "Práctica Docente 3",
+                "Práctica Docente 4",
+                "Psicología del Desarrollo y el Aprendizaje 1",
+                "Psicología del Desarrollo y el Aprendizaje 2",
+                "Psicología Social e Institucional",
+                "Reflexión Filosófica de la Educación",
+                "Taller de Definición Institucional",
+                "Taller de Lectura, Escritura y Oralidad (LEO)",
+                "Taller de Pensamiento Lógico Matemático",
+                "Teorías Sociopolíticas y Educación",
+                "Trayectos Formativos Opcionales"
+            ],
+            'Profesorado de Educación Secundaria en Geografía': [
+                "Antropología",
+                "Cartografía",
+                "Cartografía Digital",
+                "Cultura Digital y Educación",
+                "Derechos, Interculturalidad y Ciudadanía",
+                "Didáctica de la Geografía",
+                "Didáctica de las Ciencias Sociales",
+                "Didáctica y Curriculum",
+                "Economía Política",
+                "Educación Sexual Integral (ESI)",
+                "Educación y Transformaciones Sociales Contemporáneas",
+                "Enseñanza de la Geografía",
+                "Espacio de Opción Institucional (EOI)",
+                "Geografía Ambiental",
+                "Geografía Ambiental de América Latina",
+                "Geografía Ambiental de Argentina",
+                "Geografía Cultural",
+                "Geografía de Género",
+                "Geografía Económica y Social Argentina",
+                "Geografía Política y Geopolítica",
+                "Geografía Rural",
+                "Geografía Social",
+                "Geografía Social de América Latina",
+                "Geografía Urbana",
+                "Historia de los Modelos Económicos de Argentina",
+                "Historia Social General",
+                "Introducción a las Ciencias Sociales y a la Geografía",
+                "Organización Económica del Espacio",
+                "Pedagogía",
+                "Práctica Docente 1",
+                "Práctica Docente 2",
+                "Práctica Docente 3",
+                "Práctica Docente 4",
+                "Problemas Ambientales Locales/Regionales: La Investigación en el Aula",
+                "Problemas Filosóficos de la Educación",
+                "Política Educativa Argentina",
+                "Psicología del Aprendizaje",
+                "Reflexión Filosófico-Política de la Práctica Docente",
+                "Sociología",
+                "Teoría y Metodología en Geografía",
+                "Trayectorias Educativas de Jóvenes y Adultos",
+                "Unidades Curriculares Optativas"
+            ],
+            'Profesorado de Educación Secundaria en Ciencias Políticas': [
+                "Análisis de las Instituciones Educativas",
+                "Antropología",
+                "Cultura Digital y Educación",
+                "Derecho",
+                "Derechos Humanos y Ciudadanía",
+                "Derechos, Interculturalidad y Ciudadanía",
+                "Didáctica de la Ciencia Política",
+                "Didáctica de las Ciencias Sociales",
+                "Didáctica y Curriculum",
+                "Economía Política",
+                "Educación y Transformaciones Sociales Contemporáneas",
+                "Educación Sexual Integral (ESI)",
+                "Espacio de Opción Institucional (EOI)",
+                "Estado, Administración y Políticas Públicas",
+                "Estado y Política de Género",
+                "Fundamentos de Ciencia Política",
+                "Geografía",
+                "Historia Argentina",
+                "Historia Latinoamericana",
+                "Historia Mundial",
+                "Investigación en la Enseñanza de la Ciencia Política",
+                "Opinión Pública, Medios y Política",
+                "Pedagogía",
+                "Pensamiento Político Pedagógico Latinoamericano",
+                "Política Educativa Argentina",
+                "Práctica Docente 1",
+                "Práctica Docente 2",
+                "Práctica Docente 3",
+                "Práctica Docente 4",
+                "Problemas Filosóficos de la Educación",
+                "Problemática y Política Ambiental",
+                "Psicología del Aprendizaje",
+                "Reflexión Filosófico-Política de la Práctica Docente",
+                "Sistemas Políticos Comparados",
+                "Sociología",
+                "Teoría de las Relaciones Internacionales y Política Internacional",
+                "Teoría Política 1",
+                "Teoría Política 2",
+                "Teoría Política 3",
+                "Teoría y Derecho Constitucional",
+                "Unidades Curriculares Optativas"
+            ],
+            'Tecnicatura Superior en Análisis de Sistemas': [
+                "Álgebra",
+                "Algoritmos y estructuras de datos 1",
+                "Algoritmos y estructuras de datos 2",
+                "Algoritmos y estructuras de datos 3",
+                "Análisis Matemático 1",
+                "Análisis Matemático 2",
+                "Arquitectura de Computadores",
+                "Aspectos legales de la Profesión",
+                "Base de Datos",
+                "Ciencia, Tecnología y Sociedad",
+                "Estadística",
+                "Ingeniería de Software 1",
+                "Ingeniería de Software 2",
+                "Inglés 1",
+                "Inglés 2",
+                "Inglés 3",
+                "Prácticas Profesionalizantes 1",
+                "Prácticas Profesionalizantes 2",
+                "Prácticas Profesionalizantes 3",
+                "Redes y Comunicaciones",
+                "Seminario de actualización",
+                "Sistemas Operativos",
+                "Sistemas y Organizaciones"
+            ],
+            'Tecnicatura Superior en Enfermería': [
+                "Aspectos Bioéticos y Legales de la Profesión",
+                "Biología Humana",
+                "Comunicación en Ciencias de la Salud",
+                "Condiciones y Medio Ambiente del Trabajo",
+                "Cuidados de la Salud Centrados en la Comunidad y la Familia",
+                "Enfermería Comunitaria y Prácticas Educativas en Salud",
+                "Enfermería del Adulto y del Adulto Mayor I",
+                "Enfermería del Adulto y el Adulto Mayor II",
+                "Enfermería en Emergencias y Catástrofes",
+                "Enfermería en Salud Mental",
+                "Enfermería Materno Infantil",
+                "Farmacología en Enfermería",
+                "Fundamentos del Cuidado",
+                "Inglés",
+                "Introducción a la Metodología de Investigación en Salud",
+                "Nutrición y Dietoterapia",
+                "Organización y Gestión de Servicios de Enfermería",
+                "Prácticas Profesionalizantes 1",
+                "Prácticas Profesionalizantes 2",
+                "Prácticas Profesionalizantes 3",
+                "Psicología",
+                "Salud Pública 1",
+                "Salud Pública 2",
+                "Teorías Socioculturales de la Salud"
+            ],
+            'Tecnicatura Superior en Acompañamiento Terapéutico': [
+                "Acompañamiento Terapéutico del Adulto y Adulto Mayor",
+                "Acompañamiento Terapéutico en la Niñez y Adolescencia",
+                "Acompañamiento Terapéutico",
+                "Contextualización del Campo Profesional del Acompañamiento Terapéutico",
+                "Ética",
+                "Fundamentos de Psicología General y de Intervención Sociocomunitaria",
+                "Inglés",
+                "Intervención Comunitaria y Recursos Sociales",
+                "Investigación en Salud",
+                "Modalidades de Intervención en el Acompañamiento Terapéutico",
+                "Modelo de Ocupación Humana",
+                "Organización y Gestión de los Servicios de Salud Mental",
+                "Prácticas Profesionalizantes I",
+                "Prácticas Profesionalizantes II",
+                "Prácticas Profesionalizantes III",
+                "Principios Médicos y de Psicofarmacología",
+                "Psicofarmacología",
+                "Psicología de los Ciclos Vitales",
+                "Psicología de Grupos",
+                "Psicopatología",
+                "Salud Pública y Salud Mental",
+                "Sistemas Familiares"
+            ],
+            'Tecnicatura Superior en Higiene y Seguridad en el Trabajo': [
+                "Administración de las Organizaciones",
+                "Capacitación de Personal",
+                "Comunicación y Administración de Medios",
+                "Control de la Contaminación",
+                "Derecho del Trabajo",
+                "Ergonomía",
+                "Estadística",
+                "Física 1",
+                "Física 2",
+                "Higiene Laboral y Medio Ambiente 1",
+                "Higiene Laboral y Medio Ambiente 2",
+                "Inglés Técnico",
+                "Medicina del Trabajo 1",
+                "Medicina del Trabajo 2",
+                "Medios de Representación",
+                "Práctica Profesionalizante 1",
+                "Práctica Profesionalizante 2",
+                "Práctica Profesionalizante 3",
+                "Psicología Laboral",
+                "Química 1",
+                "Química 2",
+                "Seguridad 1",
+                "Seguridad 2",
+                "Seguridad 3"
+            ]
+        };
+        
+        // Función para cargar materias (mejorada para preservar selección al editar)
+        function cargarMaterias(carreraSeleccionada, materiaASeleccionar = null) {
+            console.log('📚 Carrera seleccionada:', carreraSeleccionada);
+            
+            // Limpiar opciones actuales
+            materiaSelect.innerHTML = '';
+            
+            if (carreraSeleccionada && materiasPorCarrera[carreraSeleccionada]) {
+                // Agregar opción vacía
+                const opcionVacia = document.createElement('option');
+                opcionVacia.value = '';
+                opcionVacia.textContent = 'Seleccione una materia';
+                materiaSelect.appendChild(opcionVacia);
+                
+                // Agregar materias de la carrera seleccionada
+                materiasPorCarrera[carreraSeleccionada].forEach(function(materia) {
+                    const option = document.createElement('option');
+                    option.value = materia;
+                    option.textContent = materia;
+                    materiaSelect.appendChild(option);
+                });
+                
+                // Si se especifica una materia a seleccionar, seleccionarla
+                if (materiaASeleccionar) {
+                    materiaSelect.value = materiaASeleccionar;
+                    console.log('✅ Materia restaurada:', materiaASeleccionar);
+                }
+                
+                materiaSelect.disabled = false;
+                console.log('✅ Materias cargadas:', materiasPorCarrera[carreraSeleccionada].length);
+            } else {
+                // No hay carrera seleccionada o no tiene materias
+                const opcionVacia = document.createElement('option');
+                opcionVacia.value = '';
+                opcionVacia.textContent = 'Primero seleccione una carrera';
+                materiaSelect.appendChild(opcionVacia);
+                materiaSelect.disabled = true;
+                console.log('⚠️ No hay materias para:', carreraSeleccionada);
+            }
+        }
+        
+        // Event listener para cambio de carrera
+        carreraSelect.addEventListener('change', function() {
+            cargarMaterias(this.value);
+        });
+        
+        // Inicialización: cargar materias si ya hay una carrera seleccionada (modo edición)
+        if (carreraInicial) {
+            cargarMaterias(carreraInicial, materiaInicial);
+        } else {
+            // Si no hay carrera inicial, deshabilitar materia
+            materiaSelect.disabled = true;
+        }
+        
+        console.log('🎯 Vinculación carrera-materia inicializada correctamente');
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,5 @@
+/* Asegurar que solo el asterisco rojo sea visible y en negrita */
+.text-danger {
+    color: #dc3545 !important;
+    font-weight: bold !important;
+}

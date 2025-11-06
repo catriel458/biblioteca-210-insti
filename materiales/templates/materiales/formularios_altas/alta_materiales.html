@@ -1,0 +1,1726 @@
+{% extends 'components/baseb.html' %}
+{% load static %}
+{% block extra_styles %}
+    <link rel="stylesheet" href="{% static 'css/header.css' %}">
+    <link rel="stylesheet" href="{% static 'css/manual_modal.css' %}">
+    <link rel="stylesheet" href="{% static 'css/main.css' %}">
+    <link rel="stylesheet" href="{% static 'css/style_form.css' %}">
+    <link rel="stylesheet" href="{% static 'css/botones.css' %}">
+{% endblock %}
+
+{% block content %}
+<header class="header-pantalla">
+    <div class="header-pantalla">
+        <h1 class="header-title">ALTA MATERIAL</h1>
+        <a href="{% url 'home' %}" class="logo-link">
+            <img src="{% static 'imagenes/Logo_inicio.png' %}" alt="Logo" class="cover-pic">
+        </a>
+    </div>
+</header>
+<div class="container-fluid">
+    <form id="form_alta_material" action="{% url 'alta_libro' %}" method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="row align-items-start">
+            <div class="col-12 col-lg-10">
+                <div class="row">
+                    <div class="col-12 col-sm-6 col-lg-2 form-group mb-2">
+                        <label for="tipo_material" class="text-input" style="color:#25898D;">Tipo de Material:</label>
+                        <select class="form-control form-control-sm" id="tipo_material" name="tipo_material" required>
+                            <option value="">Selecciona un tipo de material</option>
+                            <option value="libro">LIBRO</option>
+                            <option value="mapa">MAPA</option>
+                            <option value="multimedia">MULTIMEDIA</option>
+                            <option value="notebook">NOTEBOOK</option>
+                            <option value="programa">PROGRAMA</option>
+                            <option value="proyector">PROYECTOR</option>
+                            <option value="varios">VARIOS</option>
+                        </select>
+                    </div>
+                    <div class="col-12 col-lg-8 mb-2"></div>
+                </div>
+                <!-- Aquí se cargará dinámicamente el formulario -->
+                <div id="formulario-especifico" class="mt-2 row"></div>
+            </div>
+            
+            <!-- Columna derecha con manual y carga masiva -->
+            <div class="col-12 col-lg-2 d-flex flex-column align-items-end mt-3 mt-lg-0">
+                <div class="w-100 mb-2">
+                    <button type="button" class="btn btn-dark btn-sm manual-button w-100" onclick="document.getElementById('manualModal').style.display='flex'">MANUAL</button>
+                </div>
+                
+                <!-- Sección de carga masiva (solo visible al seleccionar material) -->
+                <div id="upload_simple_container" class="w-100 mb-4" style="display: none;">
+                    <div class="upload-box w-100">
+                        <small class="text-muted">Para carga masiva, suba un archivo CSV o Excel (.csv, .xls, .xlsx):</small>
+                        <label for="cargar_archivo" class="d-block my-3">
+                            <div class="boton-redondeado">
+                                <span>↑</span>
+                            </div>
+                            <input type="file" id="cargar_archivo" name="cargar_archivo" accept=".csv, .xls, .xlsx" style="display: none;">
+                        </label>
+                        <div id="nombre_archivo_carga_simple" style="text-align:center;font-size:0.92em;color:#444;margin-top:6px;margin-bottom:2px;word-break:break-all;"></div>
+                    </div>
+                </div>
+                
+                <!-- Fila 4/5: Carga de Imagen -->
+                <div id="upload_box_container" class="custom-upload-box-container" style="display: none; width: 100%;">
+                    <div class="custom-upload-box w-100">
+                        <button class="btn btn-sm custom-upload-btn w-100" type="button" onclick="document.getElementById('file_upload_input').click();">↑</button>
+                        <input type="file" id="file_upload_input" name="imagen" accept="image/*" style="display: none;">
+                        <!-- Importante: agregar name="img" para que el backend reciba la URL de imagen -->
+                        <input type="text" id="url_upload_input" name="img" class="form-control custom-upload-input mb-2" placeholder="O pegue un enlace de imagen aquí...">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Botones -->
+        <div id="buttons-container" class="row bg-white px-0 mx-0" style="border:none; box-shadow:none; display: none;">
+            <div class="col-12 d-flex justify-content-end gap-5">
+              <!-- Los botones se cargan dinámicamente con cada formulario específico -->
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block modals %}
+  {% include 'modals/manual_modal.html' %}
+  <!-- Solo incluir el modal de confirmación para materiales que no tienen su propio modal -->
+  <div id="contenedor-modal-confirmacion">
+   
+  </div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+// Script para el template principal (paste-2.txt - segundo template)
+document.addEventListener("DOMContentLoaded", function () {
+    const tipoMaterial = document.getElementById('tipo_material');
+    const formularioEspecifico = document.getElementById('formulario-especifico');
+    const buttonsContainer = document.getElementById('buttons-container');
+    
+    // Elementos de carga masiva e imagen
+    const uploadSimple = document.getElementById('upload_simple_container');
+    const uploadBox = document.getElementById('upload_box_container');
+
+    // Ocultar carga masiva al cargar la página (estado inicial)
+    if (uploadSimple) uploadSimple.style.display = 'none';
+    if (uploadBox) uploadBox.style.display = 'none';
+
+    // FUNCIONALIDAD PRINCIPAL
+    tipoMaterial.addEventListener('change', function () {
+        const tipo = this.value;
+        console.log('🔥 Tipo seleccionado:', tipo);
+        
+        if (tipo === '') {
+            formularioEspecifico.innerHTML = '';
+            buttonsContainer.style.display = 'none';
+            // Ocultar carga masiva cuando no hay tipo seleccionado
+            if (uploadSimple) uploadSimple.style.display = 'none';
+            if (uploadBox) uploadBox.style.display = 'none';
+            return;
+        }
+        
+        if (tipo === 'libro') {
+            console.log('📚 Cargando formulario de libro...');
+            fetch('/formulario/libro/')
+                .then(response => {
+                    if (!response.ok) throw new Error('No se pudo cargar el formulario.');
+                    return response.text();
+                })
+                .then(html => {
+                    formularioEspecifico.innerHTML = html;
+                    buttonsContainer.style.display = 'flex';
+                    
+                    // 🔥 IMPORTANTE: Establecer el action correcto para libro
+                    const form = document.getElementById('form_alta_material');
+                    if (form) {
+                        form.action = '/alta-libro/';
+                        console.log('🔧 Action del formulario libro establecido a:', form.action);
+                    }
+                    
+                    // Mostrar el modal de confirmación genérico para libro
+                    const contenedorModal = document.getElementById('contenedor-modal-confirmacion');
+                    if (contenedorModal) {
+                        contenedorModal.style.display = 'block';
+                        console.log('🔧 Modal de confirmación genérico mostrado para libro');
+                    }
+                    
+                    // Solo mostrar carga masiva y URL para libros
+                    if (uploadSimple) uploadSimple.style.display = 'block';
+                    if (uploadBox) uploadBox.style.display = 'block';
+                    
+                    // 🎯 CRÍTICO: Inicializar funcionalidad dinámica DESPUÉS de cargar HTML
+                    setTimeout(() => {
+                        // Inicializar ejemplares dinámicos para libros
+                        const cantidadInput = document.querySelector('input[name="cant_ejemplares"]');
+                        if (cantidadInput) {
+                            // Generar ejemplares iniciales
+                            window.updateRowsMaterial('libro');
+                            
+                            // Agregar event listener para cambios en cantidad
+                            cantidadInput.addEventListener('input', function() {
+                                console.log('🔄 Cantidad de ejemplares cambiada:', this.value);
+                                window.updateRowsMaterial('libro');
+                            });
+                            
+                            console.log('✅ Funcionalidad dinámica de libros inicializada');
+                        } else {
+                            console.warn('⚠️ Input de cantidad de ejemplares no encontrado');
+                        }
+                    }, 100); // Pequeño delay para asegurar que el DOM esté listo
+                    
+                    console.log('✅ Formulario de libro cargado');
+                })
+                .catch(error => {
+                    console.error('❌ Error cargando libro:', error);
+                    formularioEspecifico.innerHTML = `<p class="text-danger">Error al cargar el formulario: ${error.message}</p>`;
+                    buttonsContainer.style.display = 'none';
+                });
+        } 
+        else if (tipo === 'programa') {
+            console.log('🎓 Cargando formulario de programa...');
+            fetch('/formulario/programa/')
+                .then(response => {
+                    if (!response.ok) throw new Error('No se pudo cargar el formulario.');
+                    return response.text();
+                })
+                .then(html => {
+                    formularioEspecifico.innerHTML = html;
+                    buttonsContainer.style.display = 'flex';
+                    
+                    // 🔥 IMPORTANTE: Corregir el action después de cargar
+                    const form = document.getElementById('form_alta_material');
+                    if (form) {
+                        form.action = '/alta-programa/';
+                        console.log('🔧 Action del formulario programa corregido a:', form.action);
+                    }
+                    
+                    // 🎯 CRÍTICO: Inicializar funcionalidad carrera-materia DESPUÉS de cargar HTML
+                    setTimeout(() => {
+                        initCarreraMateriaFunctionality();
+                    }, 100); // Pequeño delay para asegurar que el DOM esté listo
+                    
+                    // No mostrar carga masiva ni URL para programas
+                    if (uploadSimple) uploadSimple.style.display = 'none';
+                    if (uploadBox) uploadBox.style.display = 'none';
+                    console.log('✅ Formulario de programa cargado');
+                })
+                .catch(error => {
+                    console.error('❌ Error cargando programa:', error);
+                    formularioEspecifico.innerHTML = `<p class="text-danger">Error al cargar el formulario: ${error.message}</p>`;
+                    buttonsContainer.style.display = 'none';
+                });
+        } 
+        // ... resto de casos (mapa, multimedia, etc.)
+        else if (tipo === 'mapa') {
+            console.log('🗺️ Cargando formulario de mapa...');
+            fetch('/formulario/mapa/')
+                .then(response => {
+                    if (!response.ok) throw new Error('No se pudo cargar el formulario.');
+                    return response.text();
+                })
+                .then(html => {
+                    formularioEspecifico.innerHTML = html;
+                    buttonsContainer.style.display = 'flex';
+                    
+                    // 🔥 IMPORTANTE: Establecer el action correcto para mapa
+                    const form = document.getElementById('form_alta_material');
+                    if (form) {
+                        form.action = '/confirmar-alta-mapa/';
+                        console.log('🔧 Action del formulario mapa establecido a:', form.action);
+                    }
+                    
+                    // 🎯 CRÍTICO: Inicializar funcionalidad de mapas DESPUÉS de cargar HTML
+                    setTimeout(() => {
+                        // Inicializar arrays globales y renderizar tipos de mapa
+                        if (typeof window.gruposTiposMapa === 'undefined') {
+                            window.gruposTiposMapa = [];
+                        }
+                        if (typeof window.renderizarTiposMapa === 'function') {
+                            window.renderizarTiposMapa();
+                        }
+                    }, 100); // Pequeño delay para asegurar que el DOM esté listo
+                    
+                    // No mostrar carga masiva ni URL para mapas
+                    if (uploadSimple) uploadSimple.style.display = 'none';
+                    if (uploadBox) uploadBox.style.display = 'none';
+                    console.log('✅ Formulario de mapa cargado');
+                })
+                .catch(error => {
+                    console.error('❌ Error cargando mapa:', error);
+                    formularioEspecifico.innerHTML = `<p class="text-danger">Error al cargar el formulario: ${error.message}</p>`;
+                    buttonsContainer.style.display = 'none';
+                });
+        } 
+        else if (tipo === 'multimedia') {
+            console.log('💿 Cargando formulario de multimedia...');
+            fetch('/formulario/multimedia/')
+                .then(response => {
+                    if (!response.ok) throw new Error('No se pudo cargar el formulario.');
+                    return response.text();
+                })
+                .then(html => {
+                    console.log('📄 HTML recibido, longitud:', html.length);
+                    
+                    // 🔍 DEBUGGING EXHAUSTIVO DEL HTML RECIBIDO
+                    console.log('🔍 Primeros 500 caracteres del HTML:', html.substring(0, 500));
+                    console.log('🔍 ¿Contiene form_alta_multimedia?', html.includes('form_alta_multimedia'));
+                    console.log('🔍 ¿Contiene id="form_alta_multimedia"?', html.includes('id="form_alta_multimedia"'));
+                    
+                    // 🔥 SOLUCIÓN: Extraer solo el contenido interno del form para evitar formularios anidados
+                    const tempDiv = document.createElement('div');
+                    tempDiv.innerHTML = html;
+                    
+                    // Buscar el formulario en el HTML temporal
+                    const tempForm = tempDiv.querySelector('#form_alta_multimedia') || tempDiv.querySelector('form[data-form-id="multimedia"]');
+                    
+                    if (tempForm) {
+                        // Extraer solo el contenido interno del formulario (sin el tag <form>)
+                        const formContent = tempForm.innerHTML;
+                        console.log('✅ Contenido del formulario extraído, longitud:', formContent.length);
+                        
+                        // Insertar el contenido en el formulario principal
+                        formularioEspecifico.innerHTML = formContent;
+                        
+                        // Establecer el data-form-type para identificación
+                        formularioEspecifico.setAttribute('data-form-type', 'multimedia');
+                        
+                        console.log('🔍 Contenido insertado en formularioEspecifico');
+                    } else {
+                        console.error('❌ No se encontró el formulario en el HTML recibido');
+                        formularioEspecifico.innerHTML = html; // Fallback al método anterior
+                    }
+                    
+                    buttonsContainer.style.display = 'flex';
+                    
+                    // 🔍 DEBUGGING DEL CONTENIDO INSERTADO
+                    console.log('🔍 Contenido de formularioEspecifico después de insertar:', formularioEspecifico.innerHTML.substring(0, 500));
+                    console.log('🔍 ¿formularioEspecifico contiene form_alta_multimedia?', formularioEspecifico.innerHTML.includes('form_alta_multimedia'));
+                    
+                    // 🔥 IMPORTANTE: Usar setTimeout para asegurar que el DOM esté completamente renderizado
+                    setTimeout(() => {
+                        // 🔥 NUEVA LÓGICA: Buscar el contenedor con data-form-type="multimedia"
+                        let multimediaContainer = formularioEspecifico.querySelector('[data-form-type="multimedia"]');
+                        
+                        // Si no se encuentra en formularioEspecifico, buscar en el propio formularioEspecifico
+                        if (!multimediaContainer && formularioEspecifico.getAttribute('data-form-type') === 'multimedia') {
+                            multimediaContainer = formularioEspecifico;
+                        }
+                        
+                        console.log('🔍 Contenedor multimedia encontrado:', !!multimediaContainer);
+                        
+                        if (multimediaContainer) {
+                            // Configurar el formulario principal para multimedia
+                            const mainForm = document.getElementById('form_alta_material');
+                            if (mainForm) {
+                                mainForm.action = '/alta-multimedia/';
+                                console.log('✅✅✅ FORMULARIO PRINCIPAL CONFIGURADO PARA MULTIMEDIA');
+                                console.log('🔧 Action del formulario establecido a:', mainForm.action);
+                            }
+                            
+                            console.log('✅ Contenedor multimedia configurado correctamente');
+                            console.log('🔧 Contenedor visible:', multimediaContainer.offsetParent !== null);
+                            console.log('🔧 Contenedor en DOM:', !!multimediaContainer.parentNode);
+                        } else {
+                            console.error('❌❌❌ No se encontró el contenedor multimedia después de cargar HTML');
+                            // Debugging adicional
+                            console.log('🔍 Todos los elementos con data-form-type:');
+                            const elementsWithFormType = document.querySelectorAll('[data-form-type]');
+                            elementsWithFormType.forEach((el, index) => {
+                                console.log(`📋 Elemento ${index}:`, el.getAttribute('data-form-type'), el.tagName, el);
+                            });
+                            
+                            console.log('🔍 Todos los elementos con ID en formularioEspecifico:');
+                            const elementsWithId = formularioEspecifico.querySelectorAll('[id]');
+                            elementsWithId.forEach((el, index) => {
+                                console.log(`🆔 Elemento ${index}:`, el.id, el.tagName, el);
+                            });
+                        }
+                    }, 200); // Aumentar timeout a 200ms para mejor compatibilidad
+                    
+                    // Ocultar el modal de confirmación genérico ya que multimedia tiene su propio modal
+                    const contenedorModal = document.getElementById('contenedor-modal-confirmacion');
+                    if (contenedorModal) {
+                        contenedorModal.style.display = 'none';
+                        console.log('🔧 Modal de confirmación genérico ocultado para multimedia');
+                    }
+                    
+                    // 🎯 CRÍTICO: Inicializar funcionalidad carrera-materia DESPUÉS de cargar HTML
+                    setTimeout(() => {
+                        initCarreraMateriaFunctionality();
+                        initMultimediaFunctionality(); // Inicializar funcionalidad del botón '+'
+                        
+                        // Verificar nuevamente el formulario después de la inicialización
+                        let formAfterInit = document.getElementById('form_alta_multimedia');
+                        if (!formAfterInit) {
+                            formAfterInit = formularioEspecifico.querySelector('#form_alta_multimedia') ||
+                                          formularioEspecifico.querySelector('form[data-form-id="multimedia"]');
+                        }
+                        console.log('🔍 Formulario después de inicialización:', !!formAfterInit);
+                        if (formAfterInit) {
+                            console.log('✅ Formulario disponible y listo para envío');
+                        }
+                    }, 250); // Aumentar delay para asegurar que el DOM esté completamente listo
+                    
+                    // No mostrar carga masiva ni URL para multimedia
+                    if (uploadSimple) uploadSimple.style.display = 'none';
+                    if (uploadBox) uploadBox.style.display = 'none';
+                    console.log('✅ Formulario de multimedia cargado');
+                })
+                .catch(error => {
+                    console.error('❌ Error cargando multimedia:', error);
+                    formularioEspecifico.innerHTML = `<p class="text-danger">Error al cargar el formulario: ${error.message}</p>`;
+                    buttonsContainer.style.display = 'none';
+                });
+        } 
+        else if (tipo === 'notebook') {
+            console.log('💻 Cargando formulario de notebook...');
+            fetch('/formulario/notebook/')
+                .then(response => {
+                    if (!response.ok) throw new Error('No se pudo cargar el formulario.');
+                    return response.text();
+                })
+                .then(html => {
+                    formularioEspecifico.innerHTML = html;
+                    buttonsContainer.style.display = 'flex';
+                    
+                    // 🔥 IMPORTANTE: Establecer el action correcto para notebook
+                    const form = document.getElementById('form_alta_material');
+                    if (form) {
+                        form.action = '{% url "confirmacion_alta_notebook" %}';
+                        console.log('🔧 Action del formulario notebook establecido a:', form.action);
+                    }
+                    
+                    // Ocultar el modal de confirmación genérico ya que notebook tiene su propio modal
+                    const contenedorModal = document.getElementById('contenedor-modal-confirmacion');
+                    if (contenedorModal) {
+                        contenedorModal.style.display = 'none';
+                        console.log('🔧 Modal de confirmación genérico ocultado para notebook');
+                    }
+                    
+                    // No mostrar carga masiva ni URL para notebook
+                    if (uploadSimple) uploadSimple.style.display = 'none';
+                    if (uploadBox) uploadBox.style.display = 'none';
+                    
+                    // 🎯 CRÍTICO: Inicializar funcionalidad dinámica DESPUÉS de cargar HTML
+                    setTimeout(() => {
+                        initNotebookDynamicFunctionality();
+                    }, 100); // Pequeño delay para asegurar que el DOM esté listo
+                    
+                    console.log('✅ Formulario de notebook cargado');
+                })
+                .catch(error => {
+                    formularioEspecifico.innerHTML = `<p class="text-danger">Error al cargar el formulario: ${error.message}</p>`;
+                    buttonsContainer.style.display = 'none';
+                });
+        } 
+        else if (tipo === 'proyector') {
+            console.log('📽️ Cargando formulario de proyector...');
+            fetch('/formulario/proyector/')
+                .then(response => {
+                    if (!response.ok) throw new Error('No se pudo cargar el formulario.');
+                    return response.text();
+                })
+                .then(html => {
+                    formularioEspecifico.innerHTML = html;
+                    buttonsContainer.style.display = 'flex';
+                    // No mostrar carga masiva ni URL para proyector
+                    if (uploadSimple) uploadSimple.style.display = 'none';
+                    if (uploadBox) uploadBox.style.display = 'none';
+                    
+                    // Configurar la acción del formulario para proyector
+                    const form = document.getElementById('form_alta_material');
+                    if (form) {
+                        form.action = '{% url "confirmacion_alta_proyector" %}';
+                        console.log('✅ Acción del formulario configurada para proyector:', form.action);
+                    }
+                    
+                    // 🎯 CRÍTICO: Inicializar funcionalidad dinámica DESPUÉS de cargar HTML
+                    setTimeout(() => {
+                        initProyectorDynamicFunctionality();
+                    }, 100); // Pequeño delay para asegurar que el DOM esté listo
+                    
+                    console.log('✅ Formulario de proyector cargado');
+                })
+                .catch(error => {
+                    formularioEspecifico.innerHTML = `<p class="text-danger">Error al cargar el formulario: ${error.message}</p>`;
+                    buttonsContainer.style.display = 'none';
+                });
+        } 
+        else if (tipo === 'varios') {
+            console.log('📦 Cargando formulario de varios...');
+            fetch('/formulario/varios/')
+                .then(response => {
+                    if (!response.ok) throw new Error('No se pudo cargar el formulario.');
+                    return response.text();
+                })
+                .then(html => {
+                    formularioEspecifico.innerHTML = html;
+                    buttonsContainer.style.display = 'flex';
+                    // No mostrar carga masiva ni URL para varios
+                    if (uploadSimple) uploadSimple.style.display = 'none';
+                    if (uploadBox) uploadBox.style.display = 'none';
+                    
+                    // 🎯 CRÍTICO: Inicializar funcionalidad carrera-materia DESPUÉS de cargar HTML
+                    setTimeout(() => {
+                        initCarreraMateriaFunctionality();
+                        initVariosFunctionality(); // Inicializar funcionalidad del botón '+' para varios
+                        
+                        // 🔥 AGREGAR EVENT LISTENER DE SUBMIT PARA VARIOS
+                        const form = document.getElementById('form_alta_material');
+                        if (form) {
+                            // Verificar si ya tiene el event listener para evitar duplicados
+                            if (!form.hasAttribute('data-varios-submit-listener')) {
+                                form.addEventListener('submit', function(e) {
+                                    console.log('🚀 SUBMIT VARIOS - Interceptando envío del formulario');
+                                    e.preventDefault(); // Prevenir envío automático
+                                    
+                                    // Llamar a prepararEnvioFormulario para serializar los datos
+                                    if (typeof prepararEnvioFormulario === 'function') {
+                                        console.log('📤 Llamando a prepararEnvioFormulario...');
+                                        prepararEnvioFormulario();
+                                    } else {
+                                        console.error('❌ Función prepararEnvioFormulario no encontrada');
+                                    }
+                                    
+                                    // Ahora enviar el formulario normalmente
+                                    console.log('📤 Enviando formulario de varios...');
+                                    // Remover temporalmente el event listener para evitar loop infinito
+                                    form.removeAttribute('data-varios-submit-listener');
+                                    form.submit();
+                                });
+                                
+                                // Marcar que ya tiene el event listener
+                                form.setAttribute('data-varios-submit-listener', 'true');
+                                console.log('✅ Event listener de submit agregado al formulario de varios');
+                            } else {
+                                console.log('ℹ️ Event listener de submit ya existe para varios');
+                            }
+                        }
+                    }, 100); // Pequeño delay para asegurar que el DOM esté listo
+                    
+                    // Configurar la acción del formulario para varios
+                    const form = document.getElementById('form_alta_material');
+                    if (form) {
+                        form.action = '{% url "confirmacion_alta_varios" %}';
+                        console.log('✅ Acción del formulario configurada para varios:', form.action);
+                    }
+                    console.log('✅ Formulario de varios cargado');
+                })
+                .catch(error => {
+                    formularioEspecifico.innerHTML = `<p class="text-danger">Error al cargar el formulario: ${error.message}</p>`;
+                    buttonsContainer.style.display = 'none';
+                });
+        } 
+        else {
+            console.log('❌ Sin selección o tipo no reconocido');
+            formularioEspecifico.innerHTML = '';
+            buttonsContainer.style.display = 'none';
+            if (uploadSimple) uploadSimple.style.display = 'none';
+            if (uploadBox) uploadBox.style.display = 'none';
+        }
+    });
+
+// Función para inicializar la funcionalidad dinámica del proyector
+function initProyectorDynamicFunctionality() {
+    console.log('🎯 Inicializando funcionalidad dinámica del proyector...');
+    
+    const cantEjemplaresProyector = document.getElementById('cant_ejemplares');
+    const contenedorEjemplaresProyector = document.getElementById('contenedor-ejemplares-proyector');
+    
+    if (cantEjemplaresProyector && contenedorEjemplaresProyector) {
+        console.log('✅ Elementos encontrados para proyector...');
+        
+        // Función para generar campos dinámicos idénticos a notebook
+        function generarCamposProyector() {
+            const cantidad = parseInt(cantEjemplaresProyector.value) || 1;
+            let html = '';
+            
+            for (let i = 1; i <= cantidad; i++) {
+                html += `
+                <!-- Línea punteada -->
+                <div style="
+                    background: repeating-linear-gradient(
+                        to right,
+                        #8B1D69 0px,
+                        #8B1D69 10px,
+                        transparent 10px,
+                        transparent 30px
+                    );
+                    height: 3px;
+                    margin: 25px 0;
+                    width: 100%;
+                "></div>
+                <div class="row mb-2">
+                    <div class="col-md-3">
+                        <label for="num_registro_${i}" style="font-size: 14px;">N° de registro<span style="color: #dc3545; font-weight: bold;">*</span>:</label>
+                        <input type="text" class="form-control" id="num_registro_${i}" name="num_registro_${i}" required placeholder="N° de registro...">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="modelo_pro_${i}" style="font-size: 14px;">Modelo:</label>
+                                <input type="text" class="form-control" id="modelo_pro_${i}" name="modelo_pro_${i}" placeholder="Modelo..." />
+                    </div>
+                </div>`;
+            }
+            contenedorEjemplaresProyector.innerHTML = html;
+        }
+        
+        // Event listeners para cambios dinámicos
+        cantEjemplaresProyector.addEventListener('input', generarCamposProyector);
+        cantEjemplaresProyector.addEventListener('change', generarCamposProyector);
+        
+        // Generar campos iniciales
+        generarCamposProyector();
+        
+        console.log('✅ Funcionalidad dinámica del proyector inicializada correctamente');
+    } else {
+        console.error('❌ No se encontraron los elementos necesarios para la funcionalidad dinámica');
+        console.log('cantEjemplaresProyector:', cantEjemplaresProyector);
+        console.log('contenedorEjemplaresProyector:', contenedorEjemplaresProyector);
+    }
+}
+
+// Función para inicializar la funcionalidad dinámica del notebook
+function initNotebookDynamicFunctionality() {
+    console.log('💻 Inicializando funcionalidad dinámica del notebook...');
+    
+    const cantEjemplaresNotebook = document.getElementById('cant_ejemplares');
+    const contenedorEjemplaresNotebook = document.getElementById('contenedor-ejemplares-notebook');
+    
+    if (cantEjemplaresNotebook && contenedorEjemplaresNotebook) {
+        console.log('✅ Elementos encontrados, configurando eventos...');
+        
+        // Event listener para cambios dinámicos
+        cantEjemplaresNotebook.addEventListener('input', function() {
+            console.log('🔄 Input event triggered, cantidad:', this.value);
+            window.updateRowsMaterial('notebook');
+        });
+        
+        cantEjemplaresNotebook.addEventListener('change', function() {
+            console.log('🔄 Change event triggered, cantidad:', this.value);
+            window.updateRowsMaterial('notebook');
+        });
+        
+        // Llamar inicialmente para generar campos si ya hay un valor
+        if (cantEjemplaresNotebook.value && cantEjemplaresNotebook.value > 0) {
+            console.log('🔄 Generando campos iniciales para cantidad:', cantEjemplaresNotebook.value);
+            window.updateRowsMaterial('notebook');
+        }
+        
+        console.log('✅ Funcionalidad dinámica del notebook inicializada correctamente');
+    } else {
+        console.error('❌ No se encontraron los elementos necesarios para la funcionalidad dinámica del notebook');
+        console.log('cantEjemplaresNotebook:', cantEjemplaresNotebook);
+        console.log('contenedorEjemplaresNotebook:', contenedorEjemplaresNotebook);
+    }
+}
+
+// FUNCIONALIDAD AGREGADA: Mostrar nombre del archivo seleccionado
+    const cargarArchivo = document.getElementById('cargar_archivo');
+    const nombreArchivo = document.getElementById('nombre_archivo_carga_simple');
+    
+    if (cargarArchivo && nombreArchivo) {
+        cargarArchivo.addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                nombreArchivo.textContent = this.files[0].name;
+            } else {
+                nombreArchivo.textContent = '';
+            }
+        });
+    }
+
+    // 🎯 FUNCIÓN PARA INICIALIZAR CARRERA-MATERIA (para programa y multimedia)
+    function initCarreraMateriaFunctionality() {
+        // Buscar elementos por ambos posibles IDs (para compatibilidad con diferentes formularios)
+        const carreraSelect = document.getElementById('id_carrera') || document.getElementById('carrera');
+        const materiaSelect = document.getElementById('id_materia') || document.getElementById('materia');
+        
+        console.log('🎯 Inicializando carrera-materia...', !!carreraSelect, !!materiaSelect);
+        
+        if (!carreraSelect || !materiaSelect) {
+            console.log('⚠️ Elementos carrera-materia no encontrados');
+            return;
+        }
+        
+        // Materias por carrera - IDÉNTICO al primer archivo
+        const materiasPorCarrera = {
+            'Profesorado de Educación Inicial': [
+                "Análisis del Mundo Contemporáneo",
+                "Ateneo de Naturaleza y Sociedad",
+                "Ateneo de Matemática",
+                "Ateneo de Nuevas Expresiones Estéticas",
+                "Ateneo de Prácticas del Lenguaje y la Literatura",
+                "Corporeidad y Motricidad",
+                "Cultura, Comunicación y Educación",
+                "Didáctica de la Matemática",
+                "Didáctica de las Ciencias Naturales",
+                "Didáctica de las Ciencias Sociales",
+                "Didáctica de las Prácticas del Lenguaje y la Literatura",
+                "Didáctica General",
+                "Didáctica y Curriculum de Nivel Inicial",
+                "Dimensión Ético-Política de la Praxis Docente",
+                "Educación en y para la Salud",
+                "Educación Física Escolar",
+                "Educación Musical",
+                "Educación Plástica",
+                "Educación Temprana",
+                "Filosofía",
+                "Historia y Prospectiva de la Educación",
+                "Juego y Desarrollo Infantil",
+                "Medios Audiovisuales, TICs y Educación",
+                "Pedagogía",
+                "Política, Legislación y Administración del Trabajo Escolar",
+                "Práctica Docente 1",
+                "Práctica Docente 2",
+                "Práctica Docente 3",
+                "Práctica Docente 4",
+                "Psicología del Desarrollo y el Aprendizaje 1",
+                "Psicología del Desarrollo y el Aprendizaje 2",
+                "Psicología Social e Institucional",
+                "Reflexión Filosófica de la Educación",
+                "Taller de Ciencias Naturales",
+                "Taller de Ciencias Sociales",
+                "Taller de Definición Institucional",
+                "Taller de Lectura, Escritura y Oralidad (LEO)",
+                "Taller de Literatura Infantil",
+                "Taller de la Matemática",
+                "Taller de Materiales y Objetos Lúdicos",
+                "Taller de Pensamiento Lógico Matemático",
+                "Teorías Sociopolíticas y Educación",
+                "Trayectos Formativos Opcionales"
+            ],
+            'Profesorado de Educación Primaria': [
+                "Análisis del Mundo Contemporáneo",
+                "Arte y Educación",
+                "Ateneo de Ciencias Naturales",
+                "Ateneo de Ciencias Sociales",
+                "Ateneo de Matemática",
+                "Ateneo de Prácticas del Lenguaje y la Literatura",
+                "Configuraciones Culturales del Sujeto Educativo de Primaria",
+                "Corporeidad y Motricidad",
+                "Cultura, Comunicación y Educación",
+                "Didáctica de la Matemática 1",
+                "Didáctica de la Matemática 2",
+                "Didáctica de las Ciencias Naturales 1",
+                "Didáctica de las Ciencias Naturales 2",
+                "Didáctica de las Ciencias Sociales 1",
+                "Didáctica de las Ciencias Sociales 2",
+                "Didáctica de Prácticas del Lenguaje y la Literatura 1",
+                "Didáctica de Prácticas del Lenguaje y la Literatura 2",
+                "Didáctica General",
+                "Didáctica y Curriculum de Nivel Primario",
+                "Dimensión Ético-Política de la Praxis Docente",
+                "Educación Artística",
+                "Educación Física Escolar",
+                "Filosofía",
+                "Historia y Prospectiva de la Educación",
+                "Medios Audiovisuales, TICs y Educación",
+                "Pedagogía",
+                "Pedagogía Crítica de las Diferencias",
+                "Política, Legislación y Administración del Trabajo Escolar",
+                "Práctica Docente 1",
+                "Práctica Docente 2",
+                "Práctica Docente 3",
+                "Práctica Docente 4",
+                "Psicología del Desarrollo y el Aprendizaje 1",
+                "Psicología del Desarrollo y el Aprendizaje 2",
+                "Psicología Social e Institucional",
+                "Reflexión Filosófica de la Educación",
+                "Taller de Definición Institucional",
+                "Taller de Lectura, Escritura y Oralidad (LEO)",
+                "Taller de Pensamiento Lógico Matemático",
+                "Teorías Sociopolíticas y Educación",
+                "Trayectos Formativos Opcionales"
+            ],
+            'Profesorado de Educación Secundaria en Geografía': [
+                "Antropología",
+                "Cartografía",
+                "Cartografía Digital",
+                "Cultura Digital y Educación",
+                "Derechos, Interculturalidad y Ciudadanía",
+                "Didáctica de la Geografía",
+                "Didáctica de las Ciencias Sociales",
+                "Didáctica y Curriculum",
+                "Economía Política",
+                "Educación Sexual Integral (ESI)",
+                "Educación y Transformaciones Sociales Contemporáneas",
+                "Enseñanza de la Geografía",
+                "Espacio de Opción Institucional (EOI)",
+                "Geografía Ambiental",
+                "Geografía Ambiental de América Latina",
+                "Geografía Ambiental de Argentina",
+                "Geografía Cultural",
+                "Geografía de Género",
+                "Geografía Económica y Social Argentina",
+                "Geografía Política y Geopolítica",
+                "Geografía Rural",
+                "Geografía Social",
+                "Geografía Social de América Latina",
+                "Geografía Urbana",
+                "Historia de los Modelos Económicos de Argentina",
+                "Historia Social General",
+                "Introducción a las Ciencias Sociales y a la Geografía",
+                "Organización Económica del Espacio",
+                "Pedagogía",
+                "Práctica Docente 1",
+                "Práctica Docente 2",
+                "Práctica Docente 3",
+                "Práctica Docente 4",
+                "Problemas Ambientales Locales/Regionales: La Investigación en el Aula",
+                "Problemas Filosóficos de la Educación",
+                "Política Educativa Argentina",
+                "Psicología del Aprendizaje",
+                "Reflexión Filosófico-Política de la Práctica Docente",
+                "Sociología",
+                "Teoría y Metodología en Geografía",
+                "Trayectorias Educativas de Jóvenes y Adultos",
+                "Unidades Curriculares Optativas"
+            ],
+            'Profesorado de Educación Secundaria en Ciencias Políticas': [
+                "Análisis de las Instituciones Educativas",
+                "Antropología",
+                "Cultura Digital y Educación",
+                "Derecho",
+                "Derechos Humanos y Ciudadanía",
+                "Derechos, Interculturalidad y Ciudadanía",
+                "Didáctica de la Ciencia Política",
+                "Didáctica de las Ciencias Sociales",
+                "Didáctica y Curriculum",
+                "Economía Política",
+                "Educación y Transformaciones Sociales Contemporáneas",
+                "Educación Sexual Integral (ESI)",
+                "Espacio de Opción Institucional (EOI)",
+                "Estado, Administración y Políticas Públicas",
+                "Estado y Política de Género",
+                "Fundamentos de Ciencia Política",
+                "Geografía",
+                "Historia Argentina",
+                "Historia Latinoamericana",
+                "Historia Mundial",
+                "Investigación en la Enseñanza de la Ciencia Política",
+                "Opinión Pública, Medios y Política",
+                "Pedagogía",
+                "Pensamiento Político Pedagógico Latinoamericano",
+                "Política Educativa Argentina",
+                "Práctica Docente 1",
+                "Práctica Docente 2",
+                "Práctica Docente 3",
+                "Práctica Docente 4",
+                "Problemas Filosóficos de la Educación",
+                "Problemática y Política Ambiental",
+                "Psicología del Aprendizaje",
+                "Reflexión Filosófico-Política de la Práctica Docente",
+                "Sistemas Políticos Comparados",
+                "Sociología",
+                "Teoría de las Relaciones Internacionales y Política Internacional",
+                "Teoría Política 1",
+                "Teoría Política 2",
+                "Teoría Política 3",
+                "Teoría y Derecho Constitucional",
+                "Unidades Curriculares Optativas"
+            ],
+            'Tecnicatura Superior en Análisis de Sistemas': [
+                "Álgebra",
+                "Algoritmos y estructuras de datos 1",
+                "Algoritmos y estructuras de datos 2",
+                "Algoritmos y estructuras de datos 3",
+                "Análisis Matemático 1",
+                "Análisis Matemático 2",
+                "Arquitectura de Computadores",
+                "Aspectos legales de la Profesión",
+                "Base de Datos",
+                "Ciencia, Tecnología y Sociedad",
+                "Estadística",
+                "Ingeniería de Software 1",
+                "Ingeniería de Software 2",
+                "Inglés 1",
+                "Inglés 2",
+                "Inglés 3",
+                "Prácticas Profesionalizantes 1",
+                "Prácticas Profesionalizantes 2",
+                "Prácticas Profesionalizantes 3",
+                "Redes y Comunicaciones",
+                "Seminario de actualización",
+                "Sistemas Operativos",
+                "Sistemas y Organizaciones"
+            ],
+            'Tecnicatura Superior en Enfermería': [
+                "Aspectos Bioéticos y Legales de la Profesión",
+                "Biología Humana",
+                "Comunicación en Ciencias de la Salud",
+                "Condiciones y Medio Ambiente del Trabajo",
+                "Cuidados de la Salud Centrados en la Comunidad y la Familia",
+                "Enfermería Comunitaria y Prácticas Educativas en Salud",
+                "Enfermería del Adulto y del Adulto Mayor I",
+                "Enfermería del Adulto y el Adulto Mayor II",
+                "Enfermería en Emergencias y Catástrofes",
+                "Enfermería en Salud Mental",
+                "Enfermería Materno Infantil",
+                "Farmacología en Enfermería",
+                "Fundamentos del Cuidado",
+                "Inglés",
+                "Introducción a la Metodología de Investigación en Salud",
+                "Nutrición y Dietoterapia",
+                "Organización y Gestión de Servicios de Enfermería",
+                "Prácticas Profesionalizantes 1",
+                "Prácticas Profesionalizantes 2",
+                "Prácticas Profesionalizantes 3",
+                "Psicología",
+                "Salud Pública 1",
+                "Salud Pública 2",
+                "Teorías Socioculturales de la Salud"
+            ],
+            'Tecnicatura Superior en Acompañamiento Terapéutico': [
+                "Acompañamiento Terapéutico del Adulto y Adulto Mayor",
+                "Acompañamiento Terapéutico en la Niñez y Adolescencia",
+                "Acompañamiento Terapéutico",
+                "Contextualización del Campo Profesional del Acompañamiento Terapéutico",
+                "Ética",
+                "Fundamentos de Psicología General y de Intervención Sociocomunitaria",
+                "Inglés",
+                "Intervención Comunitaria y Recursos Sociales",
+                "Investigación en Salud",
+                "Modalidades de Intervención en el Acompañamiento Terapéutico",
+                "Modelo de Ocupación Humana",
+                "Organización y Gestión de los Servicios de Salud Mental",
+                "Prácticas Profesionalizantes I",
+                "Prácticas Profesionalizantes II",
+                "Prácticas Profesionalizantes III",
+                "Principios Médicos y de Psicofarmacología",
+                "Psicofarmacología",
+                "Psicología de los Ciclos Vitales",
+                "Psicología de Grupos",
+                "Psicopatología",
+                "Salud Pública y Salud Mental",
+                "Sistemas Familiares"
+            ],
+            'Tecnicatura Superior en Higiene y Seguridad en el Trabajo': [
+                "Administración de las Organizaciones",
+                "Capacitación de Personal",
+                "Comunicación y Administración de Medios",
+                "Control de la Contaminación",
+                "Derecho del Trabajo",
+                "Ergonomía",
+                "Estadística",
+                "Física 1",
+                "Física 2",
+                "Higiene Laboral y Medio Ambiente 1",
+                "Higiene Laboral y Medio Ambiente 2",
+                "Inglés Técnico",
+                "Medicina del Trabajo 1",
+                "Medicina del Trabajo 2",
+                "Medios de Representación",
+                "Práctica Profesionalizante 1",
+                "Práctica Profesionalizante 2",
+                "Práctica Profesionalizante 3",
+                "Psicología Laboral",
+                "Química 1",
+                "Química 2",
+                "Seguridad 1",
+                "Seguridad 2",
+                "Seguridad 3"
+            ]
+        };
+        
+        // Función para cargar materias según la carrera seleccionada
+        function cargarMaterias(carreraSeleccionada) {
+            console.log('📚 Carrera seleccionada:', carreraSeleccionada);
+            
+            // Limpiar opciones de materia
+            materiaSelect.innerHTML = '';
+            
+            if (carreraSeleccionada && materiasPorCarrera[carreraSeleccionada]) {
+                // Agregar opción vacía
+                const opcionVacia = document.createElement('option');
+                opcionVacia.value = '';
+                opcionVacia.textContent = 'Seleccione una materia';
+                materiaSelect.appendChild(opcionVacia);
+                
+                // Agregar materias de la carrera seleccionada
+                materiasPorCarrera[carreraSeleccionada].forEach(function(materia) {
+                    const option = document.createElement('option');
+                    option.value = materia;
+                    option.textContent = materia;
+                    materiaSelect.appendChild(option);
+                });
+                
+                materiaSelect.disabled = false;
+                console.log('✅ Materias cargadas:', materiasPorCarrera[carreraSeleccionada].length);
+            } else {
+                // No hay carrera seleccionada o no tiene materias
+                const opcionVacia = document.createElement('option');
+                opcionVacia.value = '';
+                opcionVacia.textContent = 'Primero seleccione una carrera';
+                materiaSelect.appendChild(opcionVacia);
+                materiaSelect.disabled = true;
+                console.log('⚠️ No hay materias para:', carreraSeleccionada);
+            }
+        }
+        
+        // Event listener para cambio de carrera
+        carreraSelect.addEventListener('change', function() {
+            cargarMaterias(this.value);
+        });
+        
+        // Inicializar estado de materia
+        materiaSelect.disabled = true;
+        
+        // Si ya hay una carrera seleccionada al cargar (por ejemplo, por validación de errores)
+        if (carreraSelect.value) {
+            cargarMaterias(carreraSelect.value);
+        }
+        function cargarMaterias(carreraSeleccionada) {
+            console.log('📚 Carrera seleccionada:', carreraSeleccionada);
+            
+            // Limpiar opciones de materia
+            materiaSelect.innerHTML = '';
+            
+            if (carreraSeleccionada && materiasPorCarrera[carreraSeleccionada]) {
+                // Agregar opción vacía
+                const opcionVacia = document.createElement('option');
+                opcionVacia.value = '';
+                opcionVacia.textContent = 'Seleccione una materia';
+                materiaSelect.appendChild(opcionVacia);
+                
+                // Agregar materias de la carrera seleccionada
+                materiasPorCarrera[carreraSeleccionada].forEach(function(materia) {
+                    const option = document.createElement('option');
+                    option.value = materia;
+                    option.textContent = materia;
+                    materiaSelect.appendChild(option);
+                });
+                
+                materiaSelect.disabled = false;
+                console.log('✅ Materias cargadas:', materiasPorCarrera[carreraSeleccionada].length);
+            } else {
+                // No hay carrera seleccionada o no tiene materias
+                const opcionVacia = document.createElement('option');
+                opcionVacia.value = '';
+                opcionVacia.textContent = 'Primero seleccione una carrera';
+                materiaSelect.appendChild(opcionVacia);
+                materiaSelect.disabled = true;
+                console.log('⚠️ No hay materias para:', carreraSeleccionada);
+            }
+        }
+        
+        // Event listener para cambio de carrera
+        carreraSelect.addEventListener('change', function() {
+            cargarMaterias(this.value);
+        });
+        
+        // Inicializar estado de materia
+        materiaSelect.disabled = true;
+        
+        // Si ya hay una carrera seleccionada al cargar
+        if (carreraSelect.value) {
+            cargarMaterias(carreraSelect.value);
+        }
+        
+        console.log('✅ Funcionalidad carrera-materia inicializada correctamente');
+    }
+
+    // 🎯 FUNCIÓN PARA INICIALIZAR FUNCIONALIDAD MULTIMEDIA
+    function initMultimediaFunctionality() {
+        console.log('🚀 Inicializando funcionalidad multimedia...');
+        
+        // Inicializar gruposTiposMultimedia si no existe
+        if (!window.gruposTiposMultimedia) {
+            window.gruposTiposMultimedia = [];
+        }
+        
+        // Event listener para el botón de agregar multimedia
+        const btnAgregarMultimedia = document.getElementById('btn-agregar-multimedia');
+        console.log('🔍 Botón encontrado:', btnAgregarMultimedia);
+        
+        if (btnAgregarMultimedia) {
+            // Remover event listeners previos para evitar duplicados
+            btnAgregarMultimedia.replaceWith(btnAgregarMultimedia.cloneNode(true));
+            const newBtn = document.getElementById('btn-agregar-multimedia');
+            
+            newBtn.addEventListener('click', function() {
+                console.log('➕ Botón clickeado, ejecutando agregarNuevoMultimedia()');
+                agregarNuevoMultimedia();
+            });
+            console.log('✅ Event listener agregado correctamente al botón +');
+        } else {
+            console.error('❌ No se encontró el botón btn-agregar-multimedia');
+        }
+    }
+
+    // 🎯 FUNCIÓN PARA AGREGAR NUEVO GRUPO DE MULTIMEDIA
+    function agregarNuevoMultimedia() {
+        console.log('🔄 Ejecutando agregarNuevoMultimedia()');
+        const contenedor = document.getElementById('contenedor-tipos-multimedia');
+        console.log('📦 Contenedor encontrado:', contenedor);
+        
+        if (!contenedor) {
+            console.error('❌ No se encontró el contenedor contenedor-tipos-multimedia');
+            return;
+        }
+        
+        const index = window.gruposTiposMultimedia.length;
+        console.log('🔢 Índice actual:', index);
+        
+        // Crear nuevo grupo
+        const nuevoGrupo = {
+            url: '',
+            titulo: ''
+        };
+        
+        window.gruposTiposMultimedia.push(nuevoGrupo);
+        
+        // Crear HTML para el nuevo grupo con la estructura exacta especificada
+        const grupoHTML = `
+            <div class="grupo-multimedia mb-3" data-index="${index}">
+                <div class="row">
+                    <div class="col-md-3">
+                        <label for="ingresar_enlace_${index}" style="font-size: 14px;">Ingresar enlace (URL)</label>
+                        <div class="input-group">
+                            <input type="url" class="form-control form-control-sm" 
+                                   id="ingresar_enlace_${index}" 
+                                   name="ingresar_enlace_${index}" 
+                                   placeholder="URL del contenido multimedia">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="titulo_contenido_${index}" style="font-size: 14px;">Titulo del contenido <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control form-control-sm" 
+                               id="titulo_contenido_${index}" 
+                               name="titulo_contenido_${index}" 
+                               required>
+                    </div>
+                    <div class="col-md-2 d-flex align-items-end">
+                        <button type="button" class="boton-eliminar" 
+                                onclick="eliminarMultimedia(${index})" 
+                                title="Eliminar este contenido multimedia">×</button>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        contenedor.insertAdjacentHTML('beforeend', grupoHTML);
+        
+        // Agregar event listeners para actualizar automáticamente los datos
+        const tipoInput = document.getElementById(`tipo_varios_${index}`);
+        const cantidadInput = document.getElementById(`cant_ejemplares_${index}`);
+        
+        console.log(`🔍 Elementos dinámicos encontrados para índice ${index}:`, {
+            tipoInput: tipoInput,
+            cantidadInput: cantidadInput,
+            estadoArray: window.gruposTiposVariosNuevo,
+            longitudArray: window.gruposTiposVariosNuevo.length
+        });
+        
+        if (tipoInput && cantidadInput) {
+            tipoInput.addEventListener('input', function() {
+                if (window.gruposTiposVariosNuevo[index]) {
+                    window.gruposTiposVariosNuevo[index].tipo = this.value;
+                    console.log(`🔄 Actualizado tipo del grupo ${index}:`, this.value);
+                    console.log('📊 Estado completo gruposTiposVariosNuevo:', window.gruposTiposVariosNuevo);
+                } else {
+                    console.error(`❌ No existe gruposTiposVariosNuevo[${index}]`);
+                }
+            });
+            
+            cantidadInput.addEventListener('input', function() {
+                if (window.gruposTiposVariosNuevo[index]) {
+                    window.gruposTiposVariosNuevo[index].cantidad = parseInt(this.value) || 1;
+                    console.log(`🔄 Actualizada cantidad del grupo ${index}:`, this.value);
+                    console.log('📊 Estado completo gruposTiposVariosNuevo:', window.gruposTiposVariosNuevo);
+                } else {
+                    console.error(`❌ No existe gruposTiposVariosNuevo[${index}]`);
+                }
+            });
+            
+            console.log(`✅ Event listeners agregados para grupo ${index}`);
+        } else {
+            console.error(`❌ No se encontraron los inputs para el grupo ${index}`);
+        }
+        
+        console.log('✅ Nuevo grupo agregado exitosamente con event listeners');
+    }
+
+    // 🎯 FUNCIÓN PARA ELIMINAR MULTIMEDIA
+    function eliminarMultimedia(index) {
+        console.log('🗑️ Eliminando multimedia con índice:', index);
+        
+        // Eliminar del array
+        window.gruposTiposMultimedia.splice(index, 1);
+        
+        // Eliminar del DOM
+        const grupo = document.querySelector(`[data-index="${index}"]`);
+        if (grupo) {
+            grupo.remove();
+        }
+        
+        // Actualizar índices
+        actualizarIndicesMultimedia();
+        console.log('✅ Multimedia eliminado y índices actualizados');
+    }
+
+    // 🎯 FUNCIÓN PARA ACTUALIZAR ÍNDICES
+    function actualizarIndicesMultimedia() {
+        const grupos = document.querySelectorAll('.grupo-multimedia');
+        grupos.forEach((grupo, nuevoIndex) => {
+            grupo.setAttribute('data-index', nuevoIndex);
+            
+            // Actualizar IDs y names de los inputs
+            const inputUrl = grupo.querySelector('input[type="url"]');
+            const inputTitulo = grupo.querySelector('input[type="text"]');
+            const labelUrl = grupo.querySelector('label[for*="ingresar_enlace"]');
+            const labelTitulo = grupo.querySelector('label[for*="titulo_contenido"]');
+            
+            if (inputUrl) {
+                inputUrl.id = `ingresar_enlace_${nuevoIndex}`;
+                inputUrl.name = `ingresar_enlace_${nuevoIndex}`;
+            }
+            if (inputTitulo) {
+                inputTitulo.id = `titulo_contenido_${nuevoIndex}`;
+                inputTitulo.name = `titulo_contenido_${nuevoIndex}`;
+            }
+            if (labelUrl) {
+                labelUrl.setAttribute('for', `ingresar_enlace_${nuevoIndex}`);
+            }
+            if (labelTitulo) {
+                labelTitulo.setAttribute('for', `titulo_contenido_${nuevoIndex}`);
+            }
+            
+            // Actualizar el botón de eliminar
+            const btnEliminar = grupo.querySelector('button');
+            if (btnEliminar) {
+                btnEliminar.setAttribute('onclick', `eliminarMultimedia(${nuevoIndex})`);
+            }
+        });
+    }
+
+    // Hacer las funciones globales para que puedan ser llamadas desde onclick
+    window.eliminarMultimedia = eliminarMultimedia;
+    window.actualizarIndicesMultimedia = actualizarIndicesMultimedia;
+
+    // 🎯 FUNCIÓN PARA INICIALIZAR FUNCIONALIDAD VARIOS
+    function initVariosFunctionality() {
+        console.log('🚀 Inicializando funcionalidad varios...');
+        
+        // Inicializar gruposTiposVariosNuevo si no existe
+        if (!window.gruposTiposVariosNuevo) {
+            window.gruposTiposVariosNuevo = [];
+        }
+        
+        // Agregar event listeners para el formulario principal
+        const tipoVariosPrincipal = document.getElementById('tipo-varios');
+        const cantEjemplaresPrincipal = document.getElementById('cant_ejemplares');
+        
+        console.log('🔍 Elementos principales encontrados:', {
+            tipoVariosPrincipal: tipoVariosPrincipal,
+            cantEjemplaresPrincipal: cantEjemplaresPrincipal
+        });
+        
+        if (tipoVariosPrincipal && cantEjemplaresPrincipal) {
+            // Asegurar que el primer elemento del array sea el formulario principal
+            if (window.gruposTiposVariosNuevo.length === 0) {
+                window.gruposTiposVariosNuevo.push({
+                    tipo: tipoVariosPrincipal.value || '',
+                    cantidad: parseInt(cantEjemplaresPrincipal.value) || 1
+                });
+                console.log('✅ Inicializado formulario principal en gruposTiposVariosNuevo[0]:', window.gruposTiposVariosNuevo[0]);
+            }
+            
+            tipoVariosPrincipal.addEventListener('input', function() {
+                window.gruposTiposVariosNuevo[0].tipo = this.value;
+                console.log('🔄 Actualizado tipo principal:', this.value);
+                console.log('📊 Estado actual gruposTiposVariosNuevo:', window.gruposTiposVariosNuevo);
+            });
+            
+            cantEjemplaresPrincipal.addEventListener('input', function() {
+                window.gruposTiposVariosNuevo[0].cantidad = parseInt(this.value) || 1;
+                console.log('🔄 Actualizada cantidad principal:', this.value);
+                console.log('📊 Estado actual gruposTiposVariosNuevo:', window.gruposTiposVariosNuevo);
+            });
+            
+            console.log('✅ Event listeners agregados al formulario principal');
+        } else {
+            console.error('❌ No se encontraron los elementos principales del formulario');
+        }
+        
+        // Event listener para el botón de agregar varios
+        const btnAgregarVarios = document.getElementById('btn-agregar-varios');
+        console.log('🔍 Botón encontrado:', btnAgregarVarios);
+        
+        if (btnAgregarVarios) {
+            // Remover event listeners previos para evitar duplicados
+            btnAgregarVarios.replaceWith(btnAgregarVarios.cloneNode(true));
+            const newBtn = document.getElementById('btn-agregar-varios');
+            
+            newBtn.addEventListener('click', function() {
+                console.log('➕ Botón clickeado, ejecutando agregarNuevoVarios()');
+                agregarNuevoVarios();
+            });
+            console.log('✅ Event listener agregado correctamente al botón +');
+        } else {
+            console.error('❌ No se encontró el botón btn-agregar-varios');
+        }
+    }
+
+    // 🎯 FUNCIÓN PARA AGREGAR NUEVO GRUPO DE VARIOS
+    function agregarNuevoVarios() {
+        console.log('🔄 Ejecutando agregarNuevoVarios()');
+        const contenedor = document.getElementById('contenedor-tipos-varios-dinamicos');
+        console.log('📦 Contenedor encontrado:', contenedor);
+        
+        if (!contenedor) {
+            console.error('❌ No se encontró el contenedor contenedor-tipos-varios-dinamicos');
+            return;
+        }
+        
+        const index = window.gruposTiposVariosNuevo.length;
+        console.log('🔢 Índice actual:', index);
+        
+        // Crear nuevo grupo
+        const nuevoGrupo = {
+            tipo: '',
+            cantidad: 1
+        };
+        
+        window.gruposTiposVariosNuevo.push(nuevoGrupo);
+        
+        // Crear HTML para el nuevo grupo con la estructura exacta especificada
+        const grupoHTML = `
+            <div class="grupo-varios mb-3" data-index="${index}">
+                <div class="row">
+                    <div class="col-md-3"></div> <!-- Espacio vacío para alinear con "Sede" -->
+                    <div class="col-md-3">
+                        <label for="tipo_varios_${index}" style="font-size: 14px;">Tipo a registrar <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control form-control-sm" 
+                               id="tipo_varios_${index}" 
+                               name="tipo_varios_${index}" 
+                               required>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="cant_ejemplares_${index}" style="font-size: 14px;">Cantidad <span class="text-danger">*</span></label>
+                        <input type="number" class="form-control form-control-sm" 
+                               id="cant_ejemplares_${index}" 
+                               name="cant_ejemplares_${index}" 
+                               min="1" 
+                               value="1" 
+                               required>
+                    </div>
+                    <div class="col-md-1 d-flex align-items-end">
+                         <button type="button" class="boton-eliminar" 
+                                 onclick="eliminarVarios(${index})" 
+                                 title="Eliminar este tipo de material">×</button>
+                     </div>
+                </div>
+            </div>
+        `;
+        
+        contenedor.insertAdjacentHTML('beforeend', grupoHTML);
+        
+        // Agregar event listeners para actualizar automáticamente los datos
+        const tipoInput = document.getElementById(`tipo_varios_${index}`);
+        const cantidadInput = document.getElementById(`cant_ejemplares_${index}`);
+        
+        console.log(`🔍 Elementos dinámicos encontrados para índice ${index}:`, {
+            tipoInput: tipoInput,
+            cantidadInput: cantidadInput,
+            estadoArray: window.gruposTiposVariosNuevo,
+            longitudArray: window.gruposTiposVariosNuevo.length
+        });
+        
+        if (tipoInput && cantidadInput) {
+            tipoInput.addEventListener('input', function() {
+                if (window.gruposTiposVariosNuevo[index]) {
+                    window.gruposTiposVariosNuevo[index].tipo = this.value;
+                    console.log(`🔄 Actualizado tipo del grupo ${index}:`, this.value);
+                    console.log('📊 Estado completo gruposTiposVariosNuevo:', window.gruposTiposVariosNuevo);
+                } else {
+                    console.error(`❌ No existe gruposTiposVariosNuevo[${index}]`);
+                }
+            });
+            
+            cantidadInput.addEventListener('input', function() {
+                if (window.gruposTiposVariosNuevo[index]) {
+                    window.gruposTiposVariosNuevo[index].cantidad = parseInt(this.value) || 1;
+                    console.log(`🔄 Actualizada cantidad del grupo ${index}:`, this.value);
+                    console.log('📊 Estado completo gruposTiposVariosNuevo:', window.gruposTiposVariosNuevo);
+                } else {
+                    console.error(`❌ No existe gruposTiposVariosNuevo[${index}]`);
+                }
+            });
+            
+            console.log(`✅ Event listeners agregados para grupo ${index}`);
+        } else {
+            console.error(`❌ No se encontraron los inputs para el grupo ${index}`);
+        }
+        
+        console.log('✅ Nuevo grupo agregado exitosamente con event listeners');
+    }
+
+    // 🎯 FUNCIÓN PARA ELIMINAR VARIOS
+    function eliminarVarios(index) {
+        console.log('🗑️ Eliminando varios con índice:', index);
+        
+        // Eliminar del array
+        window.gruposTiposVariosNuevo.splice(index, 1);
+        
+        // Eliminar del DOM
+        const grupo = document.querySelector(`[data-index="${index}"]`);
+        if (grupo) {
+            grupo.remove();
+        }
+        
+        // Actualizar índices
+        actualizarIndicesVarios();
+        console.log('✅ Varios eliminado y índices actualizados');
+    }
+
+    // 🎯 FUNCIÓN PARA ACTUALIZAR ÍNDICES
+    function actualizarIndicesVarios() {
+        const grupos = document.querySelectorAll('.grupo-varios');
+        grupos.forEach((grupo, nuevoIndex) => {
+            grupo.setAttribute('data-index', nuevoIndex);
+            
+            // Actualizar IDs y names de los inputs
+            const inputTipo = grupo.querySelector('input[type="text"]');
+            const inputCantidad = grupo.querySelector('input[type="number"]');
+            const labelTipo = grupo.querySelector('label[for*="tipo_varios"]');
+            const labelCantidad = grupo.querySelector('label[for*="cant_ejemplares"]');
+            
+            if (inputTipo) {
+                inputTipo.id = `tipo_varios_${nuevoIndex}`;
+                inputTipo.name = `tipo_varios_${nuevoIndex}`;
+            }
+            if (inputCantidad) {
+                inputCantidad.id = `cant_ejemplares_${nuevoIndex}`;
+                inputCantidad.name = `cant_ejemplares_${nuevoIndex}`;
+            }
+            if (labelTipo) {
+                labelTipo.setAttribute('for', `tipo_varios_${nuevoIndex}`);
+            }
+            if (labelCantidad) {
+                labelCantidad.setAttribute('for', `cant_ejemplares_${nuevoIndex}`);
+            }
+            
+            // Actualizar el botón de eliminar
+            const btnEliminar = grupo.querySelector('button');
+            if (btnEliminar) {
+                btnEliminar.setAttribute('onclick', `eliminarVarios(${nuevoIndex})`);
+            }
+        });
+    }
+
+    // Hacer las funciones globales para que puedan ser llamadas desde onclick
+    window.eliminarVarios = eliminarVarios;
+    window.actualizarIndicesVarios = actualizarIndicesVarios;
+});
+
+// ===== FUNCIONES GLOBALES PARA PREPARAR ENVÍO DE FORMULARIOS =====
+
+// Función global para preparar envío de formulario de mapas
+window.prepararEnvioFormulario = function() {
+    const tipoMaterial = document.getElementById('tipo_material').value;
+    
+    if (tipoMaterial === 'mapa') {
+        // Serializar los datos de gruposTiposMapa
+        const gruposTiposMapaInput = document.getElementById('gruposTiposMapa');
+        if (gruposTiposMapaInput && window.gruposTiposMapa) {
+            gruposTiposMapaInput.value = JSON.stringify(window.gruposTiposMapa);
+        }
+        
+        // Agregar campos ocultos para cada tipo de grupo
+        if (window.gruposTiposMapa) {
+            window.gruposTiposMapa.forEach((grupo, idx) => {
+                const tipoInput = document.createElement('input');
+                tipoInput.type = 'hidden';
+                tipoInput.name = `tipo_grupo_${idx}`;
+                tipoInput.value = grupo.tipo;
+                document.getElementById('form_alta_material').appendChild(tipoInput);
+            });
+        }
+        
+        console.log('📤 Datos de mapa preparados para envío:', {
+            gruposTiposMapa: window.gruposTiposMapa,
+            sede: document.getElementById('sede-mapa')?.value
+        });
+    }
+    else if (tipoMaterial === 'multimedia') {
+        console.log('📤 Preparando datos de multimedia dinámicos...');
+        
+        // Recopilar datos de multimedia desde los inputs del DOM
+        const gruposMultimedia = [];
+        
+        // Buscar en el contenedor correcto donde se agregan los elementos dinámicos
+        const contenedor = document.getElementById('contenedor-tipos-multimedia');
+        
+        if (contenedor) {
+            const grupos = contenedor.querySelectorAll('.grupo-multimedia');
+            console.log(`📦 Encontrados ${grupos.length} grupos multimedia dinámicos`);
+            
+            // SIEMPRE agregar primero los datos principales del formulario si tienen contenido
+            const urlPrincipal = document.getElementById('ingresar_enlace');
+            const tituloPrincipal = document.getElementById('titulo_contenido');
+            
+            if (urlPrincipal && tituloPrincipal && (urlPrincipal.value.trim() || tituloPrincipal.value.trim())) {
+                console.log('📋 Agregando datos principales del formulario PRIMERO');
+                gruposMultimedia.push({
+                    url: urlPrincipal.value.trim() || '',
+                    titulo: tituloPrincipal.value.trim() || ''
+                });
+            }
+            
+            // LUEGO agregar los elementos dinámicos si existen
+            if (grupos.length > 0) {
+                console.log('📋 Agregando elementos dinámicos DESPUÉS del formulario principal');
+                
+                grupos.forEach((grupo, index) => {
+                    console.log(`🔍 Procesando grupo ${index}:`, grupo);
+                    
+                    // Obtener el índice real del data-index
+                    const dataIndex = grupo.getAttribute('data-index');
+                    console.log(`📊 Data-index del grupo: ${dataIndex}`);
+                    
+                    const urlInput = grupo.querySelector(`input[name="ingresar_enlace_${dataIndex}"]`);
+                    const tituloInput = grupo.querySelector(`input[name="titulo_contenido_${dataIndex}"]`);
+                    
+                    console.log(`📋 Grupo dinámico ${index} (data-index: ${dataIndex}):`, {
+                        urlInput: urlInput ? urlInput.value : 'no encontrado',
+                        tituloInput: tituloInput ? tituloInput.value : 'no encontrado',
+                        urlSelector: `input[name="ingresar_enlace_${dataIndex}"]`,
+                        tituloSelector: `input[name="titulo_contenido_${dataIndex}"]`
+                    });
+                    
+                    if (urlInput && tituloInput && (urlInput.value.trim() || tituloInput.value.trim())) {
+                        gruposMultimedia.push({
+                            url: urlInput.value.trim() || '',
+                            titulo: tituloInput.value.trim() || ''
+                        });
+                        console.log(`✅ Datos agregados del grupo ${dataIndex}`);
+                    }
+                });
+            }
+        } else {
+            console.log('❌ No se encontró el contenedor contenedor-tipos-multimedia');
+        }
+        
+        // Actualizar window.gruposTiposMultimedia
+        window.gruposTiposMultimedia = gruposMultimedia;
+        
+        // Serializar los datos si existe el input hidden
+        const gruposTiposMultimediaInput = document.getElementById('gruposMultimedia');
+        if (gruposTiposMultimediaInput) {
+            gruposTiposMultimediaInput.value = JSON.stringify(window.gruposTiposMultimedia);
+            console.log('📤 Datos serializados en input hidden:', gruposTiposMultimediaInput.value);
+        } else {
+            console.log('❌ No se encontró el input hidden gruposMultimedia');
+        }
+        
+        console.log('📤 Datos de multimedia preparados:', {
+            gruposTiposMultimedia: window.gruposTiposMultimedia,
+            totalElementos: gruposMultimedia.length
+        });
+    }
+    else if (tipoMaterial === 'varios') {
+        console.log('🔥 === PREPARANDO ENVÍO DE VARIOS ===');
+        console.log('📊 Estado inicial del array gruposTiposVariosNuevo:', window.gruposTiposVariosNuevo);
+        console.log('📊 Longitud del array:', window.gruposTiposVariosNuevo ? window.gruposTiposVariosNuevo.length : 'undefined');
+        
+        // Verificar elementos en el DOM
+        const contenedor = document.getElementById('contenedor-tipos-varios-dinamicos');
+        const gruposDinamicos = contenedor ? contenedor.querySelectorAll('.grupo-varios') : [];
+        console.log('🔍 Grupos dinámicos en DOM:', gruposDinamicos.length);
+        
+        // Verificar cada elemento del array
+        if (window.gruposTiposVariosNuevo && window.gruposTiposVariosNuevo.length > 0) {
+            window.gruposTiposVariosNuevo.forEach((elemento, index) => {
+                console.log(`📋 Elemento ${index}:`, elemento);
+            });
+        } else {
+            console.error('❌ Array gruposTiposVariosNuevo está vacío o no existe');
+        }
+        
+        // 🔥 VERIFICACIÓN DETALLADA DEL INPUT HIDDEN
+        const gruposTiposVariosInput = document.getElementById('gruposTiposVariosNuevo');
+        console.log('🔍 Input hidden encontrado:', gruposTiposVariosInput);
+        console.log('🔍 Valor actual del input hidden ANTES de serializar:', gruposTiposVariosInput ? gruposTiposVariosInput.value : 'NO ENCONTRADO');
+        
+        // CORRECCIÓN DEFINITIVA PARA VARIOS: Los datos ya se actualizan automáticamente
+        console.log('📤 Datos de varios preparados automáticamente:', {
+            gruposTiposVariosNuevo: window.gruposTiposVariosNuevo,
+            totalElementos: window.gruposTiposVariosNuevo ? window.gruposTiposVariosNuevo.length : 0,
+            sede: document.getElementById('sede-varios')?.value
+        });
+        
+        // Serializar los datos actualizados automáticamente
+        if (gruposTiposVariosInput && window.gruposTiposVariosNuevo) {
+            const jsonString = JSON.stringify(window.gruposTiposVariosNuevo);
+            gruposTiposVariosInput.value = jsonString;
+            console.log('📤 JSON serializado:', jsonString);
+            console.log('📤 Longitud del JSON:', jsonString.length);
+            console.log('📤 Valor final del input hidden:', gruposTiposVariosInput.value);
+            console.log('📤 ¿El input tiene el valor correcto?', gruposTiposVariosInput.value === jsonString);
+        } else {
+            console.error('❌ No se pudo serializar:');
+            console.error('  - Input hidden encontrado:', !!gruposTiposVariosInput);
+            console.error('  - Array existe:', !!window.gruposTiposVariosNuevo);
+            console.error('  - Array tiene elementos:', window.gruposTiposVariosNuevo ? window.gruposTiposVariosNuevo.length : 0);
+        }
+    }
+};
+
+// 🚀 FUNCIÓN GLOBAL PARA ENVIAR FORMULARIO MULTIMEDIA V3 - SIN DEPENDENCIA DEL TAG FORM
+window.enviarFormularioMultimediaV3 = function() {
+    console.log('🚀🚀🚀 BOTÓN GUARDAR CLICKEADO - FUNCIÓN GLOBAL V3');
+    console.log('🔍 === NUEVA ESTRATEGIA SIN TAG FORM ===');
+    
+    try {
+        // IMPORTANTE: Preparar los datos de multimedia dinámicos antes de enviar
+        if (typeof prepararEnvioFormulario === 'function') {
+            console.log('📤 Preparando datos de multimedia dinámicos...');
+            prepararEnvioFormulario();
+        } else {
+            console.warn('⚠️ Función prepararEnvioFormulario no encontrada');
+        }
+        
+        // Buscar el contenedor del formulario multimedia
+        const contenedor = document.querySelector('[data-form-type="multimedia"]');
+        if (!contenedor) {
+            console.error('❌❌❌ CONTENEDOR NO ENCONTRADO - [data-form-type="multimedia"]');
+            alert('Error: No se pudo encontrar el contenedor multimedia');
+            return;
+        }
+        
+        console.log('✅ Contenedor encontrado:', contenedor);
+        
+        // Recolectar todos los campos de entrada
+        const campos = contenedor.querySelectorAll('input, select, textarea');
+        console.log('🔍 Campos encontrados:', campos.length);
+        
+        // Crear FormData manualmente
+        const formData = new FormData();
+        
+        // Agregar CSRF token del formulario principal
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        formData.append('csrfmiddlewaretoken', csrfToken);
+        console.log('🔐 CSRF token agregado:', csrfToken);
+        
+        // 🔍 NUEVA VALIDACIÓN CON PESTAÑAS DE ALERTA INDIVIDUALES
+        console.log('🔍 Iniciando validación personalizada con pestañas de alerta...');
+        let primerCampoInvalido = null;
+        let hayErrores = false;
+        let erroresEncontrados = [];
+        
+        // Función para validar un campo individual
+        function validarCampo(campo, nombreCampo) {
+            if (!campo) {
+                console.warn(`⚠️ Campo ${nombreCampo} no encontrado en el DOM`);
+                return false;
+            }
+            
+            const valor = campo.value ? campo.value.trim() : '';
+            if (valor === '' || valor === null) {
+                hayErrores = true;
+                erroresEncontrados.push(nombreCampo);
+                if (!primerCampoInvalido) primerCampoInvalido = campo;
+                
+                campo.setCustomValidity(`Por favor complete el campo ${nombreCampo}`);
+                
+                console.log(`❌ Campo inválido: ${nombreCampo}`);
+                return false;
+            } else {
+                campo.setCustomValidity('');
+                console.log(`✅ Campo válido: ${nombreCampo}`);
+                return true;
+            }
+        }
+        
+        // Validar campos principales obligatorios
+        console.log('🔍 Validando campos principales...');
+        const profesor = contenedor.querySelector('[name="profesor"]');
+        const carrera = contenedor.querySelector('[name="carrera"]');
+        const materia = contenedor.querySelector('[name="materia"]');
+        const tituloContenido = contenedor.querySelector('[name="titulo_contenido"]');
+        const enlaceContenido = contenedor.querySelector('[name="enlace_contenido_multimedia"]');
+        
+        validarCampo(profesor, 'Profesor/a');
+        validarCampo(carrera, 'Carrera');
+        validarCampo(materia, 'Materia');
+        validarCampo(tituloContenido, 'Título del contenido');
+        validarCampo(enlaceContenido, 'Enlace del contenido multimedia');
+        
+        // Validar todos los inputs dinámicos de "Título del contenido"
+        console.log('🔍 Validando inputs dinámicos de título del contenido...');
+        const inputsDinamicos = contenedor.querySelectorAll('input[name^="titulo_contenido_"]');
+        console.log(`📋 Encontrados ${inputsDinamicos.length} inputs dinámicos de título`);
+        
+        inputsDinamicos.forEach((input, index) => {
+            const nombreCampo = 'Título del contenido';
+            validarCampo(input, nombreCampo);
+            console.log(`🔍 Validando input dinámico: ${input.name} - ${nombreCampo}`);
+        });
+        
+        // Si hay errores, mostrar el primer campo inválido y detener
+        if (hayErrores) {
+            console.log('❌ Formulario no válido. Errores encontrados:', erroresEncontrados);
+            
+            if (primerCampoInvalido) {
+                console.log('🎯 Enfocando primer campo inválido:', primerCampoInvalido.name);
+                primerCampoInvalido.focus();
+                
+                // Usar reportValidity para mostrar la pestaña de alerta individual
+                if (primerCampoInvalido.reportValidity) {
+                    primerCampoInvalido.reportValidity();
+                } else {
+                    // Fallback para navegadores que no soportan reportValidity
+                    const mensajeError = `Por favor complete los siguientes campos obligatorios: ${erroresEncontrados.join(', ')}`;
+                    alert(mensajeError);
+                }
+            }
+            return;
+        }
+        
+        // Recolectar datos solo si la validación es exitosa
+        campos.forEach(campo => {
+            const valor = campo.value.trim();
+            
+            // Agregar al FormData si tiene nombre
+            if (campo.name) {
+                formData.append(campo.name, valor);
+                console.log(`📋 ${campo.name}: ${valor}`);
+            }
+        });
+        
+        console.log('✅ Todos los campos requeridos están completos');
+        console.log('📤📤📤 ENVIANDO DATOS A /alta-multimedia/');
+        
+        // Crear un formulario temporal para envío tradicional (permite modal de confirmación)
+        const tempForm = document.createElement('form');
+        tempForm.method = 'POST';
+        tempForm.action = '/alta-multimedia/';
+        tempForm.style.display = 'none';
+        
+        // Agregar todos los datos del FormData al formulario temporal
+        for (let [key, value] of formData.entries()) {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = key;
+            input.value = value;
+            tempForm.appendChild(input);
+        }
+        
+        // Agregar al DOM y enviar
+        document.body.appendChild(tempForm);
+        console.log('📤📤📤 ENVIANDO FORMULARIO TRADICIONAL PARA MODAL DE CONFIRMACIÓN');
+        tempForm.submit();
+        
+    } catch (error) {
+        console.error('💥💥💥 ERROR EN enviarFormularioMultimediaV3:', error);
+        alert('Error al procesar el formulario: ' + error.message);
+    }
+};
+</script>
+
+<!-- Scripts necesarios para funcionalidad de formularios dinámicos -->
+<script src="{% static 'js/form_altas.js' %}"></script>
+<!-- <script src="{% static 'js/confirmacion_alta_material.js' %}"></script> -->
+{% endblock %}

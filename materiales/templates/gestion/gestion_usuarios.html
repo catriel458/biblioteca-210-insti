@@ -1,0 +1,1174 @@
+{% extends 'components/baseb.html' %}
+{% load static %}
+
+{% block title %}Gestión de Usuarios | Biblioteca Digital{% endblock %}
+
+{% block extra_css %}
+<style>
+    .user-card {
+        transition: all 0.3s ease;
+        border: 1px solid #e0e0e0;
+    }
+    
+    .user-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    
+    .perfil-badge,
+        .badge.perfil-estudiante,
+        .badge.perfil-bibliotecaria,
+        .badge.perfil-docente {
+            font-size: 14px !important;
+            font-weight: 400 !important;
+            padding: 0.375rem 0.75rem !important;
+            border-radius: 0.375rem !important;
+            background-color: transparent !important;
+            color: #000000 !important;
+            border: none !important;
+        }
+    
+    .perfil-estudiante { color: #000000 !important; }
+    .perfil-bibliotecaria { color: #000000 !important; }
+    .perfil-docente { color: #000000 !important; }
+    
+    .status-active { color: #4caf50; }
+    .status-inactive { color: #f44336; }
+    
+    .search-container {
+        position: relative;
+    }
+    
+    .search-results {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: white;
+        border: 1px solid #ddd;
+        border-top: none;
+        max-height: 300px;
+        overflow-y: auto;
+        z-index: 1000;
+        display: none;
+    }
+    
+    .search-result-item {
+        padding: 10px;
+        border-bottom: 1px solid #eee;
+        cursor: pointer;
+    }
+    
+    .search-result-item:hover {
+        background-color: #f5f5f5;
+    }
+    
+    .modal-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+    
+    .btn-action {
+        margin: 0 2px;
+        padding: 0.25rem 0.5rem;
+        font-size: 0.875rem;
+    }
+    
+    .stats-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 1rem;
+    }
+
+    /* Estilo para botón de filtro activo */
+    .btn-estadisticas.filtro-activo {
+        background-color: #31B7BC !important;
+        color: white !important;
+        transform: scale(1.05) !important;
+        box-shadow: 0 4px 15px rgba(49, 183, 188, 0.4) !important;
+    }
+
+    .btn-primary {
+        background-color: #0B99E6 !important;
+        border-color: #0B99E6 !important;
+    }
+
+    .btn-primary:hover {
+        background-color: #0B99E6 !important;
+        border-color: #0B99E6 !important;
+    }
+
+    .btn-primary:focus, .btn-primary:active {
+        background-color: #0B99E6 !important;
+        border-color: #0B99E6 !important;
+        box-shadow: 0 0 0 0.2rem rgba(11, 153, 230, 0.25) !important;
+    }
+
+    .tabla-container {
+            background: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+            margin: 0;
+        }
+
+    .usuarios-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 14px;
+    }
+
+    .usuarios-table thead {
+        background: linear-gradient(135deg, #4ECDC4, #44A08D);
+        color: white;
+    }
+
+    .usuarios-table th {
+        padding: 15px 10px;
+        text-align: left;
+        font-weight: bold !important;
+        font-size: 14px !important;
+        color: white !important;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .usuarios-table th.text-center {
+        text-align: center;
+    }
+
+    .usuarios-table tbody tr {
+        border-bottom: 1px solid #f0f0f0;
+        transition: all 0.2s ease;
+    }
+
+    .usuarios-table tbody tr:nth-child(odd) {
+        background-color: #f8f9fa;
+    }
+
+    .usuarios-table tbody tr:nth-child(even) {
+        background-color: white;
+    }
+
+    .usuarios-table tbody tr:hover {
+        background-color: #e8f8f5;
+        transform: scale(1.002);
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .usuarios-table td {
+            padding: 12px 10px;
+            vertical-align: middle;
+            font-size: 14px !important;
+            font-weight: 400 !important;
+            color: #000000 !important;
+        }
+
+        .nombre-cell {
+            font-size: 14px !important;
+            font-weight: 400 !important;
+            color: #000000 !important;
+            max-width: 200px;
+            word-wrap: break-word;
+        }
+
+    .estado-cell {
+        text-align: center;
+    }
+
+    .estado-activo {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px !important;
+            font-weight: 500 !important;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: inline-block;
+            box-shadow: 0 2px 8px rgba(39, 174, 96, 0.3);
+        }
+
+        .estado-inactivo {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px !important;
+            font-weight: 500 !important;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: inline-block;
+            box-shadow: 0 2px 8px rgba(231, 76, 60, 0.3);
+        }
+
+    .acciones-cell {
+        text-align: center;
+        white-space: nowrap;
+    }
+
+    .btn-icon {
+        background: none;
+        border: none;
+        font-size: 16px;
+        margin: 0 3px;
+        padding: 8px;
+        border-radius: 50%;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 35px;
+        height: 35px;
+    }
+
+    .btn-editar:hover {
+        background: linear-gradient(135deg, #f39c12, #e67e22);
+        color: white;
+        transform: scale(1.1);
+        box-shadow: 0 4px 12px rgba(243, 156, 18, 0.4);
+    }
+
+    .btn-eliminar:hover {
+        background: linear-gradient(135deg, #e74c3c, #c0392b);
+        color: white;
+        transform: scale(1.1);
+        box-shadow: 0 4px 12px rgba(231, 76, 60, 0.4);
+    }
+
+    .no-results {
+        text-align: center;
+        color: #7f8c8d;
+        font-style: italic;
+        padding: 30px;
+        font-size: 16px;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .usuarios-table {
+            font-size: 12px;
+        }
+        
+        .usuarios-table th,
+        .usuarios-table td {
+            padding: 8px 5px;
+        }
+        
+        .btn-icon {
+            width: 30px;
+            height: 30px;
+            font-size: 14px;
+            margin: 0 2px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Token CSRF para AJAX -->
+{% csrf_token %}
+
+<div class="container-fluid px-4">
+    <div class="row justify-content-center">
+        <div class="col-12">
+
+            <!-- Controles -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-6">
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="fas fa-search"></i>
+                                </span>
+                                <input type="text" 
+                                       class="form-control" 
+                                       id="buscarUsuario" 
+                                       placeholder="Buscar por DNI, nombre, apellido o email...">
+                            </div>
+                        </div>
+                        <div class="col-md-6 text-end">
+                            <button type="button" 
+                                    class="btn btn-primary" 
+                                    data-bs-toggle="modal" 
+                                    data-bs-target="#modalCrearUsuario">
+                                <i class="fas fa-plus me-1"></i>Crear Usuario
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Estadísticas -->
+            <div class="row mb-4 justify-content-center">
+                <div class="col-12 col-xl-10">
+                    <div class="row justify-content-center">
+                        <div class="col-md-2 col-sm-4 col-6 mb-3">
+                            <div class="btn btn-estadisticas text-center d-flex flex-column justify-content-center w-100" 
+                                 data-filter="todos" onclick="filtrarTabla('todos')">
+                                <h4 class="mb-1">{{ total_usuarios }}</h4>
+                                <small>Total Usuarios</small>
+                            </div>
+                        </div>
+                        <div class="col-md-2 col-sm-4 col-6 mb-3">
+                            <div class="btn btn-estadisticas text-center d-flex flex-column justify-content-center w-100" 
+                                 data-filter="activos" onclick="filtrarTabla('activos')">
+                                <h4 class="mb-1">{{ usuarios_activos }}</h4>
+                                <small>Activos</small>
+                            </div>
+                        </div>
+                        <div class="col-md-2 col-sm-4 col-6 mb-3">
+                            <div class="btn btn-estadisticas text-center d-flex flex-column justify-content-center w-100" 
+                                 data-filter="inactivos" onclick="filtrarTabla('inactivos')">
+                                <h4 class="mb-1">{{ usuarios_inactivos }}</h4>
+                                <small>Inactivos</small>
+                            </div>
+                        </div>
+                        <div class="col-md-2 col-sm-4 col-6 mb-3">
+                            <div class="btn btn-estadisticas text-center d-flex flex-column justify-content-center w-100" 
+                                 data-filter="estudiante" onclick="filtrarTabla('estudiante')">
+                                <h4 class="mb-1">{{ estudiantes }}</h4>
+                                <small>Estudiantes</small>
+                            </div>
+                        </div>
+                        <div class="col-md-2 col-sm-4 col-6 mb-3">
+                            <div class="btn btn-estadisticas text-center d-flex flex-column justify-content-center w-100" 
+                                 data-filter="bibliotecaria" onclick="filtrarTabla('bibliotecaria')">
+                                <h4 class="mb-1">{{ bibliotecarias }}</h4>
+                                <small>Bibliotecarias</small>
+                            </div>
+                        </div>
+                        <div class="col-md-2 col-sm-4 col-6 mb-3">
+                            <div class="btn btn-estadisticas text-center d-flex flex-column justify-content-center w-100" 
+                                 data-filter="docente" onclick="filtrarTabla('docente')">
+                                <h4 class="mb-1">{{ docentes }}</h4>
+                                <small>Docentes</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+    </div>
+</div>
+
+<!-- Tabla de usuarios -->
+<div class="container-fluid" style="width: 100%; height: auto; padding: 0 0.5rem 0 1.5rem; margin: 0;">
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="tabla-container">
+                <table class="usuarios-table" id="tablaUsuarios">
+                            <thead>
+                                <tr>
+                                    <th>DNI</th>
+                                    <th class="nombre-cell">Nombre Completo</th>
+                                    <th>Email</th>
+                                    <th class="text-center">Perfil</th>
+                                    <th class="text-center">Estado</th>
+                                    <th class="text-center">Fecha Registro</th>
+                                    <th class="text-center">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="cuerpoTablaUsuarios">
+                                {% for usuario in usuarios %}
+                                <tr data-usuario-id="{{ usuario.id }}">
+                                    <td>{{ usuario.dni }}</td>
+                                    <td class="nombre-cell">{{ usuario.nombre }} {{ usuario.apellido }}</td>
+                                    <td>{{ usuario.email }}</td>
+                                    <td class="text-center">
+                                        <span class="badge badge-secondary perfil-{{ usuario.perfil }}">
+                                            {{ usuario.get_perfil_display }}
+                                        </span>
+                                    </td>
+                                    <td class="estado-cell">
+                                        {% if usuario.is_active %}
+                                            <span class="estado-activo">
+                                                <i class="fas fa-check-circle me-1"></i>Activo
+                                            </span>
+                                        {% else %}
+                                            <span class="estado-inactivo">
+                                                <i class="fas fa-times-circle me-1"></i>Inactivo
+                                            </span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-center">{{ usuario.fecha_registro|date:"d/m/Y" }}</td>
+                                    <td class="acciones-cell">
+                                        <button type="button" 
+                                                class="btn-icon btn-editar"
+                                                onclick="editarUsuario({{ usuario.id }})"
+                                                title="Editar usuario">
+                                            ✏️
+                                        </button>
+                                        <button type="button" 
+                                                class="btn-icon btn-eliminar"
+                                                onclick="confirmarEliminarUsuario({{ usuario.id|default:'null' }}, '{{ usuario.nombre|default:'' }} {{ usuario.apellido|default:'' }}')"
+                                                title="Eliminar usuario"
+                                                data-usuario-id="{{ usuario.id }}"
+                                                data-usuario-nombre="{{ usuario.nombre }} {{ usuario.apellido }}">
+                                            🗑️
+                                        </button>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="7" class="no-results">
+                                        <i class="fas fa-users fa-3x mb-3"></i>
+                                        <p>No hay usuarios registrados</p>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Crear Usuario -->
+<div class="modal fade" id="modalCrearUsuario" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-user-plus me-2"></i>Crear Nuevo Usuario
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="formCrearUsuario">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="crear_dni" class="form-label">DNI *</label>
+                            <input type="text" class="form-control" id="crear_dni" name="dni" required maxlength="8">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="crear_perfil" class="form-label">Perfil *</label>
+                            <select class="form-select" id="crear_perfil" name="perfil" required>
+                                <option value="">Seleccionar perfil</option>
+                                <option value="estudiante">Estudiante</option>
+                                <option value="docente">Docente</option>
+                                <option value="bibliotecaria">Bibliotecaria</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="crear_nombre" class="form-label">Nombre *</label>
+                            <input type="text" class="form-control" id="crear_nombre" name="nombre" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="crear_apellido" class="form-label">Apellido *</label>
+                            <input type="text" class="form-control" id="crear_apellido" name="apellido" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="crear_email" class="form-label">Email *</label>
+                        <input type="email" class="form-control" id="crear_email" name="email" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="crear_password" class="form-label">Contraseña *</label>
+                        <input type="password" class="form-control" id="crear_password" name="password" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-1"></i>Crear Usuario
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Editar Usuario -->
+<div class="modal fade" id="modalEditarUsuario" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-user-edit me-2"></i>Editar Usuario
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="formEditarUsuario">
+                {% csrf_token %}
+                <input type="hidden" id="editar_usuario_id" name="usuario_id">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="editar_dni" class="form-label">DNI</label>
+                            <input type="text" class="form-control" id="editar_dni" readonly>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="editar_perfil" class="form-label">Perfil *</label>
+                            <select class="form-select" id="editar_perfil" name="perfil" required>
+                                <option value="estudiante">Estudiante</option>
+                                <option value="docente">Docente</option>
+                                <option value="bibliotecaria">Bibliotecaria</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="editar_nombre" class="form-label">Nombre *</label>
+                            <input type="text" class="form-control" id="editar_nombre" name="nombre" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="editar_apellido" class="form-label">Apellido *</label>
+                            <input type="text" class="form-control" id="editar_apellido" name="apellido" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editar_email" class="form-label">Email *</label>
+                        <input type="email" class="form-control" id="editar_email" name="email" required>
+                    </div>
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="editar_is_active" name="is_active">
+                            <label class="form-check-label" for="editar_is_active">
+                                Usuario activo
+                            </label>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editar_nueva_password" class="form-label">Nueva Contraseña (opcional)</label>
+                        <input type="password" class="form-control" id="editar_nueva_password" name="nueva_password">
+                        <div class="form-text">Dejar en blanco para mantener la contraseña actual</div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-1"></i>Guardar Cambios
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Confirmar Eliminación -->
+<div class="modal fade" id="modalEliminarUsuario" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-exclamation-triangle me-2"></i>Confirmar Eliminación
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>¿Está seguro que desea eliminar al usuario <strong id="nombreUsuarioEliminar"></strong>?</p>
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    Esta acción no se puede deshacer.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-danger" id="btnConfirmarEliminar">
+                    <i class="fas fa-trash me-1"></i>Eliminar Usuario
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+// Variables globales (fuera del document.ready)
+let usuarioIdEliminar = null;
+let timeoutBusqueda = null;
+let filtrosActivos = ['todos']; // Array para rastrear múltiples filtros activos
+
+// Función para filtrar la tabla por tipo de usuario (permite múltiples filtros)
+function filtrarTabla(filtro) {
+    console.log('Filtrando tabla por:', filtro);
+    
+    // Si se selecciona "todos", limpiar otros filtros
+    if (filtro === 'todos') {
+        filtrosActivos = ['todos'];
+        $('.btn-estadisticas').removeClass('filtro-activo');
+        $(`.btn-estadisticas[data-filter="todos"]`).addClass('filtro-activo');
+    } else {
+        // Remover "todos" si se selecciona otro filtro
+        if (filtrosActivos.includes('todos')) {
+            filtrosActivos = [];
+            $(`.btn-estadisticas[data-filter="todos"]`).removeClass('filtro-activo');
+        }
+        
+        // Toggle del filtro seleccionado
+        const botonFiltro = $(`.btn-estadisticas[data-filter="${filtro}"]`);
+        if (filtrosActivos.includes(filtro)) {
+            // Remover filtro si ya está activo
+            filtrosActivos = filtrosActivos.filter(f => f !== filtro);
+            botonFiltro.removeClass('filtro-activo');
+        } else {
+            // Para estados (activos/inactivos), remover el opuesto si existe
+            if (filtro === 'activos' && filtrosActivos.includes('inactivos')) {
+                filtrosActivos = filtrosActivos.filter(f => f !== 'inactivos');
+                $(`.btn-estadisticas[data-filter="inactivos"]`).removeClass('filtro-activo');
+            } else if (filtro === 'inactivos' && filtrosActivos.includes('activos')) {
+                filtrosActivos = filtrosActivos.filter(f => f !== 'activos');
+                $(`.btn-estadisticas[data-filter="activos"]`).removeClass('filtro-activo');
+            }
+            
+            // Agregar filtro si no está activo
+            filtrosActivos.push(filtro);
+            botonFiltro.addClass('filtro-activo');
+        }
+        
+        // Si no hay filtros activos, activar "todos"
+        if (filtrosActivos.length === 0) {
+            filtrosActivos = ['todos'];
+            $(`.btn-estadisticas[data-filter="todos"]`).addClass('filtro-activo');
+        }
+    }
+    
+    // Obtener todas las filas de la tabla
+    const filas = $('#cuerpoTablaUsuarios tr[data-usuario-id]');
+    let filasVisibles = 0;
+    
+    filas.each(function() {
+        const fila = $(this);
+        let mostrar = false;
+        
+        // Si "todos" está activo, mostrar todas las filas
+        if (filtrosActivos.includes('todos')) {
+            mostrar = true;
+        } else {
+            // Separar filtros por tipo
+            const filtrosEstado = filtrosActivos.filter(f => ['activos', 'inactivos'].includes(f));
+            const filtrosPerfiles = filtrosActivos.filter(f => ['estudiante', 'bibliotecaria', 'docente'].includes(f));
+            
+            let cumpleEstado = true;
+            let cumplePerfil = true;
+            
+            // Verificar estado (solo puede haber uno activo)
+            if (filtrosEstado.length > 0) {
+                cumpleEstado = false;
+                for (let estado of filtrosEstado) {
+                    if (estado === 'activos' && fila.find('.estado-activo').length > 0) {
+                        cumpleEstado = true;
+                        break;
+                    }
+                    if (estado === 'inactivos' && fila.find('.estado-inactivo').length > 0) {
+                        cumpleEstado = true;
+                        break;
+                    }
+                }
+            }
+            
+            // Verificar perfiles (OR entre ellos)
+            if (filtrosPerfiles.length > 0) {
+                cumplePerfil = false;
+                for (let perfil of filtrosPerfiles) {
+                    if (perfil === 'estudiante' && fila.find('.perfil-estudiante').length > 0) {
+                        cumplePerfil = true;
+                        break;
+                    }
+                    if (perfil === 'bibliotecaria' && fila.find('.perfil-bibliotecaria').length > 0) {
+                        cumplePerfil = true;
+                        break;
+                    }
+                    if (perfil === 'docente' && fila.find('.perfil-docente').length > 0) {
+                        cumplePerfil = true;
+                        break;
+                    }
+                }
+            }
+            
+            // Mostrar si cumple ambas condiciones
+            mostrar = cumpleEstado && cumplePerfil;
+        }
+        
+        if (mostrar) {
+            fila.show();
+            filasVisibles++;
+        } else {
+            fila.hide();
+        }
+    });
+    
+    // Mostrar mensaje si no hay resultados
+    const mensajeNoResultados = $('#cuerpoTablaUsuarios .no-results-filter');
+    if (filasVisibles === 0) {
+        if (mensajeNoResultados.length === 0) {
+            // Separar filtros por tipo para el mensaje
+            const filtrosEstado = filtrosActivos.filter(f => ['activos', 'inactivos'].includes(f));
+            const filtrosPerfiles = filtrosActivos.filter(f => ['estudiante', 'bibliotecaria', 'docente'].includes(f));
+            
+            let mensaje = "No hay usuarios que coincidan con los filtros: ";
+            let partes = [];
+            
+            if (filtrosEstado.length > 0) {
+                partes.push(filtrosEstado.map(f => getFiltroNombre(f)).join(' O '));
+            }
+            if (filtrosPerfiles.length > 0) {
+                partes.push(filtrosPerfiles.map(f => getFiltroNombre(f)).join(' O '));
+            }
+            
+            mensaje += `"${partes.join(' Y ')}"`;
+            
+            $('#cuerpoTablaUsuarios').append(`
+                <tr class="no-results-filter">
+                    <td colspan="7" class="no-results">
+                        <i class="fas fa-filter fa-3x mb-3"></i>
+                        <p>${mensaje}</p>
+                    </td>
+                </tr>
+            `);
+        }
+    } else {
+        mensajeNoResultados.remove();
+    }
+    
+    console.log(`Filtros aplicados: ${filtrosActivos.join(', ')}, filas visibles: ${filasVisibles}`);
+}
+
+// Función auxiliar para obtener el nombre del filtro
+function getFiltroNombre(filtro) {
+    const nombres = {
+        'todos': 'Todos',
+        'activos': 'Activos',
+        'inactivos': 'Inactivos',
+        'estudiante': 'Estudiantes',
+        'bibliotecaria': 'Bibliotecarias',
+        'docente': 'Docentes'
+    };
+    return nombres[filtro] || filtro;
+}
+
+$(document).ready(function() {
+    // Debug: Verificar si jQuery y los elementos existen
+    console.log('jQuery cargado:', typeof $ !== 'undefined');
+    console.log('Input buscarUsuario encontrado:', $('#buscarUsuario').length);
+    console.log('Tabla cuerpoTablaUsuarios encontrada:', $('#cuerpoTablaUsuarios').length);
+    console.log('Filas con data-usuario-id:', $('#cuerpoTablaUsuarios tr[data-usuario-id]').length);
+    
+    // Inicializar filtro "todos" como activo al cargar la página
+    $('.btn-estadisticas[data-filter="todos"]').addClass('filtro-activo');
+    
+    // Obtener token CSRF
+    function getCSRFToken() {
+        return $('[name=csrfmiddlewaretoken]').val();
+    }
+    
+    // Filtro de búsqueda dinámico (tiempo real)
+    $('#buscarUsuario').on('input', function() {
+        console.log('Evento input disparado'); // Debug
+        
+        // Limpiar timeout anterior
+        if (timeoutBusqueda) {
+            clearTimeout(timeoutBusqueda);
+        }
+        
+        const termino = $(this).val().toLowerCase().trim();
+        console.log('Término de búsqueda:', termino); // Debug
+        
+        // Aplicar búsqueda después de 300ms de inactividad
+        timeoutBusqueda = setTimeout(function() {
+            filtrarUsuarios(termino);
+        }, 300);
+    });
+    
+    // Función para filtrar usuarios por búsqueda
+    function filtrarUsuarios(termino) {
+        console.log('Filtrando usuarios con término:', termino); // Debug
+        
+        const filas = $('#cuerpoTablaUsuarios tr[data-usuario-id]');
+        let filasVisibles = 0;
+        
+        filas.each(function() {
+            const fila = $(this);
+            
+            // Obtener texto de las celdas relevantes
+            const dni = fila.find('td:eq(0)').text().toLowerCase();
+            const nombre = fila.find('td:eq(1)').text().toLowerCase();
+            const email = fila.find('td:eq(2)').text().toLowerCase();
+            
+            // Verificar si coincide con el término de búsqueda
+            const coincide = termino === '' || 
+                           dni.includes(termino) || 
+                           nombre.includes(termino) || 
+                           email.includes(termino);
+            
+            // También verificar si coincide con el filtro activo
+            let coincideFiltro = true;
+            if (!filtrosActivos.includes('todos')) {
+                coincideFiltro = false;
+                // Verificar si la fila coincide con alguno de los filtros activos
+                for (let filtroActual of filtrosActivos) {
+                    switch(filtroActual) {
+                        case 'activos':
+                            if (fila.find('.estado-activo').length > 0) coincideFiltro = true;
+                            break;
+                        case 'inactivos':
+                            if (fila.find('.estado-inactivo').length > 0) coincideFiltro = true;
+                            break;
+                        case 'estudiante':
+                            if (fila.find('.perfil-estudiante').length > 0) coincideFiltro = true;
+                            break;
+                        case 'bibliotecaria':
+                            if (fila.find('.perfil-bibliotecaria').length > 0) coincideFiltro = true;
+                            break;
+                        case 'docente':
+                            if (fila.find('.perfil-docente').length > 0) coincideFiltro = true;
+                            break;
+                    }
+                    if (coincideFiltro) break; // Si ya coincide con un filtro, no necesita verificar más
+                }
+            }
+            
+            if (coincide && coincideFiltro) {
+                fila.show();
+                filasVisibles++;
+            } else {
+                fila.hide();
+            }
+        });
+        
+        // Remover mensajes de no resultados existentes
+        $('#cuerpoTablaUsuarios .no-results-filter, #cuerpoTablaUsuarios .no-results-search').remove();
+        
+        // Mostrar mensaje si no hay resultados
+        if (filasVisibles === 0) {
+            let mensaje = '';
+            if (termino !== '' && !filtrosActivos.includes('todos')) {
+                const nombresActivos = filtrosActivos.map(f => getFiltroNombre(f)).join(', ');
+                mensaje = `No hay usuarios que coincidan con "${termino}" en los filtros: "${nombresActivos}"`;
+            } else if (termino !== '') {
+                mensaje = `No hay usuarios que coincidan con "${termino}"`;
+            } else if (!filtrosActivos.includes('todos')) {
+                const nombresActivos = filtrosActivos.map(f => getFiltroNombre(f)).join(', ');
+                mensaje = `No hay usuarios que coincidan con los filtros: "${nombresActivos}"`;
+            }
+            
+            if (mensaje) {
+                $('#cuerpoTablaUsuarios').append(`
+                    <tr class="no-results-search">
+                        <td colspan="7" class="no-results">
+                            <i class="fas fa-search fa-3x mb-3"></i>
+                            <p>${mensaje}</p>
+                        </td>
+                    </tr>
+                `);
+            }
+        }
+        
+        console.log(`Búsqueda aplicada: "${termino}", filas visibles: ${filasVisibles}`); // Debug
+    }
+    
+    // Función para mostrar mensaje cuando no hay resultados
+    function mostrarMensajeNoResultados(filasVisibles, query) {
+        const tbody = $('#cuerpoTablaUsuarios');
+        const mensajeExistente = tbody.find('.no-resultados');
+        
+        // Remover mensaje anterior si existe
+        mensajeExistente.remove();
+        
+        // Si no hay filas visibles y hay una búsqueda activa
+        if (filasVisibles === 0 && query !== '') {
+            const mensajeNoResultados = `
+                <tr class="no-resultados">
+                    <td colspan="7" class="text-center text-muted py-4">
+                        <i class="fas fa-search fa-3x mb-3"></i>
+                        <p class="mb-0">No se encontraron usuarios que coincidan con "<strong>${query}</strong>"</p>
+                        <small class="text-muted">Intenta con otro término de búsqueda</small>
+                    </td>
+                </tr>
+            `;
+            tbody.append(mensajeNoResultados);
+        }
+    }
+    
+    // Crear usuario
+    $('#formCrearUsuario').on('submit', function(e) {
+        e.preventDefault();
+        
+        console.log('Formulario de crear usuario enviado');
+        
+        const formData = new FormData(this);
+        
+        // Debug: mostrar datos del formulario
+        console.log('Datos del formulario:');
+        for (let [key, value] of formData.entries()) {
+            console.log(key, value);
+        }
+        
+        const csrfToken = getCSRFToken();
+        console.log('CSRF Token:', csrfToken);
+        
+        $.ajax({
+            url: '{% url "crear_usuario" %}',
+            method: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            headers: {
+                'X-CSRFToken': csrfToken
+            },
+            beforeSend: function(xhr) {
+                console.log('Enviando petición AJAX...');
+                console.log('URL:', '{% url "crear_usuario" %}');
+                console.log('Headers:', xhr.getAllResponseHeaders());
+            },
+            success: function(response) {
+                console.log('Respuesta del servidor:', response);
+                if (response.success) {
+                    $('#modalCrearUsuario').modal('hide');
+                    $('#formCrearUsuario')[0].reset();
+                    mostrarMensaje(response.message, 'success');
+                    console.log('Usuario creado exitosamente, recargando página...');
+                    // Recargar la página inmediatamente para mostrar el nuevo usuario
+                    location.reload();
+                } else {
+                    console.log('Error en la respuesta:', response.error);
+                    mostrarMensaje(response.error || 'Error desconocido', 'error');
+                }
+            },
+            error: function(xhr) {
+                console.error('Error completo:', xhr);
+                console.error('Status:', xhr.status);
+                console.error('Response Text:', xhr.responseText);
+                
+                let errorMessage = 'Error al crear el usuario';
+                if (xhr.responseJSON && xhr.responseJSON.error) {
+                    errorMessage = xhr.responseJSON.error;
+                } else if (xhr.status === 403) {
+                    errorMessage = 'No tienes permisos para realizar esta acción';
+                } else if (xhr.status === 500) {
+                    errorMessage = 'Error interno del servidor';
+                }
+                
+                mostrarMensaje(errorMessage, 'error');
+            }
+        });
+    });
+    
+    // Editar usuario
+    $('#formEditarUsuario').on('submit', function(e) {
+        e.preventDefault();
+        
+        const usuarioId = $('#editar_usuario_id').val();
+        const formData = new FormData(this);
+        
+        // Debug: Verificar el estado del checkbox
+        const isActiveChecked = $('#editar_is_active').is(':checked');
+        console.log('🔵 Estado del checkbox is_active:', isActiveChecked);
+        
+        // Asegurar que el valor del checkbox se envíe correctamente
+        if (isActiveChecked) {
+            formData.set('is_active', 'on');
+        } else {
+            formData.delete('is_active'); // Si no está marcado, no enviar el campo
+        }
+        
+        console.log('🔵 FormData is_active:', formData.get('is_active'));
+        
+        $.ajax({
+            url: `/gestion/usuarios/editar/${usuarioId}/`,
+            method: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            headers: {
+                'X-CSRFToken': getCSRFToken()
+            },
+            success: function(response) {
+                if (response.success) {
+                    $('#modalEditarUsuario').modal('hide');
+                    mostrarMensaje(response.message, 'success');
+                    // Recargar la página para mostrar los cambios
+                    setTimeout(() => location.reload(), 1500);
+                } else {
+                    mostrarMensaje(response.error, 'error');
+                }
+            },
+            error: function(xhr) {
+                console.error('Error:', xhr.responseText);
+                mostrarMensaje('Error al editar el usuario', 'error');
+            }
+        });
+    });
+    
+    // Confirmar eliminación
+    $('#btnConfirmarEliminar').on('click', function() {
+        console.log('🔴 Botón eliminar clickeado'); // Debug
+        console.log('Usuario ID a eliminar:', usuarioIdEliminar); // Debug
+        
+        if (!usuarioIdEliminar) {
+            console.error('❌ No hay usuario ID para eliminar');
+            mostrarMensaje('Error: No se ha seleccionado un usuario para eliminar', 'error');
+            return;
+        }
+        
+        const csrfToken = getCSRFToken();
+        console.log('🔑 Token CSRF:', csrfToken ? 'Presente' : 'Ausente'); // Debug
+        
+        if (!csrfToken) {
+            console.error('❌ Token CSRF no encontrado');
+            mostrarMensaje('Error: Token de seguridad no encontrado', 'error');
+            return;
+        }
+        
+        // Deshabilitar el botón para evitar múltiples clicks
+        const $btn = $(this);
+        $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-1"></i>Eliminando...');
+        
+        $.ajax({
+            url: `/gestion/usuarios/eliminar/${usuarioIdEliminar}/`,
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrfToken,
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            timeout: 10000, // 10 segundos de timeout
+            success: function(response) {
+                console.log('✅ Respuesta del servidor:', response); // Debug
+                
+                if (response.success) {
+                    $('#modalEliminarUsuario').modal('hide');
+                    mostrarMensaje(response.message, 'success');
+                    // Recargar la página para mostrar los cambios
+                    setTimeout(() => location.reload(), 1500);
+                } else {
+                    console.error('❌ Error del servidor:', response.error);
+                    mostrarMensaje(response.error || 'Error desconocido al eliminar el usuario', 'error');
+                    // Rehabilitar el botón
+                    $btn.prop('disabled', false).html('<i class="fas fa-trash me-1"></i>Eliminar Usuario');
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('❌ Error AJAX:', {
+                    status: xhr.status,
+                    statusText: xhr.statusText,
+                    responseText: xhr.responseText,
+                    error: error
+                });
+                
+                let errorMessage = 'Error al eliminar el usuario';
+                
+                if (xhr.status === 403) {
+                    errorMessage = 'Error: No tiene permisos para realizar esta acción';
+                } else if (xhr.status === 404) {
+                    errorMessage = 'Error: Usuario no encontrado';
+                } else if (xhr.status === 500) {
+                    errorMessage = 'Error interno del servidor';
+                } else if (status === 'timeout') {
+                    errorMessage = 'Error: La operación tardó demasiado tiempo';
+                } else if (xhr.responseJSON && xhr.responseJSON.error) {
+                    errorMessage = xhr.responseJSON.error;
+                }
+                
+                mostrarMensaje(errorMessage, 'error');
+                
+                // Rehabilitar el botón
+                $btn.prop('disabled', false).html('<i class="fas fa-trash me-1"></i>Eliminar Usuario');
+            }
+        });
+    });
+    
+    // Función para mostrar mensajes
+    function mostrarMensaje(mensaje, tipo) {
+        console.log('📢 Mostrando mensaje:', mensaje, 'Tipo:', tipo); // Debug
+        
+        const alertClass = tipo === 'success' ? 'alert-success' : 'alert-danger';
+        const icon = tipo === 'success' ? 'fa-check-circle' : 'fa-exclamation-triangle';
+        
+        const alert = $(`
+            <div class="alert ${alertClass} alert-dismissible fade show position-fixed" 
+                 style="top: 20px; right: 20px; z-index: 9999; min-width: 300px;">
+                <i class="fas ${icon} me-2"></i>
+                ${mensaje}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        `);
+        
+        $('body').append(alert);
+        
+        setTimeout(() => {
+            alert.alert('close');
+        }, 5000);
+    }
+});
+
+// Función global para editar usuario
+function editarUsuario(usuarioId) {
+    $.ajax({
+        url: `/gestion/usuarios/editar/${usuarioId}/`,
+        method: 'GET',
+        success: function(response) {
+            if (response.success) {
+                const usuario = response.usuario;
+                
+                $('#editar_usuario_id').val(usuario.id);
+                $('#editar_dni').val(usuario.dni);
+                $('#editar_nombre').val(usuario.nombre);
+                $('#editar_apellido').val(usuario.apellido);
+                $('#editar_email').val(usuario.email);
+                $('#editar_perfil').val(usuario.perfil);
+                $('#editar_is_active').prop('checked', usuario.is_active);
+                $('#editar_nueva_password').val('');
+                
+                $('#modalEditarUsuario').modal('show');
+            } else {
+                mostrarMensaje(response.error, 'error');
+            }
+        },
+        error: function(xhr) {
+            console.error('Error:', xhr.responseText);
+            mostrarMensaje('Error al cargar los datos del usuario', 'error');
+        }
+    });
+}
+
+// Función global para confirmar eliminación
+function confirmarEliminarUsuario(usuarioId, nombreUsuario) {
+    console.log('🔵 Función confirmarEliminarUsuario llamada'); // Debug
+    console.log('Usuario ID recibido:', usuarioId, 'Tipo:', typeof usuarioId); // Debug
+    console.log('Nombre usuario:', nombreUsuario); // Debug
+    
+    // Convertir a número si es string
+    if (typeof usuarioId === 'string' && usuarioId !== 'null') {
+        usuarioId = parseInt(usuarioId, 10);
+    }
+    
+    // Validar que el ID sea un número válido
+    if (!usuarioId || usuarioId === null || isNaN(usuarioId) || usuarioId <= 0) {
+        console.error('❌ Usuario ID no válido:', usuarioId);
+        mostrarMensaje('Error: ID de usuario no válido', 'error');
+        return;
+    }
+    
+    // Validar que el nombre no esté vacío
+    if (!nombreUsuario || nombreUsuario.trim() === '') {
+        console.error('❌ Nombre de usuario vacío');
+        mostrarMensaje('Error: Nombre de usuario no válido', 'error');
+        return;
+    }
+    
+    usuarioIdEliminar = usuarioId;
+    $('#nombreUsuarioEliminar').text(nombreUsuario.trim());
+    $('#modalEliminarUsuario').modal('show');
+    
+    console.log('✅ Modal de eliminación mostrado para usuario:', usuarioId); // Debug
+}
+
+// Función alternativa usando event delegation para botones dinámicos
+$(document).on('click', '.btn-eliminar-usuario', function(e) {
+    e.preventDefault();
+    
+    const usuarioId = $(this).data('usuario-id');
+    const nombreUsuario = $(this).data('usuario-nombre');
+    
+    console.log('🔵 Click en botón eliminar (event delegation)'); // Debug
+    console.log('Usuario ID desde data:', usuarioId); // Debug
+    console.log('Nombre desde data:', nombreUsuario); // Debug
+    
+    confirmarEliminarUsuario(usuarioId, nombreUsuario);
+});
+</script>
+{% endblock %}

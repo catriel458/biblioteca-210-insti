@@ -1,0 +1,150 @@
+.content-overlay .btn-home {
+    display: flex !important; /* Hacer que el elemento sea un contenedor flex */
+    align-items: center !important;
+    justify-content: center !important;
+    background-color: #31B7BC !important; 
+    color: white !important;
+    padding: 10px 20px; /* Ajusta este valor para centrar el texto */
+    font-size: 20px !important;
+    width: 380px !important; /* Mismo ancho que los botones de gestión */
+    height: 120px !important; /* Tamaño original restaurado */
+    text-align: center !important;
+    letter-spacing: 1px !important;
+    border-radius: 20px !important;
+    border: none !important;
+    white-space: nowrap !important;
+    margin-bottom: 20px !important;
+    box-shadow: 2px 4px 8px rgba(15, 142, 234, 0.3) !important;
+    cursor: pointer !important;
+    box-shadow: 3px 4px 0px #007575, 6px 8px 0px #007575 !important;
+    transition: all 0.1s ease-in-out !important;  
+}
+
+.content-overlay .btn-home:active {
+    transform: translate(3px, 4px) !important;
+    box-shadow: 0px 0px 0px #007575 !important;
+}
+
+.content-overlay .btn-home:hover {
+    background-color: #2A9FA4 !important;
+    box-shadow: 4px 6px 0px #007575, 8px 12px 0px #007575 !important;
+}
+
+/* Estilo específico para botones de estadísticas - planos */
+.btn-estadisticas {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background-color: #DEF4F5 !important; 
+    color: #31B7BC !important;
+    padding: 10px 20px !important;
+    font-size: 16px !important;
+    width: 100% !important;
+    height: 80px !important;
+    text-align: center !important;
+    letter-spacing: 1px !important;
+    border-radius: 15px !important;
+    border: none !important;
+    white-space: nowrap !important;
+    margin-bottom: 15px !important;
+    cursor: pointer !important;
+    transition: all 0.1s ease-in-out !important;
+    text-decoration: none !important;
+}
+
+/* Clase específica para botones de gestión - más grandes */
+.btn-gestion {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background-color: #31B7BC !important; 
+    color: white !important;
+    padding: 10px 20px;
+    font-size: 20px !important;
+    width: 450px !important; /* Reducido 10% más de 500px (500 * 0.9 = 450px) */
+    height: 230px !important; /* Reducido 10% más de 258px (258 * 0.9 = 232.2 ≈ 232px) */
+    text-align: center !important;
+    letter-spacing: 1px !important;
+    border-radius: 23px !important; /* Reducido 10% más de 26px (26 * 0.9 = 23.4 ≈ 23px) */
+    border: none !important;
+    white-space: nowrap !important;
+    margin-bottom: 24px !important; /* Aumentado 15% más de 21px (21 * 1.15 = 24.15 ≈ 24px) */
+    box-shadow: 2px 4px 8px rgba(15, 142, 234, 0.3) !important;
+    cursor: pointer !important;
+    box-shadow: 3px 4px 0px #007575, 6px 8px 0px #007575 !important;
+    transition: all 0.1s ease-in-out !important;  
+}
+
+.btn-gestion:active {
+    transform: translate(3px, 4px) !important;
+    box-shadow: 0px 0px 0px #007575 !important;
+}
+
+.btn-gestion:hover {
+    background-color: #2A9FA4 !important;
+    box-shadow: 4px 6px 0px #007575, 8px 12px 0px #007575 !important;
+}
+.btn-estadisticas:active {
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+.btn-estadisticas:hover {
+    background-color: #C8ECED !important;
+    color: #31B7BC !important;
+    box-shadow: none !important;
+}
+
+
+.btn-cancelar {
+    background-color: transparent;
+    color: red;
+    font-weight: bold;
+    border: none;
+    font-size: 18px;
+    padding: 0px 40px ;
+}
+
+.btn-guardar {
+    background-color: #007bff;
+    color: white;
+    font-weight: bold;
+    font-size: 18px;
+    padding: 0px  40px ;
+    border: 1px solid black;
+}
+
+/* Estilos específicos para botones dentro de botones-container (formularios) */
+.botones-container .btn {
+    font-weight: normal !important;
+    border: 1px solid transparent !important;
+    font-size: 0.875rem !important;
+    padding: 0.25rem 0.5rem !important;
+}
+
+.botones-container .btn-outline-danger {
+    border-color: #dc3545 !important;
+}
+
+.botones-container .btn-primary {
+    background-color: #0d6efd !important;
+    border-color: #0d6efd !important;
+    color: white !important;
+}
+.boton-redondeado {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    border: 2px dashed #17a2b8;
+    background-color: #b0e0ec;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    margin: 0 auto; /* centra el div si no usás Bootstrap */
+}
+
+
+.boton-redondeado:hover {
+    background-color: #9cd3dc;
+}

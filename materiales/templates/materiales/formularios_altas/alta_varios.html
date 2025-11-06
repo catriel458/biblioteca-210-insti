@@ -1,0 +1,92 @@
+{% load static %}
+
+<div data-block="content" data-form="varios">
+    <!-- Campo hidden para serializar los datos dinámicos -->
+    <input type="hidden" id="gruposTiposVariosNuevo" name="gruposTiposVariosNuevo" value="">
+    
+    <div class="row mb-3">
+        <div class="col-md-3">
+            <label for="sede-varios" style="font-size: 14px;">Sede: <span class="text-danger">*</span></label>
+            <select class="form-control form-control-sm" id="sede-varios" name="sede_varios" required>
+                <option value="">Seleccione una sede</option>
+                <option value="sede1">La Plata</option>
+                <option value="sede2">Abasto</option>
+            </select>
+        </div>
+        
+        <div class="col-md-3">
+            <label for="tipo-varios" style="font-size: 14px;">Tipo a registrar <span class="text-danger">*</span></label>
+            <input type="text" class="form-control form-control-sm" id="tipo-varios" name="tipo_varios" required>
+        </div>
+        
+        <div class="col-md-3">
+            <label for="cant_ejemplares" style="font-size: 14px;">Cantidad <span class="text-danger">*</span></label>
+            <input type="number" class="form-control form-control-sm" id="cant_ejemplares" name="cant_ejemplares" min="1" value="1" required>
+        </div>
+    </div>
+
+    <!-- Contenedor para elementos dinámicos -->
+    <div id="contenedor-tipos-varios-dinamicos" class="mb-3">
+        <!-- Los nuevos grupos de tipo y cantidad se agregarán aquí -->
+    </div>
+
+    <!-- Fila separada para el botón + -->
+    <div class="row mb-3">
+        <div class="col-md-3"></div> <!-- Espacio vacío para alinear con "Sede" -->
+        <div class="col-md-1"></div> <!-- Espacio adicional -->
+        <div class="col-md-1 d-flex justify-content-center align-items-start">
+            <button type="button" class="boton-mas" id="btn-agregar-varios" title="Agregar otro tipo de material">
+                +
+            </button>
+        </div>
+    </div>
+
+    <div class="row mb-3">
+    </div>
+
+    <!-- Contenedor para mostrar los tipos agregados -->
+    <div id="contenedor-tipos-varios-nuevo" class="mb-4">
+        <!-- Los tipos se mostrarán aquí dinámicamente -->
+    </div>
+
+    <!-- Contenedor para los ejemplares -->
+    <div id="contenedor-ejemplares-varios" class="mb-4">
+        <!-- Los ejemplares se generarán aquí dinámicamente -->
+    </div>
+    
+    <!-- Botones -->
+    <div class="row">
+        <div class="col-12 botones-container d-flex justify-content-end gap-3">
+            <button type="reset" class="btn btn-outline-danger btn-sm">CANCELAR</button>
+            <button type="submit" class="btn btn-primary btn-sm">GUARDAR</button>
+        </div>
+    </div>
+</div>
+
+<!-- Importación del JS dinámico de ejemplares -->
+<script src="{% static 'js/form_altas.js' %}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Inicializar gruposTiposVariosNuevo si no existe
+        if (!window.gruposTiposVariosNuevo) {
+            window.gruposTiposVariosNuevo = [];
+        }
+        
+        // Inicializar renderizado para formulario de varios
+        const containerVariosNuevo = document.getElementById('contenedor-tipos-varios-nuevo');
+        if (containerVariosNuevo) {
+            window.renderizarTiposVariosNuevo();
+        }
+        
+        // Agregar listener para Enter en el input de tipo
+        const inputTipo = document.getElementById('input-nuevo-tipo-varios');
+        if (inputTipo) {
+            inputTipo.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter' && inputTipo.value.trim() !== '') {
+                    e.preventDefault();
+                    agregarTipoVariosNuevoDesdeInputs();
+                }
+            });
+        }
+    });
+</script>

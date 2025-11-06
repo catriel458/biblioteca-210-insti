@@ -1,0 +1,640 @@
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/style_form.css' %}">
+<form id="form_alta_multimedia" method="POST" action="/alta-multimedia/" data-form-id="multimedia">
+  {% csrf_token %}
+  <div data-block="content" data-form-type="multimedia">
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <label for="profesor" style="font-size: 14px;">Profesor/a <span class="text-danger">*</span></label>
+            <input type="text" class="form-control form-control-sm" id="profesor" name="profesor" 
+                   required placeholder="Nombre del profesor">
+        </div>
+        <div class="col-md-3">
+            <label for="carrera" style="font-size: 14px;">Carrera <span class="text-danger">*</span></label>
+            <select class="form-control form-control-sm" id="carrera" name="carrera" required>
+                <option value="">Carrera</option>
+                <option value="Profesorado de Educación Inicial">Profesorado de Educación Inicial</option>
+                <option value="Profesorado de Educación Primaria">Profesorado de Educación Primaria</option>
+                <option value="Profesorado de Educación Secundaria en Ciencias Políticas">Profesorado de Educación Secundaria en Ciencias Políticas</option>
+                <option value="Profesorado de Educación Secundaria en Geografía">Profesorado de Educación Secundaria en Geografía</option>
+                <option value="Tecnicatura Superior en Acompañamiento Terapéutico">Tecnicatura Superior en Acompañamiento Terapéutico</option>
+                <option value="Tecnicatura Superior en Análisis de Sistemas">Tecnicatura Superior en Análisis de Sistemas</option>
+                <option value="Tecnicatura Superior en Enfermería">Tecnicatura Superior en Enfermería</option>
+                <option value="Tecnicatura Superior en Higiene y Seguridad en el Trabajo">Tecnicatura Superior en Higiene y Seguridad en el Trabajo</option>
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label for="materia" style="font-size: 14px;">Materia <span class="text-danger">*</span></label>
+            <select class="form-control form-control-sm" id="materia" name="materia" required>
+                <option value="">Primero seleccione una carrera</option>
+            </select>
+        </div>
+    </div>
+    <div class="row mb-4">
+        <!-- Campos iniciales para URL y título -->
+        <div class="col-md-3">
+            <label for="ingresar_enlace" style="font-size: 14px;">Ingresar enlace (URL)</label>
+            <div class="input-group">
+                <input type="url" class="form-control form-control-sm" id="ingresar_enlace" name="ingresar_enlace" placeholder="URL del contenido multimedia">
+            </div>
+        </div>
+        <div class="col-md-6">
+            <label for="titulo_contenido" style="font-size: 14px;">Titulo del contenido <span class="text-danger">*</span></label>
+            <input type="text" class="form-control form-control-sm" id="titulo_contenido" name="titulo_contenido" required>
+        </div>
+    </div>
+    
+    <!-- Input hidden para almacenar los grupos de multimedia -->
+    <input type="hidden" id="gruposMultimedia" name="gruposMultimedia" value="">
+    
+    <!-- Contenedor para mostrar resumen de multimedia agregados (ANTES del botón +) -->
+    <div class="row">
+        <div class="col-12">
+            <div id="contenedor-tipos-multimedia"></div>
+        </div>
+    </div>
+    
+    <!-- Nueva fila para el botón + centrado con el campo URL (DESPUÉS de los campos dinámicos) -->
+    <div class="row mb-4">
+        <div class="col-md-3 d-flex justify-content-center">
+            <button type="button" class="boton-mas" id="btn-agregar-multimedia" title="Agregar otro contenido multimedia">
+                +
+            </button>
+        </div>
+    </div>
+
+    <!-- Contenedor para los ejemplares -->
+    <div id="contenedor-ejemplares-multimedia" class="mb-4">
+        <!-- Los ejemplares se generarán aquí dinámicamente -->
+    </div>
+    
+    <!-- Botones -->
+    <div class="row mt-4">
+        <div class="col-12 d-flex justify-content-end gap-3">
+            <button type="reset" class="btn btn-outline-danger btn-sm" onclick="cancelarFormularioMultimedia()">CANCELAR</button>
+            <button type="button" class="btn btn-primary btn-sm" onclick="window.enviarFormularioMultimediaV3()">GUARDAR</button>
+        </div>
+    </div>
+    <!-- Fin de botones -->
+  </div>
+</form>
+<!-- Importación del JS dinámico de ejemplares -->
+<script src="{% static 'js/form_altas.js' %}"></script>
+
+<!-- Script simplificado para funcionalidad multimedia -->
+<script>
+    // Inicializar gruposTiposMultimedia si no existe
+    if (!window.gruposTiposMultimedia) {
+        window.gruposTiposMultimedia = [];
+    }
+
+    // Función para agregar nuevo grupo de multimedia
+     function agregarNuevoMultimedia() {
+         console.log('Ejecutando agregarNuevoMultimedia()');
+         const contenedor = document.getElementById('contenedor-tipos-multimedia');
+         console.log('Contenedor encontrado:', contenedor);
+         const index = window.gruposTiposMultimedia.length;
+         console.log('Índice actual:', index);
+         
+         // Crear nuevo grupo
+         const nuevoGrupo = {
+             url: '',
+             titulo: ''
+         };
+         
+         window.gruposTiposMultimedia.push(nuevoGrupo);
+         
+         // Crear HTML para el nuevo grupo con la estructura exacta especificada
+         const grupoHTML = `
+             <div class="grupo-multimedia mb-3" data-index="${index}">
+                 <div class="row">
+                     <div class="col-md-2">
+                         <label for="ingresar_enlace_${index}" style="font-size: 14px;">Ingresar enlace (URL)</label>
+                         <div class="input-group">
+                             <input type="url" class="form-control form-control-sm" 
+                                    id="ingresar_enlace_${index}" 
+                                    name="ingresar_enlace_${index}" 
+                                    placeholder="URL del contenido multimedia">
+                         </div>
+                     </div>
+                     <div class="col-md-4">
+                         <label for="titulo_contenido_${index}" style="font-size: 14px;">Titulo del contenido <span class="text-danger">*</span></label>
+                         <input type="text" class="form-control form-control-sm" 
+                                id="titulo_contenido_${index}" 
+                                name="titulo_contenido_${index}" 
+                                required>
+                     </div>
+                     <div class="col-md-2 d-flex align-items-end">
+                         <button type="button" class="btn btn-outline-danger btn-sm" 
+                                 onclick="eliminarMultimedia(${index})" 
+                                 title="Eliminar este contenido multimedia">
+                             <i class="fas fa-trash"></i>
+                         </button>
+                     </div>
+                 </div>
+             </div>
+         `;
+         
+         contenedor.insertAdjacentHTML('beforeend', grupoHTML);
+         console.log('Nuevo grupo agregado exitosamente');
+     }
+
+    // Función para eliminar grupo de multimedia
+    function eliminarMultimedia(index) {
+        const grupo = document.querySelector(`[data-index="${index}"]`);
+        if (grupo) {
+            grupo.remove();
+            window.gruposTiposMultimedia.splice(index, 1);
+            // Reindexar los elementos restantes
+            actualizarIndices();
+        }
+    }
+
+    // Función para actualizar índices después de eliminar
+     function actualizarIndices() {
+         const grupos = document.querySelectorAll('.grupo-multimedia');
+         grupos.forEach((grupo, nuevoIndex) => {
+             grupo.setAttribute('data-index', nuevoIndex);
+             const inputs = grupo.querySelectorAll('input');
+             const labels = grupo.querySelectorAll('label');
+             
+             // Actualizar el input de URL
+             inputs[0].id = `ingresar_enlace_${nuevoIndex}`;
+             inputs[0].name = `ingresar_enlace_${nuevoIndex}`;
+             labels[0].setAttribute('for', `ingresar_enlace_${nuevoIndex}`);
+             
+             // Actualizar el input de título
+             inputs[1].id = `titulo_contenido_${nuevoIndex}`;
+             inputs[1].name = `titulo_contenido_${nuevoIndex}`;
+             labels[1].setAttribute('for', `titulo_contenido_${nuevoIndex}`);
+             
+             // Actualizar el botón de eliminar
+             const btnEliminar = grupo.querySelector('button');
+             btnEliminar.setAttribute('onclick', `eliminarMultimedia(${nuevoIndex})`);
+         });
+     }
+
+    // Función de inicialización
+    function inicializarFuncionalidadMultimedia() {
+        console.log('🚀 Inicializando funcionalidad multimedia...');
+        // Event listener para el botón de agregar multimedia
+        const btnAgregarMultimedia = document.getElementById('btn-agregar-multimedia');
+        console.log('Botón encontrado:', btnAgregarMultimedia);
+        if (btnAgregarMultimedia) {
+            btnAgregarMultimedia.addEventListener('click', function() {
+                console.log('Botón clickeado, ejecutando agregarNuevoMultimedia()');
+                agregarNuevoMultimedia();
+            });
+            console.log('Event listener agregado correctamente');
+        } else {
+            console.error('No se encontró el botón btn-agregar-multimedia');
+        }
+        
+        // Configuración de carrera-materia
+        const carreraSelect = document.getElementById('carrera');
+        const materiaSelect = document.getElementById('materia');
+        const form = document.getElementById('form_alta_multimedia');
+        
+        if (carreraSelect && materiaSelect) {
+        // Materias por carrera
+        const materiasPorCarrera = {
+            'Profesorado de Educación Inicial': [
+                "Análisis del Mundo Contemporáneo",
+                "Ateneo de Naturaleza y Sociedad",
+                "Ateneo de Matemática",
+                "Ateneo de Nuevas Expresiones Estéticas",
+                "Ateneo de Prácticas del Lenguaje y la Literatura",
+                "Corporeidad y Motricidad",
+                "Cultura, Comunicación y Educación",
+                "Didáctica de la Matemática",
+                "Didáctica de las Ciencias Naturales",
+                "Didáctica de las Ciencias Sociales",
+                "Didáctica de las Prácticas del Lenguaje y la Literatura",
+                "Didáctica General",
+                "Didáctica y Curriculum de Nivel Inicial",
+                "Dimensión Ético-Política de la Praxis Docente",
+                "Educación en y para la Salud",
+                "Educación Física Escolar",
+                "Educación Musical",
+                "Educación Plástica",
+                "Educación Temprana",
+                "Filosofía",
+                "Historia y Prospectiva de la Educación",
+                "Juego y Desarrollo Infantil",
+                "Medios Audiovisuales, TICs y Educación",
+                "Pedagogía",
+                "Política, Legislación y Administración del Trabajo Escolar",
+                "Práctica Docente 1",
+                "Práctica Docente 2",
+                "Práctica Docente 3",
+                "Práctica Docente 4",
+                "Psicología del Desarrollo y el Aprendizaje 1",
+                "Psicología del Desarrollo y el Aprendizaje 2",
+                "Psicología Social e Institucional",
+                "Reflexión Filosófica de la Educación",
+                "Taller de Ciencias Naturales",
+                "Taller de Ciencias Sociales",
+                "Taller de Definición Institucional",
+                "Taller de Lectura, Escritura y Oralidad (LEO)",
+                "Taller de Literatura Infantil",
+                "Taller de la Matemática",
+                "Taller de Materiales y Objetos Lúdicos",
+                "Taller de Pensamiento Lógico Matemático",
+                "Teorías Sociopolíticas y Educación",
+                "Trayectos Formativos Opcionales"
+            ],
+            'Profesorado de Educación Primaria': [
+                "Análisis del Mundo Contemporáneo",
+                "Arte y Educación",
+                "Ateneo de Ciencias Naturales",
+                "Ateneo de Ciencias Sociales",
+                "Ateneo de Matemática",
+                "Ateneo de Prácticas del Lenguaje y la Literatura",
+                "Configuraciones Culturales del Sujeto Educativo de Primaria",
+                "Corporeidad y Motricidad",
+                "Cultura, Comunicación y Educación",
+                "Didáctica de la Matemática 1",
+                "Didáctica de la Matemática 2",
+                "Didáctica de las Ciencias Naturales 1",
+                "Didáctica de las Ciencias Naturales 2",
+                "Didáctica de las Ciencias Sociales 1",
+                "Didáctica de las Ciencias Sociales 2",
+                "Didáctica de Prácticas del Lenguaje y la Literatura 1",
+                "Didáctica de Prácticas del Lenguaje y la Literatura 2",
+                "Didáctica General",
+                "Didáctica y Curriculum de Nivel Primario",
+                "Dimensión Ético-Política de la Praxis Docente",
+                "Educación Artística",
+                "Educación Física Escolar",
+                "Filosofía",
+                "Historia y Prospectiva de la Educación",
+                "Medios Audiovisuales, TICs y Educación",
+                "Pedagogía",
+                "Pedagogía Crítica de las Diferencias",
+                "Política, Legislación y Administración del Trabajo Escolar",
+                "Práctica Docente 1",
+                "Práctica Docente 2",
+                "Práctica Docente 3",
+                "Práctica Docente 4",
+                "Psicología del Desarrollo y el Aprendizaje 1",
+                "Psicología del Desarrollo y el Aprendizaje 2",
+                "Psicología Social e Institucional",
+                "Reflexión Filosófica de la Educación",
+                "Taller de Definición Institucional",
+                "Taller de Lectura, Escritura y Oralidad (LEO)",
+                "Taller de Pensamiento Lógico Matemático",
+                "Teorías Sociopolíticas y Educación",
+                "Trayectos Formativos Opcionales"
+            ],
+            'Profesorado de Educación Secundaria en Geografía': [
+                "Antropología",
+                "Cartografía",
+                "Cartografía Digital",
+                "Cultura Digital y Educación",
+                "Derechos, Interculturalidad y Ciudadanía",
+                "Didáctica de la Geografía",
+                "Didáctica de las Ciencias Sociales",
+                "Didáctica y Curriculum",
+                "Economía Política",
+                "Educación Sexual Integral (ESI)",
+                "Educación y Transformaciones Sociales Contemporáneas",
+                "Enseñanza de la Geografía",
+                "Espacio de Opción Institucional (EOI)",
+                "Geografía Ambiental",
+                "Geografía Ambiental de América Latina",
+                "Geografía Ambiental de Argentina",
+                "Geografía Cultural",
+                "Geografía de Género",
+                "Geografía Económica y Social Argentina",
+                "Geografía Política y Geopolítica",
+                "Geografía Rural",
+                "Geografía Social",
+                "Geografía Social de América Latina",
+                "Geografía Urbana",
+                "Historia de los Modelos Económicos de Argentina",
+                "Historia Social General",
+                "Introducción a las Ciencias Sociales y a la Geografía",
+                "Organización Económica del Espacio",
+                "Pedagogía",
+                "Práctica Docente 1",
+                "Práctica Docente 2",
+                "Práctica Docente 3",
+                "Práctica Docente 4",
+                "Problemas Ambientales Locales/Regionales: La Investigación en el Aula",
+                "Problemas Filosóficos de la Educación",
+                "Política Educativa Argentina",
+                "Psicología del Aprendizaje",
+                "Reflexión Filosófico-Política de la Práctica Docente",
+                "Sociología",
+                "Teoría y Metodología en Geografía",
+                "Trayectorias Educativas de Jóvenes y Adultos",
+                "Unidades Curriculares Optativas"
+            ],
+            'Profesorado de Educación Secundaria en Ciencias Políticas': [
+                "Análisis de las Instituciones Educativas",
+                "Antropología",
+                "Cultura Digital y Educación",
+                "Derecho",
+                "Derechos Humanos y Ciudadanía",
+                "Derechos, Interculturalidad y Ciudadanía",
+                "Didáctica de la Ciencia Política",
+                "Didáctica de las Ciencias Sociales",
+                "Didáctica y Curriculum",
+                "Economía Política",
+                "Educación y Transformaciones Sociales Contemporáneas",
+                "Educación Sexual Integral (ESI)",
+                "Espacio de Opción Institucional (EOI)",
+                "Estado, Administración y Políticas Públicas",
+                "Estado y Política de Género",
+                "Fundamentos de Ciencia Política",
+                "Geografía",
+                "Historia Argentina",
+                "Historia Latinoamericana",
+                "Historia Mundial",
+                "Investigación en la Enseñanza de la Ciencia Política",
+                "Opinión Pública, Medios y Política",
+                "Pedagogía",
+                "Pensamiento Político Pedagógico Latinoamericano",
+                "Política Educativa Argentina",
+                "Práctica Docente 1",
+                "Práctica Docente 2",
+                "Práctica Docente 3",
+                "Práctica Docente 4",
+                "Problemas Filosóficos de la Educación",
+                "Problemática y Política Ambiental",
+                "Psicología del Aprendizaje",
+                "Reflexión Filosófico-Política de la Práctica Docente",
+                "Sistemas Políticos Comparados",
+                "Sociología",
+                "Teoría de las Relaciones Internacionales y Política Internacional",
+                "Teoría Política 1",
+                "Teoría Política 2",
+                "Teoría Política 3",
+                "Teoría y Derecho Constitucional",
+                "Unidades Curriculares Optativas"
+            ],
+            'Tecnicatura Superior en Análisis de Sistemas': [
+                "Álgebra",
+                "Algoritmos y estructuras de datos 1",
+                "Algoritmos y estructuras de datos 2",
+                "Algoritmos y estructuras de datos 3",
+                "Análisis Matemático 1",
+                "Análisis Matemático 2",
+                "Arquitectura de Computadores",
+                "Aspectos legales de la Profesión",
+                "Base de Datos",
+                "Ciencia, Tecnología y Sociedad",
+                "Estadística",
+                "Ingeniería de Software 1",
+                "Ingeniería de Software 2",
+                "Inglés 1",
+                "Inglés 2",
+                "Inglés 3",
+                "Prácticas Profesionalizantes 1",
+                "Prácticas Profesionalizantes 2",
+                "Prácticas Profesionalizantes 3",
+                "Redes y Comunicaciones",
+                "Seminario de actualización",
+                "Sistemas Operativos",
+                "Sistemas y Organizaciones"
+            ],
+            'Tecnicatura Superior en Enfermería': [
+                "Aspectos Bioéticos y Legales de la Profesión",
+                "Biología Humana",
+                "Comunicación en Ciencias de la Salud",
+                "Condiciones y Medio Ambiente del Trabajo",
+                "Cuidados de la Salud Centrados en la Comunidad y la Familia",
+                "Enfermería Comunitaria y Prácticas Educativas en Salud",
+                "Enfermería del Adulto y del Adulto Mayor I",
+                "Enfermería del Adulto y el Adulto Mayor II",
+                "Enfermería en Emergencias y Catástrofes",
+                "Enfermería en Salud Mental",
+                "Enfermería Materno Infantil",
+                "Farmacología en Enfermería",
+                "Fundamentos del Cuidado",
+                "Inglés",
+                "Introducción a la Metodología de Investigación en Salud",
+                "Nutrición y Dietoterapia",
+                "Organización y Gestión de Servicios de Enfermería",
+                "Prácticas Profesionalizantes 1",
+                "Prácticas Profesionalizantes 2",
+                "Prácticas Profesionalizantes 3",
+                "Psicología",
+                "Salud Pública 1",
+                "Salud Pública 2",
+                "Teorías Socioculturales de la Salud"
+            ],
+            'Tecnicatura Superior en Acompañamiento Terapéutico': [
+                "Acompañamiento Terapéutico del Adulto y Adulto Mayor",
+                "Acompañamiento Terapéutico en la Niñez y Adolescencia",
+                "Acompañamiento Terapéutico",
+                "Contextualización del Campo Profesional del Acompañamiento Terapéutico",
+                "Ética",
+                "Fundamentos de Psicología General y de Intervención Sociocomunitaria",
+                "Inglés",
+                "Intervención Comunitaria y Recursos Sociales",
+                "Investigación en Salud",
+                "Modalidades de Intervención en el Acompañamiento Terapéutico",
+                "Modelo de Ocupación Humana",
+                "Organización y Gestión de los Servicios de Salud Mental",
+                "Prácticas Profesionalizantes I",
+                "Prácticas Profesionalizantes II",
+                "Prácticas Profesionalizantes III",
+                "Principios Médicos y de Psicofarmacología",
+                "Psicofarmacología",
+                "Psicología de los Ciclos Vitales",
+                "Psicología de Grupos",
+                "Psicopatología",
+                "Salud Pública y Salud Mental",
+                "Sistemas Familiares"
+            ],
+            'Tecnicatura Superior en Higiene y Seguridad en el Trabajo': [
+                "Administración de las Organizaciones",
+                "Capacitación de Personal",
+                "Comunicación y Administración de Medios",
+                "Control de la Contaminación",
+                "Derecho del Trabajo",
+                "Ergonomía",
+                "Estadística",
+                "Física 1",
+                "Física 2",
+                "Higiene Laboral y Medio Ambiente 1",
+                "Higiene Laboral y Medio Ambiente 2",
+                "Inglés Técnico",
+                "Medicina del Trabajo 1",
+                "Medicina del Trabajo 2",
+                "Medios de Representación",
+                "Práctica Profesionalizante 1",
+                "Práctica Profesionalizante 2",
+                "Práctica Profesionalizante 3",
+                "Psicología Laboral",
+                "Química 1",
+                "Química 2",
+                "Seguridad 1",
+                "Seguridad 2",
+                "Seguridad 3"
+            ]
+        };
+        
+        // Función para cargar materias
+        function cargarMaterias(carreraSeleccionada) {
+            materiaSelect.innerHTML = '';
+            
+            if (carreraSeleccionada && materiasPorCarrera[carreraSeleccionada]) {
+                const opcionVacia = document.createElement('option');
+                opcionVacia.value = '';
+                opcionVacia.textContent = 'Seleccione una materia';
+                materiaSelect.appendChild(opcionVacia);
+                
+                materiasPorCarrera[carreraSeleccionada].forEach(function(materia) {
+                    const option = document.createElement('option');
+                    option.value = materia;
+                    option.textContent = materia;
+                    materiaSelect.appendChild(option);
+                });
+                
+                materiaSelect.disabled = false;
+            } else {
+                const opcionVacia = document.createElement('option');
+                opcionVacia.value = '';
+                opcionVacia.textContent = 'Primero seleccione una carrera';
+                materiaSelect.appendChild(opcionVacia);
+                materiaSelect.disabled = true;
+            }
+        }
+        
+        // Event listener para cambio de carrera
+        carreraSelect.addEventListener('change', function() {
+            cargarMaterias(this.value);
+        });
+        
+        // Inicializar estado
+        materiaSelect.disabled = true;
+        if (carreraSelect.value) {
+            cargarMaterias(carreraSelect.value);
+        }
+        }
+    }
+
+    // Función para preparar el envío del formulario de multimedia
+    window.prepararEnvioFormulario = function() {
+        console.log('📤 Preparando envío del formulario de multimedia...');
+        
+        // Recopilar datos de multimedia desde los inputs del DOM
+        const gruposMultimedia = [];
+        
+        // Primero, agregar los datos principales del formulario si tienen contenido
+        const urlPrincipal = document.getElementById('ingresar_enlace');
+        const tituloPrincipal = document.getElementById('titulo_contenido');
+        
+        if (urlPrincipal && tituloPrincipal && (urlPrincipal.value.trim() || tituloPrincipal.value.trim())) {
+            console.log('📋 Agregando datos principales del formulario');
+            gruposMultimedia.push({
+                url: urlPrincipal.value.trim() || '',
+                titulo: tituloPrincipal.value.trim() || ''
+            });
+        }
+        
+        // Buscar en el contenedor correcto donde se agregan los elementos dinámicos
+        const contenedor = document.getElementById('contenedor-tipos-multimedia');
+        
+        if (contenedor) {
+            const grupos = contenedor.querySelectorAll('.grupo-multimedia');
+            console.log(`📦 Encontrados ${grupos.length} grupos multimedia dinámicos`);
+            console.log('🔍 Contenedor HTML:', contenedor.innerHTML);
+            
+            grupos.forEach((grupo, index) => {
+                console.log(`🔍 Procesando grupo ${index}:`, grupo);
+                
+                // Obtener el índice real del data-index
+                const dataIndex = grupo.getAttribute('data-index');
+                console.log(`📊 Data-index del grupo: ${dataIndex}`);
+                
+                const urlInput = grupo.querySelector(`input[name="ingresar_enlace_${dataIndex}"]`);
+                const tituloInput = grupo.querySelector(`input[name="titulo_contenido_${dataIndex}"]`);
+                
+                console.log(`📋 Grupo dinámico ${index} (data-index: ${dataIndex}):`, {
+                    urlInput: urlInput ? urlInput.value : 'no encontrado',
+                    tituloInput: tituloInput ? tituloInput.value : 'no encontrado',
+                    urlSelector: `input[name="ingresar_enlace_${dataIndex}"]`,
+                    tituloSelector: `input[name="titulo_contenido_${dataIndex}"]`
+                });
+                
+                if (urlInput && tituloInput && (urlInput.value.trim() || tituloInput.value.trim())) {
+                    gruposMultimedia.push({
+                        url: urlInput.value.trim() || '',
+                        titulo: tituloInput.value.trim() || ''
+                    });
+                    console.log(`✅ Datos agregados del grupo ${dataIndex}`);
+                } else {
+                    console.log(`❌ No se agregaron datos del grupo ${dataIndex} - campos vacíos o no encontrados`);
+                }
+            });
+        } else {
+            console.log('❌ No se encontró el contenedor contenedor-tipos-multimedia');
+        }
+        
+        // Actualizar window.gruposTiposMultimedia
+        window.gruposTiposMultimedia = gruposMultimedia;
+        
+        // Serializar los datos si existe el input hidden
+        const gruposTiposMultimediaInput = document.getElementById('gruposMultimedia');
+        if (gruposTiposMultimediaInput) {
+            gruposTiposMultimediaInput.value = JSON.stringify(window.gruposTiposMultimedia);
+            console.log('📤 Datos serializados en input hidden:', gruposTiposMultimediaInput.value);
+        } else {
+            console.log('❌ No se encontró el input hidden gruposMultimedia');
+        }
+        
+        console.log('📤 Datos de multimedia preparados:', {
+            gruposTiposMultimedia: window.gruposTiposMultimedia,
+            totalElementos: gruposMultimedia.length
+        });
+    }
+
+    // Función para cancelar el formulario multimedia
+    function cancelarFormularioMultimedia() {
+        console.log('🔴 Cancelando formulario multimedia...');
+        
+        try {
+            // Limpiar todos los inputs del formulario
+            const form = document.getElementById('form_alta_multimedia');
+            if (form) {
+                // Resetear el formulario (limpia todos los inputs)
+                form.reset();
+                
+                // Limpiar también los grupos dinámicos de multimedia
+                if (window.gruposTiposMultimedia) {
+                    window.gruposTiposMultimedia = [];
+                }
+                
+                // Limpiar el contenedor de grupos dinámicos
+                const contenedor = document.getElementById('contenedor-tipos-multimedia');
+                if (contenedor) {
+                    contenedor.innerHTML = '';
+                }
+                
+                // Limpiar el contenedor de ejemplares si existe
+                const contenedorEjemplares = document.getElementById('contenedor-ejemplares-multimedia');
+                if (contenedorEjemplares) {
+                    contenedorEjemplares.innerHTML = '';
+                }
+                
+                console.log('✅ Formulario multimedia cancelado y limpiado correctamente');
+            } else {
+                console.warn('⚠️ No se encontró el formulario multimedia para limpiar');
+            }
+        } catch (error) {
+            console.error('❌ Error al cancelar formulario multimedia:', error);
+        }
+    }
+    
+    // Función local eliminada - ahora se usa la función global enviarFormularioMultimediaV2
+    
+    // Inicializar cuando el DOM esté listo
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('📄 DOM Content Loaded - Ejecutando inicialización multimedia');
+        inicializarFuncionalidadMultimedia();
+    });
+</script>
+</form>

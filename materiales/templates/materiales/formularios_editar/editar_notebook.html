@@ -1,0 +1,314 @@
+{% extends 'components/baseb.html' %}
+{% load static %}
+
+{% block title %}Editar Notebook | Biblioteca Digital{% endblock %}
+
+{% block extra_styles %}
+<link rel="stylesheet" href="{% static 'css/modificacion_material.css' %}">
+<link rel="stylesheet" href="{% static 'css/style_form.css' %}">
+<link rel="stylesheet" href="{% static 'css/manual_modal.css' %}">
+<link rel="stylesheet" href="{% static 'css/main.css' %}">
+<link rel="stylesheet" href="{% static 'css/botones.css' %}">
+<style>
+    .page-header {
+        background: linear-gradient(135deg, #e8f4f8, #f0f8ff);
+        padding: 1.5rem 0;
+        text-align: center;
+        border-bottom: 1px solid #e0e6ed;
+        background-image: 
+            radial-gradient(circle at 20% 50%, rgba(78, 205, 196, 0.1) 0%, transparent 50%),
+            radial-gradient(circle at 80% 20%, rgba(123, 104, 238, 0.1) 0%, transparent 50%),
+            radial-gradient(circle at 40% 80%, rgba(78, 205, 196, 0.05) 0%, transparent 50%);
+        background-size: 400px 400px, 300px 300px, 500px 500px;
+        background-position: 0% 50%, 100% 0%, 50% 100%;
+        background-repeat: no-repeat;
+    }
+
+    .page-title {
+        color: #4ECDC4;
+        font-size: 2rem;
+        font-weight: 700;
+        margin: 0 0 0.3rem 0;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .subtitle {
+        color: #7B68EE;
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin: 0;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .form-container {
+        max-width: 900px;
+        margin: 1.5rem auto;
+        padding: 0 2rem;
+    }
+
+    .form-card {
+        background: white;
+        padding: 2.5rem;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        border: 1px solid #e0e6ed;
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group.full-width {
+        grid-column: 1 / -1;
+    }
+
+    .form-group label {
+        display: block;
+        font-weight: 600;
+        color: #2d3748;
+        margin-bottom: 0.8rem;
+        font-size: 14px;
+    }
+
+    .required::after {
+        content: " *";
+        color: #e53e3e;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        width: 100%;
+        padding: 12px 16px;
+        border: 2px solid #e0e6ed;
+        border-radius: 8px;
+        font-size: 14px;
+        transition: all 0.3s ease;
+        background: white;
+        color: #2d3748;
+        box-sizing: border-box;
+        min-height: 48px;
+        font-family: inherit;
+    }
+
+    /* Asegurar que todos los inputs tengan exactamente el mismo tamaño */
+    .form-group input[type="text"],
+    .form-group input[type="email"],
+    .form-group input[type="number"],
+    .form-group input[type="url"],
+    .form-group select {
+        height: 48px;
+        line-height: 1.4;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+        outline: none;
+        border-color: #4ECDC4;
+        box-shadow: 0 0 0 3px rgba(78, 205, 196, 0.1);
+    }
+
+    .form-group input:hover,
+    .form-group select:hover,
+    .form-group textarea:hover {
+        border-color: #7B68EE;
+    }
+
+    .form-group textarea {
+        resize: vertical;
+        min-height: 100px;
+    }
+
+    .action-buttons {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 3rem;
+        padding-top: 2rem;
+        border-top: 1px solid #e0e6ed;
+    }
+
+    .btn {
+        display: inline-block;
+        font-family: 'Roboto', sans-serif;
+        cursor: pointer;
+        border: none;
+        outline: none;
+        text-decoration: none;
+    }
+
+    .btn-guardar {
+        background: #4363FF; /* fondo azul mejorado */
+        color: #ffffff;      /* texto blanco */
+        border: 2px solid #000000; /* reborde negro */
+        border-radius: 12px; /* redondeado mejorado */
+        padding: 10px 24px;
+        font-size: 16px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+    }
+
+    .btn-guardar:hover {
+        background: #3A56E8;
+        color: #ffffff;
+        text-decoration: none;
+    }
+
+    .btn-cancelar {
+        background: none;
+        color: #d93025; /* color rojo mejorado */
+        border: none;
+        padding: 0; /* texto simple */
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        text-decoration: none;
+        transition: color 0.2s ease;
+    }
+
+    .btn-cancelar:hover {
+        background: none;
+        color: #b52d20;
+        text-decoration: none;
+    }
+
+    /* Salvaguarda de especificidad para evitar conflictos con CSS globales */
+    .action-buttons .btn-guardar {
+        background: #4363FF !important;
+        color: #ffffff !important;
+        border: 2px solid #000000 !important;
+        border-radius: 12px !important;
+    }
+    .action-buttons .btn-cancelar {
+        color: #d93025 !important;
+        background: none !important;
+        border: none !important;
+        padding: 0 !important;
+    }
+
+    @media (max-width: 768px) {
+        .form-grid {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+        
+        .form-container {
+            padding: 0 1rem;
+        }
+        
+        .form-card {
+            padding: 2rem;
+        }
+        
+        .page-title {
+            font-size: 2rem;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+        }
+        
+        .button-container {
+            flex-direction: column;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <div class="form-card">
+        <form id="editFormNotebook" method="POST" enctype="multipart/form-data" action="{% url 'editar_notebook' notebook.id_not %}" class="form-grid">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="id_num_registro" class="required">Número de Registro</label>
+                {{ form.num_registro }}
+            </div>
+            
+            <div class="form-group">
+                <label for="id_modelo_not" class="required">Modelo</label>
+                {{ form.modelo_not }}
+            </div>
+            
+            <div class="form-group">
+                <label for="id_sede" class="required">Sede</label>
+                {{ form.sede }}
+            </div>
+            
+            <div class="action-buttons">
+                <div></div>
+                <div style="display: flex; gap: 2rem; align-items: center;">
+                    <a href="{% url 'modificacion_materiales' %}" class="btn btn-cancelar">
+                        CANCELAR
+                    </a>
+                    <button type="button" class="btn btn-guardar" onclick="mostrarModalConfirmacion()">
+                        GUARDAR
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<!-- Modal de confirmación -->
+<div class="modal fade" id="confirmacionModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius: 8px; border: none;">
+            <div class="modal-body text-center" style="padding: 2rem;">
+                <div style="margin-bottom: 1.5rem;">
+                    <h5 style="color: #2c3e50; font-weight: 600; font-size: 1.1rem; margin-bottom: 0.5rem;">
+                        ¿DESEA CONFIRMAR LOS CAMBIOS REALIZADOS?
+                    </h5>
+                    <p style="color: #666; font-size: 0.9rem; margin: 0;">
+                        Pulse un botón para continuar. Una vez aceptado, los datos serán guardados en la base de datos.
+                    </p>
+                </div>
+                <div style="display: flex; gap: 1rem; justify-content: center;">
+                    <button type="button" class="btn-modal-cancelar" data-bs-dismiss="modal"
+                            style="background: #4285F4; color: white; border: none; padding: 10px 24px; border-radius: 4px; font-weight: 500; text-transform: uppercase; cursor: pointer;">
+                        CANCELAR
+                    </button>
+                    <button type="button" class="btn-modal-confirmar" onclick="confirmarGuardado()"
+                            style="background: #ff6b35; color: white; border: none; padding: 10px 24px; border-radius: 4px; font-weight: 500; text-transform: uppercase; cursor: pointer;">
+                        CONFIRMAR
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+// Función para mostrar el modal de confirmación
+function mostrarModalConfirmacion() {
+    const modal = new bootstrap.Modal(document.getElementById('confirmacionModal'));
+    modal.show();
+}
+
+// Función para confirmar el guardado
+function confirmarGuardado() {
+    // Cerrar el modal
+    const modal = bootstrap.Modal.getInstance(document.getElementById('confirmacionModal'));
+    modal.hide();
+    
+    // Enviar el formulario
+    document.getElementById('editFormNotebook').submit();
+}
+</script>
+{% endblock %}
