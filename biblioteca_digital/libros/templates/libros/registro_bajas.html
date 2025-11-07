@@ -146,6 +146,99 @@
             color: #495057;
         }
         
+        /* ✅ ESTILOS PARA IMÁGENES DE BAJA */
+        .imagen-baja-container {
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #fff3cd;
+            border-radius: 8px;
+            border: 2px dashed #ffc107;
+        }
+        
+        .imagen-baja-container h4 {
+            margin: 0 0 10px 0;
+            color: #856404;
+            font-size: 1.1em;
+        }
+        
+        .imagen-baja-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .imagen-baja {
+            max-width: 100%;
+            max-height: 400px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+        
+        .imagen-baja:hover {
+            transform: scale(1.05);
+        }
+        
+        .imagen-filename {
+            font-size: 0.9em;
+            color: #666;
+            font-style: italic;
+        }
+        
+        .no-imagen {
+            color: #888;
+            font-style: italic;
+            padding: 10px;
+        }
+        
+        /* Modal para ver imagen en grande */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            animation: fadeIn 0.3s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .modal-content {
+            margin: auto;
+            display: block;
+            max-width: 90%;
+            max-height: 90%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border-radius: 8px;
+        }
+        
+        .modal-close {
+            position: absolute;
+            top: 20px;
+            right: 35px;
+            color: #f1f1f1;
+            font-size: 40px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        
+        .modal-close:hover,
+        .modal-close:focus {
+            color: #bbb;
+        }
+        
         .no-disponibles {
             color: #888;
             font-style: italic;
@@ -253,6 +346,16 @@
             h2 {
                 font-size: 1.2em;
             }
+            
+            .modal-content {
+                max-width: 95%;
+            }
+            
+            .modal-close {
+                top: 10px;
+                right: 15px;
+                font-size: 30px;
+            }
         }
         
         @media screen and (max-width: 480px) {
@@ -348,6 +451,25 @@
                                 {% endif %}
                             </div>
                             
+                            <!-- ✅ SECCIÓN DE IMAGEN DE BAJA -->
+                            <div class="imagen-baja-container">
+                                <h4>📸 Imagen de Baja</h4>
+                                <div class="imagen-baja-wrapper">
+                                    {% if libro.imagen_rota_contenido %}
+                                        <img src="{% url 'ver_imagen_baja' libro.id_libro %}" 
+                                             alt="Imagen de baja - {{ libro.titulo }}" 
+                                             class="imagen-baja"
+                                             onclick="abrirModal(this.src)"
+                                             title="Click para ampliar">
+                                        {% if libro.imagen_rota_nombre %}
+                                            <span class="imagen-filename">📎 {{ libro.imagen_rota_nombre }}</span>
+                                        {% endif %}
+                                    {% else %}
+                                        <span class="no-imagen">❌ No se adjuntó imagen de baja</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
                             {% if user.es_bibliotecaria %}
                             <form method="post" action="{% url 'reactivar_libro' libro.id_libro %}" style="margin-top: 15px;">
                                 {% csrf_token %}
@@ -368,6 +490,12 @@
                 </div>
             {% endif %}
         </div>
+    </div>
+
+    <!-- ✅ MODAL PARA VER IMAGEN EN GRANDE -->
+    <div id="imageModal" class="modal" onclick="cerrarModal()">
+        <span class="modal-close" onclick="cerrarModal()">&times;</span>
+        <img class="modal-content" id="modalImg">
     </div>
 
     <script>
@@ -400,6 +528,26 @@
                     }, 500);
                 }, 5000);
             });
+        });
+        
+        // ✅ FUNCIONES PARA EL MODAL DE IMAGEN
+        function abrirModal(src) {
+            const modal = document.getElementById('imageModal');
+            const modalImg = document.getElementById('modalImg');
+            modal.style.display = 'block';
+            modalImg.src = src;
+        }
+        
+        function cerrarModal() {
+            const modal = document.getElementById('imageModal');
+            modal.style.display = 'none';
+        }
+        
+        // Cerrar modal con tecla ESC
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                cerrarModal();
+            }
         });
     </script>
 </body>

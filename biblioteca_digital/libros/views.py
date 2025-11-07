@@ -322,8 +322,12 @@ def baja_libro(request):
         libro = get_object_or_404(Libro, id_libro=libro_id)
         libro.estado = 'No disponible'  # Asegúrate de cambiar el estado
         libro.motivo_baja = motivo_baja
+          # ✅ NUEVA LÓGICA: Guardar imagen en base de datos
         if imagen_rota:
-            libro.imagen_rota = imagen_rota
+            libro.imagen_rota_nombre = imagen_rota.name
+            libro.imagen_rota_contenido = imagen_rota.read()  # Lee los bytes
+            libro.imagen_rota_tipo = imagen_rota.content_type  # Ej: 'image/jpeg'
+        
         libro.save()
 
         # Redirigir a la lista de libros después de la baja
@@ -331,6 +335,18 @@ def baja_libro(request):
 
     return redirect('lista_libros')
 
+@login_required
+def ver_imagen_baja(request, libro_id):
+    """Vista para mostrar la imagen de baja almacenada en la base de datos"""
+    libro = get_object_or_404(Libro, id_libro=libro_id)
+    
+    if not libro.imagen_rota_contenido:
+        return HttpResponse("No hay imagen disponible", status=404)
+    
+    # Retornar la imagen como respuesta HTTP
+    response = HttpResponse(libro.imagen_rota_contenido, content_type=libro.imagen_rota_tipo or 'image/jpeg')
+    response['Content-Disposition'] = f'inline; filename="{libro.imagen_rota_nombre or "imagen.jpg"}"'
+    return response
 
 # Vista para editar un libro:
 

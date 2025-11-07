@@ -105,6 +105,11 @@ urlpatterns = [
     # Exportar excel
     path('exportar-bajas-excel/', views.exportar_bajas_excel, name='exportar_bajas_excel'),
 
+    # Ver imagenes baja
+
+    path('ver-imagen-baja/<int:libro_id>/', views.ver_imagen_baja, name='ver_imagen_baja'),
+
+
     # Urls para migracion de slqlite a postgre y crear superusuario desde render 
     # (localmente es aplicar un migrate pero el cortafuegos de la pc del trabajo me lo impedia, estas lineas tiene que estar comentadas)
 
