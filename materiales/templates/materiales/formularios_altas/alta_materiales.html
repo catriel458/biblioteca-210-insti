@@ -69,6 +69,9 @@
                         <input type="file" id="file_upload_input" name="imagen" accept="image/*" style="display: none;">
                         <!-- Importante: agregar name="img" para que el backend reciba la URL de imagen -->
                         <input type="text" id="url_upload_input" name="img" class="form-control custom-upload-input mb-2" placeholder="O pegue un enlace de imagen aquí...">
+                        <!-- Mostrar nombre y preview de la imagen seleccionada -->
+                        <div id="selected_image_name" style="text-align:center;font-size:0.92em;color:#444;margin-top:6px;margin-bottom:2px;word-break:break-all;"></div>
+                        <img id="selected_image_preview" alt="Vista previa" style="display:none;max-width:100%;height:auto;border-radius:6px;margin-top:6px;" />
                     </div>
                 </div>
             </div>
@@ -103,10 +106,58 @@ document.addEventListener("DOMContentLoaded", function () {
     // Elementos de carga masiva e imagen
     const uploadSimple = document.getElementById('upload_simple_container');
     const uploadBox = document.getElementById('upload_box_container');
+    const fileInput = document.getElementById('file_upload_input');
+    const urlInput = document.getElementById('url_upload_input');
+    const selectedName = document.getElementById('selected_image_name');
+    const previewImg = document.getElementById('selected_image_preview');
 
     // Ocultar carga masiva al cargar la página (estado inicial)
     if (uploadSimple) uploadSimple.style.display = 'none';
     if (uploadBox) uploadBox.style.display = 'none';
+
+    // Manejo de selección de imagen local
+    if (fileInput) {
+        fileInput.addEventListener('change', function () {
+            const file = this.files && this.files[0] ? this.files[0] : null;
+            if (file) {
+                // Mostrar nombre
+                if (selectedName) {
+                    selectedName.textContent = file.name;
+                }
+                // Mostrar preview (solo en frontend)
+                if (previewImg) {
+                    const objectUrl = URL.createObjectURL(file);
+                    previewImg.src = objectUrl;
+                    previewImg.style.display = 'block';
+                }
+                // Limpiar URL manual si había
+                if (urlInput) {
+                    urlInput.value = '';
+                }
+            } else {
+                if (selectedName) selectedName.textContent = '';
+                if (previewImg) {
+                    previewImg.src = '';
+                    previewImg.style.display = 'none';
+                }
+            }
+        });
+    }
+
+    // Si se ingresa una URL manual, ocultar preview y limpiar selección local
+    if (urlInput) {
+        urlInput.addEventListener('input', function () {
+            const hasValue = this.value.trim().length > 0;
+            if (hasValue) {
+                if (selectedName) selectedName.textContent = '';
+                if (fileInput) fileInput.value = '';
+                if (previewImg) {
+                    previewImg.src = '';
+                    previewImg.style.display = 'none';
+                }
+            }
+        });
+    }
 
     // FUNCIONALIDAD PRINCIPAL
     tipoMaterial.addEventListener('change', function () {

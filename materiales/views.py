@@ -15,6 +15,8 @@ from django.views.decorators.http import require_POST
 from django.contrib.auth import login, logout, authenticate, update_session_auth_hash
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.files.storage import default_storage
+from django.conf import settings
 
 from .models import Libro, Inventario, Mapas, Multimedia, Notebook, Proyector, Varios, Prestamo, Usuario, Programa
 from .forms import LibroForm, MapaForm, MultimediaForm, MultimediaEditForm, NotebookForm, ProyectorForm, VariosForm, RegistroForm, LoginForm, CambiarPasswordForm, ProgramaForm
@@ -1687,9 +1689,19 @@ def alta_libro(request):
         
         print("✅ Validación exitosa - guardando en sesión")
         try:
-            # Obtener la URL de imagen
+            # Obtener imagen: preferir archivo subido si no hay URL manual
             img_url = request.POST.get('img', '').strip()
-            print(f"📷 URL de imagen recibida: '{img_url}'")
+            uploaded_image = request.FILES.get('imagen')
+            if uploaded_image and not img_url:
+                try:
+                    filename = f"libros/{timezone.now().strftime('%Y%m%d_%H%M%S')}_{uploaded_image.name}"
+                    saved_path = default_storage.save(filename, uploaded_image)
+                    img_url = request.build_absolute_uri(settings.MEDIA_URL + saved_path)
+                    print(f"📷 Imagen subida guardada en: '{img_url}'")
+                except Exception as e:
+                    print(f"❌ Error guardando imagen subida: {e}")
+            else:
+                print(f"📷 URL de imagen recibida: '{img_url}'")
             
             # NO guardar en base de datos, solo en sesión
             form_data = {
