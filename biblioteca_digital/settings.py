@@ -164,3 +164,8 @@ MESSAGE_TAGS = {
 
 AUTH_USER_MODEL = 'materiales.Usuario'
 
+# Login/Logout redirects and login URL
+LOGIN_URL = '/login/'
+LOGIN_REDIRECT_URL = '/home/'
+LOGOUT_REDIRECT_URL = '/'
+

@@ -29,7 +29,12 @@ def cargar_csv(request):
             return HttpResponse("El archivo no es un CSV.")
 
         # Procesar el archivo CSV
-        decoded_file = csv_file.read().decode('utf-8')
+        try:
+            decoded_file = csv_file.read().decode('utf-8')
+        except UnicodeDecodeError:
+            # Fallback para archivos con otra codificación
+            csv_file.seek(0)
+            decoded_file = csv_file.read().decode('latin-1')
         io_string = io.StringIO(decoded_file)
         reader = csv.DictReader(io_string)
 
@@ -52,9 +57,26 @@ def cargar_csv(request):
                 num_ejemplar = int(row.get('num_ejemplar') or 1)
                 tipo_material = row.get('tipo_material')  # Campo que determina el tipo de material
 
+                # Inferir tipo de material si no viene en CSV (soporte para CSV antiguos)
+                if not tipo_material:
+                    if row.get('titulo'):
+                        tipo_material = 'Libro'
+                    elif row.get('tipo') and not row.get('materia'):
+                        tipo_material = 'Mapa'
+                    elif row.get('materia') and row.get('contenido'):
+                        tipo_material = 'Multimedia'
+                    elif row.get('modelo_not') or row.get('marca_not'):
+                        tipo_material = 'Notebook'
+                    elif row.get('modelo_pro') or row.get('marca_pro'):
+                        tipo_material = 'Proyector'
+                    else:
+                        tipo_material = 'Varios'
+
                 # Procesar según el tipo de material
                 if tipo_material == 'Libro':
                     num_inventario = int(row.get('num_inventario') or 1)  # Valor por defecto si está vacío
+                    # Fallback para clasificación: usar codigo_materia si no viene clasificacion_cdu
+                    clasificacion = row.get('clasificacion_cdu') or row.get('codigo_materia') or ''
                     libro = Libro(
                         estado=estado,
                         motivo_baja=motivo_baja,
@@ -64,7 +86,7 @@ def cargar_csv(request):
                         titulo=row.get('titulo'),
                         autor=row.get('autor'),
                         editorial=row.get('editorial'),
-                        clasificacion_cdu=row.get('clasificacion_cdu'),
+                        clasificacion_cdu=clasificacion,
                         siglas_autor_titulo=row.get('siglas_autor_titulo'),
                         num_inventario=num_inventario,
                         resumen=row.get('resumen'),

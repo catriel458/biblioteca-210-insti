@@ -250,7 +250,7 @@ window.renderizarTiposMapa = function() {
         html += `<tr>
             <td><span class="form-control form-control-sm" style="display:inline-block;vertical-align:middle;border-bottom:2px solid #81123b;">${g.tipo}</span></td>
             <td>
-                <input type='number' id='cant-mapa-${idx}' name='cant-mapa-${idx}' class='form-control form-control-sm input-cant-mapa' data-idx='${idx}' value='${g.cantidad}' min='1' max='5' style='display:inline-block;vertical-align:middle;'>
+                <input type='number' id='cant-mapa-${idx}' name='cant-mapa-${idx}' class='form-control form-control-sm input-cant-mapa' data-idx='${idx}' data-valor-anterior='${g.cantidad}' value='${g.cantidad}' min='1' max='5' style='display:inline-block;vertical-align:middle;'>
             </td>
             <td style="vertical-align:middle; text-align:center;">
                 <button type='button' class='boton-eliminar btn-eliminar-tipo-mapa' data-idx='${idx}' title='Eliminar tipo'>×</button>
@@ -329,40 +329,64 @@ window.renderizarTiposMapa = function() {
     // Listeners para inputs dinámicos
     // 1. Cambiar cantidad
     document.querySelectorAll('.input-cant-mapa').forEach(inp => {
-        inp.addEventListener('change', function() {
+        const handler = function() {
             const idx = parseInt(this.dataset.idx);
             let val = parseInt(this.value);
             if (isNaN(val) || val < 1) val = 1;
-            
-            // Guardar datos existentes antes de cambiar cantidad
-            const datosExistentes = guardarDatosFormularioMapa();
-            
-            // Actualizar la cantidad
-            window.gruposTiposMapa[idx].cantidad = val;
-            
-            // Regenerar el HTML
-            window.renderizarTiposMapa();
-            
-            // Restaurar datos existentes
-            restaurarDatosFormularioMapaAgregar(datosExistentes);
-        });
+            const prevAttr = parseInt(this.getAttribute('data-valor-anterior'));
+            const prev = Number.isFinite(prevAttr) ? prevAttr : (window.gruposTiposMapa[idx]?.cantidad || 1);
+
+            const aplicarCambio = () => {
+                const datosExistentes = guardarDatosFormularioMapa();
+                window.gruposTiposMapa[idx].cantidad = val;
+                this.setAttribute('data-valor-anterior', val);
+                window.renderizarTiposMapa();
+                restaurarDatosFormularioMapaAgregar(datosExistentes);
+            };
+
+            if (val < prev) {
+                if (typeof mostrarModalReducirEjemplares === 'function') {
+                    mostrarModalReducirEjemplares(
+                        aplicarCambio,
+                        () => { this.value = prev; }
+                    );
+                } else {
+                    if (confirm('Reducir la cantidad eliminará datos de ejemplares adicionales. ¿Confirmar?')) {
+                        aplicarCambio();
+                    } else {
+                        this.value = prev;
+                    }
+                }
+            } else {
+                aplicarCambio();
+            }
+        };
+        inp.addEventListener('change', handler);
+        inp.addEventListener('input', handler);
     });
-    // 2. Eliminar tipo (botón eliminar)
+    // 2. Eliminar tipo (botón eliminar) con alerta de confirmación
     document.querySelectorAll('.btn-eliminar-tipo-mapa').forEach(btn => {
         btn.addEventListener('click', function() {
             const idx = parseInt(this.dataset.idx);
-            
             // Guardar datos existentes antes de eliminar
             const datosExistentes = guardarDatosFormularioMapa();
-            
-            // Eliminar el tipo específico
-            window.gruposTiposMapa.splice(idx, 1);
-            
-            // Regenerar el HTML
-            window.renderizarTiposMapa();
-            
-            // Restaurar datos de los tipos restantes
-            restaurarDatosFormularioMapa(datosExistentes, idx);
+
+            // Usar el modal de reducir ejemplares para unificar la UX
+            if (typeof mostrarModalReducirEjemplares === 'function') {
+                mostrarModalReducirEjemplares(function() {
+                    // Confirmado: eliminar y re-renderizar
+                    window.gruposTiposMapa.splice(idx, 1);
+                    window.renderizarTiposMapa();
+                    restaurarDatosFormularioMapa(datosExistentes, idx);
+                });
+            } else {
+                // Fallback si el modal específico no está disponible
+                if (confirm('Reducir tipos eliminará datos de ejemplares adicionales. ¿Confirmar?')) {
+                    window.gruposTiposMapa.splice(idx, 1);
+                    window.renderizarTiposMapa();
+                    restaurarDatosFormularioMapa(datosExistentes, idx);
+                }
+            }
         });
     });
     
@@ -905,10 +929,13 @@ window.renderizarTiposVariosNuevo = function() {
                             <div class="flex-grow-1">
                                 <label class="form-label small mb-1"><strong>Cantidad de ejemplares:</strong></label>
                                 <input type="number" 
+                                       id="input-cantidad-varios-${originalIndex}"
                                        class="form-control form-control-sm" 
                                        value="${grupo.cantidad}" 
                                        min="1" 
+                                       data-valor-anterior="${grupo.cantidad}"
                                        onchange="actualizarCantidadVariosNuevo(${originalIndex}, this.value)"
+                                       oninput="actualizarCantidadVariosNuevo(${originalIndex}, this.value)"
                                        style="max-width: 120px;">
                             </div>
                         </div>
@@ -958,16 +985,53 @@ window.agregarTipoVariosNuevoDesdeInputs = function(inputTipoId = 'input-nuevo-t
 };
 
 window.eliminarGrupoTipoVariosNuevo = function(index) {
-    if (confirm('¿Está seguro de que desea eliminar este tipo de material?')) {
-        window.gruposTiposVariosNuevo.splice(index, 1);
-        window.renderizarTiposVariosNuevo();
+    // Usar el modal genérico de alerta para confirmar eliminación
+    if (typeof mostrarModalAlerta === 'function') {
+        mostrarModalAlerta(function() {
+            window.gruposTiposVariosNuevo.splice(index, 1);
+            window.renderizarTiposVariosNuevo();
+        });
+    } else {
+        // Fallback si no está disponible el modal
+        if (confirm('¿Está seguro de que desea eliminar este tipo de material?')) {
+            window.gruposTiposVariosNuevo.splice(index, 1);
+            window.renderizarTiposVariosNuevo();
+        }
     }
 };
 
 window.actualizarCantidadVariosNuevo = function(index, nuevaCantidad) {
+    const input = document.getElementById(`input-cantidad-varios-${index}`);
+    const prevAttr = input ? parseInt(input.getAttribute('data-valor-anterior')) : null;
+    const prev = Number.isFinite(prevAttr) ? prevAttr : (window.gruposTiposVariosNuevo[index]?.cantidad || 1);
     const cantidad = parseInt(nuevaCantidad) || 1;
-    window.gruposTiposVariosNuevo[index].cantidad = cantidad;
-    generarEjemplaresVariosNuevo(index, cantidad);
+
+    const aplicarCambio = function() {
+        if (input) input.setAttribute('data-valor-anterior', cantidad);
+        if (window.gruposTiposVariosNuevo[index]) {
+            window.gruposTiposVariosNuevo[index].cantidad = cantidad;
+        }
+        generarEjemplaresVariosNuevo(index, cantidad);
+        console.log(`✅ Cantidad actualizada para grupo ${index}: ${cantidad}`);
+    };
+
+    if (cantidad < prev) {
+        if (typeof mostrarModalReducirEjemplares === 'function') {
+            mostrarModalReducirEjemplares(
+                aplicarCambio,
+                function() { if (input) input.value = prev; }
+            );
+        } else {
+            // Fallback sin modal
+            if (confirm('Reducir la cantidad eliminará datos de ejemplares adicionales. ¿Confirmar?')) {
+                aplicarCambio();
+            } else {
+                if (input) input.value = prev;
+            }
+        }
+    } else {
+        aplicarCambio();
+    }
 };
 
 function generarEjemplaresVariosNuevo(grupoIndex, cantidad) {
@@ -1034,10 +1098,13 @@ window.renderizarTiposProyector = function() {
                             <div class="flex-grow-1">
                                 <label class="form-label small mb-1"><strong>Cantidad de ejemplares:</strong></label>
                                 <input type="number" 
+                                       id="input-cantidad-proyector-${index}"
                                        class="form-control form-control-sm" 
                                        value="${grupo.cantidad}" 
                                        min="1" 
+                                       data-valor-anterior="${grupo.cantidad}"
                                        onchange="actualizarCantidadProyector(${index}, this.value)"
+                                       oninput="actualizarCantidadProyector(${index}, this.value)"
                                        style="max-width: 120px;">
                             </div>
                         </div>
@@ -1086,16 +1153,49 @@ window.agregarTipoProyectorDesdeInputs = function(inputTipoId = 'tipo-proyector'
 };
 
 window.eliminarGrupoTipoProyector = function(index) {
-    if (confirm('¿Está seguro de que desea eliminar este tipo de proyector?')) {
+    const ejecutar = function() {
         window.gruposTiposProyector.splice(index, 1);
         window.renderizarTiposProyector();
+        console.log('✅ Tipo de proyector eliminado tras confirmar');
+    };
+    if (typeof mostrarModalAlerta === 'function') {
+        mostrarModalAlerta(ejecutar);
+    } else {
+        if (confirm('¿Está seguro de que desea eliminar este tipo de proyector?')) ejecutar();
     }
 };
 
 window.actualizarCantidadProyector = function(index, nuevaCantidad) {
+    const input = document.getElementById(`input-cantidad-proyector-${index}`);
+    const prevAttr = input ? parseInt(input.getAttribute('data-valor-anterior')) : null;
+    const prev = Number.isFinite(prevAttr) ? prevAttr : (window.gruposTiposProyector[index]?.cantidad || 1);
     const cantidad = parseInt(nuevaCantidad) || 1;
-    window.gruposTiposProyector[index].cantidad = cantidad;
-    generarEjemplaresProyector(index, cantidad);
+
+    const aplicarCambio = function() {
+        if (input) input.setAttribute('data-valor-anterior', cantidad);
+        if (window.gruposTiposProyector[index]) {
+            window.gruposTiposProyector[index].cantidad = cantidad;
+        }
+        generarEjemplaresProyector(index, cantidad);
+        console.log(`✅ Cantidad actualizada para tipo proyector ${index}: ${cantidad}`);
+    };
+
+    if (cantidad < prev) {
+        if (typeof mostrarModalReducirEjemplares === 'function') {
+            mostrarModalReducirEjemplares(
+                aplicarCambio,
+                function() { if (input) input.value = prev; }
+            );
+        } else {
+            if (confirm('Reducir la cantidad eliminará datos de ejemplares adicionales. ¿Confirmar?')) {
+                aplicarCambio();
+            } else {
+                if (input) input.value = prev;
+            }
+        }
+    } else {
+        aplicarCambio();
+    }
 };
 
 function generarEjemplaresProyector(grupoIndex, cantidad) {
@@ -1248,9 +1348,15 @@ window.agregarTipoMultimediaDesdeInputs = function() {
 
 // Función para eliminar un grupo de tipo multimedia
 window.eliminarGrupoTipoMultimedia = function(index) {
-    if (confirm('¿Está seguro de que desea eliminar este tipo de multimedia?')) {
+    const ejecutar = function() {
         window.gruposTiposMultimedia.splice(index, 1);
         window.renderizarTiposMultimedia();
+        console.log('✅ Tipo de multimedia eliminado tras confirmar');
+    };
+    if (typeof mostrarModalAlerta === 'function') {
+        mostrarModalAlerta(ejecutar);
+    } else {
+        if (confirm('¿Está seguro de que desea eliminar este tipo de multimedia?')) ejecutar();
     }
 };
 

@@ -142,11 +142,21 @@
     // Función para eliminar grupo de multimedia
     function eliminarMultimedia(index) {
         const grupo = document.querySelector(`[data-index="${index}"]`);
-        if (grupo) {
-            grupo.remove();
-            window.gruposTiposMultimedia.splice(index, 1);
+        const ejecutar = function() {
+            if (grupo) {
+                grupo.remove();
+            }
+            if (Array.isArray(window.gruposTiposMultimedia)) {
+                window.gruposTiposMultimedia.splice(index, 1);
+            }
             // Reindexar los elementos restantes
             actualizarIndices();
+            console.log('✅ Grupo multimedia eliminado tras confirmar');
+        };
+        if (typeof mostrarModalAlerta === 'function') {
+            mostrarModalAlerta(ejecutar);
+        } else {
+            if (confirm('¿Eliminar este contenido multimedia?')) ejecutar();
         }
     }
 

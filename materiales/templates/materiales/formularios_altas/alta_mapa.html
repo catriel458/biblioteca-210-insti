@@ -24,7 +24,7 @@
         
         <div class="col-md-3">
             <label for="input-nueva-cant-mapa" style="font-size: 14px;">Cantidad <span class="text-danger">*</span></label>
-            <input type="number" class="form-control form-control-sm" id="input-nueva-cant-mapa" name="input-nueva-cant-mapa" min="1" value="1" required>
+            <input type="number" class="form-control form-control-sm" id="input-nueva-cant-mapa" name="input-nueva-cant-mapa" min="1" value="1" data-valor-anterior="1" required>
         </div>
     </div>
     
@@ -143,4 +143,41 @@
             window.renderizarTiposMapa();
         }
     });
+
+    // Manejar reducción en la cantidad estática con modal
+    (function() {
+        const cantidadMapaInput = document.getElementById('input-nueva-cant-mapa');
+        if (!cantidadMapaInput) return;
+        const inicial = parseInt(cantidadMapaInput.getAttribute('data-valor-anterior') || cantidadMapaInput.value || '1', 10);
+        cantidadMapaInput.setAttribute('data-valor-anterior', String(inicial));
+
+        function manejarReduccionCantidadMapa() {
+            const prev = parseInt(cantidadMapaInput.getAttribute('data-valor-anterior') || '1', 10);
+            const nuevo = parseInt(cantidadMapaInput.value || '1', 10);
+            const aplicar = function() {
+                cantidadMapaInput.setAttribute('data-valor-anterior', String(nuevo));
+                if (Array.isArray(window.gruposTiposMapa) && window.gruposTiposMapa.length > 0) {
+                    window.gruposTiposMapa[0].cantidad = nuevo;
+                    if (typeof window.renderizarTiposMapa === 'function') {
+                        window.renderizarTiposMapa();
+                    }
+                }
+            };
+            if (nuevo < prev) {
+                if (typeof mostrarModalReducirEjemplares === 'function') {
+                    mostrarModalReducirEjemplares(aplicar, function() { cantidadMapaInput.value = String(prev); });
+                } else {
+                    if (confirm('Reducir la cantidad eliminará datos de ejemplares adicionales. ¿Confirmar?')) {
+                        aplicar();
+                    } else {
+                        cantidadMapaInput.value = String(prev);
+                    }
+                }
+            } else {
+                aplicar();
+            }
+        }
+        cantidadMapaInput.addEventListener('input', manejarReduccionCantidadMapa);
+        cantidadMapaInput.addEventListener('change', manejarReduccionCantidadMapa);
+    })();
 </script>

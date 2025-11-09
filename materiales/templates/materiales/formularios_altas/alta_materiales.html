@@ -56,7 +56,7 @@
                             <div class="boton-redondeado">
                                 <span>↑</span>
                             </div>
-                            <input type="file" id="cargar_archivo" name="cargar_archivo" accept=".csv, .xls, .xlsx" style="display: none;">
+                        <input type="file" id="cargar_archivo" name="csv_file" accept=".csv, .xls, .xlsx" style="display: none;">
                         </label>
                         <div id="nombre_archivo_carga_simple" style="text-align:center;font-size:0.92em;color:#444;margin-top:6px;margin-bottom:2px;word-break:break-all;"></div>
                     </div>
@@ -89,13 +89,19 @@
 
 {% block modals %}
   {% include 'modals/manual_modal.html' %}
-  <!-- Solo incluir el modal de confirmación para materiales que no tienen su propio modal -->
-  <div id="contenedor-modal-confirmacion">
-   
-  </div>
+  <div id="contenedor-modal-confirmacion"></div>
+  {% include 'modals/alertas/vaciar_campos.html' %}
+  {% include 'modals/alertas/reducir_ejemplares.html' %}
+  {% include 'modals/alertas/confirmacion_csv.html' %}
+  {% include 'modals/alertas/archivo_novalido.html' %}
+  {% include 'modals/alertas/imagenlibro_novalido.html' %}
+  {% include 'modals/alertas/error_seleccionado.html' %}
+  {% include 'modals/alertas/archivovacio_cargamasiva.html' %}
+  <div id="modal-backdrop" class="modal-backdrop"></div>
 {% endblock %}
 
 {% block extra_scripts %}
+<script src="{% static 'js/alertas.js' %}"></script>
 <script>
 // Script para el template principal (paste-2.txt - segundo template)
 document.addEventListener("DOMContentLoaded", function () {
@@ -110,6 +116,30 @@ document.addEventListener("DOMContentLoaded", function () {
     const urlInput = document.getElementById('url_upload_input');
     const selectedName = document.getElementById('selected_image_name');
     const previewImg = document.getElementById('selected_image_preview');
+
+    // Helper: vincular botón CANCELAR de cada formulario específico al modal de vaciar campos
+    function wireCancelButton(container) {
+        try {
+            const cancelBtn = container ? container.querySelector('button[type="reset"]') : null;
+            if (cancelBtn) {
+                // Cambiar a botón normal y conectar al modal
+                cancelBtn.type = 'button';
+                cancelBtn.onclick = function() {
+                    if (typeof mostrarModalAlerta === 'function') {
+                        mostrarModalAlerta(vaciarCamposFormulario);
+                    } else {
+                        // Fallback sin modal
+                        vaciarCamposFormulario();
+                    }
+                };
+                console.log('✅ Botón CANCELAR vinculado al modal de vaciar campos');
+            } else {
+                console.log('ℹ️ No se encontró botón CANCELAR en el contenedor actual');
+            }
+        } catch (e) {
+            console.error('❌ Error al vincular botón CANCELAR:', e);
+        }
+    }
 
     // Ocultar carga masiva al cargar la página (estado inicial)
     if (uploadSimple) uploadSimple.style.display = 'none';
@@ -201,20 +231,41 @@ document.addEventListener("DOMContentLoaded", function () {
                     // Solo mostrar carga masiva y URL para libros
                     if (uploadSimple) uploadSimple.style.display = 'block';
                     if (uploadBox) uploadBox.style.display = 'block';
+
+                    // Vincular botón CANCELAR al modal de vaciar campos
+                    wireCancelButton(formularioEspecifico);
                     
                     // 🎯 CRÍTICO: Inicializar funcionalidad dinámica DESPUÉS de cargar HTML
                     setTimeout(() => {
                         // Inicializar ejemplares dinámicos para libros
                         const cantidadInput = document.querySelector('input[name="cant_ejemplares"]');
                         if (cantidadInput) {
-                            // Generar ejemplares iniciales
-                            window.updateRowsMaterial('libro');
+                            // Definir wrapper para compatibilidad con alertas.js
+                            window.actualizarEjemplaresLibro = function() {
+                                if (typeof window.updateRowsMaterial === 'function') {
+                                    window.updateRowsMaterial('libro');
+                                }
+                            };
                             
-                            // Agregar event listener para cambios en cantidad
-                            cantidadInput.addEventListener('input', function() {
+                            // Generar ejemplares iniciales
+                            window.actualizarEjemplaresLibro();
+                            
+                            // Guardar valor anterior para detectar reducción
+                            const valorInicial = parseInt(cantidadInput.value || '1', 10);
+                            cantidadInput.setAttribute('data-valor-anterior', valorInicial);
+                            
+                            // Manejar cambios: usar lógica de reducción si está disponible
+                            const manejarCambioCantidad = function() {
                                 console.log('🔄 Cantidad de ejemplares cambiada:', this.value);
-                                window.updateRowsMaterial('libro');
-                            });
+                                if (typeof window.manejarReduccionEjemplaresLibro === 'function') {
+                                    window.manejarReduccionEjemplaresLibro();
+                                } else {
+                                    // Fallback si no está la función de alertas
+                                    window.actualizarEjemplaresLibro();
+                                }
+                            };
+                            cantidadInput.addEventListener('input', manejarCambioCantidad);
+                            cantidadInput.addEventListener('change', manejarCambioCantidad);
                             
                             console.log('✅ Funcionalidad dinámica de libros inicializada');
                         } else {
@@ -256,6 +307,8 @@ document.addEventListener("DOMContentLoaded", function () {
                     // No mostrar carga masiva ni URL para programas
                     if (uploadSimple) uploadSimple.style.display = 'none';
                     if (uploadBox) uploadBox.style.display = 'none';
+                    // Vincular botón CANCELAR al modal de vaciar campos
+                    wireCancelButton(formularioEspecifico);
                     console.log('✅ Formulario de programa cargado');
                 })
                 .catch(error => {
@@ -292,11 +345,51 @@ document.addEventListener("DOMContentLoaded", function () {
                         if (typeof window.renderizarTiposMapa === 'function') {
                             window.renderizarTiposMapa();
                         }
+
+                        // Modal de reducir ejemplares para MAPA (usa input-nueva-cant-mapa)
+                        const cantidadMapaInput = document.getElementById('input-nueva-cant-mapa');
+                        const contenedorEjemplaresMapa = document.getElementById('contenedor-ejemplares-mapa');
+                        if (cantidadMapaInput) {
+                            const valorInicialMapa = parseInt(cantidadMapaInput.value || '1', 10);
+                            cantidadMapaInput.setAttribute('data-valor-anterior', valorInicialMapa);
+
+                            const manejarCambioCantidadMapa = function() {
+                                const prev = parseInt(cantidadMapaInput.getAttribute('data-valor-anterior') || valorInicialMapa, 10);
+                                const nuevo = parseInt(cantidadMapaInput.value || '1', 10);
+                                if (nuevo < prev) {
+                                    mostrarModalReducirEjemplares(
+                                        function() {
+                                            cantidadMapaInput.setAttribute('data-valor-anterior', nuevo);
+                                            if (typeof window.renderizarTiposMapa === 'function') {
+                                                window.renderizarTiposMapa();
+                                            } else if (contenedorEjemplaresMapa) {
+                                                contenedorEjemplaresMapa.innerHTML = '';
+                                            }
+                                        },
+                                        function() {
+                                            cantidadMapaInput.value = prev;
+                                        }
+                                    );
+                                } else {
+                                    cantidadMapaInput.setAttribute('data-valor-anterior', nuevo);
+                                    if (typeof window.renderizarTiposMapa === 'function') {
+                                        window.renderizarTiposMapa();
+                                    }
+                                }
+                            };
+
+                            cantidadMapaInput.addEventListener('input', manejarCambioCantidadMapa);
+                            cantidadMapaInput.addEventListener('change', manejarCambioCantidadMapa);
+                        } else {
+                            console.warn('⚠️ input-nueva-cant-mapa no encontrado');
+                        }
                     }, 100); // Pequeño delay para asegurar que el DOM esté listo
                     
                     // No mostrar carga masiva ni URL para mapas
                     if (uploadSimple) uploadSimple.style.display = 'none';
                     if (uploadBox) uploadBox.style.display = 'none';
+                    // Vincular botón CANCELAR al modal de vaciar campos
+                    wireCancelButton(formularioEspecifico);
                     console.log('✅ Formulario de mapa cargado');
                 })
                 .catch(error => {
@@ -305,14 +398,14 @@ document.addEventListener("DOMContentLoaded", function () {
                     buttonsContainer.style.display = 'none';
                 });
         } 
-        else if (tipo === 'multimedia') {
-            console.log('💿 Cargando formulario de multimedia...');
-            fetch('/formulario/multimedia/')
-                .then(response => {
-                    if (!response.ok) throw new Error('No se pudo cargar el formulario.');
-                    return response.text();
-                })
-                .then(html => {
+                else if (tipo === 'multimedia') {
+                    console.log('💿 Cargando formulario de multimedia...');
+                    fetch('/formulario/multimedia/')
+                        .then(response => {
+                            if (!response.ok) throw new Error('No se pudo cargar el formulario.');
+                            return response.text();
+                        })
+                        .then(html => {
                     console.log('📄 HTML recibido, longitud:', html.length);
                     
                     // 🔍 DEBUGGING EXHAUSTIVO DEL HTML RECIBIDO
@@ -401,7 +494,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     // 🎯 CRÍTICO: Inicializar funcionalidad carrera-materia DESPUÉS de cargar HTML
                     setTimeout(() => {
                         initCarreraMateriaFunctionality();
-                        initMultimediaFunctionality(); // Inicializar funcionalidad del botón '+'
+                            initMultimediaFunctionality(); // Inicializar funcionalidad del botón '+'
                         
                         // Verificar nuevamente el formulario después de la inicialización
                         let formAfterInit = document.getElementById('form_alta_multimedia');
@@ -418,14 +511,48 @@ document.addEventListener("DOMContentLoaded", function () {
                     // No mostrar carga masiva ni URL para multimedia
                     if (uploadSimple) uploadSimple.style.display = 'none';
                     if (uploadBox) uploadBox.style.display = 'none';
-                    console.log('✅ Formulario de multimedia cargado');
-                })
-                .catch(error => {
-                    console.error('❌ Error cargando multimedia:', error);
-                    formularioEspecifico.innerHTML = `<p class="text-danger">Error al cargar el formulario: ${error.message}</p>`;
-                    buttonsContainer.style.display = 'none';
-                });
-        } 
+                            console.log('✅ Formulario de multimedia cargado');
+
+                            // Definir globalmente la función de cancelar con alerta de vaciar campos
+                            window.cancelarFormularioMultimedia = function() {
+                                try {
+                                    if (typeof mostrarModalAlerta === 'function') {
+                                        mostrarModalAlerta(function() {
+                                            const form = document.getElementById('form_alta_multimedia') ||
+                                                         formularioEspecifico.querySelector('#form_alta_multimedia') ||
+                                                         formularioEspecifico.querySelector('form[data-form-id="multimedia"]');
+                                            if (form) form.reset();
+                                            const contTipos = document.getElementById('contenedor-tipos-multimedia') ||
+                                                              formularioEspecifico.querySelector('#contenedor-tipos-multimedia');
+                                            if (contTipos) contTipos.innerHTML = '';
+                                            const contEjs = document.getElementById('contenedor-ejemplares-multimedia') ||
+                                                            formularioEspecifico.querySelector('#contenedor-ejemplares-multimedia');
+                                            if (contEjs) contEjs.innerHTML = '';
+                                            if (window.gruposTiposMultimedia) window.gruposTiposMultimedia = [];
+                                            console.log('✅ Multimedia vaciado tras confirmar en alerta');
+                                        });
+                                    } else {
+                                        // Fallback sin modal
+                                        const form = document.getElementById('form_alta_multimedia');
+                                        if (form) form.reset();
+                                        const contTipos = document.getElementById('contenedor-tipos-multimedia');
+                                        if (contTipos) contTipos.innerHTML = '';
+                                        const contEjs = document.getElementById('contenedor-ejemplares-multimedia');
+                                        if (contEjs) contEjs.innerHTML = '';
+                                        if (window.gruposTiposMultimedia) window.gruposTiposMultimedia = [];
+                                        console.warn('⚠️ mostrarModalAlerta no disponible; vaciado sin modal');
+                                    }
+                                } catch (e) {
+                                    console.error('❌ Error en cancelarFormularioMultimedia:', e);
+                                }
+                            };
+                        })
+                        .catch(error => {
+                            console.error('❌ Error cargando multimedia:', error);
+                            formularioEspecifico.innerHTML = `<p class="text-danger">Error al cargar el formulario: ${error.message}</p>`;
+                            buttonsContainer.style.display = 'none';
+                        });
+                }
         else if (tipo === 'notebook') {
             console.log('💻 Cargando formulario de notebook...');
             fetch('/formulario/notebook/')
@@ -454,6 +581,9 @@ document.addEventListener("DOMContentLoaded", function () {
                     // No mostrar carga masiva ni URL para notebook
                     if (uploadSimple) uploadSimple.style.display = 'none';
                     if (uploadBox) uploadBox.style.display = 'none';
+
+                    // Vincular botón CANCELAR al modal de vaciar campos
+                    wireCancelButton(formularioEspecifico);
                     
                     // 🎯 CRÍTICO: Inicializar funcionalidad dinámica DESPUÉS de cargar HTML
                     setTimeout(() => {
@@ -480,6 +610,9 @@ document.addEventListener("DOMContentLoaded", function () {
                     // No mostrar carga masiva ni URL para proyector
                     if (uploadSimple) uploadSimple.style.display = 'none';
                     if (uploadBox) uploadBox.style.display = 'none';
+
+                    // Vincular botón CANCELAR al modal de vaciar campos
+                    wireCancelButton(formularioEspecifico);
                     
                     // Configurar la acción del formulario para proyector
                     const form = document.getElementById('form_alta_material');
@@ -513,6 +646,9 @@ document.addEventListener("DOMContentLoaded", function () {
                     // No mostrar carga masiva ni URL para varios
                     if (uploadSimple) uploadSimple.style.display = 'none';
                     if (uploadBox) uploadBox.style.display = 'none';
+
+                    // Vincular botón CANCELAR al modal de vaciar campos
+                    wireCancelButton(formularioEspecifico);
                     
                     // 🎯 CRÍTICO: Inicializar funcionalidad carrera-materia DESPUÉS de cargar HTML
                     setTimeout(() => {
@@ -548,6 +684,53 @@ document.addEventListener("DOMContentLoaded", function () {
                                 console.log('✅ Event listener de submit agregado al formulario de varios');
                             } else {
                                 console.log('ℹ️ Event listener de submit ya existe para varios');
+                            }
+                            // === VARIOS: manejar reducción en la cantidad ESTÁTICA (grupo 0) ===
+                            if (typeof window.gruposTiposVariosNuevo === 'undefined') {
+                                window.gruposTiposVariosNuevo = [];
+                            }
+                            const tipoStatic = formularioEspecifico.querySelector('#tipo-varios') || document.getElementById('tipo-varios');
+                            const cantStatic = formularioEspecifico.querySelector('#cant_ejemplares') || document.getElementById('cant_ejemplares');
+                            const hiddenJson = formularioEspecifico.querySelector('#gruposTiposVariosNuevo') || document.getElementById('gruposTiposVariosNuevo');
+
+                            const syncStaticGroup = function() {
+                                const tipo = (tipoStatic?.value || '').trim();
+                                const cantidad = parseInt(cantStatic?.value) || 1;
+                                window.gruposTiposVariosNuevo[0] = { tipo, cantidad };
+                                if (hiddenJson) hiddenJson.value = JSON.stringify(window.gruposTiposVariosNuevo);
+                            };
+
+                            // Inicializar estado y listeners
+                            syncStaticGroup();
+                            if (tipoStatic) {
+                                tipoStatic.addEventListener('input', syncStaticGroup);
+                            }
+                            if (cantStatic) {
+                                const inicial = parseInt(cantStatic.getAttribute('data-valor-anterior') || cantStatic.value || '1', 10);
+                                cantStatic.setAttribute('data-valor-anterior', String(inicial));
+                                const manejarReduccionStatic = function() {
+                                    const prev = parseInt(cantStatic.getAttribute('data-valor-anterior') || '1', 10);
+                                    const nuevo = parseInt(cantStatic.value || '1', 10);
+                                    const aplicar = function() {
+                                        cantStatic.setAttribute('data-valor-anterior', String(nuevo));
+                                        syncStaticGroup();
+                                    };
+                                    if (nuevo < prev) {
+                                        if (typeof mostrarModalReducirEjemplares === 'function') {
+                                            mostrarModalReducirEjemplares(aplicar, function() { cantStatic.value = String(prev); });
+                                        } else {
+                                            if (confirm('Reducir la cantidad eliminará datos de ejemplares adicionales. ¿Confirmar?')) {
+                                                aplicar();
+                                            } else {
+                                                cantStatic.value = String(prev);
+                                            }
+                                        }
+                                    } else {
+                                        aplicar();
+                                    }
+                                };
+                                cantStatic.addEventListener('input', manejarReduccionStatic);
+                                cantStatic.addEventListener('change', manejarReduccionStatic);
                             }
                         }
                     }, 100); // Pequeño delay para asegurar que el DOM esté listo
@@ -617,11 +800,34 @@ function initProyectorDynamicFunctionality() {
             }
             contenedorEjemplaresProyector.innerHTML = html;
         }
-        
-        // Event listeners para cambios dinámicos
-        cantEjemplaresProyector.addEventListener('input', generarCamposProyector);
-        cantEjemplaresProyector.addEventListener('change', generarCamposProyector);
-        
+        // Inicializar valor anterior
+        const valorInicial = parseInt(cantEjemplaresProyector.value || '1', 10);
+        cantEjemplaresProyector.setAttribute('data-valor-anterior', valorInicial);
+
+        // Handler con alerta para reducción
+        const manejarCambioCantidadProyector = function() {
+            const prev = parseInt(cantEjemplaresProyector.getAttribute('data-valor-anterior') || valorInicial, 10);
+            const nuevo = parseInt(cantEjemplaresProyector.value || '1', 10);
+            if (nuevo < prev) {
+                mostrarModalReducirEjemplares(
+                    function() {
+                        cantEjemplaresProyector.setAttribute('data-valor-anterior', nuevo);
+                        generarCamposProyector();
+                    },
+                    function() {
+                        cantEjemplaresProyector.value = prev;
+                    }
+                );
+            } else {
+                cantEjemplaresProyector.setAttribute('data-valor-anterior', nuevo);
+                generarCamposProyector();
+            }
+        };
+
+        // Event listeners para cambios dinámicos con alerta
+        cantEjemplaresProyector.addEventListener('input', manejarCambioCantidadProyector);
+        cantEjemplaresProyector.addEventListener('change', manejarCambioCantidadProyector);
+
         // Generar campos iniciales
         generarCamposProyector();
         
@@ -642,22 +848,43 @@ function initNotebookDynamicFunctionality() {
     
     if (cantEjemplaresNotebook && contenedorEjemplaresNotebook) {
         console.log('✅ Elementos encontrados, configurando eventos...');
-        
-        // Event listener para cambios dinámicos
-        cantEjemplaresNotebook.addEventListener('input', function() {
-            console.log('🔄 Input event triggered, cantidad:', this.value);
-            window.updateRowsMaterial('notebook');
-        });
-        
-        cantEjemplaresNotebook.addEventListener('change', function() {
-            console.log('🔄 Change event triggered, cantidad:', this.value);
-            window.updateRowsMaterial('notebook');
-        });
-        
+        // Inicializar valor anterior
+        const valorInicial = parseInt(cantEjemplaresNotebook.value || '1', 10);
+        cantEjemplaresNotebook.setAttribute('data-valor-anterior', valorInicial);
+
+        // Handler con alerta para reducción
+        const manejarCambioCantidadNotebook = function () {
+            const prev = parseInt(cantEjemplaresNotebook.getAttribute('data-valor-anterior') || valorInicial, 10);
+            const nuevo = parseInt(cantEjemplaresNotebook.value || '1', 10);
+            if (nuevo < prev) {
+                mostrarModalReducirEjemplares(
+                    function() {
+                        cantEjemplaresNotebook.setAttribute('data-valor-anterior', nuevo);
+                        if (typeof window.updateRowsMaterial === 'function') {
+                            window.updateRowsMaterial('notebook');
+                        }
+                    },
+                    function() {
+                        cantEjemplaresNotebook.value = prev;
+                    }
+                );
+            } else {
+                cantEjemplaresNotebook.setAttribute('data-valor-anterior', nuevo);
+                if (typeof window.updateRowsMaterial === 'function') {
+                    window.updateRowsMaterial('notebook');
+                }
+            }
+        };
+
+        cantEjemplaresNotebook.addEventListener('input', manejarCambioCantidadNotebook);
+        cantEjemplaresNotebook.addEventListener('change', manejarCambioCantidadNotebook);
+
         // Llamar inicialmente para generar campos si ya hay un valor
         if (cantEjemplaresNotebook.value && cantEjemplaresNotebook.value > 0) {
             console.log('🔄 Generando campos iniciales para cantidad:', cantEjemplaresNotebook.value);
-            window.updateRowsMaterial('notebook');
+            if (typeof window.updateRowsMaterial === 'function') {
+                window.updateRowsMaterial('notebook');
+            }
         }
         
         console.log('✅ Funcionalidad dinámica del notebook inicializada correctamente');
@@ -668,14 +895,74 @@ function initNotebookDynamicFunctionality() {
     }
 }
 
-// FUNCIONALIDAD AGREGADA: Mostrar nombre del archivo seleccionado
+// FUNCIONALIDAD AGREGADA: Mostrar nombre del archivo seleccionado y abrir confirmación CSV
     const cargarArchivo = document.getElementById('cargar_archivo');
     const nombreArchivo = document.getElementById('nombre_archivo_carga_simple');
     
     if (cargarArchivo && nombreArchivo) {
         cargarArchivo.addEventListener('change', function() {
-            if (this.files && this.files[0]) {
-                nombreArchivo.textContent = this.files[0].name;
+            const file = this.files && this.files[0] ? this.files[0] : null;
+            if (file) {
+                nombreArchivo.textContent = file.name;
+                // Mostrar modal de confirmación CSV/Excel con validaciones dentro
+                if (typeof mostrarModalCSV === 'function') {
+                    const csrfToken = document.querySelector('input[name="csrfmiddlewaretoken"]')?.value || '';
+                    mostrarModalCSV(
+                        file.name,
+                        function onConfirm() {
+                            try {
+                                const fd = new FormData();
+                                fd.append('csv_file', file);
+                                fetch('/cargar-csv/', {
+                                    method: 'POST',
+                                    headers: {
+                                        'X-CSRFToken': csrfToken,
+                                    },
+                                    body: fd,
+                                    credentials: 'same-origin',
+                                })
+                                .then(async (resp) => {
+                                    const text = await resp.text();
+                                    const status = resp.status;
+                                    // Si el backend indica archivo no válido
+                                    if (text && text.includes('El archivo no es un CSV')) {
+                                        if (typeof mostrarModalArchivoNoValido === 'function') {
+                                            mostrarModalArchivoNoValido();
+                                        }
+                                        return;
+                                    }
+
+                                    // Éxito: 200-399 (aceptar redirects también)
+                                    if (status >= 200 && status < 400) {
+                                        window.location.href = '/success/';
+                                        return;
+                                    }
+
+                                    throw new Error('Error subiendo CSV');
+                                })
+                                .catch((err) => {
+                                    console.error('❌ Error al subir CSV:', err);
+                                    if (typeof mostrarModalErrorSeleccionado === 'function') {
+                                        mostrarModalErrorSeleccionado();
+                                    }
+                                });
+                            } catch (e) {
+                                console.error('❌ Excepción al preparar upload CSV:', e);
+                                if (typeof mostrarModalErrorSeleccionado === 'function') {
+                                    mostrarModalErrorSeleccionado();
+                                }
+                            }
+                        },
+                        function onCancel() {
+                            // Si se cancela, limpiar la selección visible
+                            nombreArchivo.textContent = '';
+                            cargarArchivo.value = '';
+                        },
+                        file
+                    );
+                } else {
+                    console.warn('mostrarModalCSV no está disponible');
+                }
             } else {
                 nombreArchivo.textContent = '';
             }
@@ -1153,41 +1440,29 @@ function initNotebookDynamicFunctionality() {
         
         contenedor.insertAdjacentHTML('beforeend', grupoHTML);
         
-        // Agregar event listeners para actualizar automáticamente los datos
-        const tipoInput = document.getElementById(`tipo_varios_${index}`);
-        const cantidadInput = document.getElementById(`cant_ejemplares_${index}`);
-        
-        console.log(`🔍 Elementos dinámicos encontrados para índice ${index}:`, {
-            tipoInput: tipoInput,
-            cantidadInput: cantidadInput,
-            estadoArray: window.gruposTiposVariosNuevo,
-            longitudArray: window.gruposTiposVariosNuevo.length
+        // Agregar event listeners para actualizar automáticamente los datos (Multimedia)
+        const urlInput = document.getElementById(`ingresar_enlace_${index}`);
+        const tituloInput = document.getElementById(`titulo_contenido_${index}`);
+
+        console.log(`🔍 Elementos multimedia encontrados para índice ${index}:`, {
+            urlInput: !!urlInput,
+            tituloInput: !!tituloInput,
+            estadoArray: window.gruposTiposMultimedia,
+            longitudArray: window.gruposTiposMultimedia.length
         });
-        
-        if (tipoInput && cantidadInput) {
-            tipoInput.addEventListener('input', function() {
-                if (window.gruposTiposVariosNuevo[index]) {
-                    window.gruposTiposVariosNuevo[index].tipo = this.value;
-                    console.log(`🔄 Actualizado tipo del grupo ${index}:`, this.value);
-                    console.log('📊 Estado completo gruposTiposVariosNuevo:', window.gruposTiposVariosNuevo);
-                } else {
-                    console.error(`❌ No existe gruposTiposVariosNuevo[${index}]`);
-                }
+
+        if (urlInput && tituloInput && window.gruposTiposMultimedia[index]) {
+            urlInput.addEventListener('input', function() {
+                window.gruposTiposMultimedia[index].url = this.value.trim();
+                console.log(`🔄 URL actualizada para grupo ${index}:`, this.value);
             });
-            
-            cantidadInput.addEventListener('input', function() {
-                if (window.gruposTiposVariosNuevo[index]) {
-                    window.gruposTiposVariosNuevo[index].cantidad = parseInt(this.value) || 1;
-                    console.log(`🔄 Actualizada cantidad del grupo ${index}:`, this.value);
-                    console.log('📊 Estado completo gruposTiposVariosNuevo:', window.gruposTiposVariosNuevo);
-                } else {
-                    console.error(`❌ No existe gruposTiposVariosNuevo[${index}]`);
-                }
+            tituloInput.addEventListener('input', function() {
+                window.gruposTiposMultimedia[index].titulo = this.value.trim();
+                console.log(`🔄 Título actualizado para grupo ${index}:`, this.value);
             });
-            
-            console.log(`✅ Event listeners agregados para grupo ${index}`);
+            console.log(`✅ Event listeners multimedia agregados para grupo ${index}`);
         } else {
-            console.error(`❌ No se encontraron los inputs para el grupo ${index}`);
+            console.warn(`⚠️ Inputs multimedia no hallados para grupo ${index} o estado no inicializado`);
         }
         
         console.log('✅ Nuevo grupo agregado exitosamente con event listeners');
@@ -1195,20 +1470,27 @@ function initNotebookDynamicFunctionality() {
 
     // 🎯 FUNCIÓN PARA ELIMINAR MULTIMEDIA
     function eliminarMultimedia(index) {
-        console.log('🗑️ Eliminando multimedia con índice:', index);
+        console.log('🗑️ Solicitar eliminación multimedia índice:', index);
+        const ejecutarEliminacion = function() {
+            // Eliminar del array si existe
+            if (Array.isArray(window.gruposTiposMultimedia)) {
+                window.gruposTiposMultimedia.splice(index, 1);
+            }
+            // Eliminar del DOM
+            const grupo = document.querySelector(`[data-index="${index}"]`);
+            if (grupo) {
+                grupo.remove();
+            }
+            // Actualizar índices
+            actualizarIndicesMultimedia();
+            console.log('✅ Multimedia eliminado y índices actualizados');
+        };
         
-        // Eliminar del array
-        window.gruposTiposMultimedia.splice(index, 1);
-        
-        // Eliminar del DOM
-        const grupo = document.querySelector(`[data-index="${index}"]`);
-        if (grupo) {
-            grupo.remove();
+        if (typeof mostrarModalAlerta === 'function') {
+            mostrarModalAlerta(ejecutarEliminacion);
+        } else {
+            if (confirm('¿Eliminar este contenido multimedia?')) ejecutarEliminacion();
         }
-        
-        // Actualizar índices
-        actualizarIndicesMultimedia();
-        console.log('✅ Multimedia eliminado y índices actualizados');
     }
 
     // 🎯 FUNCIÓN PARA ACTUALIZAR ÍNDICES
@@ -1355,6 +1637,7 @@ function initNotebookDynamicFunctionality() {
                                name="cant_ejemplares_${index}" 
                                min="1" 
                                value="1" 
+                               data-valor-anterior="1"
                                required>
                     </div>
                     <div class="col-md-1 d-flex align-items-end">
@@ -1390,15 +1673,36 @@ function initNotebookDynamicFunctionality() {
                 }
             });
             
-            cantidadInput.addEventListener('input', function() {
-                if (window.gruposTiposVariosNuevo[index]) {
-                    window.gruposTiposVariosNuevo[index].cantidad = parseInt(this.value) || 1;
-                    console.log(`🔄 Actualizada cantidad del grupo ${index}:`, this.value);
-                    console.log('📊 Estado completo gruposTiposVariosNuevo:', window.gruposTiposVariosNuevo);
+            const manejarCambioCantidad = function() {
+                const prevAttr = parseInt(cantidadInput.getAttribute('data-valor-anterior'));
+                const prev = Number.isFinite(prevAttr) ? prevAttr : (window.gruposTiposVariosNuevo[index]?.cantidad || 1);
+                const nueva = parseInt(cantidadInput.value) || 1;
+                const aplicar = function() {
+                    cantidadInput.setAttribute('data-valor-anterior', nueva);
+                    if (window.gruposTiposVariosNuevo[index]) {
+                        window.gruposTiposVariosNuevo[index].cantidad = nueva;
+                    }
+                    console.log(`✅ Cantidad confirmada para grupo ${index}:`, nueva);
+                };
+                if (nueva < prev) {
+                    if (typeof mostrarModalReducirEjemplares === 'function') {
+                        mostrarModalReducirEjemplares(
+                            aplicar,
+                            function() { cantidadInput.value = prev; }
+                        );
+                    } else {
+                        if (confirm('Reducir la cantidad eliminará datos de ejemplares adicionales. ¿Confirmar?')) {
+                            aplicar();
+                        } else {
+                            cantidadInput.value = prev;
+                        }
+                    }
                 } else {
-                    console.error(`❌ No existe gruposTiposVariosNuevo[${index}]`);
+                    aplicar();
                 }
-            });
+            };
+            cantidadInput.addEventListener('input', manejarCambioCantidad);
+            cantidadInput.addEventListener('change', manejarCambioCantidad);
             
             console.log(`✅ Event listeners agregados para grupo ${index}`);
         } else {
@@ -1410,20 +1714,26 @@ function initNotebookDynamicFunctionality() {
 
     // 🎯 FUNCIÓN PARA ELIMINAR VARIOS
     function eliminarVarios(index) {
-        console.log('🗑️ Eliminando varios con índice:', index);
-        
-        // Eliminar del array
-        window.gruposTiposVariosNuevo.splice(index, 1);
-        
-        // Eliminar del DOM
-        const grupo = document.querySelector(`[data-index="${index}"]`);
-        if (grupo) {
-            grupo.remove();
+        console.log('🗑️ Solicitar eliminación de tipo VARIOS índice:', index);
+        const ejecutar = function() {
+            // Eliminar del array
+            if (Array.isArray(window.gruposTiposVariosNuevo)) {
+                window.gruposTiposVariosNuevo.splice(index, 1);
+            }
+            // Eliminar del DOM
+            const grupo = document.querySelector(`[data-index="${index}"]`);
+            if (grupo) {
+                grupo.remove();
+            }
+            // Actualizar índices
+            actualizarIndicesVarios();
+            console.log('✅ Tipo VARIOS eliminado y reindexado');
+        };
+        if (typeof mostrarModalAlerta === 'function') {
+            mostrarModalAlerta(ejecutar);
+        } else {
+            if (confirm('¿Eliminar este tipo de material?')) ejecutar();
         }
-        
-        // Actualizar índices
-        actualizarIndicesVarios();
-        console.log('✅ Varios eliminado y índices actualizados');
     }
 
     // 🎯 FUNCIÓN PARA ACTUALIZAR ÍNDICES

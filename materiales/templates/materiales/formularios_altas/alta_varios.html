@@ -21,7 +21,7 @@
         
         <div class="col-md-3">
             <label for="cant_ejemplares" style="font-size: 14px;">Cantidad <span class="text-danger">*</span></label>
-            <input type="number" class="form-control form-control-sm" id="cant_ejemplares" name="cant_ejemplares" min="1" value="1" required>
+            <input type="number" class="form-control form-control-sm" id="cant_ejemplares" name="cant_ejemplares" min="1" value="1" data-valor-anterior="1" required>
         </div>
     </div>
 
@@ -87,6 +87,47 @@
                     agregarTipoVariosNuevoDesdeInputs();
                 }
             });
+        }
+
+        // Sincronizar el grupo estático (index 0) con los campos principales
+        const tipoStatic = document.getElementById('tipo-varios');
+        const cantStatic = document.getElementById('cant_ejemplares');
+        const hiddenJson = document.getElementById('gruposTiposVariosNuevo');
+
+        function syncStaticGroup() {
+            const tipo = (tipoStatic?.value || '').trim();
+            const cantidad = parseInt(cantStatic?.value) || 1;
+            window.gruposTiposVariosNuevo[0] = { tipo, cantidad };
+            if (hiddenJson) hiddenJson.value = JSON.stringify(window.gruposTiposVariosNuevo);
+        }
+        // Inicializar y escuchar cambios
+        syncStaticGroup();
+        if (tipoStatic) tipoStatic.addEventListener('input', syncStaticGroup);
+
+        function manejarReduccionStatic() {
+            const prev = parseInt(cantStatic.getAttribute('data-valor-anterior')) || 1;
+            const nuevo = parseInt(cantStatic.value) || 1;
+            const aplicar = function() {
+                cantStatic.setAttribute('data-valor-anterior', String(nuevo));
+                syncStaticGroup();
+            };
+            if (nuevo < prev) {
+                if (typeof mostrarModalReducirEjemplares === 'function') {
+                    mostrarModalReducirEjemplares(aplicar, function() { cantStatic.value = String(prev); });
+                } else {
+                    if (confirm('Reducir la cantidad eliminará datos de ejemplares adicionales. ¿Confirmar?')) {
+                        aplicar();
+                    } else {
+                        cantStatic.value = String(prev);
+                    }
+                }
+            } else {
+                aplicar();
+            }
+        }
+        if (cantStatic) {
+            cantStatic.addEventListener('input', manejarReduccionStatic);
+            cantStatic.addEventListener('change', manejarReduccionStatic);
         }
     });
 </script>
