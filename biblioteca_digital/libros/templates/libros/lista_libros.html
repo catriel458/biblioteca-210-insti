@@ -139,7 +139,7 @@
             
             function construirFilaLibro(libro, acciones) {
                 var fila = '<tr>';
-                fila += '<td>' + (libro.id_libro || '') + '</td>';
+                fila += '<td>' + (libro.num_inventario || '') + '</td>';
                 fila += '<td>' + (libro.titulo || '') + '</td>';
                 fila += '<td>' + (libro.autor || '') + '</td>';
                 fila += '<td>' + (libro.editorial || '') + '</td>';
@@ -542,7 +542,7 @@
         <table>
             <thead>
                 <tr>
-                    <th>ID</th>
+                    <th>Nº Inventario</th>
                     <th>Título</th>
                     <th>Autor</th>
                     <th>Editorial</th>
@@ -557,7 +557,7 @@
             <tbody id="libros-table">
                 {% for libro in libros %}
                 <tr>
-                    <td>{{ libro.id_libro }}</td>
+                    <td>{{ libro.num_inventario }}</td>
                     <td>{{ libro.titulo }}</td>
                     <td>{{ libro.autor }}</td>
                     <td>{{ libro.editorial }}</td>

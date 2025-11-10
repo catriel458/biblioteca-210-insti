@@ -410,7 +410,7 @@ def cargar_csv_lote(request):
                                 editorial=row.get('editorial', 'Sin editorial').strip() or 'Sin editorial',
                                 clasificacion_cdu=row.get('clasificacion_cdu', 'Sin clasificar').strip() or 'Sin clasificar',
                                 siglas_autor_titulo=row.get('siglas_autor_titulo', 'ABC').strip() or 'ABC',
-                                num_inventario=safe_int(row.get('num_inventario'), 1),
+                                num_inventario=row.get('num_inventario', '').strip(),
                                 resumen=row.get('resumen', 'Sin resumen').strip() or 'Sin resumen',
                                 etiqueta_palabra_clave=row.get('etiqueta_palabra_clave', '').strip() or '',
                                 sede=row.get('sede', 'La Plata').strip() or 'La Plata',
@@ -509,7 +509,7 @@ def cargar_csv(request):
                                 editorial=row.get('editorial', 'Sin editorial').strip() or 'Sin editorial',
                                 clasificacion_cdu=row.get('clasificacion_cdu', 'Sin clasificar').strip() or 'Sin clasificar',
                                 siglas_autor_titulo=row.get('siglas_autor_titulo', 'ABC').strip() or 'ABC',
-                                num_inventario=num_inventario,
+                                num_inventario=safe_int(row.get('num_inventario'), 1),  # ← ESTA LÍNEA
                                 resumen=row.get('resumen', 'Sin resumen').strip() or 'Sin resumen',
                                 etiqueta_palabra_clave=row.get('etiqueta_palabra_clave', '').strip() or '',
                                 sede=row.get('sede', 'La Plata').strip() or 'La Plata',
