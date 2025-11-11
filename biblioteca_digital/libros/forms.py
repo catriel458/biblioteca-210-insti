@@ -20,6 +20,7 @@ class LibroForm(forms.ModelForm):
             'editorial', 
             'clasificacion_cdu',
             'siglas_autor_titulo', 
+            'num_inventario',
             'descripcion',  # Campo agregado
             'etiqueta_palabra_clave', 
             'sede',
@@ -29,6 +30,30 @@ class LibroForm(forms.ModelForm):
             # Nota: 'estado' se maneja automáticamente desde Inventario
         ]   
             
+
+    
+    def clean_num_inventario(self):
+        """Valida que el número de inventario sea único"""
+        num_inventario = self.cleaned_data.get('num_inventario')
+        
+        # Si estamos editando un libro existente, excluirlo de la búsqueda
+        if self.instance.pk:
+            # Estamos editando
+            if Libro.objects.filter(num_inventario=num_inventario).exclude(pk=self.instance.pk).exists():
+                raise forms.ValidationError(
+                    f'Ya existe un libro con el número de inventario "{num_inventario}". '
+                    f'Por favor, ingrese un número diferente.'
+                )
+        else:
+            # Estamos creando un nuevo libro
+            if Libro.objects.filter(num_inventario=num_inventario).exists():
+                raise forms.ValidationError(
+                    f'Ya existe un libro con el número de inventario "{num_inventario}". '
+                    f'Por favor, ingrese un número diferente.'
+                )
+        
+        return num_inventario
+
 class MapaForm(forms.ModelForm):
     class Meta:
         model = Mapas

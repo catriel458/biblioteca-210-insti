@@ -141,7 +141,7 @@ def buscar_libros(request):
         estado='Disponible'
     ).values(
         'id_libro',  # IMPORTANTE: Asegúrate de que este campo esté incluido
-        # 'num_inventario',
+        'num_inventario',
         'titulo', 
         'autor', 
         'editorial', 
@@ -358,12 +358,16 @@ def editar_libro(request, libro_id):
         form = LibroForm(request.POST, instance=libro)
         if form.is_valid():
             form.save()
+            messages.success(request, f'Libro "{libro.titulo}" actualizado exitosamente.')
             return redirect('lista_libros')
+        else:
+            # Mostrar errores específicos de num_inventario
+            if 'num_inventario' in form.errors:
+                messages.error(request, form.errors['num_inventario'][0])
     else:
         form = LibroForm(instance=libro)
 
     return render(request, 'libros/editar_libro.html', {'form': form, 'libro': libro})
-
 # Carga masiva libros:
 
 @login_required
