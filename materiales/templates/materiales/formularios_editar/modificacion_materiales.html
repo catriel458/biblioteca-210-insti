@@ -191,7 +191,7 @@
     }
 
     .libros-table tbody tr {
-        border-bottom: 1px solid #f0f0f0;
+        border-bottom: 1px solid #B772A1;
         transition: all 0.2s ease;
     }
 
@@ -204,9 +204,8 @@
     }
 
     .libros-table tbody tr:hover {
-        background-color: #e8f8f5;
-        transform: scale(1.002);
-        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        transform: none;
+        box-shadow: none;
     }
 
     .libros-table td {
@@ -328,15 +327,18 @@
         padding: 30px;
         font-size: 16px;
     }
+    /* Asegurar que la fila vacía cubra el fondo turquesa completo */
+    .libros-table td.no-results {
+        background-color: #D6F1F2 !important;
+    }
 
-    /* Estilos para libros no disponibles */
+    /* Estilos para filas marcadas como No disponible */
     .libro-no-disponible {
-        opacity: 0.6;
-        background-color: #fdf2f2 !important;
+        background-color: #F8D7DA !important;
     }
 
     .libro-no-disponible:hover {
-        background-color: #f8d7da !important;
+        background-color: #F8D7DA !important;
     }
 
     /* Estilos para ordenamiento */
@@ -581,6 +583,169 @@
         background-size: 12px;
         padding-right: 40px;
     }
+    
+    /* ===== ESTILOS SOLICITADOS PARA LA TABLA ===== */
+    /* Tabla sin fondo, sin divisiones verticales, líneas horizontales moradas,
+       y filas alternando turquesa y blanco */
+    .tabla-container {
+        background: transparent !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        overflow: visible !important;
+    }
+    .libros-table {
+        background: transparent !important;
+        border-collapse: collapse;
+    }
+    
+    /* Quitar fondo del encabezado y mantener legibilidad */
+    .libros-table thead {
+        background: transparent !important;
+        color: #2c3e50;
+    }
+    
+    /* Sin divisiones verticales */
+    .libros-table th,
+    .libros-table td {
+        border-left: none !important;
+        border-right: none !important;
+    }
+    
+    /* Divisiones horizontales moradas */
+    .libros-table thead tr {
+        border-bottom: 1px solid #B772A1 !important;
+    }
+    .libros-table tbody tr {
+        border-bottom: 1px solid #B772A1 !important;
+    }
+
+    /* Modo No Disponibles: bordes mantienen el tono morado actual */
+    /* (Sin overrides de borde; sólo cambia el contenido mediante zebra) */
+    
+    /* Filas alternando turquesa y blanco */
+    .libros-table tbody tr:nth-child(odd) {
+        background-color: #D6F1F2 !important; /* turquesa suave */
+    }
+    .libros-table tbody tr:nth-child(even) {
+        background-color: #ffffff !important;
+    }
+
+    /* Forzar que la primera fila sea turquesa siempre (solo para filas normales) */
+    .libros-table tbody tr:first-child,
+    .libros-table tbody tr:first-child:hover {
+        background-color: #D6F1F2 !important;
+    }
+    
+    /* Primera fila visible (aplicado por JS) */
+    .libros-table tbody tr.primera-fila,
+    .libros-table tbody tr.primera-fila:hover {
+        background-color: #D6F1F2 !important;
+    }
+
+    /* Primera fila en No Disponibles: tono rosa salmón */
+    .libros-table tbody tr.primera-fila-no-disponible,
+    .libros-table tbody tr.primera-fila-no-disponible:hover {
+        background-color: #B772A1 !important; /* Rosa salmón pedido */
+    }
+
+    /* Zebra basado en filas visibles (aplicado por JS) */
+    .libros-table tbody tr.fila-impar,
+    .libros-table tbody tr.fila-impar:hover {
+        background-color: #D6F1F2 !important;
+    }
+    .libros-table tbody tr.fila-par,
+    .libros-table tbody tr.fila-par:hover {
+        background-color: #ffffff !important;
+    }
+
+    /* Zebra para pestaña No Disponibles (aplicado por JS) */
+    .libros-table tbody tr.fila-impar-no-disponible,
+    .libros-table tbody tr.fila-impar-no-disponible:hover {
+        background-color: #E8D2E1 !important; /* Comienza con tono lavanda-rosa */
+    }
+    .libros-table tbody tr.fila-par-no-disponible,
+    .libros-table tbody tr.fila-par-no-disponible:hover {
+        background-color: #ffffff !important;
+    }
+
+    /* Reglas con mayor especificidad para evitar sobrescrituras de .libro-no-disponible */
+    .libros-table tbody tr.libro-no-disponible.fila-impar-no-disponible,
+    .libros-table tbody tr.libro-no-disponible.fila-impar-no-disponible:hover {
+        background-color: #E8D2E1 !important;
+    }
+    .libros-table tbody tr.libro-no-disponible.fila-par-no-disponible,
+    .libros-table tbody tr.libro-no-disponible.fila-par-no-disponible:hover {
+        background-color: #ffffff !important;
+    }
+    .libros-table tbody tr.libro-no-disponible.primera-fila-no-disponible,
+    .libros-table tbody tr.libro-no-disponible.primera-fila-no-disponible:hover {
+        background-color: #B772A1 !important;
+    }
+
+    /* Zebra por celdas en No Disponibles: asegura el tono del contenido */
+    .libros-table tbody tr.fila-impar-no-disponible td,
+    .libros-table tbody tr.fila-impar-no-disponible:hover td {
+        background-color: #E8D2E1 !important;
+    }
+    .libros-table tbody tr.fila-par-no-disponible td,
+    .libros-table tbody tr.fila-par-no-disponible:hover td {
+        background-color: #ffffff !important;
+    }
+    .libros-table tbody tr.primera-fila-no-disponible td,
+    .libros-table tbody tr.primera-fila-no-disponible:hover td {
+        background-color: #B772A1 !important;
+    }
+
+    /* Aún más específico para filas marcadas como No disponible */
+    .libros-table tbody tr.libro-no-disponible.fila-impar-no-disponible td,
+    .libros-table tbody tr.libro-no-disponible.fila-impar-no-disponible:hover td {
+        background-color: #E8D2E1 !important;
+    }
+    .libros-table tbody tr.libro-no-disponible.fila-par-no-disponible td,
+    .libros-table tbody tr.libro-no-disponible.fila-par-no-disponible:hover td {
+        background-color: #ffffff !important;
+    }
+    .libros-table tbody tr.libro-no-disponible.primera-fila-no-disponible td,
+    .libros-table tbody tr.libro-no-disponible.primera-fila-no-disponible:hover td {
+        background-color: #B772A1 !important;
+    }
+
+    /* Bordes para filas No disponibles: mantener color morado por defecto */
+    
+    /* Suavizar hover acorde al nuevo esquema */
+    .libros-table tbody tr:hover {
+        transform: none !important;
+        box-shadow: none !important;
+    }
+    
+    /* Contenido: izquierda y color morado, excepto Disponibilidad y Acciones */
+    .libros-table tbody td {
+        text-align: left !important;
+        color: #8B1D69 !important;
+    }
+    .libros-table tbody td.disponibilidad-cell,
+    .libros-table tbody td.acciones-cell {
+        text-align: center !important;
+        color: inherit; /* Mantener colores internos (badges, iconos) */
+    }
+    /* Neutralizar clases text-center en contenido */
+    .libros-table tbody td.text-center {
+        text-align: left !important;
+    }
+
+    /* Imágenes de la tabla planas, sin bordes redondeados ni sombras */
+    .libro-thumbnail {
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        transition: none !important;
+    }
+    .libro-thumbnail:hover { transform: none !important; }
+
+    /* Más espacio para la primera columna (ID) */
+    .libros-table th:first-child,
+    .libros-table td:first-child {
+        padding-left: 22px !important;
+    }
 </style>
 {% endblock %}
 
@@ -656,13 +821,13 @@
         <table class="libros-table">
             <thead>
                 <tr>
-                    <th class="text-center">ID</th>
+                    <th>ID</th>
                     <th>Título</th>
                     <th>Autor</th>
                     <th>Editorial</th>
                     <th>Clasificación</th>
                     <th>Etiquetas</th>
-                    <th class="text-center">Sede</th>
+                    <th>Sede</th>
                     <th>Observaciones</th>
                     <th class="text-center">Disponibilidad</th>
                     <th class="text-center">Acciones</th>
@@ -720,7 +885,7 @@
                     {% endfor %}
                 {% else %}
                     <tr>
-                        <td colspan="12" class="no-results">No se encontraron libros disponibles.</td>
+                        <td colspan="10" class="no-results">No se encontraron libros disponibles.</td>
                     </tr>
                 {% endif %}
             </tbody>
@@ -732,12 +897,12 @@
         <table class="libros-table">
             <thead>
                 <tr>
-                    <th class="text-center">ID</th>
+                    <th>ID</th>
                     <th>Tipo</th>
                     <th>Denominación</th>
                     <th>Descripción</th>
-                    <th class="text-center">N° Registro</th>
-                    <th class="text-center">Sede</th>
+                    <th>N° Registro</th>
+                    <th>Sede</th>
                     <th class="text-center">Disponibilidad</th>
                     <th class="text-center">Acciones</th>
                 </tr>
@@ -785,7 +950,7 @@
                     {% endfor %}
                 {% else %}
                     <tr>
-                        <td colspan="7" class="no-results">No se encontraron mapas disponibles.</td>
+                        <td colspan="8" class="no-results">No se encontraron mapas disponibles.</td>
                     </tr>
                 {% endif %}
             </tbody>
@@ -797,7 +962,7 @@
         <table class="libros-table">
             <thead>
                 <tr>
-                    <th class="text-center">ID</th>
+                    <th>ID</th>
                     <th>Materia</th>
                     <th>Profesor</th>
                     <th>Carrera</th>
@@ -846,7 +1011,7 @@
                     {% endfor %}
                 {% else %}
                     <tr>
-                        <td colspan="9" class="no-results">No se encontraron programas disponibles.</td>
+                        <td colspan="7" class="no-results">No se encontraron programas disponibles.</td>
                     </tr>
                 {% endif %}
             </tbody>
@@ -858,7 +1023,7 @@
         <table class="libros-table">
             <thead>
                 <tr>
-                    <th class="text-center">ID</th>
+                    <th>ID</th>
                     <th>Materia</th>
                     <th>Profesor</th>
                     <th>Carrera</th>
@@ -906,7 +1071,7 @@
                     {% endfor %}
                 {% else %}
                     <tr>
-                        <td colspan="8" class="no-results">No se encontraron elementos multimedia disponibles.</td>
+                        <td colspan="7" class="no-results">No se encontraron elementos multimedia disponibles.</td>
                     </tr>
                 {% endif %}
             </tbody>
@@ -918,10 +1083,10 @@
         <table class="libros-table">
             <thead>
                 <tr>
-                    <th class="text-center">ID</th>
-                    <th class="text-center">N° Registro</th>
+                    <th>ID</th>
+                    <th>N° Registro</th>
                     <th>Modelo</th>
-                    <th class="text-center">Sede</th>
+                    <th>Sede</th>
                     <th class="text-center">Disponibilidad</th>
                     <th class="text-center">Acciones</th>
                 </tr>
@@ -966,7 +1131,7 @@
                     {% endfor %}
                 {% else %}
                     <tr>
-                        <td colspan="7" class="no-results">No se encontraron notebooks disponibles.</td>
+                        <td colspan="6" class="no-results">No se encontraron notebooks disponibles.</td>
                     </tr>
                 {% endif %}
             </tbody>
@@ -978,10 +1143,10 @@
         <table class="libros-table">
             <thead>
                 <tr>
-                    <th class="text-center">ID</th>
-                    <th class="text-center">N° Registro</th>
+                    <th>ID</th>
+                    <th>N° Registro</th>
                     <th>Modelo</th>
-                    <th class="text-center">Sede</th>
+                    <th>Sede</th>
                     <th class="text-center">Disponibilidad</th>
                     <th class="text-center">Acciones</th>
                 </tr>
@@ -1038,11 +1203,11 @@
         <table class="libros-table">
             <thead>
                 <tr>
-                    <th class="text-center">ID</th>
+                    <th>ID</th>
                     <th>Tipo</th>
-                    <th class="text-center">Sede</th>
-                    <th class="text-center">Cantidad</th>
-                    <th class="text-center">Disponible</th>
+                    <th>Sede</th>
+                    <th>Cantidad</th>
+                    <th>Disponible</th>
                     <th class="text-center">Disponibilidad</th>
                     <th class="text-center">Acciones</th>
                 </tr>
@@ -1087,7 +1252,7 @@
                     {% endfor %}
                 {% else %}
                     <tr>
-                        <td colspan="5" class="no-results">No se encontraron elementos varios disponibles.</td>
+                        <td colspan="7" class="no-results">No se encontraron elementos varios disponibles.</td>
                     </tr>
                 {% endif %}
             </tbody>
@@ -1208,6 +1373,7 @@
             // Reaplicar filtros después de cambiar de tabla
             setTimeout(() => {
                 filtrarLibros();
+                aplicarZebraVisible();
             }, 100);
         });
         
@@ -1606,6 +1772,7 @@
 
         updateNoResultsMessage(visibleCount);
         updateTabCounts(); // Actualizar contadores de pestañas
+        aplicarZebraVisible(); // Aplicar patrón Turquesa/Blanco según filas visibles
     }
 
     function updateNoResultsMessage(count) {
@@ -1652,6 +1819,51 @@
         });
     }
 
+    // Aplica zebra Turquesa/Blanco en filas visibles de cada tabla mostrada
+    function aplicarZebraVisible() {
+        document.querySelectorAll('.tabla-container').forEach(container => {
+            const visible = window.getComputedStyle(container).display !== 'none';
+            if (!visible) return;
+            const tbody = container.querySelector('tbody');
+            if (!tbody) return;
+            const rows = Array.from(tbody.querySelectorAll('tr:not(.no-results-row)'))
+                .filter(r => r.style.display !== 'none' && r.offsetParent !== null);
+            const soloNoDisponibles = !!document.getElementById('mostrar_no_disponibles')?.checked;
+            // Toggle clase de modo para bordes/encabezado
+            if (soloNoDisponibles) {
+                container.classList.add('no-disponibles-activo');
+            } else {
+                container.classList.remove('no-disponibles-activo');
+            }
+            rows.forEach((row, index) => {
+                row.classList.remove('fila-impar', 'fila-par', 'primera-fila', 'primera-fila-no-disponible', 'fila-impar-no-disponible', 'fila-par-no-disponible');
+                const esImpar = index % 2 === 0;
+                if (soloNoDisponibles) {
+                    // Zebra en No Disponibles debe iniciar desde la primera fila
+                    const esImparNoDisp = (index % 2 === 0);
+                    row.classList.add(esImparNoDisp ? 'fila-impar-no-disponible' : 'fila-par-no-disponible');
+                } else {
+                    // Zebra turquesa/blanco para disponibles y reservados
+                    row.classList.add(esImpar ? 'fila-impar' : 'fila-par');
+                }
+
+                // Aplicar color de fondo directamente a las celdas para asegurar el tono correcto
+                const celdas = row.querySelectorAll('td');
+                // Limpiar cualquier fondo previo inline
+                celdas.forEach(td => { td.style.removeProperty('background-color'); });
+
+                if (soloNoDisponibles) {
+                    // Zebra por celdas iniciando desde la primera fila
+                    const esImparNoDisp = (index % 2 === 0);
+                    const colorZebra = esImparNoDisp ? '#E8D2E1' : '#ffffff';
+                    celdas.forEach(td => { td.style.setProperty('background-color', colorZebra, 'important'); });
+                }
+            });
+
+            // Ya no se fuerza un color especial en la primera fila de No Disponibles
+        });
+    }
+
     // Event listeners para filtros
     searchInput.addEventListener('input', filtrarLibros);
     mostrarNoDisponibles.addEventListener('change', function() {
@@ -1661,6 +1873,7 @@
 
     // ===== APLICAR FILTRO INICIAL AL CARGAR LA PÁGINA =====
     filtrarLibros(); // <- AGREGAR ESTA LÍNEA
+    aplicarZebraVisible();
     
     // Agregar event listener para cambio de pestañas
     const tabButtons = document.querySelectorAll('.nav-link');
@@ -1668,6 +1881,7 @@
         button.addEventListener('click', function() {
             setTimeout(() => {
                 filtrarLibros(); // Aplicar filtros después de cambiar de pestaña
+                aplicarZebraVisible();
             }, 100);
         });
     });
@@ -1705,6 +1919,7 @@
         
         // Reaplicar filtros después del ordenamiento
         filtrarLibros();
+        aplicarZebraVisible();
     });
 
     // ===== MANEJO DE SUBIDA DE IMÁGENES EN MODAL DE BAJA =====
