@@ -74,7 +74,6 @@ def cargar_csv(request):
 
                 # Procesar según el tipo de material
                 if tipo_material == 'Libro':
-                    num_inventario = int(row.get('num_inventario') or 1)  # Valor por defecto si está vacío
                     # Fallback para clasificación: usar codigo_materia si no viene clasificacion_cdu
                     clasificacion = row.get('clasificacion_cdu') or row.get('codigo_materia') or ''
                     libro = Libro(
@@ -88,16 +87,14 @@ def cargar_csv(request):
                         editorial=row.get('editorial'),
                         clasificacion_cdu=clasificacion,
                         siglas_autor_titulo=row.get('siglas_autor_titulo'),
-                        num_inventario=num_inventario,
-                        resumen=row.get('resumen'),
-                        etiqueta_palabra_clave=row.get('etiqueta_palabra_clave'),
-                        sede=row.get('sede'),
-                        disponibilidad=row.get('disponibilidad'),
-                        observaciones=row.get('observaciones'),
-                        img=row.get('img')
+                        etiqueta_palabra_clave=row.get('etiqueta_palabra_clave') or 'Roma,Historia,Clasica',
+                        sede=row.get('sede') or 'La Plata',
+                        disponibilidad=row.get('disponibilidad') or 'Disponible',
+                        observaciones=row.get('observaciones') or '',
+                        img=row.get('img') or ''
                     )
                     libro.save()
-                    print(f"Libro guardado: {libro}")  # Imprimir confirmación
+                    print(f"Libro guardado: {libro}")
 
                 elif tipo_material == 'Mapa':
                     mapa = Mapas(
@@ -116,11 +113,12 @@ def cargar_csv(request):
                         motivo_baja=motivo_baja,
                         descripcion=descripcion,
                         num_ejemplar=num_ejemplar,
-                        materia=row.get('materia'),
-                        contenido=row.get('contenido')
+                        materia=row.get('materia') or '',
+                        titulo_contenido=row.get('contenido') or row.get('titulo_contenido') or 'Contenido',
+                        ingresar_enlace=row.get('ingresar_enlace') or row.get('url') or ''
                     )
                     multimedia.save()
-                    print(f"Multimedia guardada: {multimedia}")  # Imprimir confirmación
+                    print(f"Multimedia guardada: {multimedia}")
 
                 elif tipo_material == 'Notebook':
                     notebook = Notebook(
@@ -128,11 +126,12 @@ def cargar_csv(request):
                         motivo_baja=motivo_baja,
                         descripcion=descripcion,
                         num_ejemplar=num_ejemplar,
-                        marca_not=row.get('marca_not'),
-                        modelo_not=row.get('modelo_not')
+                        sede=row.get('sede') or 'La Plata',
+                        num_registro=row.get('num_registro') or '1',
+                        modelo_not=row.get('modelo_not') or (row.get('modelo') or 'Modelo')
                     )
                     notebook.save()
-                    print(f"Notebook guardada: {notebook}")  # Imprimir confirmación
+                    print(f"Notebook guardada: {notebook}")
 
                 elif tipo_material == 'Proyector':
                     proyector = Proyector(
@@ -140,11 +139,12 @@ def cargar_csv(request):
                         motivo_baja=motivo_baja,
                         descripcion=descripcion,
                         num_ejemplar=num_ejemplar,
-                        marca_pro=row.get('marca_pro'),
-                        modelo_pro=row.get('modelo_pro')
+                        sede=row.get('sede') or 'La Plata',
+                        num_registro=row.get('num_registro') or '1',
+                        modelo_pro=row.get('modelo_pro') or (row.get('modelo') or 'Modelo')
                     )
                     proyector.save()
-                    print(f"Proyector guardado: {proyector}")  # Imprimir confirmación
+                    print(f"Proyector guardado: {proyector}")
 
                 elif tipo_material == 'Varios':
                     varios = Varios(
@@ -162,11 +162,11 @@ def cargar_csv(request):
 
         return redirect('success_url')  # Cambia 'success_url' por el nombre que has definido en urls.py
 
-    return render(request, 'libros/upload_csv.html')  # Cambia la plantilla según corresponda
+    return render(request, 'materiales/utilidades/upload_csv.html')
 
 
 def success_view(request):
-    return render(request, 'libros/success.html')
+    return render(request, 'materiales/utilidades/success.html')
 
 # Busqueda libros
 
@@ -561,7 +561,7 @@ def borrar_libros(request):
         # messages.success(request, "Todos los libros han sido borrados.")
         return redirect('lista_libros')  # Cambia esto a la URL donde quieras redirigir después de borrar
 
-    return render(request, 'libros/borrar_libros.html')  # Crea un template para confirmar la acción
+    return render(request, 'materiales/registros/borrar_libros.html')
 
 # Métodos de biblioteca:
 
@@ -598,7 +598,7 @@ def modificar_prestamo(request):
 
 
 def pantalla_principal(request):
-    return render(request, 'libros/pantalla_principal.html')
+    return render(request, 'home.html')
 
 # Libros
 
@@ -841,7 +841,7 @@ def alta_multimedia(request):
         context = {'form': form, 'error': 'Por favor complete todos los campos obligatorios.'} if request.method == 'POST' else {
             'form': form}
 
-    return render(request, 'libros/alta_multimedia.html', context)
+    return render(request, 'materiales/formularios_altas/alta_multimedia.html', context)
 
 # Vista para editar un mapa:
 
@@ -1018,7 +1018,7 @@ def alta_proyector(request):
         context = {'form': form, 'error': 'Por favor complete todos los campos obligatorios.'} if request.method == 'POST' else {
             'form': form}
 
-    return render(request, 'libros/alta_proyector.html', context)
+    return render(request, 'materiales/formularios_altas/alta_proyector.html', context)
 
 # Vista para editar un mapa:
 
@@ -1079,7 +1079,7 @@ def alta_varios(request):
         context = {'form': form, 'error': 'Por favor complete todos los campos obligatorios.'} if request.method == 'POST' else {
             'form': form}
 
-    return render(request, 'libros/alta_varios.html', context)
+    return render(request, 'materiales/formularios_altas/alta_varios.html', context)
 
 # Vista para editar un mapa:
 
@@ -1185,7 +1185,7 @@ def registro_bajas(request):
         'libros_no_disponibles': libros_no_disponibles,
     }
 
-    return render(request, 'libros/registro_bajas.html', context)
+    return render(request, 'materiales/registros/registro_bajas.html', context)
 
 # Reactivar libros en el historial de bajas
 def reactivar_libro(request, libro_id):
@@ -1234,7 +1234,7 @@ def solicitar_prestamo(request, libro_id):
         # messages.success(request, f"Has solicitado el préstamo del libro '{libro.titulo}'. La bibliotecaria revisará tu solicitud y tendrás 3 días hábiles para retirarlo una vez aprobada.")
         return redirect('prestamos_solicitados')
     
-    return render(request, 'libros/solicitar_prestamo.html', {'libro': libro})
+    return render(request, 'gestion/gestion_prestamos.html', {'libro': libro})
 
 
 def aprobar_solicitud_prestamo(request, prestamo_id):
@@ -1289,7 +1289,7 @@ def cancelar_reserva_usuario(request, prestamo_id):
         
         return redirect('gestionar_prestamos')
     
-    return render(request, 'libros/cancelar_reserva_usuario.html', {'prestamo': prestamo})
+    return render(request, 'gestion/gestion_prestamos.html', {'prestamo': prestamo})
 
 def prestamos_solicitados(request):
     # Verificar préstamos vencidos antes de mostrar
@@ -1309,7 +1309,7 @@ def prestamos_solicitados(request):
             if tiempo_restante.total_seconds() > 0 and tiempo_restante.total_seconds() < 86400:  # 24 horas en segundos
                 alertas.append(f"¡ATENCIÓN! El préstamo del libro '{prestamo.libro.titulo}' vence pronto.")
     
-    return render(request, 'libros/prestamos_solicitados.html', {
+    return render(request, 'gestion/gestion_prestamos.html', {
         'prestamos': prestamos,
         'alertas': alertas
     })
@@ -1359,7 +1359,7 @@ def rechazar_prestamo(request, prestamo_id):
         
         return redirect('gestionar_prestamos')
     
-    return render(request, 'libros/rechazar_prestamo.html', {'prestamo': prestamo})
+    return render(request, 'gestion/gestion_prestamos.html', {'prestamo': prestamo})
 
 def finalizar_prestamo(request, prestamo_id):
     prestamo = get_object_or_404(Prestamo, id_prestamo=prestamo_id)
@@ -1398,7 +1398,7 @@ def gestionar_prestamos(request):
     else:
         prestamos = Prestamo.objects.all().order_by('-fecha_solicitud')
     
-    return render(request, 'libros/gestionar_prestamos.html', {
+    return render(request, 'gestion/gestion_prestamos.html', {
         'prestamos': prestamos,
         'filtro': filtro
     })
@@ -1477,7 +1477,7 @@ def confirmar_retiro_libro(request, prestamo_id):
         
         return redirect('gestionar_prestamos')
     
-    return render(request, 'libros/confirmar_retiro.html', {'prestamo': prestamo})
+    return render(request, 'gestion/gestion_prestamos.html', {'prestamo': prestamo})
 
 def marcar_no_retiro(request, prestamo_id):
     """
@@ -1506,7 +1506,7 @@ def marcar_no_retiro(request, prestamo_id):
         
         return redirect('gestionar_prestamos')
     
-    return render(request, 'libros/marcar_no_retiro.html', {'prestamo': prestamo})
+    return render(request, 'gestion/gestion_prestamos.html', {'prestamo': prestamo})
 
 # Agregar estos imports al inicio de tu archivo views.py
 from django.contrib.auth import login, logout, authenticate
