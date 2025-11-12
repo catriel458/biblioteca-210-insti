@@ -138,6 +138,14 @@ urlpatterns = [
     path('dar-alta-varios/', views.dar_alta_varios, name='dar_alta_varios'),
     path('ver-detalles-material/<int:libro_id>/', views.ver_detalles_material, name='ver_detalles_material'),
 
+    path('api/libros/', views.api_list_libros, name='api_list_libros'),
+    path('api/mapas/', views.api_list_mapas, name='api_list_mapas'),
+    path('api/multimedia/', views.api_list_multimedia, name='api_list_multimedia'),
+    path('api/notebooks/', views.api_list_notebooks, name='api_list_notebooks'),
+    path('api/proyectores/', views.api_list_proyectores, name='api_list_proyectores'),
+    path('api/varios/', views.api_list_varios, name='api_list_varios'),
+    path('api/programas/', views.api_list_programas, name='api_list_programas'),
+
     # URLs de programas
     path('programas/', views.lista_programas, name='lista_programas'),
     path('formulario/programa/', views.formulario_programa, name='formulario_programa'),

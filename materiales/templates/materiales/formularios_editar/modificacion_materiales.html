@@ -77,6 +77,36 @@
     .icono-buscar {
         font-size: 16px;
     }
+    .loader {
+        display: none;
+        text-align: center;
+        padding: 8px;
+        color: #25898D;
+        font-weight: 600;
+    }
+    .spinner {
+        width: 22px;
+        height: 22px;
+        border: 3px solid #cce6e8;
+        border-top-color: #25898D;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+        margin: 0 auto;
+    }
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+    .pagination {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        justify-content: flex-end;
+        margin-top: 8px;
+    }
+    .pagination button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
 
     /* ===== ESTILOS PARA EL FILTRO DE NO DISPONIBLES ===== */
     .mostrar-no-disponibles {
@@ -890,6 +920,12 @@
                 {% endif %}
             </tbody>
         </table>
+        <div class="loader" id="libros-loader"><div class="spinner"></div></div>
+        <div class="pagination">
+            <button id="libros-prev">Anterior</button>
+            <span id="libros-page"></span>
+            <button id="libros-next">Siguiente</button>
+        </div>
     </div>
     
     <!-- Tabla de mapas -->
@@ -955,6 +991,12 @@
                 {% endif %}
             </tbody>
         </table>
+        <div class="loader" id="mapas-loader"><div class="spinner"></div></div>
+        <div class="pagination">
+            <button id="mapas-prev">Anterior</button>
+            <span id="mapas-page"></span>
+            <button id="mapas-next">Siguiente</button>
+        </div>
     </div>
     
     <!-- Tabla de programas -->
@@ -1016,6 +1058,12 @@
                 {% endif %}
             </tbody>
         </table>
+        <div class="loader" id="programas-loader"><div class="spinner"></div></div>
+        <div class="pagination">
+            <button id="programas-prev">Anterior</button>
+            <span id="programas-page"></span>
+            <button id="programas-next">Siguiente</button>
+        </div>
     </div>
     
     <!-- Tabla de multimedia -->
@@ -1076,6 +1124,12 @@
                 {% endif %}
             </tbody>
         </table>
+        <div class="loader" id="multimedia-loader"><div class="spinner"></div></div>
+        <div class="pagination">
+            <button id="multimedia-prev">Anterior</button>
+            <span id="multimedia-page"></span>
+            <button id="multimedia-next">Siguiente</button>
+        </div>
     </div>
     
     <!-- Tabla de notebook -->
@@ -1136,6 +1190,12 @@
                 {% endif %}
             </tbody>
         </table>
+        <div class="loader" id="notebooks-loader"><div class="spinner"></div></div>
+        <div class="pagination">
+            <button id="notebooks-prev">Anterior</button>
+            <span id="notebooks-page"></span>
+            <button id="notebooks-next">Siguiente</button>
+        </div>
     </div>
     
     <!-- Tabla de proyector -->
@@ -1196,6 +1256,12 @@
                 {% endif %}
             </tbody>
         </table>
+        <div class="loader" id="proyectores-loader"><div class="spinner"></div></div>
+        <div class="pagination">
+            <button id="proyectores-prev">Anterior</button>
+            <span id="proyectores-page"></span>
+            <button id="proyectores-next">Siguiente</button>
+        </div>
     </div>
     
     <!-- Tabla de varios -->
@@ -1257,6 +1323,12 @@
                 {% endif %}
             </tbody>
         </table>
+        <div class="loader" id="varios-loader"><div class="spinner"></div></div>
+        <div class="pagination">
+            <button id="varios-prev">Anterior</button>
+            <span id="varios-page"></span>
+            <button id="varios-next">Siguiente</button>
+        </div>
     </div>
 </div>
 
@@ -1342,7 +1414,188 @@
         // Obtener el contenedor de programas
         const programasContainer = document.getElementById('programas-container');
         
-        // Manejar el cambio en el selector de tipo de material
+        const pagState = {libros:1,mapas:1,programas:1,multimedia:1,notebooks:1,proyectores:1,varios:1};
+        const endpoints = {
+            libros: '/api/libros/',
+            mapas: '/api/mapas/',
+            programas: '/api/programas/',
+            multimedia: '/api/multimedia/',
+            notebooks: '/api/notebooks/',
+            proyectores: '/api/proyectores/',
+            varios: '/api/varios/'
+        };
+        function updateControls(type, page, total, hasPrev, hasNext){
+            const lbl = document.getElementById(type+'-page');
+            const prev = document.getElementById(type+'-prev');
+            const next = document.getElementById(type+'-next');
+            if(lbl) lbl.textContent = 'Página '+page+' de '+total;
+            if(prev) prev.disabled = !hasPrev;
+            if(next) next.disabled = !hasNext;
+            pagState[type] = page;
+        }
+        function renderRows(type, items){
+            if(type==='libros'){
+                const tbody = document.getElementById('libros-table');
+                tbody.innerHTML = items.map(item=>`
+                    <tr class="libro-row${item.estado==='No disponible'?' libro-no-disponible':''}" data-estado="${item.estado.toLowerCase()}" data-titulo="${item.titulo.toLowerCase()}" data-autor="${item.autor.toLowerCase()}" data-editorial="${item.editorial.toLowerCase()}">
+                        <td class="text-center">${item.id_libro||''}</td>
+                        <td class="titulo-cell">${item.titulo}</td>
+                        <td>${item.autor}</td>
+                        <td>${item.editorial}</td>
+                        <td class="text-center">${item.clasificacion_cdu||''}</td>
+                        <td>${item.etiqueta_palabra_clave||''}</td>
+                        <td class="text-center">${item.sede||'La Plata'}</td>
+                        <td>${item.observaciones||''}</td>
+                        <td class="disponibilidad-cell">${item.estado==='Disponible'?'<span class="disponible">Disponible para préstamo</span>':(item.estado==='Reservado'?`<span class="reservado">${item.estado}</span>`:`<span class="no-disponible">${item.estado}</span>`)}</td>
+                        <td class="acciones-cell">
+                            <button class="btn-icon btn-detalle" title="Ver detalles" onclick="verDetalles(${item.id_libro})">📋</button>
+                            <a href="/editar-libro/${item.id_libro}/" class="btn-icon btn-editar" title="Editar">✏️</a>
+                            <button class="btn-icon btn-imprimir" title="Imprimir" onclick="imprimirLibro(${item.id_libro})">🖨️</button>
+                            ${item.estado==='Disponible'?`<button class="btn-icon btn-eliminar" title="Dar de baja" onclick="darDeBaja(${item.id_libro}, '${item.titulo.replace(/'/g,"\'")}')">🗑️</button>`:`<button class="btn-icon btn-ver-informe" title="Ver informe de baja" onclick="verInformeBaja(${item.id_libro})">📄</button>`}
+                        </td>
+                    </tr>
+                `).join('');
+            } else if(type==='mapas'){
+                const tbody = document.getElementById('mapas-table');
+                tbody.innerHTML = items.map(item=>`
+                    <tr class="mapa-row${item.estado==='No disponible'?' libro-no-disponible':''}" data-estado="${item.estado.toLowerCase()}" data-tipo="${item.tipo.toLowerCase()}" data-titulo="${item.tipo.toLowerCase()}" data-denominacion="${(item.denominacion||'').toLowerCase()}">
+                        <td class="text-center">${item.id_mapa||''}</td>
+                        <td class="titulo-cell">${item.tipo}</td>
+                        <td>${item.denominacion||''}</td>
+                        <td>${item.descripcion||''}</td>
+                        <td class="text-center">${item.num_registro||''}</td>
+                        <td class="text-center">${item.sede||'La Plata'}</td>
+                        <td class="disponibilidad-cell">${item.estado==='Disponible'?'<span class="disponible">Disponible para préstamo</span>':(item.estado==='Reservado'?`<span class="reservado">${item.estado}</span>`:`<span class="no-disponible">${item.estado}</span>`)}</td>
+                        <td class="acciones-cell">
+                            <a href="/editar-mapa/${item.id_mapa}/" class="btn-icon btn-editar" title="Editar">✏️</a>
+                            ${item.estado==='Disponible'?`<button class="btn-icon btn-eliminar" title="Dar de baja" onclick="darDeBajaMapa(${item.id_mapa}, '${item.tipo.replace(/'/g,"\'")}')">🗑️</button>`:`<button class="btn-icon btn-ver-informe" title="Ver informe de baja" onclick="verInformeBajaMapa(${item.id_mapa})">📄</button>`}
+                        </td>
+                    </tr>
+                `).join('');
+            } else if(type==='programas'){
+                const tbody = document.getElementById('programas-table');
+                tbody.innerHTML = items.map(item=>`
+                    <tr class="programa-row${item.estado==='No disponible'?' libro-no-disponible':''}" data-estado="${item.estado.toLowerCase()}" data-materia="${item.materia.toLowerCase()}" data-profesor="${item.profesor.toLowerCase()}" data-carrera="${item.carrera.toLowerCase()}">
+                        <td class="text-center">${item.id_programa||''}</td>
+                        <td class="titulo-cell">${item.materia}</td>
+                        <td>${item.profesor}</td>
+                        <td>${item.carrera}</td>
+                        <td class="text-center">${item.ciclo_lectivo||''}</td>
+                        <td>${item.ingresar_enlace?`<a href="${item.ingresar_enlace}" target="_blank" title="Ver enlace">🔗</a>`:'-'}</td>
+                        <td class="acciones-cell">
+                            <a href="/editar-programa/${item.id_programa}/" class="btn-icon btn-editar" title="Editar">✏️</a>
+                            ${item.estado==='Disponible'?`<button class="btn-icon btn-eliminar" title="Dar de baja" onclick="darDeBajaPrograma(${item.id_programa}, '${item.materia.replace(/'/g,"\'")}')">🗑️</button>`:`<button class="btn-icon btn-ver-informe" title="Ver informe de baja" onclick="verInformeBajaPrograma(${item.id_programa})">📄</button>`}
+                        </td>
+                    </tr>
+                `).join('');
+            } else if(type==='multimedia'){
+                const tbody = document.getElementById('multimedia-table');
+                tbody.innerHTML = items.map(item=>`
+                    <tr class="multimedia-row${item.estado==='No disponible'?' libro-no-disponible':''}" data-estado="${item.estado.toLowerCase()}" data-tipo="${item.titulo_contenido.toLowerCase()}" data-denominacion="${item.titulo_contenido.toLowerCase()}">
+                        <td class="text-center">${item.id_multi||''}</td>
+                        <td class="titulo-cell">${item.materia}</td>
+                        <td>${item.profesor||''}</td>
+                        <td>${item.carrera||''}</td>
+                        <td>${item.titulo_contenido||''}</td>
+                        <td>${item.ingresar_enlace?`<a href="${item.ingresar_enlace}" target="_blank" title="Ver enlace">🔗</a>`:'-'}</td>
+                        <td class="acciones-cell">
+                            <a href="/editar-multimedia/${item.id_multi}/" class="btn-icon btn-editar" title="Editar">✏️</a>
+                            ${item.estado==='Disponible'?`<button class="btn-icon btn-eliminar" title="Dar de baja" onclick="darDeBajaMultimedia(${item.id_multi}, '${(item.titulo_contenido||'').replace(/'/g,"\'")}')">🗑️</button>`:`<button class="btn-icon btn-ver-informe" title="Ver informe de baja" onclick="verInformeBajaMultimedia(${item.id_multi})">📄</button>`}
+                        </td>
+                    </tr>
+                `).join('');
+            } else if(type==='notebooks'){
+                const tbody = document.getElementById('notebook-table');
+                tbody.innerHTML = items.map(item=>`
+                    <tr class="notebook-row${item.estado==='No disponible'?' libro-no-disponible':''}" data-estado="${item.estado.toLowerCase()}" data-tipo="${item.modelo_not.toLowerCase()}" data-denominacion="${item.modelo_not.toLowerCase()}">
+                        <td class="text-center">${item.id_not||''}</td>
+                        <td class="text-center">${item.num_registro||''}</td>
+                        <td class="titulo-cell">${item.modelo_not}</td>
+                        <td class="text-center">${item.sede||'La Plata'}</td>
+                        <td class="disponibilidad-cell">${item.estado==='Disponible'?'<span class="disponible">Disponible para préstamo</span>':(item.estado==='Reservado'?`<span class="reservado">${item.estado}</span>`:`<span class="no-disponible">${item.estado}</span>`)}</td>
+                        <td class="acciones-cell">
+                            <a href="/editar-notebook/${item.id_not}/" class="btn-icon btn-editar" title="Editar">✏️</a>
+                            ${item.estado==='Disponible'?`<button class="btn-icon btn-eliminar" title="Dar de baja" onclick="darDeBajaNotebook(${item.id_not}, '${item.modelo_not.replace(/'/g,"\'")}')">🗑️</button>`:`<button class="btn-icon btn-ver-informe" title="Ver informe de baja" onclick="verInformeBajaNotebook(${item.id_not})">📄</button>`}
+                        </td>
+                    </tr>
+                `).join('');
+            } else if(type==='proyectores'){
+                const tbody = document.getElementById('proyector-table');
+                tbody.innerHTML = items.map(item=>`
+                    <tr class="proyector-row${item.estado==='No disponible'?' libro-no-disponible':''}" data-estado="${item.estado.toLowerCase()}" data-tipo="${item.modelo_pro.toLowerCase()}" data-denominacion="${item.modelo_pro.toLowerCase()}">
+                        <td class="text-center">${item.id_proyector||''}</td>
+                        <td class="text-center">${item.num_registro||''}</td>
+                        <td class="titulo-cell">${item.modelo_pro}</td>
+                        <td class="text-center">${item.sede||'La Plata'}</td>
+                        <td class="disponibilidad-cell">${item.estado==='Disponible'?'<span class="disponible">Disponible para préstamo</span>':(item.estado==='Reservado'?`<span class="reservado">${item.estado}</span>`:`<span class="no-disponible">${item.estado}</span>`)}</td>
+                        <td class="acciones-cell">
+                            <a href="/editar-proyector/${item.id_proyector}/" class="btn-icon btn-editar" title="Editar">✏️</a>
+                            ${item.estado==='Disponible'?`<button class="btn-icon btn-eliminar" title="Dar de baja" onclick="darDeBajaProyector(${item.id_proyector}, '${(item.modelo_pro||'').replace(/'/g,"\'")}')">🗑️</button>`:`<button class="btn-icon btn-ver-informe" title="Ver informe de baja" onclick="verInformeBajaProyector(${item.id_proyector})">📄</button>`}
+                        </td>
+                    </tr>
+                `).join('');
+            } else if(type==='varios'){
+                const tbody = document.getElementById('varios-table');
+                tbody.innerHTML = items.map(item=>`
+                    <tr class="varios-row${item.estado==='No disponible'?' libro-no-disponible':''}" data-estado="${item.estado.toLowerCase()}" data-tipo="${item.tipo.toLowerCase()}">
+                        <td class="text-center">${item.id_varios||''}</td>
+                        <td class="titulo-cell">${item.tipo}</td>
+                        <td class="text-center">${item.sede||'La Plata'}</td>
+                        <td class="text-center">${item.cantidad||'1'}</td>
+                        <td class="text-center">${item.cantidad_disponible||'1'}</td>
+                        <td class="disponibilidad-cell">${item.estado==='Disponible'?'<span class="disponible">Disponible para préstamo</span>':(item.estado==='Reservado'?`<span class="reservado">${item.estado}</span>`:`<span class="no-disponible">${item.estado}</span>`)}</td>
+                        <td class="acciones-cell">
+                            <a href="/editar-varios/${item.id_varios}/" class="btn-icon btn-editar" title="Editar">✏️</a>
+                            ${item.estado==='Disponible'?`<button class="btn-icon btn-eliminar" title="Dar de baja" onclick="darDeBajaVarios(${item.id_varios}, '${item.tipo.replace(/'/g,"\'")}')">🗑️</button>`:`<button class="btn-icon btn-ver-informe" title="Ver informe de baja" onclick="verInformeBajaVarios(${item.id_varios})">📄</button>`}
+                        </td>
+                    </tr>
+                `).join('');
+            }
+        }
+        function setLoaderVisible(type, visible){
+            const el = document.getElementById(type+'-loader');
+            if(el) el.style.display = visible ? 'block' : 'none';
+        }
+        function loadPage(type, page){
+            setLoaderVisible(type, true);
+            const prev = document.getElementById(type+'-prev');
+            const next = document.getElementById(type+'-next');
+            if(prev) prev.disabled = true;
+            if(next) next.disabled = true;
+            fetch(endpoints[type]+'?page='+page)
+                .then(r=>r.json())
+                .then(data=>{
+                    renderRows(type, data.items);
+                    updateControls(type, data.page, data.num_pages, data.has_previous, data.has_next);
+                })
+                .catch(()=>{
+                    // fallback en error: mantener estado y botones
+                })
+                .finally(()=>{
+                    setLoaderVisible(type, false);
+                    // re-habilitar según estado actualizado
+                    const p = pagState[type];
+                    if(prev) prev.disabled = (p<=1);
+                    if(next) next.disabled = false; // se ajusta en updateControls
+                });
+        }
+        function bind(type){
+            const prev = document.getElementById(type+'-prev');
+            const next = document.getElementById(type+'-next');
+            if(prev){
+                prev.addEventListener('click', function(){
+                    const p = pagState[type]-1;
+                    if(p>=1) loadPage(type, p);
+                });
+            }
+            if(next){
+                next.addEventListener('click', function(){
+                    loadPage(type, pagState[type]+1);
+                });
+            }
+            loadPage(type, 1);
+        }
+        ['libros','mapas','programas','multimedia','notebooks','proyectores','varios'].forEach(bind);
         tipoMaterialSelect.addEventListener('change', function() {
             // Ocultar todas las tablas
             librosContainer.style.display = 'none';

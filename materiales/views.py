@@ -11,6 +11,7 @@ from django.db.models import Q
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
+from django.core.paginator import Paginator
 
 from django.contrib.auth import login, logout, authenticate, update_session_auth_hash
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -1903,18 +1904,25 @@ def cancelar_alta_libro(request):
 
 def modificacion_materiales(request):
     """
-    Vista para mostrar la página de modificación de materiales
-    Muestra todos los materiales disponibles para modificar
+    Vista para mostrar la página de modificación de materiales con paginación de 30 por tipo
     """
-    # Obtener todos los materiales (disponibles y no disponibles)
-    libros = Libro.objects.all().order_by('-id_libro')
-    mapas = Mapas.objects.all().order_by('-id_mapa')
-    multimedia = Multimedia.objects.all().order_by('-id_multi')
-    notebooks = Notebook.objects.all().order_by('-id_not')
-    proyectores = Proyector.objects.all().order_by('-id_proyector')
-    varios = Varios.objects.all().order_by('-id_varios')
-    programas = Programa.objects.all().order_by('-id_programa')
-    
+    page_size = 30
+    libros_qs = Libro.objects.all().order_by('-id_libro')
+    mapas_qs = Mapas.objects.all().order_by('-id_mapa')
+    multimedia_qs = Multimedia.objects.all().order_by('-id_multi')
+    notebooks_qs = Notebook.objects.all().order_by('-id_not')
+    proyectores_qs = Proyector.objects.all().order_by('-id_proyector')
+    varios_qs = Varios.objects.all().order_by('-id_varios')
+    programas_qs = Programa.objects.all().order_by('-id_programa')
+
+    libros = Paginator(libros_qs, page_size).get_page(1)
+    mapas = Paginator(mapas_qs, page_size).get_page(1)
+    multimedia = Paginator(multimedia_qs, page_size).get_page(1)
+    notebooks = Paginator(notebooks_qs, page_size).get_page(1)
+    proyectores = Paginator(proyectores_qs, page_size).get_page(1)
+    varios = Paginator(varios_qs, page_size).get_page(1)
+    programas = Paginator(programas_qs, page_size).get_page(1)
+
     return render(request, 'materiales/formularios_editar/modificacion_materiales.html', {
         'libros': libros,
         'mapas': mapas,
@@ -1924,6 +1932,136 @@ def modificacion_materiales(request):
         'varios': varios,
         'programas': programas
     })
+
+def api_list_libros(request):
+    page = int(request.GET.get('page', 1) or 1)
+    qs = Libro.objects.all().order_by('-id_libro')
+    paginator = Paginator(qs, 30)
+    page_obj = paginator.get_page(page)
+    items = [
+        {
+            'id_libro': l.id_libro,
+            'titulo': l.titulo,
+            'autor': l.autor,
+            'editorial': l.editorial,
+            'clasificacion_cdu': l.clasificacion_cdu,
+            'etiqueta_palabra_clave': l.etiqueta_palabra_clave,
+            'sede': l.sede,
+            'observaciones': l.observaciones,
+            'estado': l.estado,
+        }
+        for l in page_obj
+    ]
+    return JsonResponse({'items': items, 'page': page_obj.number, 'has_next': page_obj.has_next(), 'has_previous': page_obj.has_previous(), 'num_pages': paginator.num_pages})
+
+def api_list_mapas(request):
+    page = int(request.GET.get('page', 1) or 1)
+    qs = Mapas.objects.all().order_by('-id_mapa')
+    paginator = Paginator(qs, 30)
+    page_obj = paginator.get_page(page)
+    items = [
+        {
+            'id_mapa': m.id_mapa,
+            'tipo': m.tipo,
+            'denominacion': m.denominacion,
+            'descripcion': m.descripcion,
+            'num_registro': m.num_registro,
+            'sede': m.sede,
+            'estado': m.estado,
+        }
+        for m in page_obj
+    ]
+    return JsonResponse({'items': items, 'page': page_obj.number, 'has_next': page_obj.has_next(), 'has_previous': page_obj.has_previous(), 'num_pages': paginator.num_pages})
+
+def api_list_multimedia(request):
+    page = int(request.GET.get('page', 1) or 1)
+    qs = Multimedia.objects.all().order_by('-id_multi')
+    paginator = Paginator(qs, 30)
+    page_obj = paginator.get_page(page)
+    items = [
+        {
+            'id_multi': x.id_multi,
+            'materia': x.materia,
+            'profesor': x.profesor,
+            'carrera': x.carrera,
+            'titulo_contenido': x.titulo_contenido,
+            'ingresar_enlace': x.ingresar_enlace,
+            'estado': x.estado,
+        }
+        for x in page_obj
+    ]
+    return JsonResponse({'items': items, 'page': page_obj.number, 'has_next': page_obj.has_next(), 'has_previous': page_obj.has_previous(), 'num_pages': paginator.num_pages})
+
+def api_list_notebooks(request):
+    page = int(request.GET.get('page', 1) or 1)
+    qs = Notebook.objects.all().order_by('-id_not')
+    paginator = Paginator(qs, 30)
+    page_obj = paginator.get_page(page)
+    items = [
+        {
+            'id_not': n.id_not,
+            'num_registro': n.num_registro,
+            'modelo_not': n.modelo_not,
+            'sede': n.sede,
+            'estado': n.estado,
+        }
+        for n in page_obj
+    ]
+    return JsonResponse({'items': items, 'page': page_obj.number, 'has_next': page_obj.has_next(), 'has_previous': page_obj.has_previous(), 'num_pages': paginator.num_pages})
+
+def api_list_proyectores(request):
+    page = int(request.GET.get('page', 1) or 1)
+    qs = Proyector.objects.all().order_by('-id_proyector')
+    paginator = Paginator(qs, 30)
+    page_obj = paginator.get_page(page)
+    items = [
+        {
+            'id_proyector': p.id_proyector,
+            'num_registro': p.num_registro,
+            'modelo_pro': p.modelo_pro,
+            'sede': p.sede,
+            'estado': p.estado,
+        }
+        for p in page_obj
+    ]
+    return JsonResponse({'items': items, 'page': page_obj.number, 'has_next': page_obj.has_next(), 'has_previous': page_obj.has_previous(), 'num_pages': paginator.num_pages})
+
+def api_list_varios(request):
+    page = int(request.GET.get('page', 1) or 1)
+    qs = Varios.objects.all().order_by('-id_varios')
+    paginator = Paginator(qs, 30)
+    page_obj = paginator.get_page(page)
+    items = [
+        {
+            'id_varios': v.id_varios,
+            'tipo': v.tipo,
+            'sede': v.sede,
+            'cantidad': v.cantidad,
+            'cantidad_disponible': v.cantidad_disponible,
+            'estado': v.estado,
+        }
+        for v in page_obj
+    ]
+    return JsonResponse({'items': items, 'page': page_obj.number, 'has_next': page_obj.has_next(), 'has_previous': page_obj.has_previous(), 'num_pages': paginator.num_pages})
+
+def api_list_programas(request):
+    page = int(request.GET.get('page', 1) or 1)
+    qs = Programa.objects.all().order_by('-id_programa')
+    paginator = Paginator(qs, 30)
+    page_obj = paginator.get_page(page)
+    items = [
+        {
+            'id_programa': r.id_programa,
+            'materia': r.materia,
+            'profesor': r.profesor,
+            'carrera': r.carrera,
+            'ciclo_lectivo': r.ciclo_lectivo,
+            'ingresar_enlace': r.ingresar_enlace,
+            'estado': r.estado,
+        }
+        for r in page_obj
+    ]
+    return JsonResponse({'items': items, 'page': page_obj.number, 'has_next': page_obj.has_next(), 'has_previous': page_obj.has_previous(), 'num_pages': paginator.num_pages})
 
 
 @require_POST
