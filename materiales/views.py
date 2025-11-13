@@ -77,6 +77,16 @@ def cargar_csv(request):
                 if tipo_material == 'Libro':
                     # Fallback para clasificación: usar codigo_materia si no viene clasificacion_cdu
                     clasificacion = row.get('clasificacion_cdu') or row.get('codigo_materia') or ''
+                    # Leer número de inventario desde múltiples posibles encabezados
+                    num_inv = (
+                        row.get('num_inventario') or
+                        row.get('numero_inventario') or
+                        row.get('n_inventario') or
+                        row.get('N° Inventario') or
+                        row.get('nro_inventario') or
+                        row.get('numinventario') or
+                        ''
+                    )
                     libro = Libro(
                         estado=estado,
                         motivo_baja=motivo_baja,
@@ -92,7 +102,8 @@ def cargar_csv(request):
                         sede=row.get('sede') or 'La Plata',
                         disponibilidad=row.get('disponibilidad') or 'Disponible',
                         observaciones=row.get('observaciones') or '',
-                        img=row.get('img') or ''
+                        img=row.get('img') or '',
+                        num_inventario=num_inv
                     )
                     libro.save()
                     print(f"Libro guardado: {libro}")
@@ -1686,6 +1697,7 @@ def alta_libro(request):
             sede = request.POST.get(f'sede_{i}', '').strip()
             disponibilidad = request.POST.get(f'disponibilidad_{i}', '').strip()
             observaciones = request.POST.get(f'observaciones_{i}', '').strip()
+            num_inventario_i = request.POST.get(f'num_inventario_{i}', '').strip()
             
             if not sede:
                 errores.append(f'La sede del ejemplar {i} es requerida.')
@@ -1695,7 +1707,9 @@ def alta_libro(request):
             ejemplar_data = {
                 'sede': sede,
                 'disponibilidad': disponibilidad,
-                'observaciones': observaciones
+                'observaciones': observaciones,
+                'num_inventario': num_inventario_i,
+                'numero': i
             }
             ejemplares.append(ejemplar_data)
         
@@ -1735,6 +1749,7 @@ def alta_libro(request):
                 'siglas_autor_titulo': request.POST.get('siglas_autor_titulo', '').strip(),
                 'clasificacion_cdu': request.POST.get('clasificacion_cdu', '').strip(),
                 'etiqueta_palabra_clave': request.POST.get('etiqueta_palabra_clave', '').strip(),
+                'num_inventario': request.POST.get('num_inventario', '').strip(),
                 'num_ejemplar': cant_ejemplares,
                 'ejemplares': ejemplares,  # Lista de ejemplares con sus datos
                 'img': img_url  # Guardar la URL directamente
@@ -1806,6 +1821,7 @@ def guardar_libro_confirmado(request):
                 siglas_autor_titulo = request.POST.get('siglas_autor_titulo', '')
                 clasificacion_cdu = request.POST.get('clasificacion_cdu', '')
                 etiqueta_palabra_clave = request.POST.get('etiqueta_palabra_clave', '')
+                num_inventario = request.POST.get('num_inventario', '').strip()
                 
                 # Obtener datos de ejemplares editados
                 ejemplares_json = request.POST.get('ejemplares_data', '[]')
@@ -1832,6 +1848,7 @@ def guardar_libro_confirmado(request):
                 siglas_autor_titulo = libro_data.get('siglas_autor_titulo', '')
                 clasificacion_cdu = libro_data.get('clasificacion_cdu', '')
                 etiqueta_palabra_clave = libro_data.get('etiqueta_palabra_clave', '')
+                num_inventario = libro_data.get('num_inventario', '')
                 img_url = libro_data.get('img', '') or ''
                 
                 # Obtener la lista de ejemplares
@@ -1856,6 +1873,7 @@ def guardar_libro_confirmado(request):
                     siglas_autor_titulo=siglas_autor_titulo,
                     clasificacion_cdu=clasificacion_cdu,
                     etiqueta_palabra_clave=etiqueta_palabra_clave,
+                    num_inventario=ejemplar_data.get('num_inventario', ''),
                     sede=ejemplar_data.get('sede', ''),
                     disponibilidad=ejemplar_data.get('disponibilidad', ''),
                     observaciones=ejemplar_data.get('observaciones', ''),
@@ -1953,8 +1971,10 @@ def api_list_libros(request):
             'editorial': l.editorial,
             'clasificacion_cdu': l.clasificacion_cdu,
             'etiqueta_palabra_clave': l.etiqueta_palabra_clave,
+            'siglas_autor_titulo': l.siglas_autor_titulo,
+            'num_inventario': l.num_inventario,
             'sede': l.sede,
-            'observaciones': l.observaciones,
+            'img': l.img,
             'estado': l.estado,
         }
         for l in page_obj

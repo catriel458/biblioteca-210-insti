@@ -156,7 +156,7 @@
                     {% endif %}
                 </div>
                 <div class="form-group mb-3">
-                    <label for="{{ form.clasificacion_cdu.id_for_label }}" style="font-size: 14px;">Clasificación / CDU<span class="text-danger">*</span>:</label>
+                    <label for="{{ form.clasificacion_cdu.id_for_label }}" style="font-size: 14px;">CDU<span class="text-danger">*</span>:</label>
                     {{ form.clasificacion_cdu }}
                     {% if form.clasificacion_cdu.errors %}
                         <div class="text-danger">{{ form.clasificacion_cdu.errors }}</div>
@@ -224,7 +224,7 @@
                 <p id="confirmEditorial" class="info-text"></p>
               </div>
               <div class="col-md-3">
-                <strong>Clasificación / CDU:</strong>
+                <strong>CDU:</strong>
                 <p id="confirmClasificacion" class="info-text"></p>
               </div>
               <div class="col-md-3">
@@ -394,7 +394,7 @@ document.addEventListener('DOMContentLoaded', function() {
         validarCampo(autor, 'Autor');
         validarCampo(editorial, 'Editorial');
         validarCampo(siglasAutorTitulo, 'Siglas de autor / título');
-        validarCampo(clasificacionCdu, 'Clasificación / CDU');
+        validarCampo(clasificacionCdu, 'CDU');
         
         // Validar campos dinámicos de ejemplares
         console.log('🔍 Validando campos dinámicos...');
@@ -469,12 +469,8 @@ document.addEventListener('DOMContentLoaded', function() {
             let ejemplaresInfo = '';
             const cantidad = parseInt(cantidadEjemplares) || 1;
             
-            // Mapear información de inventario (si existe)
-            // Línea 468 - CAMBIAR DE:
-            const inventario = form.querySelector('[name="inventario"]')?.value || 'Sin especificar';
-            
-            // A:
-            const inventario = form.querySelector('[name="inventario_ptr_id"]')?.value || 'Sin especificar';
+            // Número de inventario (primer ejemplar como referencia)
+            const inventario = form.querySelector('[name="num_inventario_1"]')?.value || 'Sin especificar';
             document.getElementById('confirmInventario').textContent = inventario;
             
             for (let i = 1; i <= cantidad; i++) {
@@ -485,9 +481,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 const disponibilidad = dispSelect ? dispSelect.options[dispSelect.selectedIndex]?.text || 'Sin especificar' : 'Sin especificar';
                 
                 const observaciones = form.querySelector(`[name="observaciones_${i}"]`)?.value || 'Sin observaciones';
+                const numInvEjemplar = form.querySelector(`[name="num_inventario_${i}"]`)?.value || 'Sin especificar';
                 
                 ejemplaresInfo += `<div class="mb-2 p-2" style="background-color: #f0f0f0; border-radius: 4px;">
                     <strong>Ejemplar #${i}:</strong> 
+                    N° Inventario: ${numInvEjemplar}, 
                     Sede: ${sede}, 
                     Disponibilidad: ${disponibilidad}, 
                     Observaciones: ${observaciones}
@@ -669,6 +667,18 @@ document.addEventListener('DOMContentLoaded', function() {
             const ejemplarHTML = `
                 <div class="ejemplar-item border p-3 mb-3">
                     <h5>Ejemplar ${i}</h5>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group mb-2">
+                                <label>Ejemplar N°</label>
+                                <input type="text" class="form-control" value="${i}" readonly>
+                            </div>
+                            <div class="form-group mb-3">
+                                <label for="num_inventario_${i}">N° de Inventario</label>
+                                <input type="text" class="form-control" id="num_inventario_${i}" name="num_inventario_${i}" placeholder="Ingrese el N° de inventario">
+                            </div>
+                        </div>
+                    </div>
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group mb-3">

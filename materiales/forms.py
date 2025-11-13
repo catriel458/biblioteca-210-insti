@@ -36,7 +36,7 @@ class LibroForm(forms.ModelForm):
     class Meta:
         model = Libro
         fields = [
-            'titulo', 'autor', 'editorial', 'descripcion',
+            'titulo', 'autor', 'editorial', 'descripcion', 'num_inventario',
             'siglas_autor_titulo', 'clasificacion_cdu', 
             'etiqueta_palabra_clave', 'sede', 'disponibilidad', 
             'observaciones', 'img'
@@ -49,6 +49,7 @@ class LibroForm(forms.ModelForm):
             'descripcion': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Ingrese una descripción del libro'}),
             'siglas_autor_titulo': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese las siglas del autor y título', 'required': True}),
             'clasificacion_cdu': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese la clasificación CDU', 'required': True}),
+            'num_inventario': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese el N° de Inventario'}),
             'etiqueta_palabra_clave': forms.Textarea(attrs={'class': 'form-control', 'rows': 2, 'placeholder': 'Ingrese palabras clave separadas por comas'}),
             'observaciones': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Observaciones sobre este ejemplar'}),
             'img': forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'URL de la imagen del libro'}),
@@ -67,6 +68,7 @@ class LibroForm(forms.ModelForm):
         self.fields['autor'].required = False
         self.fields['editorial'].required = False
         self.fields['clasificacion_cdu'].required = False
+        self.fields['num_inventario'].required = False
         self.fields['img'].required = False
         self.fields['img'].help_text = 'Ingrese la URL completa de la imagen del libro'
         self.fields['descripcion'].required = False

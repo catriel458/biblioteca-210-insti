@@ -105,6 +105,7 @@ class Libro(Inventario):
     editorial = models.CharField(max_length=255)
     clasificacion_cdu = models.CharField(max_length=255, null=False)
     siglas_autor_titulo = models.CharField(max_length=255, null=False)
+    num_inventario = models.CharField(max_length=50, blank=True, null=True, default='')
     # Campos adicionales
     etiqueta_palabra_clave = models.TextField(default='Roma,Historia,Clasica')
     sede = models.TextField(default='La Plata')

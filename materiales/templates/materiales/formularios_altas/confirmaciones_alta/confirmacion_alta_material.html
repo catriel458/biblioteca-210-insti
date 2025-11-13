@@ -256,7 +256,7 @@
               <input type="text" class="form-control campo-input" id="editorialInput" value="{{ form_data.editorial|default:'Sin especificar' }}" style="display: none;">
             </div>
             <div class="campo-item">
-              <span class="campo-label">Clasificación / CDU</span>
+              <span class="campo-label">CDU</span>
               <span class="campo-value" id="cduValue">{{ form_data.clasificacion_cdu|default:"Sin especificar" }}</span>
               <input type="text" class="form-control campo-input" id="cduInput" value="{{ form_data.clasificacion_cdu|default:'Sin especificar' }}" style="display: none;">
             </div>
@@ -290,6 +290,11 @@
               <div class="campo-item">
                 <span class="campo-label">Ejemplar N°</span>
                 <span class="campo-value" id="ejemplarNumValue{{ forloop.counter }}">{{ forloop.counter }}</span>
+              </div>
+              <div class="campo-item">
+                <span class="campo-label">N° Inventario</span>
+                <span class="campo-value" id="inventarioValue{{ forloop.counter }}">{{ ejemplar.num_inventario|default:"" }}</span>
+                <input type="text" class="form-control campo-input" id="inventarioInput{{ forloop.counter }}" value="{{ ejemplar.num_inventario|default:"" }}" style="display: none;">
               </div>
 
               <div class="campo-item">
@@ -525,17 +530,18 @@ function confirmarLibro() {
     };
     
     // Recopilar datos de ejemplares
-    const ejemplares = document.querySelectorAll('.ejemplar-info');
-    ejemplares.forEach((ejemplar, index) => {
-        const contador = index + 1;
-        const ejemplarData = {
-            numero: contador,
-            sede: modoEdicion ? document.getElementById(`ejemplarSedeInput${contador}`).value : document.getElementById(`ejemplarSedeValue${contador}`).textContent,
-            disponibilidad: modoEdicion ? document.getElementById(`disponibilidadInput${contador}`).value : document.getElementById(`disponibilidadValue${contador}`).textContent,
-            observaciones: modoEdicion ? document.getElementById(`observacionesInput${contador}`).value : document.getElementById(`observacionesValue${contador}`).textContent
-        };
-        datosFormulario.ejemplares.push(ejemplarData);
-    });
+        const ejemplares = document.querySelectorAll('.ejemplar-info');
+        ejemplares.forEach((ejemplar, index) => {
+            const contador = index + 1;
+            const ejemplarData = {
+                numero: contador,
+                sede: modoEdicion ? document.getElementById(`ejemplarSedeInput${contador}`).value : document.getElementById(`ejemplarSedeValue${contador}`).textContent,
+                disponibilidad: modoEdicion ? document.getElementById(`disponibilidadInput${contador}`).value : document.getElementById(`disponibilidadValue${contador}`).textContent,
+                observaciones: modoEdicion ? document.getElementById(`observacionesInput${contador}`).value : document.getElementById(`observacionesValue${contador}`).textContent,
+                num_inventario: modoEdicion ? document.getElementById(`inventarioInput${contador}`).value : document.getElementById(`inventarioValue${contador}`).textContent
+            };
+            datosFormulario.ejemplares.push(ejemplarData);
+        });
     
     console.log('📋 Datos recopilados:', datosFormulario);
     

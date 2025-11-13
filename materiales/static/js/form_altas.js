@@ -752,6 +752,10 @@ function plantillaEjemplarMaterial(idx, tipo) {
                     <label style="font-size: 14px;">Ejemplar N°:</label>
                     <input type="text" class="form-control" value="${idx}" readonly style="background-color: white !important; cursor: default;">
                 </div>
+                <div class="form-group mb-3">
+                    <label style="font-size: 14px;">N° Inventario:</label>
+                    <input name="num_inventario_${idx}" type="text" class="form-control" placeholder="Escriba aquí..." />
+                </div>
             </div>
             <div class="col-12 col-sm-9 col-lg-9">
                 <div class="row">
@@ -774,8 +778,8 @@ function plantillaEjemplarMaterial(idx, tipo) {
                         </div>
                     </div>
                     <div class="col-12 col-sm-8 col-lg-8 form-group mb-3">
-                        <label style="font-size: 14px;">Observaciones:</label>
-                        <textarea name="observaciones_${idx}" class="form-control" rows="2" placeholder="Observaciones sobre este ejemplar"></textarea>
+                        <label style="font-size: 14px; margin-top: 0;">Observaciones:</label>
+                        <textarea name="observaciones_${idx}" class="form-control" rows="4" placeholder="Observaciones sobre este ejemplar"></textarea>
                     </div>
                 </div>
             </div>

@@ -851,14 +851,14 @@
         <table class="libros-table">
             <thead>
                 <tr>
-                    <th>ID</th>
+                    <th>N° Inv</th>
                     <th>Título</th>
                     <th>Autor</th>
                     <th>Editorial</th>
-                    <th>Clasificación</th>
-                    <th>Etiquetas</th>
+                    <th>CDU</th>
+                    <th>Siglas</th>
                     <th>Sede</th>
-                    <th>Observaciones</th>
+                    <th>Imagen</th>
                     <th class="text-center">Disponibilidad</th>
                     <th class="text-center">Acciones</th>
                 </tr>
@@ -871,14 +871,20 @@
                         data-titulo="{{ libro.titulo|lower }}"
                         data-autor="{{ libro.autor|lower }}"
                         data-editorial="{{ libro.editorial|lower }}">
-                        <td class="text-center">{{ libro.id_libro|default:'' }}</td>
+                        <td class="text-center">{{ libro.num_inventario|default:'—' }}</td>
                         <td class="titulo-cell">{{ libro.titulo }}</td>
                         <td>{{ libro.autor }}</td>
                         <td>{{ libro.editorial }}</td>
                         <td class="text-center">{{ libro.clasificacion_cdu|default:'' }}</td>
-                        <td>{{ libro.etiqueta_palabra_clave|default:'' }}</td>
+                        <td class="text-center">{{ libro.siglas_autor_titulo|default:'' }}</td>
                         <td class="text-center">{{ libro.sede|default:'La Plata' }}</td>
-                        <td>{{ libro.observaciones|default:'' }}</td>
+                        <td class="text-center">
+                            {% if libro.img %}
+                                <img class="libro-thumbnail" src="{{ libro.img }}" alt="Imagen del libro" style="max-width:60px; height:auto;" />
+                            {% else %}
+                                <img class="libro-thumbnail" src="{% static 'imagenes/imagen.png' %}" alt="Sin imagen" style="max-width:60px; height:auto;" />
+                            {% endif %}
+                        </td>
                         <td class="disponibilidad-cell">
                             {% if libro.estado == 'Disponible' %}
                                 <span class="disponible">Disponible para préstamo</span>
@@ -1437,16 +1443,17 @@
         function renderRows(type, items){
             if(type==='libros'){
                 const tbody = document.getElementById('libros-table');
+                const fallbackImg = '/static/imagenes/imagen.png';
                 tbody.innerHTML = items.map(item=>`
-                    <tr class="libro-row${item.estado==='No disponible'?' libro-no-disponible':''}" data-estado="${item.estado.toLowerCase()}" data-titulo="${item.titulo.toLowerCase()}" data-autor="${item.autor.toLowerCase()}" data-editorial="${item.editorial.toLowerCase()}">
-                        <td class="text-center">${item.id_libro||''}</td>
+                    <tr class="libro-row${item.estado==='No disponible'?' libro-no-disponible':''}" data-estado="${item.estado.toLowerCase()}" data-titulo="${item.titulo.toLowerCase()}" data-autor="${item.autor.toLowerCase()}" data-editorial="${item.editorial.toLowerCase()}" data-numinventario="${(item.num_inventario||'').toString()}">
+                        <td class="text-center">${((item.num_inventario||'').trim()) || '—'}</td>
                         <td class="titulo-cell">${item.titulo}</td>
                         <td>${item.autor}</td>
                         <td>${item.editorial}</td>
                         <td class="text-center">${item.clasificacion_cdu||''}</td>
-                        <td>${item.etiqueta_palabra_clave||''}</td>
+                        <td class="text-center">${item.siglas_autor_titulo||''}</td>
                         <td class="text-center">${item.sede||'La Plata'}</td>
-                        <td>${item.observaciones||''}</td>
+                        <td class="text-center"><img class="libro-thumbnail" src="${(item.img||'').trim()||fallbackImg}" alt="Imagen del libro" style="max-width:60px; height:auto;" /></td>
                         <td class="disponibilidad-cell">${item.estado==='Disponible'?'<span class="disponible">Disponible para préstamo</span>':(item.estado==='Reservado'?`<span class="reservado">${item.estado}</span>`:`<span class="no-disponible">${item.estado}</span>`)}</td>
                         <td class="acciones-cell">
                             <button class="btn-icon btn-detalle" title="Ver detalles" onclick="verDetalles(${item.id_libro})">📋</button>
@@ -2527,7 +2534,7 @@
             
             // Extraer datos de la fila
             const celdas = filaLibro.querySelectorAll('td');
-            const numInventario = celdas[0].textContent.trim();
+            const numInventario = filaLibro.getAttribute('data-numinventario')?.trim() || celdas[0].textContent.trim();
             const tituloLibro = celdas[1].textContent.trim();
             const autor = celdas[2].textContent.trim();
             const editorial = celdas[3].textContent.trim();
@@ -2633,13 +2640,14 @@
             };
             
             // Configurar encabezados para libros
-            modificarEncabezadosInforme(['Título', 'Autor', 'CDU', 'Etiquetas']);
+            modificarEncabezadosInforme(['Título', 'Autor', 'CDU', 'Siglas']);
             
             // Guardar el ID del libro para usar en el botón DAR DE ALTA
             window.currentLibroId = libroId;
             
             // Llenar los datos básicos en el modal
-            document.getElementById('informe_num_inventario').textContent = datosLibro.id;
+            const dataNumInv = filaLibro.getAttribute('data-numinventario')?.trim();
+            document.getElementById('informe_num_inventario').textContent = dataNumInv || datosLibro.id;
             document.getElementById('informe_titulo').textContent = datosLibro.titulo;
             document.getElementById('informe_autor').textContent = datosLibro.autor;
             document.getElementById('informe_cdu').textContent = datosLibro.cdu;

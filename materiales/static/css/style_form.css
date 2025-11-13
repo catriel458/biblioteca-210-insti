@@ -26,6 +26,14 @@ textarea {
     resize: none;
     overflow: hidden;
 }
+.form-control#id_descripcion {
+    height: 102px;
+    min-height: 102px;
+}
+textarea.form-control[name^="observaciones_"] {
+    height: 102px;
+    min-height: 102px;
+}
 .select-sede {
     background-color: rgba(49, 183, 188, 0.2) !important;
 
