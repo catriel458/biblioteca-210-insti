@@ -1935,7 +1935,14 @@ def modificacion_materiales(request):
 
 def api_list_libros(request):
     page = int(request.GET.get('page', 1) or 1)
+    q = (request.GET.get('q', '') or '').strip()
     qs = Libro.objects.all().order_by('-id_libro')
+    if q:
+        qs = qs.filter(
+            Q(titulo__icontains=q) | Q(autor__icontains=q) | Q(editorial__icontains=q) |
+            Q(clasificacion_cdu__icontains=q) | Q(siglas_autor_titulo__icontains=q) |
+            Q(etiqueta_palabra_clave__icontains=q) | Q(observaciones__icontains=q) | Q(sede__icontains=q)
+        )
     paginator = Paginator(qs, 30)
     page_obj = paginator.get_page(page)
     items = [
@@ -1956,7 +1963,13 @@ def api_list_libros(request):
 
 def api_list_mapas(request):
     page = int(request.GET.get('page', 1) or 1)
+    q = (request.GET.get('q', '') or '').strip()
     qs = Mapas.objects.all().order_by('-id_mapa')
+    if q:
+        qs = qs.filter(
+            Q(tipo__icontains=q) | Q(denominacion__icontains=q) | Q(descripcion__icontains=q) |
+            Q(num_registro__icontains=q) | Q(sede__icontains=q)
+        )
     paginator = Paginator(qs, 30)
     page_obj = paginator.get_page(page)
     items = [
@@ -1975,7 +1988,13 @@ def api_list_mapas(request):
 
 def api_list_multimedia(request):
     page = int(request.GET.get('page', 1) or 1)
+    q = (request.GET.get('q', '') or '').strip()
     qs = Multimedia.objects.all().order_by('-id_multi')
+    if q:
+        qs = qs.filter(
+            Q(materia__icontains=q) | Q(profesor__icontains=q) | Q(carrera__icontains=q) |
+            Q(titulo_contenido__icontains=q)
+        )
     paginator = Paginator(qs, 30)
     page_obj = paginator.get_page(page)
     items = [
@@ -1994,7 +2013,12 @@ def api_list_multimedia(request):
 
 def api_list_notebooks(request):
     page = int(request.GET.get('page', 1) or 1)
+    q = (request.GET.get('q', '') or '').strip()
     qs = Notebook.objects.all().order_by('-id_not')
+    if q:
+        qs = qs.filter(
+            Q(modelo_not__icontains=q) | Q(num_registro__icontains=q) | Q(sede__icontains=q)
+        )
     paginator = Paginator(qs, 30)
     page_obj = paginator.get_page(page)
     items = [
@@ -2011,7 +2035,12 @@ def api_list_notebooks(request):
 
 def api_list_proyectores(request):
     page = int(request.GET.get('page', 1) or 1)
+    q = (request.GET.get('q', '') or '').strip()
     qs = Proyector.objects.all().order_by('-id_proyector')
+    if q:
+        qs = qs.filter(
+            Q(modelo_pro__icontains=q) | Q(num_registro__icontains=q) | Q(sede__icontains=q)
+        )
     paginator = Paginator(qs, 30)
     page_obj = paginator.get_page(page)
     items = [
@@ -2028,7 +2057,12 @@ def api_list_proyectores(request):
 
 def api_list_varios(request):
     page = int(request.GET.get('page', 1) or 1)
+    q = (request.GET.get('q', '') or '').strip()
     qs = Varios.objects.all().order_by('-id_varios')
+    if q:
+        qs = qs.filter(
+            Q(tipo__icontains=q) | Q(sede__icontains=q)
+        )
     paginator = Paginator(qs, 30)
     page_obj = paginator.get_page(page)
     items = [
@@ -2046,7 +2080,12 @@ def api_list_varios(request):
 
 def api_list_programas(request):
     page = int(request.GET.get('page', 1) or 1)
+    q = (request.GET.get('q', '') or '').strip()
     qs = Programa.objects.all().order_by('-id_programa')
+    if q:
+        qs = qs.filter(
+            Q(materia__icontains=q) | Q(profesor__icontains=q) | Q(carrera__icontains=q) | Q(ciclo_lectivo__icontains=q)
+        )
     paginator = Paginator(qs, 30)
     page_obj = paginator.get_page(page)
     items = [
