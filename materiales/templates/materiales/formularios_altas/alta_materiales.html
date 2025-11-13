@@ -6,6 +6,11 @@
     <link rel="stylesheet" href="{% static 'css/main.css' %}">
     <link rel="stylesheet" href="{% static 'css/style_form.css' %}">
     <link rel="stylesheet" href="{% static 'css/botones.css' %}">
+    <style>
+        .loader { display: none; text-align: center; padding: 8px; color: #25898D; font-weight: 600; }
+        .spinner { width: 22px; height: 22px; border: 3px solid #cce6e8; border-top-color: #25898D; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
 {% endblock %}
 
 {% block content %}
@@ -59,6 +64,7 @@
                         <input type="file" id="cargar_archivo" name="csv_file" accept=".csv, .xls, .xlsx" style="display: none;">
                         </label>
                         <div id="nombre_archivo_carga_simple" style="text-align:center;font-size:0.92em;color:#444;margin-top:6px;margin-bottom:2px;word-break:break-all;"></div>
+                        <div class="loader" id="upload-loader"><div class="spinner"></div></div>
                     </div>
                 </div>
                 
@@ -98,6 +104,27 @@
   {% include 'modals/alertas/error_seleccionado.html' %}
   {% include 'modals/alertas/archivovacio_cargamasiva.html' %}
   <div id="modal-backdrop" class="modal-backdrop"></div>
+  <div class="modal fade" id="modal-exito-carga" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-body" style="text-align:center; padding:2rem;">
+          <h5 style="margin-bottom:1rem;">¡Carga exitosa!</h5>
+          <p style="margin-bottom:1.5rem;">El archivo fue procesado correctamente.</p>
+          <button type="button" class="btn btn-success" id="btn-aceptar-exito">Aceptar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal fade" id="modal-cargando-csv" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-body" style="text-align:center; padding:2rem;">
+          <h5 style="margin-bottom:1rem;">Cargando</h5>
+          <div class="loader" style="display:block"><div class="spinner"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
 {% endblock %}
 
 {% block extra_scripts %}
@@ -116,6 +143,12 @@ document.addEventListener("DOMContentLoaded", function () {
     const urlInput = document.getElementById('url_upload_input');
     const selectedName = document.getElementById('selected_image_name');
     const previewImg = document.getElementById('selected_image_preview');
+    function setUploadLoaderVisible(visible) {
+        var el = document.getElementById('upload-loader');
+        if (el) el.style.display = visible ? 'block' : 'none';
+        var fileInputControl = document.getElementById('cargar_archivo');
+        if (fileInputControl) fileInputControl.disabled = !!visible;
+    }
 
     // Helper: vincular botón CANCELAR de cada formulario específico al modal de vaciar campos
     function wireCancelButton(container) {
@@ -211,7 +244,11 @@ document.addEventListener("DOMContentLoaded", function () {
                     return response.text();
                 })
                 .then(html => {
-                    formularioEspecifico.innerHTML = html;
+                    const tempDiv = document.createElement('div');
+                    tempDiv.innerHTML = html;
+                    const tempForm = tempDiv.querySelector('#form_alta_material') || tempDiv.querySelector('form');
+                    const formContent = tempForm ? tempForm.innerHTML : html;
+                    formularioEspecifico.innerHTML = formContent;
                     buttonsContainer.style.display = 'flex';
                     
                     // 🔥 IMPORTANTE: Establecer el action correcto para libro
@@ -289,7 +326,11 @@ document.addEventListener("DOMContentLoaded", function () {
                     return response.text();
                 })
                 .then(html => {
-                    formularioEspecifico.innerHTML = html;
+                    const tempDiv = document.createElement('div');
+                    tempDiv.innerHTML = html;
+                    const tempForm = tempDiv.querySelector('#form_alta_material') || tempDiv.querySelector('form');
+                    const formContent = tempForm ? tempForm.innerHTML : html;
+                    formularioEspecifico.innerHTML = formContent;
                     buttonsContainer.style.display = 'flex';
                     
                     // 🔥 IMPORTANTE: Corregir el action después de cargar
@@ -911,6 +952,9 @@ function initNotebookDynamicFunctionality() {
                         file.name,
                         function onConfirm() {
                             try {
+                                setUploadLoaderVisible(true);
+                                var loadingModal = new bootstrap.Modal(document.getElementById('modal-cargando-csv'), { backdrop: 'static', keyboard: false });
+                                loadingModal.show();
                                 const fd = new FormData();
                                 fd.append('csv_file', file);
                                 fetch('/cargar-csv/', {
@@ -934,7 +978,10 @@ function initNotebookDynamicFunctionality() {
 
                                     // Éxito: 200-399 (aceptar redirects también)
                                     if (status >= 200 && status < 400) {
-                                        window.location.href = '/success/';
+                                        var modal = new bootstrap.Modal(document.getElementById('modal-exito-carga'), { backdrop: 'static', keyboard: false });
+                                        modal.show();
+                                        var btn = document.getElementById('btn-aceptar-exito');
+                                        if(btn){ btn.onclick = function(){ window.location.href = 'http://127.0.0.1:8000/alta/'; }; }
                                         return;
                                     }
 
@@ -945,8 +992,11 @@ function initNotebookDynamicFunctionality() {
                                     if (typeof mostrarModalErrorSeleccionado === 'function') {
                                         mostrarModalErrorSeleccionado();
                                     }
-                                });
+                                })
+                                .finally(function(){ setUploadLoaderVisible(false); try { loadingModal.hide(); } catch(e){} });
                             } catch (e) {
+                                setUploadLoaderVisible(false);
+                                try { var _m = bootstrap.Modal.getInstance(document.getElementById('modal-cargando-csv')); if(_m) _m.hide(); } catch(ex){}
                                 console.error('❌ Excepción al preparar upload CSV:', e);
                                 if (typeof mostrarModalErrorSeleccionado === 'function') {
                                     mostrarModalErrorSeleccionado();

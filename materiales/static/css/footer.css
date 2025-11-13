@@ -11,10 +11,7 @@ html, body {
     flex-direction: column;
 }
 
-/* Contenido principal de la página */
-.content {
-    flex: 1; /* Hace que el contenido ocupe todo el espacio disponible */
-}
+/* (Se elimina la regla global .content para evitar conflictos con el layout base) */
 
 /* Footer */
 .main-footer {

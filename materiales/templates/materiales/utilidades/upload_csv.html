@@ -157,6 +157,9 @@
                 font-size: 1.5rem;
             }
         }
+        .loader { display: none; text-align: center; padding: 8px; color: #25898D; font-weight: 600; }
+        .spinner { width: 22px; height: 22px; border: 3px solid #cce6e8; border-top-color: #25898D; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto; }
+        @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
@@ -174,6 +177,7 @@
                 </div>
                 <button type="submit">Cargar archivo</button>
             </form>
+            <div class="loader" id="csv-upload-loader"><div class="spinner"></div></div>
 
             <div class="file-requirements">
                 <p><strong>Requisitos del archivo:</strong></p>
@@ -190,4 +194,26 @@
         <p>© 2025 ISFD 210. Todos los derechos reservados</p>
     </footer>
 </body>
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+    var form = document.querySelector('form');
+    var loader = document.getElementById('csv-upload-loader');
+    var modal = document.getElementById('modal-cargando-upload');
+    var backdrop = document.getElementById('modal-cargando-upload-backdrop');
+    if(form && loader){
+        form.addEventListener('submit', function(){
+            loader.style.display = 'none';
+            if(backdrop) backdrop.style.display = 'block';
+            if(modal) modal.style.display = 'block';
+            var btn = form.querySelector('button[type="submit"]');
+            if(btn){ btn.disabled = true; btn.textContent = 'Cargando...'; }
+        });
+    }
+});
+</script>
 </html>
+<div class="modal" id="modal-cargando-upload" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:#ffffff; border-radius:12px; box-shadow:0 8px 30px rgba(0,0,0,0.25); width:90%; max-width:420px; padding:24px; text-align:center; z-index:1050;">
+  <h1 style="margin:0 0 10px; font-size:1.6rem; color:#1a3a5e;">Cargando</h1>
+  <div class="loader" style="display:block"><div class="spinner"></div></div>
+</div>
+<div class="modal-backdrop" id="modal-cargando-upload-backdrop" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:1040;"></div>
